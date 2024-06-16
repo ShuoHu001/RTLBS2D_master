@@ -1,0 +1,36 @@
+{
+	"SensorCollectionConfig": {
+		"SensorConfigs": [
+			{
+				"Id": 0,
+				"AntId": 0,
+				"AntName": "0-Omni",
+				"Position": {
+					"x": 98.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"ThetaDegreeErrorSTD": 1.0,
+				"TimeErrorSTD": 1.0,
+				"SensorDataFileName": "config/sensor data/tx0_sensor_0_MPSTSD.json"
+			},
+			{
+				"Id": 1,
+				"AntId": 0,
+				"AntName": "0-Omni",
+				"Position": {
+					"x": 42.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"ThetaDegreeErrorSTD": 1.0,
+				"TimeErrorSTD": 1.0,
+				"SensorDataFileName": "config/sensor data/tx0_sensor_1_MPSTSD.json"
+			}
+		]
+	}
+}

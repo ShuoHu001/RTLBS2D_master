@@ -1,0 +1,35 @@
+{
+  "GeometryConfig": {
+    "BuildingFile": "assets/geometry/building.geo",
+    "BuildingAttributeFile": "assets/geometry/building.att",
+    "VegetationFile": "",
+    "VegetationAttributeFile": "",
+    "WallFile": "",
+    "WallAttributeFile": "",
+    "LoadingTerrainFlag": false,
+    "TerrainConfig": {
+      "LoadMode": 0,
+      "Category": 0,
+      "SimplifyFlag": false,
+      "SimplifyRate": 1.0,
+      "AverageRidgeGap": 50.0,
+      "ObjectConfig": {
+        "FileName": "",
+        "WindingOrder": 0,
+        "ReverseCoord": false,
+        "MatNames": [
+          "brick",
+          "congrete"
+        ]
+      },
+      "GridConfig": {
+        "GeometryMatrixFile": "",
+        "MaterialMatrixFile": "",
+        "MatNames": [
+          "brick",
+          "congrete"
+        ]
+      }
+    }
+  }
+}

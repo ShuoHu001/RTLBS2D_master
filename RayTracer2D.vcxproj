@@ -1,0 +1,437 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{3a74d7c9-33a1-4b25-9b45-586f76479c97}</ProjectGuid>
+    <RootNamespace>RayTracer2D</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>rtlbs2d-gpu</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseInteloneMKL>No</UseInteloneMKL>
+    <UseIntelMPI>true</UseIntelMPI>
+    <UseILP64Interfaces1A>false</UseILP64Interfaces1A>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseInteloneMKL>No</UseInteloneMKL>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.1.props" />
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VcpkgRoot)\installed\x64-windows\include;$(CUDA_PATH)\include;$(IncludePath)</IncludePath>
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(CUDA_PATH)\lib\x64;$(SolutionDir)\lib\x64\release;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\assest\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)src;$(VcpkgRoot)\installed\x64-windows\include;$(CUDA_PATH)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(CUDA_PATH)\lib\$(Platform);$(SolutionDir)\lib\x64\release;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\assest\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\bin\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)\assest\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\bin\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)\assest\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>mkl_intel_lp64.lib;mkl_sequential.lib;mkl_core.lib;FresnelIntegralTranFunction.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <CudaCompile>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
+      <CompileOut>$(SolutionDir)$(Platform)\$(Configuration)\assest\%(Filename)%(Extension).obj</CompileOut>
+    </CudaCompile>
+    <CudaLink>
+      <UseHostLibraryDependencies>false</UseHostLibraryDependencies>
+    </CudaLink>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
+      <AdditionalDependencies>mkl_intel_lp64.lib;mkl_sequential.lib;mkl_core.lib;FresnelIntegralTranFunction.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <CudaCompile>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
+      <CompileOut>$(SolutionDir)$(Platform)\$(Configuration)\assest\%(Filename)%(Extension).obj</CompileOut>
+    </CudaCompile>
+    <CudaLink>
+      <UseHostLibraryDependencies>false</UseHostLibraryDependencies>
+    </CudaLink>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\accel\accelerator.cpp" />
+    <ClCompile Include="src\accel\bvh.cpp" />
+    <ClCompile Include="src\antenna\antenna.cpp" />
+    <ClCompile Include="src\antenna\antennalibrary.cpp" />
+    <ClCompile Include="src\antenna\antennapattern.cpp" />
+    <ClCompile Include="src\configuration\antennaconfig.cpp" />
+    <ClCompile Include="src\configuration\frequencyconfig.cpp" />
+    <ClCompile Include="src\configuration\library\antennalibraryconfig.cpp" />
+    <ClCompile Include="src\configuration\receiver\lineconfig.cpp" />
+    <ClCompile Include="src\configuration\receiver\planeconfig.cpp" />
+    <ClCompile Include="src\configuration\receiver\receiverconfig.cpp" />
+    <ClCompile Include="src\configuration\receiver\receiverunitconfig.cpp" />
+    <ClCompile Include="src\configuration\receiver\scatterconfig.cpp" />
+    <ClCompile Include="src\configuration\receiver\singleconfig.cpp" />
+    <ClCompile Include="src\configuration\receiver\solidconfig.cpp" />
+    <ClCompile Include="src\configuration\sensor\sensorcollectionconfig.cpp" />
+    <ClCompile Include="src\configuration\sensor\sensorconfig.cpp" />
+    <ClCompile Include="src\configuration\transmitter\transmittercollectionconfig.cpp" />
+    <ClCompile Include="src\configuration\transmitter\transmitterconfig.cpp" />
+    <ClCompile Include="src\equipment\receiver.cpp" />
+    <ClCompile Include="src\equipment\sensor.cpp" />
+    <ClCompile Include="src\equipment\sensordata.cpp" />
+    <ClCompile Include="src\equipment\sensordatalibrary.cpp" />
+    <ClCompile Include="src\equipment\transmitter.cpp" />
+    <CudaCompile Include="src\utility\gpuutil.cpp" />
+    <CudaCompile Include="src\physical\limitinfo.cpp" />
+    <ClCompile Include="src\localization\aoa\aoasolver.cpp" />
+    <ClCompile Include="src\localization\generalsource.cpp" />
+    <ClCompile Include="src\localization\gspair.cpp" />
+    <ClCompile Include="src\localization\lbsresidual.cpp" />
+    <ClCompile Include="src\physical\pathbuilder.cpp" />
+    <ClCompile Include="src\physical\raylaunch.cpp" />
+    <CudaCompile Include="src\physical\raytracing.cpp" />
+    <ClCompile Include="src\physical\treenodegenerator.cpp" />
+    <ClCompile Include="src\result\lbsresult.cpp" />
+    <CudaCompile Include="src\tree\gpu\treenodegpu.cpp" />
+    <ClCompile Include="src\tree\lbstreenode.cpp" />
+    <ClCompile Include="src\tree\terraindiffractionpath.cpp" />
+    <ClCompile Include="src\utility\fileoperation.cpp" />
+    <CudaCompile Include="src\accel\gpu\sdfgpu.cpp" />
+    <ClCompile Include="src\accel\gridid.cpp" />
+    <ClCompile Include="src\accel\kdtree.cpp" />
+    <ClCompile Include="src\accel\sdf.cpp" />
+    <ClCompile Include="src\accel\uniformgrid.cpp" />
+    <ClCompile Include="src\accel\unigrid.cpp" />
+    <ClCompile Include="src\angularspectrum\angularelement.cpp" />
+    <ClCompile Include="src\angularspectrum\angularspectrum.cpp" />
+    <ClCompile Include="src\configuration\geometryconfig.cpp" />
+    <ClCompile Include="src\configuration\library\materiallibraryconfig.cpp" />
+    <ClCompile Include="src\configuration\localizeconfig.cpp" />
+    <ClCompile Include="src\configuration\terrainobjectconfig.cpp" />
+    <ClCompile Include="src\configuration\outputconfig.cpp" />
+    <ClCompile Include="src\configuration\raytracingconfig.cpp" />
+    <ClCompile Include="src\configuration\simconfig.cpp" />
+    <ClCompile Include="src\configuration\terrainconfig.cpp" />
+    <CudaCompile Include="src\geometry\bbox2d.cpp" />
+    <CudaCompile Include="src\geometry\gpu\bbox2dgpu.cpp" />
+    <CudaCompile Include="src\geometry\gpu\Intersection2Dgpu.cpp" />
+    <CudaCompile Include="src\geometry\gpu\ray2dgpu.cpp" />
+    <CudaCompile Include="src\geometry\gpu\segment2dgpu.cpp" />
+    <CudaCompile Include="src\geometry\gpu\wedge2dgpu.cpp" />
+    <ClCompile Include="src\geometry\bbox3d.cpp" />
+    <ClCompile Include="src\geometry\euler.cpp" />
+    <ClCompile Include="src\geometry\Intersection2D.cpp" />
+    <CudaCompile Include="src\geometry\point2d.cpp" />
+    <ClCompile Include="src\geometry\object2d\building2d.cpp" />
+    <ClCompile Include="src\geometry\object2d\object2d.cpp" />
+    <ClCompile Include="src\geometry\object2d\vegetation2d.cpp" />
+    <ClCompile Include="src\geometry\object2d\wall2d.cpp" />
+    <ClCompile Include="src\geometry\point3d.cpp" />
+    <ClCompile Include="src\geometry\primitive2d.cpp" />
+    <CudaCompile Include="src\geometry\ray2d.cpp" />
+    <ClCompile Include="src\geometry\ray3dlite.cpp" />
+    <ClCompile Include="src\geometry\scene.cpp" />
+    <ClCompile Include="src\geometry\segment2d.cpp" />
+    <CudaCompile Include="src\geometry\vector2d.cpp" />
+    <ClCompile Include="src\geometry\terrain\terrain.cpp" />
+    <ClCompile Include="src\geometry\terrain\terrainfacet.cpp" />
+    <ClCompile Include="src\geometry\terrain\terrainprofile.cpp" />
+    <ClCompile Include="src\geometry\terrain\terrainprofilepoint.cpp" />
+    <ClCompile Include="src\geometry\terrain\terrainprofilesegment.cpp" />
+    <ClCompile Include="src\geometry\terrain\terrainridge.cpp" />
+    <ClCompile Include="src\geometry\terrain\terrainsegment.cpp" />
+    <ClCompile Include="src\geometry\vector3d.cpp" />
+    <ClCompile Include="src\geometry\wedge2d.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\managers\logmanager.cpp" />
+    <ClCompile Include="src\managers\matmanager.cpp" />
+    <ClCompile Include="src\managers\randomanager.cpp" />
+    <ClCompile Include="src\material\material.cpp" />
+    <ClCompile Include="src\material\materiallibrary.cpp" />
+    <ClCompile Include="src\math\complex.cpp" />
+    <ClCompile Include="src\parallel\threadpool.cpp" />
+    <CudaCompile Include="src\physical\gpu\diffractiongpu.cpp" />
+    <CudaCompile Include="src\physical\gpu\pathtracinggpu.cpp" />
+    <CudaCompile Include="src\physical\gpu\raysplittinggpu.cpp" />
+    <CudaCompile Include="src\physical\gpu\reflectiongpu.cpp" />
+    <CudaCompile Include="src\physical\gpu\scattergpu.cpp" />
+    <CudaCompile Include="src\physical\gpu\transmissiongpu.cpp" />
+    <ClCompile Include="src\physical\diffraction.cpp" />
+    <ClCompile Include="src\physical\pathtracing.cpp" />
+    <CudaCompile Include="src\physical\propagationproperty.cpp" />
+    <ClCompile Include="src\physical\radiowave\polarization2d.cpp" />
+    <ClCompile Include="src\physical\radiowave\polarization3d.cpp" />
+    <ClCompile Include="src\physical\raysplitting.cpp" />
+    <ClCompile Include="src\physical\reflection.cpp" />
+    <ClCompile Include="src\physical\scattering.cpp" />
+    <ClCompile Include="src\physical\transmission.cpp" />
+    <ClCompile Include="src\result\pathinfo.cpp" />
+    <ClCompile Include="src\result\raytracingresult.cpp" />
+    <ClCompile Include="src\result\result.cpp" />
+    <ClCompile Include="src\system.cpp" />
+    <CudaCompile Include="src\tree\gpu\pathnodegpu.cpp" />
+    <ClCompile Include="src\tree\gpu\raypathgpu.cpp" />
+    <ClCompile Include="src\tree\pathnode3d.cpp" />
+    <ClCompile Include="src\tree\raypath3d.cpp" />
+    <ClCompile Include="src\tree\raytreenode.cpp" />
+    <ClCompile Include="src\tree\pathnode.cpp" />
+    <ClCompile Include="src\tree\raypath.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\accel\accelerator.h" />
+    <ClInclude Include="src\accel\bvh.h" />
+    <ClInclude Include="src\algorithm\optimizationtoolkit\ga\ga.h" />
+    <ClInclude Include="src\algorithm\optimizationtoolkit\pso\pso.h" />
+    <ClInclude Include="src\configuration\sensor\sensorcollectionconfig.h" />
+    <ClInclude Include="src\configuration\sensor\sensorconfig.h" />
+    <ClInclude Include="src\equipment\sensor.h" />
+    <ClInclude Include="src\equipment\sensordata.h" />
+    <ClInclude Include="src\equipment\sensordatalibrary.h" />
+    <ClInclude Include="src\localization\aoa\aoasolver.h" />
+    <ClInclude Include="src\localization\generalsource.h" />
+    <ClInclude Include="src\localization\gspair.h" />
+    <ClInclude Include="src\localization\lbsresidual.h" />
+    <ClInclude Include="src\physical\pathbuilder.h" />
+    <CudaCompile Include="src\utility\gpuutil.h" />
+    <ClInclude Include="src\physical\treenodegenerator.h" />
+    <ClInclude Include="src\result\lbsresult.h" />
+    <CudaCompile Include="src\tree\gpu\treenodegpu.h" />
+    <ClInclude Include="src\tree\lbstreenode.h" />
+    <ClInclude Include="src\utility\struct.h" />
+    <CudaCompile Include="src\accel\gpu\sdfgpu.h" />
+    <ClInclude Include="src\accel\gridid.h" />
+    <ClInclude Include="src\accel\kdtree.h" />
+    <ClInclude Include="src\accel\sdf.h" />
+    <ClInclude Include="src\accel\uniformgrid.h" />
+    <ClInclude Include="src\accel\unigrid.h" />
+    <ClInclude Include="src\angularspectrum\angularspectrum.h" />
+    <ClInclude Include="src\angularspectrum\angularelement.h" />
+    <ClInclude Include="src\antenna\antenna.h" />
+    <ClInclude Include="src\antenna\antennalibrary.h" />
+    <ClInclude Include="src\antenna\antennapattern.h" />
+    <ClInclude Include="src\configuration\antennaconfig.h" />
+    <ClInclude Include="src\configuration\frequencyconfig.h" />
+    <ClInclude Include="src\configuration\geometryconfig.h" />
+    <ClInclude Include="src\configuration\library\antennalibraryconfig.h" />
+    <ClInclude Include="src\configuration\library\materiallibraryconfig.h" />
+    <ClInclude Include="src\configuration\localizeconfig.h" />
+    <ClInclude Include="src\configuration\receiver\lineconfig.h" />
+    <ClInclude Include="src\configuration\receiver\planeconfig.h" />
+    <ClInclude Include="src\configuration\receiver\receiverconfig.h" />
+    <ClInclude Include="src\configuration\receiver\receiverunitconfig.h" />
+    <ClInclude Include="src\configuration\receiver\scatterconfig.h" />
+    <ClInclude Include="src\configuration\receiver\singleconfig.h" />
+    <ClInclude Include="src\configuration\receiver\solidconfig.h" />
+    <ClInclude Include="src\configuration\terrainobjectconfig.h" />
+    <ClInclude Include="src\configuration\outputconfig.h" />
+    <ClInclude Include="src\configuration\raytracingconfig.h" />
+    <ClInclude Include="src\configuration\simconfig.h" />
+    <ClInclude Include="src\configuration\terrainconfig.h" />
+    <CudaCompile Include="src\geometry\bbox2d.h" />
+    <ClInclude Include="src\configuration\transmitter\transmittercollectionconfig.h" />
+    <ClInclude Include="src\configuration\transmitter\transmitterconfig.h" />
+    <ClInclude Include="src\data\tranfunctiondata.h" />
+    <ClInclude Include="src\equipment\receiver.h" />
+    <ClInclude Include="src\equipment\transmitter.h" />
+    <ClInclude Include="src\geometry\bbox3d.h" />
+    <ClInclude Include="src\geometry\euler.h" />
+    <CudaCompile Include="src\geometry\gpu\bbox2dgpu.h" />
+    <CudaCompile Include="src\geometry\gpu\Intersection2Dgpu.h" />
+    <CudaCompile Include="src\geometry\gpu\ray2dgpu.h" />
+    <CudaCompile Include="src\geometry\gpu\segment2dgpu.h" />
+    <CudaCompile Include="src\geometry\gpu\wedge2dgpu.h" />
+    <ClInclude Include="src\geometry\Intersection2D.h" />
+    <CudaCompile Include="src\geometry\point2d.h" />
+    <ClInclude Include="src\geometry\object2d\building2d.h" />
+    <ClInclude Include="src\geometry\object2d\object2d.h" />
+    <ClInclude Include="src\geometry\object2d\vegetation2d.h" />
+    <ClInclude Include="src\geometry\object2d\wall2d.h" />
+    <ClInclude Include="src\geometry\point3d.h" />
+    <ClInclude Include="src\geometry\primitive2d.h" />
+    <CudaCompile Include="src\geometry\ray2d.h" />
+    <ClInclude Include="src\geometry\ray3dlite.h" />
+    <ClInclude Include="src\geometry\scene.h" />
+    <ClInclude Include="src\geometry\segment2d.h" />
+    <CudaCompile Include="src\geometry\vector2d.h" />
+    <ClInclude Include="src\geometry\terrain\terrain.h" />
+    <ClInclude Include="src\geometry\terrain\terrainfacet.h" />
+    <ClInclude Include="src\geometry\terrain\terrainprofile.h" />
+    <ClInclude Include="src\geometry\terrain\terrainprofilepoint.h" />
+    <ClInclude Include="src\geometry\terrain\terrainprofilesegment.h" />
+    <ClInclude Include="src\geometry\terrain\terrainridge.h" />
+    <ClInclude Include="src\geometry\terrain\terrainsegment.h" />
+    <ClInclude Include="src\geometry\vector3d.h" />
+    <ClInclude Include="src\geometry\wedge2d.h" />
+    <ClInclude Include="src\managers\logmanager.h" />
+    <ClInclude Include="src\managers\matmanager.h" />
+    <ClInclude Include="src\managers\randomanager.h" />
+    <ClInclude Include="src\material\material.h" />
+    <ClInclude Include="src\material\materiallibrary.h" />
+    <ClInclude Include="src\math\complex.h" />
+    <ClInclude Include="src\parallel\threadpool.h" />
+    <CudaCompile Include="src\physical\gpu\diffractiongpu.h" />
+    <CudaCompile Include="src\physical\gpu\pathtracinggpu.h" />
+    <CudaCompile Include="src\physical\gpu\raysplittinggpu.h" />
+    <CudaCompile Include="src\physical\gpu\reflectiongpu.h" />
+    <CudaCompile Include="src\physical\gpu\scattergpu.h" />
+    <CudaCompile Include="src\physical\gpu\transmissiongpu.h" />
+    <ClInclude Include="src\physical\diffraction.h" />
+    <CudaCompile Include="src\physical\limitinfo.h" />
+    <ClInclude Include="src\physical\pathtracing.h" />
+    <CudaCompile Include="src\physical\propagationproperty.h" />
+    <ClInclude Include="src\physical\radiowave\polarization2d.h" />
+    <ClInclude Include="src\physical\radiowave\polarization3d.h" />
+    <ClInclude Include="src\physical\raylaunch.h" />
+    <ClInclude Include="src\physical\raysplitting.h" />
+    <CudaCompile Include="src\physical\raytracing.h" />
+    <ClInclude Include="src\physical\reflection.h" />
+    <ClInclude Include="src\physical\scattering.h" />
+    <ClInclude Include="src\physical\transmission.h" />
+    <ClInclude Include="src\resources\supports.h" />
+    <ClInclude Include="src\result\pathinfo.h" />
+    <ClInclude Include="src\result\raytracingresult.h" />
+    <ClInclude Include="src\result\result.h" />
+    <ClInclude Include="src\rtlbs.h" />
+    <ClInclude Include="src\system.h" />
+    <CudaCompile Include="src\tree\gpu\pathnodegpu.h" />
+    <ClInclude Include="src\tree\gpu\raypathgpu.h" />
+    <ClInclude Include="src\tree\pathnode3d.h" />
+    <ClInclude Include="src\tree\raypath3d.h" />
+    <ClInclude Include="src\tree\raytreenode.h" />
+    <ClInclude Include="src\tree\pathnode.h" />
+    <ClInclude Include="src\tree\raypath.h" />
+    <CudaCompile Include="src\utility\define.h" />
+    <ClInclude Include="src\tree\terraindiffractionpath.h" />
+    <ClInclude Include="src\utility\enum.h" />
+    <ClInclude Include="src\utility\fileoperation.h" />
+    <ClInclude Include="src\utility\serializable.h" />
+    <ClInclude Include="src\utility\singleton.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.1.targets" />
+  </ImportGroup>
+</Project>

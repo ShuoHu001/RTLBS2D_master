@@ -1,0 +1,53 @@
+{
+	"SimConfig": {
+		"SystemMode": 1,
+		"GeometryConfigFile": "config/geometryconfig.json",
+		"MaterialLibraryConfigFile": "config/materiallibrary.json",
+		"AntennaLibraryConfigFile": "config/antennalibrary.json",
+		"TransmitterConfigFile": "config/transmitterconfig.json",
+		"ReceiverConfigFile": "config/receiverconfig.json",
+		"SensorConfigFile": "config/MPSTSD_sensorconfig.json",
+		"RaytracingConfig": {
+			"RayNum": 10000,
+			"LimitInfo": {
+				"LimitTotal": 10,
+				"LimitReflect": 3,
+				"LimitTransmit": 0,
+				"LimitDiffract": 0,
+				"LimitScatter": 0
+			},
+			"RaySplitFlag": true,
+			"RaySplitRadius": 1.0,
+			"SceneAccelType": 4,
+			"HardwareMode": 0,
+			"RayLaunchMode": 1,
+			"CPUThreadNum": 20
+		},
+		"LocalizationConfig": {
+			"LBSMode": 1,
+			"LBSMethod": 0
+		},
+		"FrequencyConfig": {
+			"CenterFrequency": 10e9,
+			"BandWidth": 5e6,
+			"SubCarrierNum": 1
+		},
+		"OutputConfig": {
+			"RTDirectory": "results/rt/",
+			"LBSDirectory": "results/lbs/",
+			"OutputPower": true,
+			"OutputLoss": false,
+			"OutputMagnitude": false,
+			"OutputMultipath": true,
+			"OutputPDP": false,
+			"OutputCFR": false,
+			"OutputCIR": false,
+			"OutputAOA": false,
+			"OutputAOD": false,
+			"OutputSensorDataSPSTMD": false,
+			"OutputSensorDataMPSTSD": true,
+			"OutputSensorDataSPMTMD": false,
+			"OutputSensorDataMPMTMD": false
+		}
+	}
+}

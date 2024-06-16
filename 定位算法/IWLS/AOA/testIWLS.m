@@ -1,0 +1,9 @@
+data=load("E:\ray-tracing engine\2d-render-engine\RayTracer2D-GPU\results\lbs\generalsource.txt");
+[~,datasize]=size(data);
+sensors=data(:,2:3);            %传感器位置
+aoa=data(:,6);
+diagV=data(:,1);
+weight=diag(diagV);                 %权重矩阵
+%init_analytical=AOA_Analytical(sensors,aoa)
+%init_position=WLSInitialPosition(sensors,aoa,weight)
+position=IWLSSolveAOA(sensors,aoa,weight,500,1e-6)

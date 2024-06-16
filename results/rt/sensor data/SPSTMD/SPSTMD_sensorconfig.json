@@ -1,0 +1,18 @@
+{
+	"SensorCollectionConfig": {
+		"SensorConfigs": [{
+				"Id": 0,
+				"AntId": 0,
+				"AntName": "0-Omni",
+				"Position": {
+					"x": 84.0,
+					"y": 33.0
+				},
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"ThetaDegreeErrorSTD": 0.0,
+				"TimeErrorSTD": 0.0,
+				"SensorDataFileName": ""
+			}]
+	}
+}

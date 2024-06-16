@@ -1,0 +1,843 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="utility">
+      <UniqueIdentifier>{d81b0527-ad1e-4d17-8039-1dc2cb8452c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="managers">
+      <UniqueIdentifier>{d6743d7c-ff52-4a27-aa99-75016ca3c6a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry">
+      <UniqueIdentifier>{832d6b43-602f-49e3-878b-8a28a504ac5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="material">
+      <UniqueIdentifier>{c3cd56d9-c499-4e07-bfd6-20c993318aac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="accel">
+      <UniqueIdentifier>{db2d66bb-e49f-43f6-8a35-cf4c1f47cd50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tree">
+      <UniqueIdentifier>{cb8a42be-0374-4c80-a120-f795a8569b5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation">
+      <UniqueIdentifier>{c9e0f375-efb3-46f6-ae4f-02c0de36d11f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="antenna">
+      <UniqueIdentifier>{7fe47c0d-6fdb-4362-8464-b44953c305b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="result">
+      <UniqueIdentifier>{4cf27e66-a66b-4c7e-871f-80617015760b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angularspectrum">
+      <UniqueIdentifier>{ca235a6e-6a2f-4d6b-bced-eb15645489ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parallel">
+      <UniqueIdentifier>{4661292f-0c5f-427b-b8e0-29f90a476dbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="accel\gpu">
+      <UniqueIdentifier>{9b2d88ae-fcfe-4a1e-94d1-822aa9bd3797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\gpu">
+      <UniqueIdentifier>{04db47b2-ac32-4caa-8235-6e7c8dd75450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tree\gpu">
+      <UniqueIdentifier>{537f7148-2fd3-4821-b0a0-4882676dd4a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\object2d">
+      <UniqueIdentifier>{c5d8c45e-c562-4bdc-8a57-e962f5b4a184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physical">
+      <UniqueIdentifier>{ac90146f-a4f6-42d8-9922-fc556c3b8351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physical\gpu">
+      <UniqueIdentifier>{3a14ec1f-baec-491f-b3a9-cf513af7ec97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{bfae0a0e-bdef-4e87-ad57-5935e7a4eb73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physical\radiowave">
+      <UniqueIdentifier>{248ef4d9-7259-4e70-8f8e-db5276003988}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation\library">
+      <UniqueIdentifier>{dc711cc1-ae16-41b8-95e7-afb90581397f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\terrain">
+      <UniqueIdentifier>{04927f7d-fc11-4184-951f-818fde93d3e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{d7469703-7451-4f4e-957b-b4976f49cb06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="equipment">
+      <UniqueIdentifier>{28ba53dd-5dcf-4c27-a114-62418b4edac5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation\transmitter">
+      <UniqueIdentifier>{393ed96a-9a59-4395-bcf8-4e899ab6be13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation\receiver">
+      <UniqueIdentifier>{a499aa01-b04f-49df-a798-55083e808229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{32e9fc07-3d3a-4ef3-bc31-5ef4979d3739}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="algorithm">
+      <UniqueIdentifier>{424f19eb-89be-4c93-90d6-351c412ad078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="algorithm\optimizationtoolkit">
+      <UniqueIdentifier>{72e5fded-d8d0-4155-8c5f-ab1e0278adc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="algorithm\optimizationtoolkit\ga">
+      <UniqueIdentifier>{3b50df46-b70f-44ea-9cae-0740200e6650}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="algorithm\optimizationtoolkit\pso">
+      <UniqueIdentifier>{53954861-58b7-4ac1-9be2-d98e98202c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation\sensor">
+      <UniqueIdentifier>{a75e40fb-54c2-4b07-bd32-2ed2b5ad0859}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="localization">
+      <UniqueIdentifier>{6c50c3c9-10b1-437f-b6ac-77954d6119d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="localization\aoa">
+      <UniqueIdentifier>{26c9a4a7-6e4c-42f1-b3c1-04dee4300bd8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\rtlbs.h" />
+    <ClInclude Include="src\geometry\primitive2d.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\segment2d.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\singleton.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\managers\logmanager.h">
+      <Filter>managers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\material\material.h">
+      <Filter>material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\enum.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\Intersection2D.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\managers\matmanager.h">
+      <Filter>managers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\scene.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accel\accelerator.h">
+      <Filter>accel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accel\bvh.h">
+      <Filter>accel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accel\kdtree.h">
+      <Filter>accel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accel\unigrid.h">
+      <Filter>accel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\raypath.h">
+      <Filter>tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\pathnode.h">
+      <Filter>tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\localizeconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\outputconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\simconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\result\result.h">
+      <Filter>result</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\raytreenode.h">
+      <Filter>tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\angularspectrum\angularspectrum.h">
+      <Filter>angularspectrum</Filter>
+    </ClInclude>
+    <ClInclude Include="src\angularspectrum\angularelement.h">
+      <Filter>angularspectrum</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\wedge2d.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\serializable.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\raytracingconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\managers\randomanager.h">
+      <Filter>managers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accel\sdf.h">
+      <Filter>accel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accel\uniformgrid.h">
+      <Filter>accel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accel\gridid.h">
+      <Filter>accel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parallel\threadpool.h">
+      <Filter>parallel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\gpu\raypathgpu.h">
+      <Filter>tree\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\object2d\object2d.h">
+      <Filter>geometry\object2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\object2d\building2d.h">
+      <Filter>geometry\object2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\object2d\vegetation2d.h">
+      <Filter>geometry\object2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\object2d\wall2d.h">
+      <Filter>geometry\object2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\geometryconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\vector3d.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\point3d.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\euler.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\raypath3d.h">
+      <Filter>tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\pathnode3d.h">
+      <Filter>tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\complex.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\diffraction.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\pathtracing.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\raysplitting.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\result\raytracingresult.h">
+      <Filter>result</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\reflection.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\scattering.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\transmission.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\radiowave\polarization2d.h">
+      <Filter>physical\radiowave</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\radiowave\polarization3d.h">
+      <Filter>physical\radiowave</Filter>
+    </ClInclude>
+    <ClInclude Include="src\material\materiallibrary.h">
+      <Filter>material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\library\materiallibraryconfig.h">
+      <Filter>configuation\library</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\terrain\terrain.h">
+      <Filter>geometry\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\terrain\terrainfacet.h">
+      <Filter>geometry\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\terrain\terrainprofile.h">
+      <Filter>geometry\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\terrain\terrainprofilepoint.h">
+      <Filter>geometry\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\terrain\terrainprofilesegment.h">
+      <Filter>geometry\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\terrain\terrainridge.h">
+      <Filter>geometry\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\terrain\terrainsegment.h">
+      <Filter>geometry\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\terrainconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\terrainobjectconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\ray3dlite.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\bbox3d.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\terraindiffractionpath.h">
+      <Filter>tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\antenna\antenna.h">
+      <Filter>antenna</Filter>
+    </ClInclude>
+    <ClInclude Include="src\antenna\antennalibrary.h">
+      <Filter>antenna</Filter>
+    </ClInclude>
+    <ClInclude Include="src\antenna\antennapattern.h">
+      <Filter>antenna</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\antennaconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\library\antennalibraryconfig.h">
+      <Filter>configuation\library</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resources\supports.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\fileoperation.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\transmitter.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\receiver.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\receiver\lineconfig.h">
+      <Filter>configuation\receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\receiver\planeconfig.h">
+      <Filter>configuation\receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\receiver\receiverconfig.h">
+      <Filter>configuation\receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\receiver\receiverunitconfig.h">
+      <Filter>configuation\receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\receiver\scatterconfig.h">
+      <Filter>configuation\receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\receiver\singleconfig.h">
+      <Filter>configuation\receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\receiver\solidconfig.h">
+      <Filter>configuation\receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\transmitter\transmittercollectionconfig.h">
+      <Filter>configuation\transmitter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\transmitter\transmitterconfig.h">
+      <Filter>configuation\transmitter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\frequencyconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\result\pathinfo.h">
+      <Filter>result</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\tranfunctiondata.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\raylaunch.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\struct.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\pathbuilder.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system.h" />
+    <ClInclude Include="src\algorithm\optimizationtoolkit\ga\ga.h">
+      <Filter>algorithm\optimizationtoolkit\ga</Filter>
+    </ClInclude>
+    <ClInclude Include="src\algorithm\optimizationtoolkit\pso\pso.h">
+      <Filter>algorithm\optimizationtoolkit\pso</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensor.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\sensor\sensorcollectionconfig.h">
+      <Filter>configuation\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\sensor\sensorconfig.h">
+      <Filter>configuation\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\result\lbsresult.h">
+      <Filter>result</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\generalsource.h">
+      <Filter>localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physical\treenodegenerator.h">
+      <Filter>physical</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\lbstreenode.h">
+      <Filter>tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensordata.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\gspair.h">
+      <Filter>localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensordatalibrary.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa\aoasolver.h">
+      <Filter>localization\aoa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\lbsresidual.h">
+      <Filter>localization</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\geometry\Intersection2D.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\primitive2d.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\managers\matmanager.cpp">
+      <Filter>managers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\scene.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\accel\accelerator.cpp">
+      <Filter>accel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\accel\bvh.cpp">
+      <Filter>accel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\accel\kdtree.cpp">
+      <Filter>accel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\accel\unigrid.cpp">
+      <Filter>accel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\raypath.cpp">
+      <Filter>tree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\pathnode.cpp">
+      <Filter>tree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\localizeconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\outputconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\simconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\result\result.cpp">
+      <Filter>result</Filter>
+    </ClCompile>
+    <ClCompile Include="src\angularspectrum\angularspectrum.cpp">
+      <Filter>angularspectrum</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\raytreenode.cpp">
+      <Filter>tree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\wedge2d.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\segment2d.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\managers\logmanager.cpp">
+      <Filter>managers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\raytracingconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\managers\randomanager.cpp">
+      <Filter>managers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\angularspectrum\angularelement.cpp">
+      <Filter>angularspectrum</Filter>
+    </ClCompile>
+    <ClCompile Include="src\accel\sdf.cpp">
+      <Filter>accel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\accel\uniformgrid.cpp">
+      <Filter>accel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\accel\gridid.cpp">
+      <Filter>accel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parallel\threadpool.cpp">
+      <Filter>parallel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\gpu\raypathgpu.cpp">
+      <Filter>tree\gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\object2d\object2d.cpp">
+      <Filter>geometry\object2d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\object2d\building2d.cpp">
+      <Filter>geometry\object2d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\object2d\vegetation2d.cpp">
+      <Filter>geometry\object2d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\object2d\wall2d.cpp">
+      <Filter>geometry\object2d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\geometryconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\material\material.cpp">
+      <Filter>material</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\vector3d.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\point3d.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\euler.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\raypath3d.cpp">
+      <Filter>tree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\pathnode3d.cpp">
+      <Filter>tree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\complex.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\diffraction.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\pathtracing.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\raysplitting.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\result\raytracingresult.cpp">
+      <Filter>result</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\reflection.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\scattering.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\transmission.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\radiowave\polarization3d.cpp">
+      <Filter>physical\radiowave</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\radiowave\polarization2d.cpp">
+      <Filter>physical\radiowave</Filter>
+    </ClCompile>
+    <ClCompile Include="src\material\materiallibrary.cpp">
+      <Filter>material</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\library\materiallibraryconfig.cpp">
+      <Filter>configuation\library</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\terrain\terrain.cpp">
+      <Filter>geometry\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\terrain\terrainfacet.cpp">
+      <Filter>geometry\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\terrain\terrainprofile.cpp">
+      <Filter>geometry\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\terrain\terrainprofilepoint.cpp">
+      <Filter>geometry\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\terrain\terrainprofilesegment.cpp">
+      <Filter>geometry\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\terrain\terrainridge.cpp">
+      <Filter>geometry\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\terrain\terrainsegment.cpp">
+      <Filter>geometry\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\terrainconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\terrainobjectconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\ray3dlite.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\bbox3d.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\terraindiffractionpath.cpp">
+      <Filter>tree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\antenna\antenna.cpp">
+      <Filter>antenna</Filter>
+    </ClCompile>
+    <ClCompile Include="src\antenna\antennalibrary.cpp">
+      <Filter>antenna</Filter>
+    </ClCompile>
+    <ClCompile Include="src\antenna\antennapattern.cpp">
+      <Filter>antenna</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\antennaconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\library\antennalibraryconfig.cpp">
+      <Filter>configuation\library</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\fileoperation.cpp">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\receiver.cpp">
+      <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\transmitter.cpp">
+      <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\receiver\lineconfig.cpp">
+      <Filter>configuation\receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\receiver\planeconfig.cpp">
+      <Filter>configuation\receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\receiver\receiverconfig.cpp">
+      <Filter>configuation\receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\receiver\receiverunitconfig.cpp">
+      <Filter>configuation\receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\receiver\scatterconfig.cpp">
+      <Filter>configuation\receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\receiver\singleconfig.cpp">
+      <Filter>configuation\receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\receiver\solidconfig.cpp">
+      <Filter>configuation\receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\transmitter\transmittercollectionconfig.cpp">
+      <Filter>configuation\transmitter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\transmitter\transmitterconfig.cpp">
+      <Filter>configuation\transmitter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\frequencyconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\result\pathinfo.cpp">
+      <Filter>result</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\raylaunch.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\pathbuilder.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system.cpp" />
+    <ClCompile Include="src\equipment\sensor.cpp">
+      <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\sensor\sensorcollectionconfig.cpp">
+      <Filter>configuation\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\sensor\sensorconfig.cpp">
+      <Filter>configuation\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\result\lbsresult.cpp">
+      <Filter>result</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\generalsource.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physical\treenodegenerator.cpp">
+      <Filter>physical</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree\lbstreenode.cpp">
+      <Filter>tree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensordata.cpp">
+      <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\gspair.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensordatalibrary.cpp">
+      <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa\aoasolver.cpp">
+      <Filter>localization\aoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\lbsresidual.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\geometry\vector2d.cpp">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\vector2d.h">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\ray2d.h">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\ray2d.cpp">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\bbox2d.h">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\bbox2d.cpp">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\tree\gpu\pathnodegpu.cpp">
+      <Filter>tree\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\tree\gpu\pathnodegpu.h">
+      <Filter>tree\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\bbox2dgpu.cpp">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\utility\define.h">
+      <Filter>utility</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\ray2dgpu.h">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\ray2dgpu.cpp">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\Intersection2Dgpu.cpp">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\Intersection2Dgpu.h">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\segment2dgpu.cpp">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\segment2dgpu.h">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\bbox2dgpu.h">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\accel\gpu\sdfgpu.h">
+      <Filter>accel\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\accel\gpu\sdfgpu.cpp">
+      <Filter>accel\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\wedge2dgpu.h">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\gpu\wedge2dgpu.cpp">
+      <Filter>geometry\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\point2d.h">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\geometry\point2d.cpp">
+      <Filter>geometry</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\diffractiongpu.h">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\diffractiongpu.cpp">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\pathtracinggpu.cpp">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\pathtracinggpu.h">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\propagationproperty.cpp">
+      <Filter>physical</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\propagationproperty.h">
+      <Filter>physical</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\raysplittinggpu.cpp">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\raysplittinggpu.h">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\reflectiongpu.cpp">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\reflectiongpu.h">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\scattergpu.cpp">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\scattergpu.h">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\transmissiongpu.h">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\transmissiongpu.cpp">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\limitinfo.h">
+      <Filter>physical</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\limitinfo.cpp">
+      <Filter>physical</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\raytracing.cpp">
+      <Filter>physical</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\raytracing.h">
+      <Filter>physical</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\utility\gpuutil.cpp">
+      <Filter>utility</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\utility\gpuutil.h">
+      <Filter>utility</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\tree\gpu\treenodegpu.cpp">
+      <Filter>tree\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\tree\gpu\treenodegpu.h">
+      <Filter>tree\gpu</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>
