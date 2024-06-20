@@ -27,7 +27,7 @@ public:
 
 
 //按照距离进行聚类
-inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& pairs, RtLbsType threshold) {
+inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& pairs, RtLbsType threshold, int& maxCluterNum) {
 	std::vector<GSPairCluster> clusters;
 
 	for (auto& curPair : pairs) {
@@ -37,6 +37,7 @@ inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& 
 				curCluster.m_pairs.push_back(curPair);
 				curCluster.CalClusterPosition();					//簇内新增元素后计算其簇心坐标
 				addFlag = true;
+				break;												//加簇后需要及时跳出
 			}
 		}
 		if (!addFlag) {
@@ -50,6 +51,9 @@ inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& 
 	//更新簇内所有元素的簇ID
 	for (int i = 0; i < static_cast<int>(clusters.size()); ++i) {
 		clusters[i].SetElementClusterId(i);
+		if (maxCluterNum < static_cast<int>(clusters[i].m_pairs.size())) {
+			maxCluterNum = static_cast<int>(clusters[i].m_pairs.size());
+		}
 	}
 
 	return clusters;

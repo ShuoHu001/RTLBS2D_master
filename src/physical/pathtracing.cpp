@@ -148,7 +148,7 @@ void PathTrace(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scene, 
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType)) {//产生常规透射射线													
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -231,7 +231,7 @@ void PathTrace(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scene, 
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType)) {															//产生常规透射射线													
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -377,7 +377,7 @@ void PathTrace(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scene, 
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType)) {//产生常规透射射线													
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -460,7 +460,7 @@ void PathTrace(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scene, 
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType)) {															//产生常规透射射线													
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -687,7 +687,7 @@ void PathTraceLBS(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scen
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType) && fatherNodeType != NODE_DIFF) {//产生常规透射射线,绕射后不允许透射											
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -770,7 +770,7 @@ void PathTraceLBS(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scen
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType) && fatherNodeType != NODE_DIFF) {															//产生常规透射射线													
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -916,7 +916,7 @@ void PathTraceLBS(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scen
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType) && fatherNodeType != NODE_DIFF) {//产生常规透射射线													
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -999,7 +999,7 @@ void PathTraceLBS(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scen
 				PATHNODETYPE tranType;										/** @brief	透射类型	*/
 				if (GenerateTransmitRay(curRay, intersect, &transmit_ray, tranType) && fatherNodeType != NODE_DIFF) {															//产生常规透射射线													
 					LimitInfo transmitLimitInfo = curLimitInfo;
-					transmitLimitInfo.MinusTransmitLimit();
+					transmitLimitInfo.MinusTransmitLimit(tranType);
 					PathNode transmit_pathnode(transmitLimitInfo, tranType, intersect.m_intersect, intersect.m_segment, curRay, transmit_ray);
 					RayTreeNode* transmit_treenode = new RayTreeNode(transmit_pathnode);
 					transmit_treenode->SetGeneralFatherNode(curNode);
@@ -1064,10 +1064,10 @@ void PathTraceLBS(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scen
 	}
 }
 
-bool PathTraceLite(RayPath& inpath) {
+bool PathTraceLite(RayPath*& inpath) {
 	//构造射线，计算半张角
 	std::vector<Ray2D> splitRays; //需要分裂的射线
-	const std::vector<PathNode*>& nodes = inpath.m_nodes;
+	const std::vector<PathNode*>& nodes = inpath->m_nodes;
 
 	PathNode* frontNode = nodes.front();
 	PathNode* backNode = nodes.back();
@@ -1097,11 +1097,11 @@ bool PathTraceLite(RayPath& inpath) {
 		splitRays[i].m_costheta = coshalftheta;
 	}
 
-	std::vector<RayPath> outpaths;//输出的路径
+	std::vector<RayPath*> outpaths;//输出的路径
 	//计算并跟踪射线
 	for (Ray2D& splitray : splitRays) {//遍历所有射线
-		RayPath newPath;
-		newPath.m_nodes.push_back(frontNode);
+		RayPath* newPath = new RayPath();
+		newPath->m_nodes.push_back(new PathNode(*frontNode));
 		Ray2D iterateRay(splitray);//用于迭代的射线
 		for (auto it = next(nodes.begin()); it != prev(nodes.end()); ++it) {//刨除首尾元素，遍历节点，并进行射线追踪
 			PathNode* node = *it;
@@ -1112,25 +1112,27 @@ bool PathTraceLite(RayPath& inpath) {
 				break;
 			}
 			if (node->m_type == NODE_REFL) {//反射节点
+				inter.m_propagationProperty.m_hasRelfection = true;
 				Ray2D reflectRay;
 				if (!GenerateReflectRay(iterateRay, inter, &reflectRay))//若产生不了反射路径，则放弃该条射线
 					break;
 				PathNode* reflectNode = new PathNode(node->m_limitInfo, NODE_REFL, inter.m_intersect, node->m_segment, splitray, reflectRay);
-				newPath.m_nodes.push_back(reflectNode);
+				newPath->m_nodes.push_back(reflectNode);
 				iterateRay = reflectRay;
 			}
 			if (node->m_type == NODE_TRANIN || node->m_type == NODE_TRANOUT) {//透射节点
+				inter.m_propagationProperty.m_hasTransmission = true;
 				Ray2D transmitRay;
 				PATHNODETYPE tranType;
 				if (!GenerateTransmitRay(iterateRay, inter, &transmitRay, tranType))//若产生不了透射路径，则放弃该条射线
 					break;
 				PathNode* transmitNode = new PathNode(node->m_limitInfo, tranType, inter.m_intersect, node->m_segment, splitray, transmitRay);
-				newPath.m_nodes.push_back(transmitNode);
+				newPath->m_nodes.push_back(transmitNode);
 				iterateRay = transmitRay;
 			}
 		}
 
-		if (newPath.m_nodes.size() != (inpath.m_nodes.size() - 1))//刨除末尾元素后的新路径若数量与原始射线路径不相同，则舍弃无效路径
+		if (newPath->m_nodes.size() != (inpath->m_nodes.size() - 1))//刨除末尾元素后的新路径若数量与原始射线路径不相同，则舍弃无效路径
 			continue;
 		//if (!newPath.m_path.back().IsContainPointByAngle(backNode.m_point))
 		//	continue;
@@ -1143,19 +1145,20 @@ bool PathTraceLite(RayPath& inpath) {
 		return false;
 
 	//搜索距离rx最近的路径
-	RayPath targetPath;
+	RayPath* targetPath = nullptr;
 	RtLbsType tmin = FLT_MAX;
 	for (auto it = outpaths.begin(); it != outpaths.end(); ++it) {
-		RayPath& cur_path = *it;
-		PathNode* cur_node = cur_path.m_nodes.back();
+		RayPath* cur_path = *it;
+		PathNode* cur_node = cur_path->m_nodes.back();
 		RtLbsType tcur = cur_node->m_nextRay.GetSquaredDistanceToPoint(backNode->m_point);
 		if (tcur < tmin) {
 			tmin = tcur;
-			targetPath = cur_path;
+			targetPath = new RayPath(*cur_path);
 		}
-
+		delete cur_path;
 	}
-	targetPath.m_nodes.push_back(backNode);
+	targetPath->m_nodes.push_back(new PathNode(*backNode));
+	delete inpath;
 	inpath = targetPath;//修改path的值
 	return true;
 }

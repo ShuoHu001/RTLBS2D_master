@@ -47,6 +47,7 @@ inline std::vector<PathInfoCluster> ClusterPathInfoByAOA2D(std::vector<PathInfo>
 				curCluster.m_infos.push_back(curInfo);					//重新计算簇中心
 				curCluster.CalMergedInfoByAOA();
 				addFlag = true;
+				break;													//完成加簇后需要进行及时的跳出
 			}
 		}
 		if (!addFlag) {													//若没在当前存在的cluster中聚类，则应该构建新类
@@ -72,6 +73,7 @@ inline std::vector<PathInfoCluster> ClusterPathInfoByAOA3D(std::vector<PathInfo>
 				curCluster.m_infos.push_back(curInfo);
 				curCluster.CalMergedInfoByAOA();
 				addFlag = true;
+				break;													//完成加簇后需要进行及时的跳出
 			}
 		}
 		if (!addFlag) {													//若没在当前存在的cluster中聚类，则应该构建新类

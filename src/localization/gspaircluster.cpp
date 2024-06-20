@@ -56,6 +56,7 @@ void GSPairCluster::SetElementAOAResidual(RtLbsType r_phi, RtLbsType r_powerDiff
         pair->m_phiResidual = r_phi;
         pair->m_powerDiffResidual = r_powerDiff;
         pair->m_nullDataNum = nullDataNum;
+        pair->m_clusterSize = static_cast<int>(m_pairs.size());
     }
 }
 
@@ -65,6 +66,7 @@ void GSPairCluster::SetElementTDOAResidual(RtLbsType r_timeDiff, RtLbsType r_pow
         pair->m_timeDiffResidual = r_timeDiff;
         pair->m_powerDiffResidual = r_powerDiff;
         pair->m_nullDataNum = nullDataNum;
+        pair->m_clusterSize = static_cast<int>(m_pairs.size());
     }
 }
 
@@ -75,5 +77,6 @@ void GSPairCluster::SetElementAOATDOAResidual(RtLbsType r_phi, RtLbsType r_timeD
 		pair->m_timeDiffResidual = r_timeDiff;
 		pair->m_powerDiffResidual = r_powerDiff;
         pair->m_nullDataNum = nullDataNum;
+        pair->m_clusterSize = static_cast<int>(m_pairs.size());
 	}
 }

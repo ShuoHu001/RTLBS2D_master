@@ -7,7 +7,6 @@ PathNode::PathNode()
     , m_segment(nullptr)
     , m_wedge(nullptr)
     , m_ft(static_cast<RtLbsType>(0.0))
-    , m_bTraceBack(true)
 {
 }
 
@@ -20,7 +19,6 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point)
 	, m_wedge(nullptr)
     , m_ft(static_cast<RtLbsType>(0.0))
     , m_source(point)
-    , m_bTraceBack(true)
 {
 }
 
@@ -31,7 +29,6 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_segment(nullptr)
     , m_wedge(nullptr)
     , m_prevRay(prevRay)
-    , m_bTraceBack(true)
 {
 	
 	m_ft = prevRay.m_fMax + (point - prevRay.m_Ori).Length();//到root源的距离
@@ -46,7 +43,6 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_segment(primitive)
     , m_wedge(nullptr)
     , m_prevRay(prevRay)
-    , m_bTraceBack(true)
 {
 	m_ft = prevRay.m_fMax + (point - prevRay.m_Ori).Length();//到root源的距离
 	RtLbsType t_relative = prevRay.m_fMax - prevRay.m_fMin;
@@ -61,7 +57,6 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
 	, m_wedge(nullptr)
 	, m_prevRay(prevRay)
     , m_nextRay(nextRay)
-	, m_bTraceBack(true)
 {
 	m_ft = nextRay.m_fMax;//到root源的距离
 	RtLbsType t_relative = nextRay.m_fMax - nextRay.m_fMin;//相对于上一个广义源的距离
@@ -76,7 +71,6 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
 	, m_segment(nullptr)
 	, m_prevRay(prevRay)
     , m_nextRay(nextRay)
-	, m_bTraceBack(true)
 {
 	m_ft = nextRay.m_fMin;//到root源的距离
 	m_source = wedge->m_point;
@@ -91,7 +85,6 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_wedge(wedge)
     , m_segment(nullptr)
     , m_prevRay(prevRay)
-    , m_bTraceBack(true)
 {
 	m_ft = prevRay.m_fMax + (point - prevRay.m_Ori).Length();//到root源的距离
 	RtLbsType t_relative = prevRay.m_fMax - prevRay.m_fMin;
@@ -108,7 +101,6 @@ PathNode::PathNode(const PathNode& pathnode)
     , m_nextRay(pathnode.m_nextRay)
     , m_ft(pathnode.m_ft)
     , m_source(pathnode.m_source)
-    , m_bTraceBack(pathnode.m_bTraceBack)
 {
 }
 
@@ -123,7 +115,6 @@ PathNode& PathNode::operator=(PathNode& node)
     m_nextRay = node.m_nextRay;
     m_source = node.m_source;
     m_ft = node.m_ft;
-    m_bTraceBack = node.m_bTraceBack;
     return *this;//返回当前对象的引用
 }
 
@@ -142,12 +133,6 @@ void PathNode::ConvertFrom(const CPUConverterPathNode& node, const std::vector<S
     m_point = node.m_point;
     m_source = node.m_generalSource;
     m_ft = node.m_ft;
-	if (node.m_type == NODE_TRANIN ||
-		node.m_type == NODE_TRANOUT ||
-		node.m_type == NODE_ETRANIN ||
-		node.m_type == NODE_ETRANOUT) {
-		m_bTraceBack = false;
-	}
 	if (node.m_segmentId != -1) {
 		m_segment = segments[node.m_segmentId];
 	}

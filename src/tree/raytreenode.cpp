@@ -109,6 +109,9 @@ bool RayTreeNode::IsCaptureByPoint(const Point2D& p, RtLbsType splitRadius, RayT
 
 void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 {
+
+	//先产生所有路径，再由路径中添加节点
+
 	struct StackItem {
 		RayTreeNode* node;
 	};
@@ -283,10 +286,7 @@ void GenerateMultipathofPoint(RayTreeNode* root, Point2D rx, const Scene* scene,
 		RayTreeNode* prev_node = current_item.prev_node;
 		RayPath* current_path = current_item.path;
 
-		if (cur_node->m_data.m_type == NODE_TRANIN ||
-			cur_node->m_data.m_type == NODE_TRANOUT ||
-			cur_node->m_data.m_type == NODE_ETRANIN ||
-			cur_node->m_data.m_type == NODE_ETRANOUT) {//若当前节点为透射节点，则该条路径被认定为透射路径
+		if (cur_node->m_data.m_type == NODE_TRANOUT) {//若当前节点为透射节点，则该条路径被认定为透射路径, 经验透射路径不被认为是需要被路径修正的透射路径
 			current_path->m_bContainRefract = true;
 		}
 		current_path->m_nodes.push_back(&cur_node->m_data);

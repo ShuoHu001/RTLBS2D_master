@@ -24,8 +24,6 @@ public:
 	Wedge2D* m_wedge;													/** @brief	节点所在wedge的指针	*/
 	Ray2D m_prevRay;													/** @brief	节点之前的射线(引用变量)	*/
 	Ray2D m_nextRay;													/** @brief	节点之后的射线(引用变量)	*/
-	bool m_bTraceBack;													/** @brief	是否为可回溯节点，即利用广义源进行修正路径，包含有透射节点的禁止通过广义源修正	*/
-	
 	Point2D m_source;													/** @brief	广义源点的坐标	*/
 	RtLbsType m_ft;														/** @brief	当前节点距离root源的距离	*/  
 

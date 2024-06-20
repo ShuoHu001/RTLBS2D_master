@@ -29,6 +29,9 @@ void SensorDataCollection::SortByPower()
 
 void SensorDataCollection::CalculateTimeDiff()
 {
+	if (m_data.empty()) {
+		return;
+	}
 	RtLbsType firstTimeDelay = m_data.front().m_time;
 	for (auto it = std::next(m_data.begin()); it != m_data.end(); ++it) {
 		SensorData& curData = *it;

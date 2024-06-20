@@ -3,6 +3,7 @@
 GSPair::GSPair()
 	: m_isValid(true)
 	, m_clusterId(-1)
+	, m_clusterSize(1)
 	, m_gs1(nullptr)
 	, m_gs2(nullptr)
 	, m_gsRef(nullptr)
@@ -18,6 +19,7 @@ GSPair::GSPair()
 GSPair::GSPair(GeneralSource* gs1, GeneralSource* gs2)
 	: m_isValid(true)
 	, m_clusterId(-1)
+	, m_clusterSize(1)
 	, m_gs1(gs1)
 	, m_gs2(gs2)
 	, m_gsRef(nullptr)
@@ -33,6 +35,7 @@ GSPair::GSPair(GeneralSource* gs1, GeneralSource* gs2)
 GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 	: m_isValid(true)
 	, m_clusterId(-1)
+	, m_clusterSize(1)
 	, m_gs1(gs1)
 	, m_gs2(gs2)
 	, m_gsRef(gsRef)
@@ -48,6 +51,7 @@ GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 GSPair::GSPair(const GSPair& pair)
 	: m_isValid(pair.m_isValid)
 	, m_clusterId(pair.m_clusterId)
+	, m_clusterSize(pair.m_clusterSize)
 	, m_gs1(pair.m_gs1)
 	, m_gs2(pair.m_gs2)
 	, m_gsRef(pair.m_gsRef)
@@ -68,6 +72,7 @@ GSPair& GSPair::operator=(const GSPair& pair)
 {
 	m_isValid = pair.m_isValid;
 	m_clusterId = pair.m_clusterId;
+	m_clusterSize = pair.m_clusterSize;
 	m_gs1=pair.m_gs1;
 	m_gs2=pair.m_gs2;
 	m_gsRef = pair.m_gsRef;
@@ -145,13 +150,14 @@ bool GSPair::HasValidTDOASolution(const Scene* scene)
 	return false;
 }
 
-void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff)
+void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, int max_clusterNum)
 {
-	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;								/** @brief	归一化的角度残差	*/
-	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;			/** @brief	归一化的功率差残差	*/
-	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-4);									/** @brief	角度权重	*/
-	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-4);						/** @brief	功率差权重	*/
-	RtLbsType w_total = 0.5*w_phi + 0.5*w_powerDiff;									/** @brief	总权重	*/
+	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
+	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
+	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-4);													/** @brief	角度权重	*/
+	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-4);										/** @brief	功率差权重	*/
+	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
+	RtLbsType w_total = ONE_THIRD * w_phi + ONE_THIRD * w_powerDiff + ONE_THIRD * w_cluster;			/** @brief	总权重	*/
 	if (m_gs1->m_weight < w_total) {
 		m_gs1->m_weight = w_total;
 	}
@@ -161,13 +167,14 @@ void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max
 	m_weight = w_total;
 }
 
-void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff)
+void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, int max_clusterNum)
 {
-	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;					/** @brief	归一化的时间差残差	*/
-	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;			/** @brief	归一化的功率差残差	*/
-	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);						/** @brief	时间差权重	*/
-	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);						/** @brief	功率差权重	*/
-	RtLbsType w_total = w_timeDiff + w_powerDiff;										/** @brief	总权重	*/
+	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
+	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
+	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);										/** @brief	时间差权重	*/
+	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);										/** @brief	功率差权重	*/
+	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
+	RtLbsType w_total = ONE_THIRD * w_timeDiff + ONE_THIRD * w_powerDiff + +ONE_THIRD * w_cluster;		/** @brief	总权重	*/
 	if (m_gs1->m_weight < w_total) {
 		m_gs1->m_weight = w_total;
 	}
@@ -177,15 +184,16 @@ void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsTy
 	m_weight = w_total;
 }
 
-void GSPair::CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff)
+void GSPair::CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, int max_clusterNum)
 {
-	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;								/** @brief	归一化的角度残差	*/
-	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;					/** @brief	归一化的时间差残差	*/
-	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;			/** @brief	归一化的功率差残差	*/
-	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-6);									/** @brief	角度权重	*/
-	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);						/** @brief	时间差权重	*/
-	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);						/** @brief	功率差权重	*/
-	RtLbsType w_total = w_phi + w_timeDiff + w_powerDiff;								/** @brief	总权重	*/
+	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
+	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
+	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
+	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-6);													/** @brief	角度权重	*/
+	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);										/** @brief	时间差权重	*/
+	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);										/** @brief	功率差权重	*/
+	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
+	RtLbsType w_total = 0.25 * w_phi + 0.25 * w_timeDiff + 0.25 * w_powerDiff + 0.25 * w_cluster;		/** @brief	总权重	*/
 	if (m_gs1->m_weight < w_total) {
 		m_gs1->m_weight = w_total;
 	}

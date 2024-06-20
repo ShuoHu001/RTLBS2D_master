@@ -83,13 +83,15 @@ void LimitInfo::MinusReflectLimit()
 	m_depth++;
 }
 
-void LimitInfo::MinusTransmitLimit()
+void LimitInfo::MinusTransmitLimit(PATHNODETYPE type)
 {
 	if (m_limitTotal == 0 || m_limitTransmit == 0)
 		return;
-	m_limitTransmit--;
-	m_limitTotal--;
-	m_depth++;
+	if (type == NODE_TRANOUT) {
+		m_limitTransmit--;
+		m_limitTotal--;
+		m_depth++;
+	}
 }
 
 void LimitInfo::MinusDiffractLimit()

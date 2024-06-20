@@ -33,7 +33,7 @@ public:
 	HOST_DEVICE_FUNC bool operator != (const LimitInfo& info) const;
 	HOST_DEVICE_FUNC bool IsValid() const;													//查询是否是有效的
 	HOST_DEVICE_FUNC void MinusReflectLimit();												//减少反射限制数
-	HOST_DEVICE_FUNC void MinusTransmitLimit();												//减少透射限制数
+	HOST_DEVICE_FUNC void MinusTransmitLimit(PATHNODETYPE type);							//减少透射限制数
 	HOST_DEVICE_FUNC void MinusDiffractLimit();												//减少绕射限制数
 	HOST_DEVICE_FUNC void MinusScatterLimit();												//减少散射限制数
 	HOST_DEVICE_FUNC void SetETranLimitInfo();												//设置经验透射后限制数属性

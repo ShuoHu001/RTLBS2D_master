@@ -173,6 +173,32 @@ Segment2D& Segment2D::operator=(const Segment2D& segment)
 	return (*this);
 }
 
+RtLbsType Segment2D::DistanceToPoint(const Point2D& p) const
+{
+	Vector2D sp = p - m_ps;							/** @brief	线段起点到P点的向量	*/
+	Vector2D ep = p - m_pe;							/** @brief	线段终点到P点的向量	*/
+	RtLbsType spLen = sp.Length();					/** @brief	线段起点到P点的距离	*/
+	RtLbsType epLen = ep.Length();					/** @brief	线段终点到P点的距离	*/
+
+	//计算sp在线段方向上的投影长度
+	RtLbsType spProjLen = sp * m_dir;							/** @brief	SP沿线段方向的投影长度	*/
+	if (spProjLen >= 0 && spProjLen <= m_length) {				//当且仅当投影长度满足范围时返回点到线段中的距离
+		Point2D projPoint = m_ps + m_dir * spProjLen;			/** @brief	投影点坐标	*/
+		Vector2D sprojP = projPoint - m_ps;						/** @brief	起始点指向投影点的向量	*/
+		Vector2D projPP = p - projPoint;						/** @brief	投影点到点P的向量	*/
+		return projPP.Length();
+	}
+	return std::min(spLen, epLen);								//一般情况下返回P点到起始点和终止点的最小值即为点到线段的最小距离
+}
+
+bool Segment2D::IsInSegment(const Point2D& p) const
+{
+	if (DistanceToPoint(p) < EPSILON) {
+		return true;
+	}
+	return false;
+}
+
 RtLbsType Segment2D::GetCenter(int axis) const
 {
 	return (m_ps[axis] + m_pe[axis]) * 0.5;

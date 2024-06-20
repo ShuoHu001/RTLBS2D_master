@@ -168,6 +168,8 @@ void Polarization3D::CalculateReflectionField_ReverseRT(RtLbsType& st, const Poi
 	//首先进行特殊处理，若计算场点位置与反射点的位置较为接近，则不做任何场的叠加计算
 	Vector3D sr = rP - sP;
 	Vector3D re = eP - rP;
+	Vector3D srNormal = sr.Normalize();
+	Vector3D reNormal = re.Normalize();
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	if (srLen < EPSILON || reLen < EPSILON) {                                //若累加距离小于系统默认最小值，则认为不进行任何形式的场计算叠加
@@ -175,7 +177,7 @@ void Polarization3D::CalculateReflectionField_ReverseRT(RtLbsType& st, const Poi
 	}
 	//求解反射系数部分
 	//求解入射射线与反射点所在平面的夹角theta
-	RtLbsType cosTheta = sr.Normalize() * re.Normalize();
+	RtLbsType cosTheta = srNormal * reNormal;
 	RtLbsType theta = 0.0;
 	if (cosTheta < -1)
 		theta = HALF_PI;
@@ -190,9 +192,9 @@ void Polarization3D::CalculateReflectionField_ReverseRT(RtLbsType& st, const Poi
 	as.m_real = st / (st + reLen);              /** @brief	球面波扩散因子	*/
 	st += reLen;
 
-	Vector3D v3 = sr.Cross(re).Normalize();
-	Vector3D v4 = sr.Cross(v3).Normalize();
-	Vector3D v5 = re.Cross(v3).Normalize();
+	Vector3D v3 = srNormal.Cross(reNormal);
+	Vector3D v4 = srNormal.Cross(v3);
+	Vector3D v5 = reNormal.Cross(v3);
 
 	//计算反射系数
 	Polarization2D rcoef = _calculateReflectionCoef(freq, theta, mat);
@@ -218,14 +220,16 @@ void Polarization3D::CalculateReflectionField_ForwardRT(RtLbsType& st, const Poi
 	//1-计算几何常量
 	Vector3D sr = rP - sP;
 	Vector3D re = eP - rP;
+	Vector3D srNormal = sr.Normalize();
+	Vector3D reNormal = re.Normalize();
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	st += reLen;															 //传播距离叠加
-	Vector3D v3 = sr.Cross(re).Normalize();
-	Vector3D v4 = sr.Cross(v3).Normalize();
-	Vector3D v5 = re.Cross(v3).Normalize();
+	Vector3D v3 = srNormal.Cross(reNormal);
+	Vector3D v4 = srNormal.Cross(v3);
+	Vector3D v5 = reNormal.Cross(v3);
 	//2-求解反射系数
-	RtLbsType cosTheta = sr.Normalize() * re.Normalize();
+	RtLbsType cosTheta = srNormal * reNormal;
 	RtLbsType theta = 0.0;
 	if (cosTheta < -1)
 		theta = HALF_PI;
@@ -253,6 +257,8 @@ void Polarization3D::CalculateTransmissionField_ReverseRT(RtLbsType& st, const P
 	//首先进行特殊处理，若计算场点位置与反射点的位置较为接近，则不做任何场的叠加计算
 	Vector3D sr = tP - sP;
 	Vector3D re = eP - tP;
+	Vector3D srNormal = sr.Normalize();
+	Vector3D reNormal = re.Normalize();
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	if (srLen < EPSILON || reLen < EPSILON) {                                //若累加距离小于系统默认最小值，则认为不进行任何形式的场计算叠加
@@ -260,7 +266,7 @@ void Polarization3D::CalculateTransmissionField_ReverseRT(RtLbsType& st, const P
 	}
 	//求解透射系数部分
 	//求解入射射线与透射点所在平面的夹角theta
-	RtLbsType cosTheta = sr.Normalize() * re.Normalize();
+	RtLbsType cosTheta = srNormal * reNormal;
 	RtLbsType theta = 0.0;
 	if (cosTheta < -1)
 		theta = HALF_PI;
@@ -275,9 +281,9 @@ void Polarization3D::CalculateTransmissionField_ReverseRT(RtLbsType& st, const P
 	as.m_real = st / (st + reLen);              /** @brief	球面波扩散因子	*/
 	st += reLen;
 
-	Vector3D v3 = sr.Cross(re).Normalize();
-	Vector3D v4 = sr.Cross(v3).Normalize();
-	Vector3D v5 = re.Cross(v3).Normalize();
+	Vector3D v3 = srNormal.Cross(reNormal);
+	Vector3D v4 = srNormal.Cross(v3);
+	Vector3D v5 = reNormal.Cross(v3);
 
 	//计算透射系数
 	Polarization2D tcoef = _calculateTransmissionCoef(freq, theta, mat);
@@ -303,14 +309,16 @@ void Polarization3D::CalculateTransmissionField_ForwardRT(RtLbsType& st, const P
 	//1-计算几何常量
 	Vector3D sr = tP - sP;
 	Vector3D re = eP - tP;
+	Vector3D srNormal = sr.Normalize();
+	Vector3D reNormal = re.Normalize();
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	st += reLen;															 //传播距离叠加
-	Vector3D v3 = sr.Cross(re).Normalize();
-	Vector3D v4 = sr.Cross(v3).Normalize();
-	Vector3D v5 = re.Cross(v3).Normalize();
+	Vector3D v3 = srNormal.Cross(reNormal);
+	Vector3D v4 = srNormal.Cross(v3);
+	Vector3D v5 = reNormal.Cross(v3);
 	//2-求解透射系数部分
-	RtLbsType cosTheta = sr.Normalize() * re.Normalize();
+	RtLbsType cosTheta = srNormal * reNormal;
 	RtLbsType theta = 0.0;
 	if (cosTheta < -1)
 		theta = HALF_PI;
@@ -348,6 +356,8 @@ void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Ve
 	//首先进行特殊处理，若计算场点的位置与绕射点的位置较为接近，则不进行场的任何计算
 	Vector3D sd = dP - sP;																										/** @brief	场计算起点指向绕射点坐标的向量	*/
 	Vector3D de = eP - dP;																										/** @brief	绕射点指向终点坐标的向量	*/
+	Vector3D sdNormal = sd.Normalize();
+	Vector3D deNormal = de.Normalize();
 	RtLbsType sdLen = sd.Length();																								/** @brief	起点到绕射点的距离	*/
 	RtLbsType deLen = de.Length();																								/** @brief	绕射点至终点的距离	*/
 	if (sdLen < EPSILON || deLen < EPSILON)																						//若累加距离小于系统的默认值，则不进行任何场计算
@@ -355,7 +365,7 @@ void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Ve
 	//求解入射角和绕射角(确定0面和N面)
 	RtLbsType phiIncident, phiDiffraction;																						/** @brief	入射角与绕射角	*/
 	RtLbsType nValue = wedge->GetNValue();																						/** @brief	棱劈内角n值(2-n)π	*/
-	wedge->CalDiffractionParameters(sd.Normalize(), de.Normalize(), dP, phiIncident, phiDiffraction);
+	wedge->CalDiffractionParameters(sdNormal, deNormal, dP, phiIncident, phiDiffraction);
 	Complex as;
 	RtLbsType l = st / (st + deLen);																							/** @brief	球面波扩散因子	*/
 	as.m_real = l;
@@ -365,9 +375,9 @@ void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Ve
 	//求解绕射系数
 	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq, tranFucntion);
 	//入射电场的射线基表示
-	Vector3D v3 = sd.Cross(de).Normalize();
-	Vector3D v4 = sd.Cross(v3).Normalize();
-	Vector3D v5 = de.Cross(v3).Normalize();
+	Vector3D v3 = sdNormal.Cross(deNormal);
+	Vector3D v4 = sdNormal.Cross(v3);
+	Vector3D v5 = deNormal.Cross(v3);
 	Polarization2D inEField;                                                            /** @brief	原始入射电场的射线基表示	*/
 	inEField.perp = efield * v3;                                                        /** @brief	原始电场在射线基坐标系中的垂直分量	*/
 	inEField.para = efield * v4;                                                        /** @brief	原始电场在射线基坐标系中的平行分量	*/
@@ -389,15 +399,17 @@ void Polarization3D::CalculateDiffractionField_ForwardRT(RtLbsType& st, const Ve
 	//1-几何参量求解
 	Vector3D sd = dP - sP;																										/** @brief	场计算起点指向绕射点坐标的向量	*/
 	Vector3D de = eP - dP;																										/** @brief	绕射点指向终点坐标的向量	*/
+	Vector3D sdNormal = sd.Normalize();
+	Vector3D deNormal = sd.Normalize();
 	RtLbsType sdLen = sd.Length();																								/** @brief	起点到绕射点的距离	*/
 	RtLbsType deLen = de.Length();																								/** @brief	绕射点至终点的距离	*/
-	Vector3D v3 = sd.Cross(de).Normalize();
-	Vector3D v4 = sd.Cross(v3).Normalize();
-	Vector3D v5 = de.Cross(v3).Normalize();
+	Vector3D v3 = sdNormal.Cross(deNormal);
+	Vector3D v4 = sdNormal.Cross(v3);
+	Vector3D v5 = deNormal.Cross(v3);
 	//2-求解绕射系数
 	RtLbsType phiIncident, phiDiffraction;																						/** @brief	入射角与绕射角	*/
 	RtLbsType nValue = wedge->GetNValue();																						/** @brief	棱劈内角n值(2-n)π	*/
-	wedge->CalDiffractionParameters(sd.Normalize(), de.Normalize(), dP, phiIncident, phiDiffraction);							/** @brief	求解绕射参数	*/
+	wedge->CalDiffractionParameters(sdNormal, deNormal, dP, phiIncident, phiDiffraction);										/** @brief	求解绕射参数	*/
 	RtLbsType l = st / (st + deLen);																							/** @brief	球面波扩散因子	*/
 	st += deLen;																												//传播距离叠加
 	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq, tranFunction);	/** @brief	绕射系数	*/
@@ -418,15 +430,17 @@ void Polarization3D::CalculateDiffractionField_TerrainUTD(RtLbsType& st, const V
 	//1-几何参量求解
 	Vector3D sd = dP - sP;																										/** @brief	场计算起点指向绕射点坐标的向量	*/
 	Vector3D de = eP - dP;																										/** @brief	绕射点指向终点坐标的向量	*/
+	Vector3D sdNormal = sd.Normalize();
+	Vector3D deNormal = de.Normalize();
 	RtLbsType sdLen = sd.Length();																								/** @brief	起点到绕射点的距离	*/
 	RtLbsType deLen = de.Length();																								/** @brief	绕射点至终点的距离	*/
-	Vector3D v3 = sd.Cross(de).Normalize();
-	Vector3D v4 = sd.Cross(v3).Normalize();
-	Vector3D v5 = de.Cross(v3).Normalize();
+	Vector3D v3 = sdNormal.Cross(deNormal);
+	Vector3D v4 = sdNormal.Cross(v3);
+	Vector3D v5 = deNormal.Cross(v3);
 	//2-求解绕射系数
 	RtLbsType phiIncident, phiDiffraction;																						/** @brief	入射角与绕射角	*/
 	RtLbsType nValue = ridge->GetNValue();																						/** @brief	获得棱劈角的N值	*/
-	ridge->CalDiffractionParameters(sd.Normalize(), de.Normalize(), phiIncident, phiDiffraction);								//计算绕射角参数
+	ridge->CalDiffractionParameters(sdNormal, deNormal, phiIncident, phiDiffraction);											//计算绕射角参数
 	RtLbsType l = st / (st + deLen);																							/** @brief	球面波扩散因子	*/
 	st += deLen;																												//传播距离叠加
 	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq, tranFunction);	/** @brief	绕射系数	*/

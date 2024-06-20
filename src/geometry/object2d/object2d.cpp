@@ -62,6 +62,15 @@ bool Object2D::IsContain(const Point2D& p) const
 			c = !c;
 		}
 	}
+
+	//增加判定点在object的边上（与内部同理）
+	for (auto segPtr : m_segments) {
+		if (segPtr->IsInSegment(p)) {				//若在边上，则直接返回true
+			return true;
+		}
+	}
+
+
 	return c;
 }
 

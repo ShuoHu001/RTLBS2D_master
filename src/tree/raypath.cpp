@@ -10,18 +10,30 @@ RayPath::RayPath()
 }
 
 RayPath::RayPath(const std::vector<PathNode*>& nodes, bool containRefract)
-    : m_nodes(nodes)
-    , m_bContainRefract(containRefract)
+    : m_bContainRefract(containRefract)
     , m_angularSpectrumCategoryId(-1)
 {
+	for (auto& curNode : nodes) {
+		m_nodes.push_back(new PathNode(*curNode));
+	}
+}
+
+RayPath::RayPath(const RayPath& path)
+	: m_bContainRefract(path.m_bContainRefract)
+	, m_angularSpectrumCategoryId(path.m_angularSpectrumCategoryId)
+{
+	for (auto& curNode : path.m_nodes) {
+		m_nodes.push_back(new PathNode(*curNode));
+	}
 }
 
 
 RayPath::~RayPath()
 {
-    for (int i = 0; i < m_nodes.size(); ++i) {
-        delete m_nodes[i];
-    }
+	for (auto& curNode : m_nodes) {
+		delete curNode;
+		curNode = nullptr;
+	}
 }
 
 bool RayPath::operator==(const RayPath& path) const
@@ -103,7 +115,7 @@ void RayPath::ConvertFrom(const std::vector<CPUConverterPathNode*>& nodes, const
         PathNode* newNode = new PathNode();
         newNode->ConvertFrom(*nodes[i], segments, wedges);
         m_nodes[i] = newNode;
-        if (newNode->m_type == NODE_TRANIN || newNode->m_type == NODE_TRANOUT) {
+        if (newNode->m_type == NODE_TRANOUT) {
             m_bContainRefract = true;
         }
 	}
@@ -161,7 +173,7 @@ bool RayPath::IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene
 		return false;
 	m_nodes.back()->m_point = p;//更新末尾节点的节点坐标
 
-	std::vector<RayPath> splitpaths; //分离的路径
+	std::vector<RayPath*> splitpaths; //分离的路径
 	std::vector<PathNode*> nodes;
 	bool containRefract = false;
 	//1-将path按照广义源进行分段
@@ -169,7 +181,7 @@ bool RayPath::IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene
 		PathNode*& node = *it;
 		nodes.push_back(node);
 		if (node->m_type == NODE_DIFF) { //当前节点为广义源节点，
-			RayPath path(nodes, containRefract);
+			RayPath* path = new RayPath(nodes, containRefract);
 			splitpaths.push_back(path);
 			nodes.clear();
 			nodes.push_back(node);//重置nodes
@@ -177,15 +189,11 @@ bool RayPath::IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene
 			continue;
 		}
 		if (std::next(it) == m_nodes.end()) {//尾部节点
-			RayPath path(nodes, containRefract);
+			RayPath* path = new RayPath(nodes, containRefract);
 			splitpaths.push_back(path);
-			nodes.clear(); nodes.shrink_to_fit();//释放内存
+			nodes.clear();
 		}
-		if (node->m_type == NODE_REFL ||
-			node->m_type == NODE_TRANIN ||
-			node->m_type == NODE_TRANOUT ||
-			node->m_type == NODE_ETRANIN ||
-			node->m_type == NODE_ETRANOUT) {
+		if (node->m_type == NODE_TRANOUT) {			//当且仅当在透射出时，该条路径才被认为是透射路径
 			containRefract = true;
 			continue;
 		}
@@ -195,35 +203,37 @@ bool RayPath::IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene
 	//2-将不同的路径进行不同的处理方法,针对包含透射的路径，认为末尾节点(STOP节点或者是DIFF节点)为其需要优化的节点
 
 	for (auto it = splitpaths.begin(); it != splitpaths.end(); ++it) {
-		RayPath& path = *it;
-		PathNode*& endNode = path.m_nodes.back();
-		if (!path.m_bContainRefract) {//非透射路径
-			if (!path.IsValidAndRectifyCommon(endNode->m_point, scene))//常规路径不满足条件直接退出处理程序
+		RayPath*& path = *it;
+		PathNode*& endNode = path->m_nodes.back();
+		if (!path->m_bContainRefract) {//非透射路径
+			if (!path->IsValidAndRectifyCommon(endNode->m_point, scene))//常规路径不满足条件直接退出处理程序
 				return false;
 			continue;
 		}
 		//透射路径修正模块
-		if (!path.IsValidAndRectifyRefract())
+		if (!PathTraceLite(path)) {
 			return false;
+		}
 		continue;
 	}
 
 	//3-将修正完成的路径进行拼接合成
 	std::vector<PathNode*> newNodes;
-	for (const RayPath& newPath : splitpaths) {
+	for (RayPath*& newPath : splitpaths) {
 		if (&newPath != &splitpaths.back()) {//不是最后一段路径
-			for (auto it = newPath.m_nodes.begin(); it != prev(newPath.m_nodes.end()); ++it) {//舍弃最后一个元素
+			for (auto it = newPath->m_nodes.begin(); it != prev(newPath->m_nodes.end()); ++it) {//舍弃最后一个元素
 				PathNode* node = *it;
 				newNodes.push_back(node);
 			}
 			continue;
 		}
 		//是最后一段路径
-		for (auto it = newPath.m_nodes.begin(); it != newPath.m_nodes.end(); ++it) {//保留最后一个元素
+		for (auto it = newPath->m_nodes.begin(); it != newPath->m_nodes.end(); ++it) {//保留最后一个元素
 			PathNode* node = *it;
 			newNodes.push_back(node);
 		}
 	}
+
 	m_nodes = newNodes;//更新路径，完成透射路径的修正
 
 	//20240521增加判定末尾和前节点构成的线段与环境相交，若相交且不是节点所在的面元，则路径无效
@@ -233,11 +243,4 @@ bool RayPath::IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene
 	}
 
 	return true;
-}
-
-bool RayPath::IsValidAndRectifyRefract()
-{
-    if (!PathTraceLite(*this))
-        return false;
-    return true;
 }

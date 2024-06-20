@@ -234,7 +234,7 @@ bool System::_initRTSystemMemory()
 		unsigned m_rxNum = static_cast<unsigned>(m_scene->m_receivers.size());
 		m_rtTreeRoot.resize(m_txNum);							//射线追踪结构树根
 		m_rtInitRays.resize(m_txNum);							//射线集合
-		for (int i = 0; i < m_txNum; ++i) {
+		for (unsigned i = 0; i < m_txNum; ++i) {
 			const Point3D& txPosition = m_scene->m_transmitters[i]->m_position;
 			Point2D txPosition2D(txPosition.x, txPosition.y);
 			PathNode rootNode(m_simConfig.m_raytracingConfig.m_limitInfo, NODE_ROOT, txPosition2D);		//根节点赋值
@@ -260,7 +260,7 @@ bool System::_initLBSSystemMemory()
 		m_lbsTreeRoot.resize(sensorNum);						//定位结构射线追踪树根
 		m_rtInitRays.resize(sensorNum);							//定位模式伴随的射线追踪初始射线内存分配
 		m_lbsInitRays.resize(sensorNum);						//定位模式射线内存分配
-		for (int i = 0; i < sensorNum; ++i) {
+		for (unsigned i = 0; i < sensorNum; ++i) {
 			const Point2D& sensorPosition = m_scene->m_sensors[i]->GetPosition2D();
 			PathNode rootNode(m_simConfig.m_raytracingConfig.m_limitInfo, NODE_ROOT, sensorPosition);		//根节点赋值
 			m_rtTreeRoot[i] = new RayTreeNode(rootNode);

@@ -28,7 +28,7 @@ void Result::Init(const std::vector<Transmitter*>& transmitters, const std::vect
 	m_rxNum = rxNum;
 	//配置对应的传感器配置数量，用于输出传感器仿真数据的同时输出对应的传感器配置
 	m_sensorCollectionConfig.m_sensorConfigs.resize(m_rxNum);
-	for (int i = 0; i < m_rxNum; ++i) {
+	for (unsigned i = 0; i < m_rxNum; ++i) {
 		m_sensorCollectionConfig.m_sensorConfigs[i].m_id = i;
 		m_sensorCollectionConfig.m_sensorConfigs[i].m_position = receivers[i]->m_position;
 	}
@@ -125,7 +125,7 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 	if (outputConfig.m_outputSensorDataSPSTMD) {				//若为单站单源多数据定位，发射机可以为多个，接收机为1
 		m_sensorDataSPSTMD.resize(m_txNum);
 		RtLbsType threshold = m_raytracingResult[0].m_receiver->m_angularThreshold;
-		for (int i = 0; i < m_txNum; ++i) {
+		for (unsigned i = 0; i < m_txNum; ++i) {
 			m_raytracingResult[i].GetAllSensorData_AOA2D(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
 			m_sensorDataSPSTMD[i].m_sensorId = 0;				//计算传感器ID
 			m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
@@ -134,8 +134,8 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 	if (outputConfig.m_outputSensorDataMPSTSD) {				//若为多站单源单数据定位，发射机可以为多个，接收机为多个
 		//计算每个发射天线与每个接收天线间的传感器数据（最大值）
 		m_sensorDataMPSTSD.resize(m_txNum * m_rxNum);
-		for (int i = 0; i < m_txNum; ++i) {
-			for (int j = 0; j < m_rxNum; ++j) {
+		for (unsigned i = 0; i < m_txNum; ++i) {
+			for (unsigned j = 0; j < m_rxNum; ++j) {
 				RtLbsType threshold = m_raytracingResult[i * m_rxNum + j].m_receiver->m_angularThreshold;
 				m_raytracingResult[i * m_rxNum + j].GetMaxPowerSensorData_AOA2D(m_sensorDataMPSTSD[i * m_rxNum + j], threshold);
 				m_sensorDataMPSTSD[i * m_rxNum + j].m_sensorId = j;		//计算传感器ID，该ID即为接收机的ID
@@ -143,9 +143,9 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 		}
 
 		//计算时延差值
-		for (int i = 0; i < m_txNum; ++i) {
+		for (unsigned i = 0; i < m_txNum; ++i) {
 			RtLbsType firstTimeDelay = m_sensorDataMPSTSD[i * m_rxNum].m_data[0].m_time;
-			for (int j = 1; j < m_rxNum; ++j) {
+			for (unsigned j = 1; j < m_rxNum; ++j) {
 				m_sensorDataMPSTSD[i * m_rxNum + j].m_data[0].m_timeDiff = m_sensorDataMPSTSD[i * m_rxNum + j].m_data[0].m_time - firstTimeDelay;
 			}
 		}
@@ -154,7 +154,7 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 		m_sensorDataSPMTMD.resize(1);
 		//获取多个发射天线与单个接收天线之间的数据，并进行合并处理
 		RtLbsType threshold = m_raytracingResult[0].m_receiver->m_angularThreshold;
-		for (int i = 0; i < m_txNum; ++i) {
+		for (unsigned i = 0; i < m_txNum; ++i) {
 			SensorDataCollection curCollection;
 			m_raytracingResult[i].GetAllSensorData_AOA2D(curCollection, threshold, sensorDataSparseFactor);
 			for (auto it = curCollection.m_data.begin(); it != curCollection.m_data.end(); ++it) {
@@ -165,9 +165,9 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 	}
 	if (outputConfig.m_outputSensorDataMPMTMD) {				//若为多站多源多数据定位，发射机为多个，接收机也为多个
 		m_sensorDataMPMTMD.resize(m_rxNum);
-		for (int j = 0; j < m_rxNum; ++j) {
-			for (int i = 0; i < m_txNum; ++i) {
-				int dataId = i * m_rxNum + j;
+		for (unsigned j = 0; j < m_rxNum; ++j) {
+			for (unsigned i = 0; i < m_txNum; ++i) {
+				unsigned dataId = i * m_rxNum + j;
 				RtLbsType threshold = m_raytracingResult[dataId].m_receiver->m_angularThreshold;
 				SensorDataCollection curCollection;
 				m_raytracingResult[dataId].GetAllSensorData_AOA2D(curCollection, threshold, sensorDataSparseFactor);
@@ -315,7 +315,7 @@ void Result::CalculateResult_LBS_AOA_MPSTSD(const std::vector<RayTreeNode*>& vro
 	for (auto it = gsPair.begin(); it != gsPair.end(); ++it) {
 		GSPair* curPair = *it;
 		if (curPair->m_isValid) {
-			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff);
+			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff, 1);
 		}
 	}
 
@@ -447,7 +447,9 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 	gsPairs.shrink_to_fit();
 
 	//对GSPair中的数据进行聚类，按照距离得到cluster，按照簇中心的坐标作为预测坐标，生成簇，给每个gsPair定义clusterId
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, gsPairClusterThreshold);						//进行距离聚类，减少计算量
+	int max_cluster_num = 1;																									/** @brief	最大簇中数据数量	*/
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, gsPairClusterThreshold, max_cluster_num);		//进行距离聚类，减少计算量
+
 	int clusterNum = static_cast<int>(gsPairClusters.size());																	//簇数量
 
 	//2-2  按照物理约束条件计算权重并删除不满足权重阈值的广义源
@@ -464,7 +466,8 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 	scene->m_sensorDataLibrary.GetAllSensorDataCollection(originalSensorDataCollection);										//获取原始传感器数据
 	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
 	//为了同级比较残差，这里将原始数据按照功率的大小进行排序
-	RtLbsType max_r_phi = 0.0, max_r_powerDiff = 0.0;																			//角度最大残差、功率最大残差
+	RtLbsType max_r_phi = 0.0;																									//角度最大残差
+	RtLbsType max_r_powerDiff = 0.0;																							//功率最大残差
 	RtLbsType mean_r_phi = 0.0;																									/** @brief	角度平均残差	*/
 	RtLbsType mean_r_powerDiff = 0.0;																							/** @brief	功率平均残差	*/
 
@@ -474,7 +477,7 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 			targetSensorDataCollection.resize(sensorNum);
 			GSPairCluster& curCluster = gsPairClusters[i];																			/** @brief	当前遍历到的cluster	*/
 			DirectlySetResultPath_CPUSingleThread(vroots, scene, splitRadius, curCluster.m_point, &tempRTResult[i]);
-			for (int j = 0; j < tempRTResult[i].size(); ++j) {
+			for (int j = 0; j < static_cast<int>(tempRTResult[i].size()); ++j) {
 				const Sensor* curSensor = scene->m_sensors[j];
 				tempRTResult[i][j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
 				tempRTResult[i][j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真，因此不进行稀疏
@@ -509,7 +512,7 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 			targetSensorDataCollection.clear();
 			targetSensorDataCollection.resize(sensorNum);
 			GSPairCluster& curCluster = gsPairClusters[i];																			/** @brief	当前遍历到的cluster	*/
-			for (int j = 0; j < clusterNum; ++j) {
+			for (int j = 0; j < static_cast<int>(tempRTResult[i].size()); ++j) {
 				const Sensor* curSensor = scene->m_sensors[j];
 				tempRTResult[i][j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
 				tempRTResult[i][j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏
@@ -545,7 +548,7 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 			targetSensorDataCollection.clear();
 			targetSensorDataCollection.resize(sensorNum);
 			GSPairCluster& curCluster = gsPairClusters[i];																			/** @brief	当前遍历到的cluster	*/
-			for (int j = 0; j < tempRTResult[i].size(); ++j) {
+			for (int j = 0; j < static_cast<int>(tempRTResult[i].size()); ++j) {
 				const Sensor* curSensor = scene->m_sensors[j];
 				tempRTResult[i][j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
 				tempRTResult[i][j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏
@@ -565,7 +568,6 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 			mean_r_phi += cur_r_phi;
 			mean_r_powerDiff += cur_r_powerDiff;
 		}
-
 	}
 	mean_r_phi /= clusterNum;
 	mean_r_powerDiff /= clusterNum;
@@ -586,7 +588,7 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 	for (auto it = gsPairs.begin(); it != gsPairs.end(); ++it) {
 		GSPair* curPair = *it;
 		if (curPair->m_isValid) {
-			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff);
+			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff, max_cluster_num);
 		}
 	}
 
@@ -632,6 +634,11 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 
 
 	LocalizationSolver();
+}
+
+void Result::CalculateResult_LBS_TDOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+{
+
 }
 
 std::vector<GeneralSource*> Result::GetGeneralSource() const
@@ -809,7 +816,7 @@ void Result::OutputSensorDataSPSTMD() const
 {
 	//输出单站单源多数据定位，输出为单个文件
 	std::string sensorDataDirectory = m_directory + "sensor data/SPSTMD/";
-	for (int i = 0; i < m_txNum; ++i) {
+	for (unsigned i = 0; i < m_txNum; ++i) {
 		std::stringstream ss;
 		ss << sensorDataDirectory << "tx" << i << "_SPSTMD.json";
 		m_sensorDataSPSTMD[i].Write2Json(ss.str());
@@ -825,8 +832,8 @@ void Result::OutputSensorDataMPSTSD() const
 {
 	//输出多站单源单数据定位，输出为多个文件
 	std::string sensorDataDirectory = m_directory + "sensor data/MPSTSD/";
-	for (int j = 0; j < m_rxNum; ++j) {
-		for (int i = 0; i < m_txNum; ++i) {
+	for (unsigned j = 0; j < m_rxNum; ++j) {
+		for (unsigned i = 0; i < m_txNum; ++i) {
 			std::stringstream ss;
 			ss << sensorDataDirectory << "tx" << i << "_" << "sensor_" << j << "_MPSTSD.json";
 			m_sensorDataMPSTSD[i * m_rxNum + j].Write2Json(ss.str());
@@ -855,7 +862,7 @@ void Result::OutputSensorDataMPMTMD() const
 {
 	//输出为多站多源多数据定位，输出为单个文件
 	std::string sensorDataDirectory = m_directory + "sensor data/MPMTMD/";
-	for (int i = 0; i < m_rxNum; ++i) {
+	for (unsigned i = 0; i < m_rxNum; ++i) {
 		std::stringstream ss;
 		ss << sensorDataDirectory << "sensor" << i << "_MPMTMD.json";
 		m_sensorDataMPMTMD[i].Write2Json(ss.str());

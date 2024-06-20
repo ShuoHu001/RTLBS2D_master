@@ -11,7 +11,7 @@ RayPathGPU::RayPathGPU(std::vector<PathNodeGPU*> nodes, bool containRefract)
 {
 	//计算节点传播累积距离
 	RtLbsType st = 0;
-	for (int i = m_nodes.size() - 1; i >= 0; --i) {
+	for (int i = static_cast<int>(m_nodes.size()) - 1; i >= 0; --i) {
 		if (i == 0) {									//第一个节点为真实路径的末尾节点，在GPU程序中未考虑到上一个交点到接收点的距离，因此需要重新计算距离
 			st += (m_nodes[1]->m_inter.m_intersect - m_nodes[0]->m_inter.m_intersect).Length();
 		}

@@ -13,7 +13,7 @@
 				"LimitTotal": 10,
 				"LimitReflect": 2,
 				"LimitTransmit": 0,
-				"LimitDiffract": 0,
+				"LimitDiffract": 1,
 				"LimitScatter": 0
 			},
 			"RaySplitFlag": true,
@@ -26,9 +26,9 @@
 		"LocalizationConfig": {
 			"LBSMode": 0,
 			"LBSMethod": 0,
-			"HardWareMode": 0,
+			"HardWareMode": 2,
 			"ThreadNum": 10,
-			"GSPairClusterThreshild": 1.0
+			"GSPairClusterThreshold": 1.0
 		},
 		"FrequencyConfig": {
 			"CenterFrequency": 10e9,
@@ -42,7 +42,7 @@
 			"OutputLoss": false,
 			"OutputMagnitude": false,
 			"OutputMultipath": true,
-			"OutputPDP": false,
+			"OutputPDP": true,
 			"OutputCFR": false,
 			"OutputCIR": false,
 			"OutputAOA": false,
@@ -51,7 +51,7 @@
 			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
-			"OutputSensorDataSparseFactor": 0.9
+			"OutputSensorDataSparseFactor": 0.1
 		}
 	}
 }

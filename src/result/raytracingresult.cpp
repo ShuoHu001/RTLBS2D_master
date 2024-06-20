@@ -115,6 +115,15 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const Ma
 		m_vectorPower[i] = 20 * log10(m_totalVectorEField[i].MValue()) + conterm + 30 + gain;					//计算矢量合成功率
 		m_scalarPower[i] = 20 * log10(m_totalScalarEField[i]) + conterm + 30 + gain;							//计算标量合成功率
 		m_loss[i] = powerdBm + gain - m_scalarPower[i];															//计算损耗
+		if (std::isinf(m_vectorPower[i])) {
+			m_vectorPower[i] = m_receiver->m_powerThreshold;
+		}
+		if (std::isinf(m_scalarPower[i])) {
+			m_scalarPower[i] = m_receiver->m_powerThreshold;
+		}
+		if (std::isinf(m_loss[i])) {
+			m_loss[i] = m_receiver->m_powerThreshold;
+		}
 	}
 
 	//计算其他参数

@@ -36,12 +36,12 @@ void PathBuilder_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const 
 			}
 
 			//查验并设定常规路径
-			std::vector<RayPath3D*> invalidCommonPath;																				/** @brief	无效的常规路径集合	*/
 			std::vector<RayPath3D*> validCommonPath;																				/** @brief	有效的常规路径集合	*/
 			for (auto it = commonPath3D.begin(); it != commonPath3D.end(); ++it) {													//筛选路径
 				RayPath3D* curPath = *it;
-				if (!scene->IsValidRayPath(curPath))																				//路径无效
-					invalidCommonPath.push_back(curPath);
+				if (!scene->IsValidRayPath(curPath)) {																				//路径无效
+					delete curPath;
+				}
 				else																												//路径有效
 					validCommonPath.push_back(curPath);
 			}
@@ -59,8 +59,6 @@ void PathBuilder_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const 
 
 			//------------------------------------------------------------释放内存------------------------------------------------------------------------
 			for (auto it = commonPath2D.begin(); it != commonPath2D.end(); ++it)													//释放二维路径内存
-				delete* it;
-			for (auto it = invalidCommonPath.begin(); it != invalidCommonPath.end(); ++it)											//释放无效的三维路径内存
 				delete* it;
 		}
 	}
@@ -304,5 +302,6 @@ void DirectlySetResultPath_CPUMultiThread(const std::vector<RayTreeNode*>& vroot
 			break;
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));						//每100ms检查一次
+		std::cout << pool.getTaskCount() << std::endl;
 	}
 }

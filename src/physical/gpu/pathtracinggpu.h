@@ -114,7 +114,7 @@ __global__ void GPUDiffFinderKernel(Ray2DGPU* ray, Intersection2DGPU* intersect,
 * @author		胡硕
 * @date			2023/05/27
 */
-__global__ void diffractionFindKernel1D(Ray2DGPU* rays, int numRays, Wedge2DGPU* wedge, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, Intersection2DGPU* intersects);
+__global__ void diffractionFindKernel1D(Ray2DGPU* rays, size_t numRays, Wedge2DGPU* wedge, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, Intersection2DGPU* intersects);
 
 
 
@@ -128,7 +128,7 @@ __global__ void diffractionFindKernel1D(Ray2DGPU* rays, int numRays, Wedge2DGPU*
 __global__ void rearrangeDiffractionNodeKernel(Intersection2DGPU* oldIntersects, Intersection2DGPU* newIntersects, int* prefixSum, int* everyIntersectNum, int size);
 
 
-__global__ void intersectKernel(Ray2DGPU* rays, int numRays, Intersection2DGPU* intersects, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments);
+__global__ void intersectKernel(Ray2DGPU* rays, size_t numRays, Intersection2DGPU* intersects, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments);
 
 /**
 * @brief		计算射线与场景的相交结果并检测分裂的个数,存储至splitNum中，计算完成后得到intersect结果，然后也得到到每条射线的分裂数目，用前缀合相加得到总数
@@ -147,7 +147,7 @@ __global__ void intersectAndCalculateRaySplitNumKernel(Ray2DGPU* ray, Intersecti
 * @author		胡硕
 * @date			2023/05/25
 */
-__global__ void intersectAndCalculateRaySplitNumKernelLBS(Ray2DGPU* ray, Intersection2DGPU* intersect, int* everySplitNum, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, int size);
+__global__ void intersectAndCalculateRaySplitNumKernelLBS(Ray2DGPU* ray, Intersection2DGPU* intersect, int* everySplitNum, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, size_t size);
 
 //使用此函数之前需要使用前缀和进行所有新分裂的射线的求和
 
@@ -158,7 +158,7 @@ __global__ void intersectAndCalculateRaySplitNumKernelLBS(Ray2DGPU* ray, Interse
 * @author		胡硕
 * @date			2023/05/25
 */
-__global__ void raySplitKernel(Ray2DGPU* rays, int numRays, Ray2DGPU* newRays, int* everySplitNum, Segment2DGPU* segments);
+__global__ void raySplitKernel(Ray2DGPU* rays, size_t numRays, Ray2DGPU* newRays, int* everySplitNum, Segment2DGPU* segments);
 
 //使用此函数后需要基于thrust::earser进行无效值剔除
 
@@ -176,25 +176,25 @@ __global__ void checkRxInsideKernel1D(Intersection2DGPU* allIntersects, Intersec
 
 //使此函数后需要基于captureNum进行前缀和，删除pathnode中的空数据(isValid为false的数据)
 
-__global__ void generateNewReflectionRayKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments);
+__global__ void generateNewReflectionRayKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments);
 
 //产生新的反射射线并顺带得到射线树节点数据
-__global__ void generateNewReflectionRayWithNodeKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer);
+__global__ void generateNewReflectionRayWithNodeKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer);
 
 //使用此函数后需要去除不满足条件的射线
 
-__global__ void generateNewTransmitRayKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments);
+__global__ void generateNewTransmitRayKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments);
 
 //产生新的透射射线并顺带得到射线树节点数据
-__global__ void generateNewTransmitRayWithNodeKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer);
+__global__ void generateNewTransmitRayWithNodeKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer);
 
 
 //使用此函数后需要去除不满足条件的射线
 
-__global__ void generateNewDifftactRayKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, Wedge2DGPU* wedges);
+__global__ void generateNewDifftactRayKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, Wedge2DGPU* wedges);
 
 //产生新的绕射射线并顺带得到射线树节点数据
-__global__ void generateNewDifftactRayWithNodeKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Wedge2DGPU* wedges, int layer);
+__global__ void generateNewDifftactRayWithNodeKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Wedge2DGPU* wedges, int layer);
 
 __global__ void generateNewScatRayKernel(Intersection2DGPU* intersects, int numIntersects, Ray2DGPU* newRays, Segment2DGPU* segments);
 

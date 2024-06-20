@@ -22,6 +22,7 @@ public:
 public:
 	RayPath();
 	RayPath(const std::vector<PathNode*>& nodes, bool containRefract);
+	RayPath(const RayPath& path);
 	~RayPath();
 	bool operator == (const RayPath& path) const;
 	bool operator != (const RayPath& path) const;
@@ -36,7 +37,6 @@ public:
 private:
 	bool IsValidAndRectifyCommon(const Point2D& p, const Scene* scene);//基于p点进行对路径正确性进行检测和修正，注意，这里只是针对反射和绕射路径等常规路径进行修正
 	bool IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene);//基于p点对路径的正确性的检测和修正，包含透射路径
-	bool IsValidAndRectifyRefract(); //修正透射路径
 };
 
 //若路径上的面元全相同，则为相同路径

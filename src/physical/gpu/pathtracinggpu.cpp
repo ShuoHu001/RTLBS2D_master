@@ -40,7 +40,7 @@ __global__ void GPUDiffFinderKernel(Ray2DGPU* ray, Intersection2DGPU* intersect,
 * @author		胡硕
 * @date			2023/05/27
 */
-__global__ void diffractionFindKernel1D(Ray2DGPU* rays, int numRays, Wedge2DGPU* wedge, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, Intersection2DGPU* intersects) {
+__global__ void diffractionFindKernel1D(Ray2DGPU* rays, size_t numRays, Wedge2DGPU* wedge, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, Intersection2DGPU* intersects) {
 	
 	int rayIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (rayIdx < numRays) {
@@ -72,7 +72,7 @@ __global__ void rearrangeDiffractionNodeKernel(Intersection2DGPU* oldIntersects,
 	}
 }
 
-__global__ void intersectKernel(Ray2DGPU* rays, int numRays, Intersection2DGPU* intersects, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments)
+__global__ void intersectKernel(Ray2DGPU* rays, size_t numRays, Intersection2DGPU* intersects, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments)
 {
 	int rayIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (rayIdx < numRays) {
@@ -106,7 +106,7 @@ __global__ void intersectAndCalculateRaySplitNumKernel(Ray2DGPU* ray, Intersecti
 
 }
 
-__global__ void intersectAndCalculateRaySplitNumKernelLBS(Ray2DGPU* ray, Intersection2DGPU* intersect, int* everySplitNum, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, int size)
+__global__ void intersectAndCalculateRaySplitNumKernelLBS(Ray2DGPU* ray, Intersection2DGPU* intersect, int* everySplitNum, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments, size_t size)
 {
 	int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	if (tid < size) {
@@ -135,7 +135,7 @@ __global__ void intersectAndCalculateRaySplitNumKernelLBS(Ray2DGPU* ray, Interse
 	}
 }
 
-__global__ void raySplitKernel(Ray2DGPU* rays, int numRays, Ray2DGPU* newRays, int* everySplitNum, Segment2DGPU* segments)
+__global__ void raySplitKernel(Ray2DGPU* rays, size_t numRays, Ray2DGPU* newRays, int* everySplitNum, Segment2DGPU* segments)
 {
 	int rayIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (rayIdx < numRays) {
@@ -172,7 +172,7 @@ __global__ void checkRxInsideKernel1D(Intersection2DGPU* allIntersects, Intersec
 }
 
 
-__global__ void generateNewReflectionRayKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments)
+__global__ void generateNewReflectionRayKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments)
 {
 	int intersectIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (intersectIdx < numIntersects) {
@@ -190,7 +190,7 @@ __global__ void generateNewReflectionRayKernel(Intersection2DGPU* intersects, in
 	}
 }
 
-__global__ void generateNewReflectionRayWithNodeKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer)
+__global__ void generateNewReflectionRayWithNodeKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer)
 {
 	int intersectIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (intersectIdx < numIntersects) {
@@ -207,7 +207,7 @@ __global__ void generateNewReflectionRayWithNodeKernel(Intersection2DGPU* inters
 	}
 }
 
-__global__ void generateNewTransmitRayKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments)
+__global__ void generateNewTransmitRayKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, Segment2DGPU* segments)
 {
 	int intersectIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (intersectIdx < numIntersects) {
@@ -229,7 +229,7 @@ __global__ void generateNewTransmitRayKernel(Intersection2DGPU* intersects, int 
 	}
 }
 
-__global__ void generateNewTransmitRayWithNodeKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer)
+__global__ void generateNewTransmitRayWithNodeKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Segment2DGPU* segments, int layer)
 {
 	int intersectIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (intersectIdx < numIntersects) {
@@ -252,7 +252,7 @@ __global__ void generateNewTransmitRayWithNodeKernel(Intersection2DGPU* intersec
 	}
 }
 
-__global__ void generateNewDifftactRayKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, Wedge2DGPU* wedges)
+__global__ void generateNewDifftactRayKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, Wedge2DGPU* wedges)
 {
 	int intersectIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (intersectIdx < numIntersects) {
@@ -273,7 +273,7 @@ __global__ void generateNewDifftactRayKernel(Intersection2DGPU* intersects, int 
 	}
 }
 
-__global__ void generateNewDifftactRayWithNodeKernel(Intersection2DGPU* intersects, int numIntersects, int prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Wedge2DGPU* wedges, int layer)
+__global__ void generateNewDifftactRayWithNodeKernel(Intersection2DGPU* intersects, size_t numIntersects, size_t prevInterSize, Ray2DGPU* newRays, TreeNodeGPU* newNodes, Wedge2DGPU* wedges, int layer)
 {
 	int intersectIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (intersectIdx < numIntersects) {
@@ -461,9 +461,9 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 		ResetIntersect2DGPU(dev_interInit);///--dev_initIntersects进行初始化
 
 		//计算原始射线交点信息及射线分裂数量，保留具有分裂属性的原始射线，保留不具备分裂属性的交点信息
-		int numInterNoSplit = numRays;
-		int numInterSplit = 0;
-		int numRaySplit = 0;
+		size_t numInterNoSplit = numRays;
+		size_t numInterSplit = 0;
+		size_t numRaySplit = 0;
 		if (raySplitFlag == true) {
 			int numBlocks2 = (static_cast<int>(numRays) + threadsPerBlock - 1) / threadsPerBlock;
 			everySplitNum.resize(numRays);
@@ -493,7 +493,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 				dev_splitRays.resize(numRaySplit);//将分裂的射线进行resize
 				ResetRay2DGPU(dev_splitRays);
 
-				int numblocks_split = (numInterSplit + threadsPerBlock - 1) / threadsPerBlock;//注意，这里的原始可分裂射线已经前置，请利用匹配思想进行处理
+				size_t numblocks_split = (numInterSplit + threadsPerBlock - 1) / threadsPerBlock;//注意，这里的原始可分裂射线已经前置，请利用匹配思想进行处理
 				raySplitKernel CUDA_KERNEL(numblocks_split, threadsPerBlock)(thrust::raw_pointer_cast(dev_initRays.data()), numInterSplit,
 					thrust::raw_pointer_cast(dev_splitRays.data()), thrust::raw_pointer_cast(everySplitNum.data()), segmentsGPU);
 				cudaerr = cudaDeviceSynchronize();
@@ -508,7 +508,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 				dev_InterSplit.resize(numRaySplit);//对分裂的射线交点信息进行resize
 				ResetIntersect2DGPU(dev_InterSplit);
 
-				int numBlocks3 = (numRaySplit + threadsPerBlock - 1) / threadsPerBlock;
+				size_t numBlocks3 = (numRaySplit + threadsPerBlock - 1) / threadsPerBlock;
 				intersectKernel CUDA_KERNEL(numBlocks3, threadsPerBlock)(thrust::raw_pointer_cast(dev_splitRays.data()), numRaySplit,
 					thrust::raw_pointer_cast(dev_InterSplit.data()), sdfGPU, segmentsGPU);
 				cudaerr = cudaDeviceSynchronize();
@@ -538,7 +538,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 		//task-4------------------------------ 并行计算被rx捕获，输出结果------------------------------------------------------------------------------
 		//4-1 执行rx截获检测
 		//LOG_INFO << "start capture" << ENDL;
-		int numBlocks4 = (newInterReflSize + threadsPerBlock - 1) / threadsPerBlock;
+		int numBlocks4 = (static_cast<int>(newInterReflSize) + threadsPerBlock - 1) / threadsPerBlock;
 		//ResetPathNodeGPU(dev_rxPathNode);//初始化rx捕获值
 		int oldPathNodeSize = validRxNodeSize;
 		int newPathNodeSize = static_cast<int>(numRxPositions) * maxSingleRxPathPerLayer * (layer + 1);//每层预估的最大容量
@@ -563,14 +563,14 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 
 
 
-		int numValidReflRay = 0;
-		int numValidTranRay = 0;
-		int numValidDiffRay = 0;
-		int numEvaluateReflRay = newInterReflSize;								/** @brief	预估反射射线数量	*/
-		int numEvaluateTranRay = newInterReflSize;								/** @brief	预估透射射线数量	*/
-		int numEvaluateDiffRay = numInterDiff * DIFF_RAYNUM;							/** @brief	预估绕射射线数量	*/
+		size_t numValidReflRay = 0;
+		size_t numValidTranRay = 0;
+		size_t numValidDiffRay = 0;
+		size_t numEvaluateReflRay = newInterReflSize;								/** @brief	预估反射射线数量	*/
+		size_t numEvaluateTranRay = newInterReflSize;								/** @brief	预估透射射线数量	*/
+		size_t numEvaluateDiffRay = numInterDiff * DIFF_RAYNUM;							/** @brief	预估绕射射线数量	*/
 
-		int evaluateRayNum = numEvaluateReflRay * static_cast<int>(stateHasRefl) +		/** @brief	预估射线总数	*/
+		size_t evaluateRayNum = numEvaluateReflRay * static_cast<int>(stateHasRefl) +		/** @brief	预估射线总数	*/
 							 numEvaluateTranRay * static_cast<int>(stateHasTran) +
 							 numEvaluateDiffRay * static_cast<int>(stateHasDiff);
 		if (dev_initRays.capacity() < evaluateRayNum) {
@@ -583,7 +583,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 		//将反射路径分为两类-一类为正常反射路径，一类为无效反射路径（反射终止路径），反射终止路径禁止加入下一步迭代中
 
 		if (stateHasRefl) {//产生反射路径
-			int numBlocks5 = (numEvaluateReflRay * threadsPerBlock - 1) / threadsPerBlock;
+			int numBlocks5 = (static_cast<int>(numEvaluateReflRay) * threadsPerBlock - 1) / threadsPerBlock;
 			generateNewReflectionRayKernel CUDA_KERNEL(numBlocks5, threadsPerBlock)(thrust::raw_pointer_cast(dev_interReflSeries.data() + oldInterSize), newInterReflSize, oldInterSize,
 				thrust::raw_pointer_cast(dev_initRays.data()), segmentsGPU);
 			cudaerr = cudaDeviceSynchronize();
@@ -594,7 +594,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 		}
 
 		if (stateHasTran) {//产生透射路径
-			int numBlocks6 = (numEvaluateTranRay * threadsPerBlock - 1) / threadsPerBlock;
+			int numBlocks6 = (static_cast<int>(numEvaluateTranRay) * threadsPerBlock - 1) / threadsPerBlock;
 			generateNewTransmitRayKernel CUDA_KERNEL(numBlocks6, threadsPerBlock)(thrust::raw_pointer_cast(dev_interReflSeries.data() + oldInterSize), newInterReflSize, oldInterSize,
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay), segmentsGPU);
 			cudaerr = cudaDeviceSynchronize();
@@ -742,12 +742,12 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 
 		int numInterDiff = 0;
 		if (stateHasDiff) {
-			int numBlocks1 = (static_cast<int>(numRays) + threadsPerBlock - 1) / threadsPerBlock;
+			size_t numBlocks1 = (numRays + threadsPerBlock - 1) / threadsPerBlock;
 			ResetIntersect2DGPU(dev_interDiffSeries);
 			cudaMemcpyToSymbol(G_DIFFID, &C_ZERO, sizeof(int));//初始化原子索引
 
 			for (int i = 0; i < numWedges; ++i) {//若射线中无绕射生命，则放弃
-				diffractionFindKernel1D CUDA_KERNEL(numBlocks1, threadsPerBlock)(thrust::raw_pointer_cast(dev_initRays.data()), static_cast<int>(numRays),
+				diffractionFindKernel1D CUDA_KERNEL(numBlocks1, threadsPerBlock)(thrust::raw_pointer_cast(dev_initRays.data()), numRays,
 					&wedges[i], sdfGPU, segmentsGPU, thrust::raw_pointer_cast(dev_interDiffSeries.data()));
 				cudaerr = cudaDeviceSynchronize();
 				if (cudaerr != cudaSuccess) {
@@ -768,15 +768,15 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 		ResetIntersect2DGPU(dev_interInit);///--dev_initIntersects进行初始化
 
 		//计算原始射线交点信息及射线分裂数量，保留具有分裂属性的原始射线，保留不具备分裂属性的交点信息
-		int numInterNoSplit = numRays;
-		int numInterSplit = 0;
-		int numRaySplit = 0;
+		size_t numInterNoSplit = numRays;
+		size_t numInterSplit = 0;
+		size_t numRaySplit = 0;
 		if (raySplitFlag == true) {
-			int numBlocks2 = (static_cast<int>(numRays) + threadsPerBlock - 1) / threadsPerBlock;
+			size_t numBlocks2 = (numRays + threadsPerBlock - 1) / threadsPerBlock;
 			everySplitNum.resize(numRays);
 			thrust::fill(everySplitNum.begin(), everySplitNum.end(), 0);//重置每条射线分裂数量
 			intersectAndCalculateRaySplitNumKernelLBS CUDA_KERNEL(numBlocks2, threadsPerBlock)(thrust::raw_pointer_cast(dev_initRays.data()),
-				thrust::raw_pointer_cast(dev_interInit.data()), thrust::raw_pointer_cast(everySplitNum.data()), sdfGPU, segmentsGPU, static_cast<int>(numRays));
+				thrust::raw_pointer_cast(dev_interInit.data()), thrust::raw_pointer_cast(everySplitNum.data()), sdfGPU, segmentsGPU, numRays);
 			cudaerr = cudaDeviceSynchronize();//等待线程计算完成
 			if (cudaerr != cudaSuccess) {
 				LOG_ERROR << "PathTracingGPU: intersectAndCalculateRaySplitNumKernel " << cudaGetErrorString(cudaerr) << ENDL;
@@ -800,7 +800,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 				dev_splitRays.resize(numRaySplit);//将分裂的射线进行resize
 				ResetRay2DGPU(dev_splitRays);
 
-				int numblocks_split = (numInterSplit + threadsPerBlock - 1) / threadsPerBlock;//注意，这里的原始可分裂射线已经前置，请利用匹配思想进行处理
+				size_t numblocks_split = (numInterSplit + threadsPerBlock - 1) / threadsPerBlock;//注意，这里的原始可分裂射线已经前置，请利用匹配思想进行处理
 				raySplitKernel CUDA_KERNEL(numblocks_split, threadsPerBlock)(thrust::raw_pointer_cast(dev_initRays.data()), numInterSplit,
 					thrust::raw_pointer_cast(dev_splitRays.data()), thrust::raw_pointer_cast(everySplitNum.data()), segmentsGPU);
 				cudaerr = cudaDeviceSynchronize();
@@ -838,14 +838,14 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 		thrust::copy(dev_InterSplit.begin(), dev_InterSplit.begin() + numRaySplit, dev_interReflSeries.begin() + oldInterSize + numInterNoSplit);							//将分裂交点附加至反射系列交点后
 		thrust::copy(dev_interDiffSeries.begin(), dev_interDiffSeries.begin() + newInterDiffSize, dev_interReflSeries.begin() + oldInterSize + numInterNoSplit + numRaySplit);	//将绕射系交点附加至反射系列交点之后
 
-		int numValidReflRay = 0;
-		int numValidTranRay = 0;
-		int numValidDiffRay = 0;
-		int numEvaluateReflRay = newInterReflSize;								/** @brief	预估反射射线数量	*/
-		int numEvaluateTranRay = newInterReflSize;								/** @brief	预估透射射线数量	*/
-		int numEvaluateDiffRay = numInterDiff * DIFF_RAYNUM;							/** @brief	预估绕射射线数量	*/
+		size_t numValidReflRay = 0;
+		size_t numValidTranRay = 0;
+		size_t numValidDiffRay = 0;
+		size_t numEvaluateReflRay = newInterReflSize;								/** @brief	预估反射射线数量	*/
+		size_t numEvaluateTranRay = newInterReflSize;								/** @brief	预估透射射线数量	*/
+		size_t numEvaluateDiffRay = numInterDiff * DIFF_RAYNUM;							/** @brief	预估绕射射线数量	*/
 
-		int evaluateRayNum = numEvaluateReflRay * static_cast<int>(stateHasRefl) +		/** @brief	预估射线总数	*/
+		size_t evaluateRayNum = numEvaluateReflRay * static_cast<int>(stateHasRefl) +		/** @brief	预估射线总数	*/
 			numEvaluateTranRay * static_cast<int>(stateHasTran) +
 			numEvaluateDiffRay * static_cast<int>(stateHasDiff);
 		if (dev_initRays.capacity() < evaluateRayNum) {
@@ -855,15 +855,15 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 		ResetRay2DGPU(dev_initRays);//开始运行新射线前需要对原始射线有效性进行重置
 
 		//增加考虑射线树节点数据
-		int oldTreeNodeSize = dev_treeNodes.size();								/** @brief	上一层次的树节点的数量	*/
-		int newTreeNodeSize = oldTreeNodeSize + evaluateRayNum;					/** @brief	新的树节点的数量	*/
+		size_t oldTreeNodeSize = dev_treeNodes.size();								/** @brief	上一层次的树节点的数量	*/
+		size_t newTreeNodeSize = oldTreeNodeSize + evaluateRayNum;					/** @brief	新的树节点的数量	*/
 
 		dev_treeNodes.resize(newTreeNodeSize);
 
 		//将反射路径分为两类-一类为正常反射路径，一类为无效反射路径（反射终止路径），反射终止路径禁止加入下一步迭代中
 
 		if (stateHasRefl) {//产生反射路径
-			int numBlocks5 = (numEvaluateReflRay * threadsPerBlock - 1) / threadsPerBlock;
+			size_t numBlocks5 = (numEvaluateReflRay * threadsPerBlock - 1) / threadsPerBlock;
 			generateNewReflectionRayWithNodeKernel CUDA_KERNEL(numBlocks5, threadsPerBlock)(thrust::raw_pointer_cast(dev_interReflSeries.data() + oldInterSize), newInterReflSize, oldInterSize,
 				thrust::raw_pointer_cast(dev_initRays.data()), thrust::raw_pointer_cast(dev_treeNodes.data() + oldInterSize), segmentsGPU, layer);
 			cudaerr = cudaDeviceSynchronize();
@@ -874,7 +874,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 		}
 
 		if (stateHasTran) {//产生透射路径
-			int numBlocks6 = (numEvaluateTranRay * threadsPerBlock - 1) / threadsPerBlock;
+			size_t numBlocks6 = (numEvaluateTranRay * threadsPerBlock - 1) / threadsPerBlock;
 			generateNewTransmitRayWithNodeKernel CUDA_KERNEL(numBlocks6, threadsPerBlock)(thrust::raw_pointer_cast(dev_interReflSeries.data() + oldInterSize), newInterReflSize, oldInterSize,
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay), thrust::raw_pointer_cast(dev_treeNodes.data() + oldInterSize + numValidReflRay), segmentsGPU, layer);
 			cudaerr = cudaDeviceSynchronize();
@@ -886,7 +886,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 		}
 
 		if (stateHasDiff && numInterDiff != 0) {//产生绕射路径
-			int numBlocks7 = (numInterDiff * DIFF_RAYNUM * threadsPerBlock - 1) / threadsPerBlock;
+			size_t numBlocks7 = (numInterDiff * DIFF_RAYNUM * threadsPerBlock - 1) / threadsPerBlock;
 			generateNewDifftactRayWithNodeKernel CUDA_KERNEL(numBlocks7, threadsPerBlock)(thrust::raw_pointer_cast(dev_interReflSeries.data() + oldInterSize + newInterReflSize), newInterDiffSize, oldInterSize + newInterReflSize,
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay + numValidTranRay), thrust::raw_pointer_cast(dev_treeNodes.data() + oldInterSize + numValidReflRay + numValidTranRay), wedges, layer);
 			cudaerr = cudaDeviceSynchronize();

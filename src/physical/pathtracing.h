@@ -28,7 +28,7 @@ void PathTraceLBS(bool raySplitFlag, RtLbsType raySplitRadius, const Scene* scen
 
 
 //根据path中的路径进行计算,校正透射路径
-bool PathTraceLite(RayPath& inpath);
+bool PathTraceLite(RayPath*& inpath);
 
 
 #endif

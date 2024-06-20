@@ -13,6 +13,7 @@ class GSPair {
 public:
 	bool m_isValid;
 	int m_clusterId;								/** @brief	聚类簇ID	*/
+	int m_clusterSize;								/** @brief	聚类簇大小	*/
 	GeneralSource* m_gs1;
 	GeneralSource* m_gs2;
 	GeneralSource* m_gsRef;
@@ -36,9 +37,9 @@ public:
 	bool HasValidAOASolution(const Scene* scene);																				//验证解的有效性，仅在几何上进行验证
 	bool HasValidTOASolution(const Scene* scene);
 	bool HasValidTDOASolution(const Scene* scene);
-	void CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff);										//计算部分归一化权重值并更新广义源权重-AOA型
-	void CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff);								//计算部分归一化权重值并更新广义源权重-TDOA型
-	void CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff);		//计算部分归一化权重值并更新广义源权重-AOA/TDOA型
+	void CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, int max_clusterNum);										//计算部分归一化权重值并更新广义源权重-AOA型
+	void CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, int max_clusterNum);								//计算部分归一化权重值并更新广义源权重-TDOA型
+	void CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, int max_clusterNum);		//计算部分归一化权重值并更新广义源权重-AOA/TDOA型
 	
 private:
 	bool _calAOASolution();
