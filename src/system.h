@@ -62,7 +62,8 @@ public:
 	void RayTracingLBS(const HARDWAREMODE mode);								//定位算法中的射线追踪模块
 	void PathBuilder(const HARDWAREMODE mode);									//路径构造模块
 	void TreeNodeGenerator(const HARDWAREMODE hardwareNode);					//树节点产生模块
-	void OutputResults();														//输出路径文件
+	void PostProcessing();														//后处理数据（算法相关）
+	void OutputResults();														//输出数据
 	void PreProcess();															//预处理系统
 	
 

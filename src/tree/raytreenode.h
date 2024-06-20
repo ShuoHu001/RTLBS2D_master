@@ -6,6 +6,7 @@
 #include "pathnode.h"
 #include "raypath.h"
 
+
 class Scene;
 
 class RayTreeNode {
@@ -31,6 +32,7 @@ private:
 void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes);				//产生所有树节点
 void GenerateMultiPath(RayTreeNode* root, std::vector<RayPath*>& outPaths); //产生完全路径
 void GenerateMultipathofPoint(RayTreeNode* root, Point2D rx, const Scene* scene, RtLbsType splitRadius, std::vector<RayPath*>& outPaths); //产生rx周围的路径
+
 
 
 #endif

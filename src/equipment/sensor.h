@@ -12,6 +12,7 @@
 #include "configuration/sensor/sensorcollectionconfig.h"
 #include "antenna/antennalibrary.h"
 #include "sensordata.h"
+#include "sensordatacollection.h"
 
 class Sensor {
 public:

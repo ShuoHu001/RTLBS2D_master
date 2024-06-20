@@ -20,6 +20,8 @@ public:
 	RtLbsType m_interLoss;			/** @brief	天线插入损耗	*/
 	RtLbsType m_attachGain;			/** @brief	接收机附加增益	*/
 	RtLbsType m_powerThreshold;		/** @brief	接收机接收电平灵敏度	*/
+	RtLbsType m_angularThreshold;	/** @brief	接收机接收角度的灵敏度, 单位:弧度	*/
+	RtLbsType m_delayThreshold;		/** @brief	接收机接收时延的灵敏度, 单位:ns	*/
 
 public:
 	Receiver();

@@ -8,6 +8,8 @@
 #include "geometry/Intersection2D.h"
 #include "geometry/segment2d.h"
 
+
+class CPUConverterPathNode;
 class Scene;
 
 
@@ -23,14 +25,17 @@ public:
 	~RayPath();
 	bool operator == (const RayPath& path) const;
 	bool operator != (const RayPath& path) const;
-	bool IsValidAndRectifyCommon(const Point2D& p, const Scene* scene);//基于p点进行对路径正确性进行检测和修正，注意，这里只是针对反射和绕射路径等常规路径进行修正
-	bool IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene);//基于p点对路径的正确性的检测和修正，包含透射路径
+	bool IsValidAndRectify(const Point2D& p, const Scene* scene);									//检测路径的正确性并修正路径
+
 	void DeepCopy(const RayPath* path);															//深度复制路径
 	void DeepDestroy();																			//深度销毁路径
 	void Clear();
 	void Write2File(std::ofstream& stream) const;														//写入至文件中
+	void ConvertFrom(const std::vector<CPUConverterPathNode*>& nodes, const std::vector<Segment2D*>& segments, const std::vector<Wedge2D*>& wedges);
 
 private:
+	bool IsValidAndRectifyCommon(const Point2D& p, const Scene* scene);//基于p点进行对路径正确性进行检测和修正，注意，这里只是针对反射和绕射路径等常规路径进行修正
+	bool IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* scene);//基于p点对路径的正确性的检测和修正，包含透射路径
 	bool IsValidAndRectifyRefract(); //修正透射路径
 };
 

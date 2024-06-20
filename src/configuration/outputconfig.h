@@ -21,6 +21,7 @@ const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD = "OutputSensorDataSP
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD = "OutputSensorDataMPSTSD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD = "OutputSensorDataSPMTMD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD = "OutputSensorDataMPMTMD";
+const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR = "OutputSensorDataSparseFactor";
 
 class OutputConfig:public Serializable { 
 	
@@ -40,6 +41,7 @@ public:
 	bool m_outputSensorDataMPSTSD;						/** @brief	输出多站单源单数据定位模式传感器数据	*/
 	bool m_outputSensorDataSPMTMD;						/** @brief	输出单站多源多数据定位模式传感器数据	*/
 	bool m_outputSensorDataMPMTMD;						/** @brief	输出多站多源多数据定位模式传感器数据	*/
+	RtLbsType m_outputSensorDataSparseFactor;			/** @brief	输出传感器数据的稀疏程度，1为不稀疏，0为极度稀疏	*/
 
 public:
 	OutputConfig();

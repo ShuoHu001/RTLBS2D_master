@@ -8,6 +8,8 @@ Receiver::Receiver()
 	, m_interLoss(0.0)
 	, m_attachGain(0.0)
 	, m_powerThreshold(0.0)
+	, m_angularThreshold(ONE_DEGEREE)
+	, m_delayThreshold(5)
 {
 }
 
@@ -21,6 +23,8 @@ Receiver::Receiver(const Receiver& re)
 	, m_interLoss(re.m_interLoss)
 	, m_attachGain(re.m_attachGain)
 	, m_powerThreshold(re.m_powerThreshold)
+	, m_angularThreshold(re.m_angularThreshold)
+	, m_delayThreshold(re.m_delayThreshold)
 {
 }
 
@@ -35,6 +39,8 @@ Receiver::Receiver(const ReceiverUnitConfig& config, AntennaLibrary* antLibrary)
 	m_interLoss = config.m_insertLoss;
 	m_attachGain = config.m_attachGain;
 	m_powerThreshold = config.m_powerShreshold;
+	m_angularThreshold = config.m_angularThreshold * ONE_DEGEREE;		//将角度转换为弧度
+	m_delayThreshold = config.m_delayThreshold;
 }
 
 Receiver::~Receiver()
@@ -68,5 +74,7 @@ Receiver& Receiver::operator=(const Receiver& re)
 	m_interLoss = re.m_interLoss;
 	m_attachGain = re.m_attachGain;
 	m_powerThreshold = re.m_powerThreshold;
+	m_angularThreshold = re.m_angularThreshold;
+	m_delayThreshold = re.m_delayThreshold;
 	return *this;
 }

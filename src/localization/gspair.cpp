@@ -2,6 +2,7 @@
 
 GSPair::GSPair()
 	: m_isValid(true)
+	, m_clusterId(-1)
 	, m_gs1(nullptr)
 	, m_gs2(nullptr)
 	, m_gsRef(nullptr)
@@ -10,11 +11,13 @@ GSPair::GSPair()
 	, m_timeDiffResidual(0.0)
 	, m_powerDiffResidual(0.0)
 	, m_weight(0.0)
+	, m_nullDataNum(0)
 {
 }
 
 GSPair::GSPair(GeneralSource* gs1, GeneralSource* gs2)
 	: m_isValid(true)
+	, m_clusterId(-1)
 	, m_gs1(gs1)
 	, m_gs2(gs2)
 	, m_gsRef(nullptr)
@@ -23,11 +26,13 @@ GSPair::GSPair(GeneralSource* gs1, GeneralSource* gs2)
 	, m_timeDiffResidual(0.0)
 	, m_powerDiffResidual(0.0)
 	, m_weight(0.0)
+	, m_nullDataNum(0)
 {
 }
 
 GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 	: m_isValid(true)
+	, m_clusterId(-1)
 	, m_gs1(gs1)
 	, m_gs2(gs2)
 	, m_gsRef(gsRef)
@@ -36,11 +41,13 @@ GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 	, m_timeDiffResidual(0.0)
 	, m_powerDiffResidual(0.0)
 	, m_weight(0.0)
+	 ,m_nullDataNum(0)
 {
 }
 
 GSPair::GSPair(const GSPair& pair)
 	: m_isValid(pair.m_isValid)
+	, m_clusterId(pair.m_clusterId)
 	, m_gs1(pair.m_gs1)
 	, m_gs2(pair.m_gs2)
 	, m_gsRef(pair.m_gsRef)
@@ -49,6 +56,7 @@ GSPair::GSPair(const GSPair& pair)
 	, m_timeDiffResidual(pair.m_timeDiffResidual)
 	, m_powerDiffResidual(pair.m_powerDiffResidual)
 	, m_weight(pair.m_weight)
+	, m_nullDataNum(pair.m_nullDataNum)
 {
 }
 
@@ -59,6 +67,7 @@ GSPair::~GSPair()
 GSPair& GSPair::operator=(const GSPair& pair)
 {
 	m_isValid = pair.m_isValid;
+	m_clusterId = pair.m_clusterId;
 	m_gs1=pair.m_gs1;
 	m_gs2=pair.m_gs2;
 	m_gsRef = pair.m_gsRef;
@@ -67,7 +76,13 @@ GSPair& GSPair::operator=(const GSPair& pair)
 	m_timeDiffResidual = pair.m_timeDiffResidual;
 	m_powerDiffResidual = pair.m_powerDiffResidual;
 	m_weight = pair.m_weight;
+	m_nullDataNum = pair.m_nullDataNum;
 	return *this;
+}
+
+RtLbsType GSPair::DistanceTo(const GSPair& pair)
+{
+	return (m_targetSolution - pair.m_targetSolution).Length();
 }
 
 void GSPair::NormalizedWeight(RtLbsType max_weight)
@@ -81,6 +96,15 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 		m_isValid = false;
 		return false;
 	}
+
+	//判定准测0-解是否和传感器位置重复
+	for (auto curSensor : scene->m_sensors) {
+		Point2D curSensorPoint = curSensor->GetPosition2D();
+		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
+			return false;
+		}
+	}
+
 
 	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
 	if (!scene->IsValidPoint(m_targetSolution)) {

@@ -146,7 +146,7 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 			curNode->m_data.m_type == NODE_LOS  ||
 			curNode->m_data.m_type == NODE_STOP ||
 			curNode->m_data.m_type == NODE_TRANIN ||
-			curNode->m_data.m_type == NODE_ETRANIN) { //无效节点、根节点、停止节点、透射入节点、经验透射入节点均为无效节点,不纳入节点
+			curNode->m_data.m_type == NODE_ETRANIN) { //无效节点、根节点、停止节点、透射入节点、经验透射入节点均为无效节点(对于求解广义源来说是无效的),不纳入节点
 		}
 		else {
 			outNodes.push_back(&curNode->m_data);
@@ -294,19 +294,11 @@ void GenerateMultipathofPoint(RayTreeNode* root, Point2D rx, const Scene* scene,
 		debugId++;
 		if (cur_node->IsCaptureByPoint(rx, splitRadius, prev_node)) {//当前节点rx节点位置
 			//当前 current_path进行自检，若自检成功，则保留当前路径
-			if (!current_path->m_bContainRefract) {						//常规反射绕射路径的自检
-				if (current_path->IsValidAndRectifyCommon(rx, scene)) {
-					RayPath* newPath = new RayPath();
-					newPath->DeepCopy(current_path);
-					outPaths.push_back(newPath);
-				}
-				continue;
-			}
-			if (current_path->IsValidAndRectifyRefractMixed(rx, scene)) {			//包含透射节点的自检
+			if (current_path->IsValidAndRectify(rx, scene)) {
 				RayPath* newPath = new RayPath();
 				newPath->DeepCopy(current_path);
 				outPaths.push_back(newPath);
-			}					
+			}
 			continue;
 		}
 		RayTreeNode* child_node = cur_node->m_pLeft;					//若当前节点没有，则将其下一级节点纳入考虑

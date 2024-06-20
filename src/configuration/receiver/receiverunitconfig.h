@@ -12,7 +12,9 @@ const std::string KEY_RECEIVERUNITCONFIG_ANTID = "AntID";
 const std::string KEY_RECEIVERUNITCONFIG_ANTNAME = "AntName";
 const std::string KEY_RECEIVERUNITCONFIG_INSERTLOSS = "InsertLoss";
 const std::string KEY_RECEIVERUNITCONFIG_ATTACHGAIN = "AttachGain";
-const std::string KEY_RECEIVERUNITCONFIG_POWERSHRESHOLD = "PowerShreshold";
+const std::string KEY_RECEIVERUNITCONFIG_POWERTHRESHOLD = "PowerThreshold";
+const std::string KEY_RECEIVERUNITCONFIG_ANGULARTHRESHOLD = "AngularThreshold";
+const std::string KEY_RECEIVERUNITCONFIG_DELAYTHRESHOLD = "DelayThreshold";
 const std::string KEY_RECEIVERUNITCONFIG_POSITION = "Position";
 const std::string KEY_RECEIVERUNITCONFIG_POSTURE = "Posture";
 const std::string KEY_RECEIVERUNITCONFIG_VELOCITY = "Velocity";
@@ -25,6 +27,8 @@ public:
 	RtLbsType m_insertLoss;				/** @brief	插入损耗	*/
 	RtLbsType m_attachGain;				/** @brief	附加增益 dB	*/
 	RtLbsType m_powerShreshold;			/** @brief	接收机最低电平识别，单位：dBm	*/
+	RtLbsType m_angularThreshold;		/** @brief	接收机最低角度识别，单位：度	*/
+	RtLbsType m_delayThreshold;			/** @brief	接收机最低时延识别，单位：ns	*/
 	Point3D m_position;					/** @brief	位置信息	*/
 	Euler m_posture;					/** @brief	姿态信息	*/
 	RtLbsType m_velocity;				/** @brief	速度信息	*/

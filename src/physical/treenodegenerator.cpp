@@ -1,4 +1,6 @@
 #include "treenodegenerator.h"
+#include "tree/gpu/cpuconverterpathnode.h"
+#include "result/result.h"
 
 void TreeNodeGenerator_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, Result& result)
 {
@@ -91,5 +93,70 @@ void TreeNodeGenerator_GPUMultiThread(const std::vector<std::vector<TreeNodeGPU*
 			lbsNodes[j] = new LBSTreeNode(*gpuTreeNodes[i][j], segment, wedge, sensorData);
 		}
 		result.m_lbsGSResult[i].SetNodes(lbsNodes);
+	}
+}
+
+void GenerateAllTreeNodeAndConvertToCPUConvertPathNode(const std::vector<RayTreeNode*>& roots, std::vector<CPUConverterPathNode>& outNodes, int& maxDepth)
+{
+	struct StackItem {
+		RayTreeNode* cur_node;					/** @brief	当前节点	*/
+		int father_nodeId;						/** @brief	当前节点父节点在数组中的ID	*/
+		int layerId;							/** @brief	当前节点所在的层ID	*/
+	};
+	std::stack<StackItem> stack;
+
+	//遍历每个树根，将树节点元素转换为CPUConverterPathNode
+	for (int sensorId = 0; sensorId < static_cast<int>(roots.size()); ++sensorId) {
+		RayTreeNode* curRoot = roots[sensorId];
+
+		if (curRoot == nullptr) {				//跳过无效根节点
+			continue;
+		}
+		//确定虚拟根节点的数量
+		int vrootNum = 0;
+		RayTreeNode* tempNode = curRoot;		/** @brief	临时节点交换指针	*/	
+		while (tempNode != nullptr) {
+			tempNode = tempNode->m_pRight;
+			vrootNum++;
+		}
+
+		tempNode = curRoot;
+		for (int i = 0; i < vrootNum; ++i) {
+			if (!tempNode->m_isValid) {			//跳过无效节点
+				tempNode = tempNode->m_pRight;
+				continue;
+			}
+			stack.push({ tempNode, -1, 0 });
+			tempNode = tempNode->m_pRight;
+		}
+
+		while (!stack.empty()) {
+			StackItem curItem = stack.top();
+			stack.pop();
+
+			RayTreeNode* curNode = curItem.cur_node;
+			int cur_faterNodeId = curItem.father_nodeId;
+			int cur_layerId = curItem.layerId;
+			if (maxDepth < cur_layerId) {											//寻找最大深度
+				maxDepth = cur_layerId;
+			}
+
+			CPUConverterPathNode newNode(curNode->m_data, cur_faterNodeId, sensorId, cur_layerId);
+			outNodes.push_back(newNode);
+
+			if (curNode->m_pLeft) {
+				int next_fatherNodeId = static_cast<int>(outNodes.size() - 1);			/** @brief	下一节点的父节点ID	*/
+				int next_layerId = cur_layerId + 1;									/** @brief	下一节点的层 ID	*/
+				RayTreeNode* childNode = curNode->m_pLeft;
+				while (childNode) {
+					if (!childNode->m_isValid) {					//跳过无效节点
+						childNode = childNode->m_pRight;
+						continue;
+					}
+					stack.push({ childNode, next_fatherNodeId, next_layerId });
+					childNode = childNode->m_pRight;
+				}
+			}
+		}
 	}
 }

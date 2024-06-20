@@ -6,6 +6,8 @@ ReceiverUnitConfig::ReceiverUnitConfig()
 	, m_insertLoss(0.0)
 	, m_attachGain(0.0)
 	, m_powerShreshold(-160.0)
+	, m_angularThreshold(1.0)
+	, m_delayThreshold(5)
 	, m_velocity(0.0)
 {
 }
@@ -16,6 +18,8 @@ ReceiverUnitConfig::ReceiverUnitConfig(const Point3D& p)
 	, m_insertLoss(0.0)
 	, m_attachGain(0.0)
 	, m_powerShreshold(-160.0)
+	, m_angularThreshold(1.0)
+	, m_delayThreshold(5)
 	, m_velocity(0.0)
 {
 	m_position = p;
@@ -29,6 +33,8 @@ ReceiverUnitConfig::ReceiverUnitConfig(const ReceiverUnitConfig& config)
 	, m_position(config.m_position)
 	, m_posture(config.m_posture)
 	, m_powerShreshold(config.m_powerShreshold)
+	, m_angularThreshold(config.m_angularThreshold)
+	, m_delayThreshold(config.m_delayThreshold)
 	, m_velocity(config.m_velocity)
 {
 }
@@ -44,6 +50,8 @@ ReceiverUnitConfig& ReceiverUnitConfig::operator=(const ReceiverUnitConfig& conf
 	m_insertLoss = config.m_insertLoss;
 	m_attachGain = config.m_attachGain;
 	m_powerShreshold = config.m_powerShreshold;
+	m_angularThreshold = config.m_angularThreshold;
+	m_delayThreshold = config.m_delayThreshold;
 	m_position = config.m_position;
 	m_posture = config.m_posture;
 	m_velocity = config.m_velocity;
@@ -57,7 +65,9 @@ void ReceiverUnitConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuff
 	writer.Key(KEY_RECEIVERUNITCONFIG_ANTNAME.c_str());											writer.String(m_antName.c_str());
 	writer.Key(KEY_RECEIVERUNITCONFIG_INSERTLOSS.c_str());										writer.Double(m_insertLoss);
 	writer.Key(KEY_RECEIVERUNITCONFIG_ATTACHGAIN.c_str());										writer.Double(m_attachGain);
-	writer.Key(KEY_RECEIVERUNITCONFIG_POWERSHRESHOLD.c_str());									writer.Double(m_powerShreshold);
+	writer.Key(KEY_RECEIVERUNITCONFIG_POWERTHRESHOLD.c_str());									writer.Double(m_powerShreshold);
+	writer.Key(KEY_RECEIVERUNITCONFIG_ANGULARTHRESHOLD.c_str());								writer.Double(m_angularThreshold);
+	writer.Key(KEY_RECEIVERUNITCONFIG_DELAYTHRESHOLD.c_str());									writer.Double(m_delayThreshold);
 	writer.Key(KEY_RECEIVERUNITCONFIG_POSITION.c_str());										m_position.Serialize(writer);
 	writer.Key(KEY_RECEIVERUNITCONFIG_POSTURE.c_str());											m_posture.Serialize(writer);
 	writer.Key(KEY_RECEIVERUNITCONFIG_VELOCITY.c_str());										writer.Double(m_velocity);
@@ -87,8 +97,16 @@ bool ReceiverUnitConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "ReceiverUnitConfig: missing " << KEY_RECEIVERUNITCONFIG_ATTACHGAIN.c_str() << ENDL;
 		return false;
 	}
-	if (!value.HasMember(KEY_RECEIVERUNITCONFIG_POWERSHRESHOLD.c_str())) {
-		LOG_ERROR << "ReceiverUnitConfig: missing " << KEY_RECEIVERUNITCONFIG_POWERSHRESHOLD.c_str() << ENDL;
+	if (!value.HasMember(KEY_RECEIVERUNITCONFIG_POWERTHRESHOLD.c_str())) {
+		LOG_ERROR << "ReceiverUnitConfig: missing " << KEY_RECEIVERUNITCONFIG_POWERTHRESHOLD.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_RECEIVERUNITCONFIG_ANGULARTHRESHOLD.c_str())) {
+		LOG_ERROR << "ReceiverUnitConfig: missing " << KEY_RECEIVERUNITCONFIG_ANGULARTHRESHOLD.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_RECEIVERUNITCONFIG_DELAYTHRESHOLD.c_str())) {
+		LOG_ERROR << "ReceiverUnitConfig: missing " << KEY_RECEIVERUNITCONFIG_DELAYTHRESHOLD.c_str() << ENDL;
 		return false;
 	}
 	if (!value.HasMember(KEY_RECEIVERUNITCONFIG_POSITION.c_str())) {
@@ -108,7 +126,9 @@ bool ReceiverUnitConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& antNameValue = value[KEY_RECEIVERUNITCONFIG_ANTNAME.c_str()];
 	const rapidjson::Value& insertLossValue = value[KEY_RECEIVERUNITCONFIG_INSERTLOSS.c_str()];
 	const rapidjson::Value& attachGainValue = value[KEY_RECEIVERUNITCONFIG_ATTACHGAIN.c_str()];
-	const rapidjson::Value& powerThresholdValue = value[KEY_RECEIVERUNITCONFIG_POWERSHRESHOLD.c_str()];
+	const rapidjson::Value& powerThresholdValue = value[KEY_RECEIVERUNITCONFIG_POWERTHRESHOLD.c_str()];
+	const rapidjson::Value& angularThresholdValue = value[KEY_RECEIVERUNITCONFIG_ANGULARTHRESHOLD.c_str()];
+	const rapidjson::Value& delayThresholdValue = value[KEY_RECEIVERUNITCONFIG_DELAYTHRESHOLD.c_str()];
 	const rapidjson::Value& positionValue = value[KEY_RECEIVERUNITCONFIG_POSITION.c_str()];
 	const rapidjson::Value& postureValue = value[KEY_RECEIVERUNITCONFIG_POSTURE.c_str()];
 	const rapidjson::Value& velocityValue = value[KEY_RECEIVERUNITCONFIG_VELOCITY.c_str()];
@@ -130,7 +150,15 @@ bool ReceiverUnitConfig::Deserialize(const rapidjson::Value& value)
 		return false;
 	}
 	if (!powerThresholdValue.IsDouble()) {
-		LOG_ERROR << "ReceiverUnitConfig: " << KEY_RECEIVERUNITCONFIG_POWERSHRESHOLD.c_str() << ", wrong value format." << ENDL;
+		LOG_ERROR << "ReceiverUnitConfig: " << KEY_RECEIVERUNITCONFIG_POWERTHRESHOLD.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!angularThresholdValue.IsDouble()) {
+		LOG_ERROR << "ReceiverUnitConfig: " << KEY_RECEIVERUNITCONFIG_ANGULARTHRESHOLD.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!delayThresholdValue.IsDouble()) {
+		LOG_ERROR << "ReceiverUnitConfig: " << KEY_RECEIVERUNITCONFIG_DELAYTHRESHOLD.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
 	if (!positionValue.IsObject()) {
@@ -151,6 +179,8 @@ bool ReceiverUnitConfig::Deserialize(const rapidjson::Value& value)
 	m_insertLoss = insertLossValue.GetDouble();
 	m_attachGain = attachGainValue.GetDouble();
 	m_powerShreshold = powerThresholdValue.GetDouble();
+	m_angularThreshold = angularThresholdValue.GetDouble();
+	m_delayThreshold = delayThresholdValue.GetDouble();
 	m_velocity = velocityValue.GetDouble();
 
 	if (!m_position.Deserialize(positionValue)) {

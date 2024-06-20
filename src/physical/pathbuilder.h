@@ -19,6 +19,8 @@
 #include "parallel/threadpool.h"
 #include "tree/gpu/pathnodegpu.h"
 #include "tree/gpu/raypathgpu.h"
+#include "physical/treenodegenerator.h"
+#include "parallel/threadpool.h"
 
 
 class Result;
@@ -36,7 +38,14 @@ void PathBuilder_GPUMultiThread(const std::vector<std::vector<PathNodeGPU*>>& gp
 //调试-输出多径信息
 void PathBuilder_DEBUG(const std::vector<RayTreeNode*>& vroots, const Scene* scene);
 
-//实时计算射线追踪路径信息-LBS方法用到
-void DirectlySetResultPath_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, const Point2D& targetPoint, std::vector<RaytracingResult>& rtResult);
+//实时计算射线追踪路径信息（CPU单线程）-LBS方法用到
+void DirectlySetResultPath_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, const Point2D& targetPoint, std::vector<RaytracingResult>* rtResult);
+
+//实时计算射线追踪路径信息 （CPU多线程）-LBS方法用到
+void DirectlySetResultPath_CPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, const std::vector<Point2D>& targetPoints, uint16_t threadNum, std::vector<std::vector<RaytracingResult>>& rtResults);
+
+
+
+
 
 #endif

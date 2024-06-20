@@ -14,6 +14,7 @@ OutputConfig::OutputConfig()
 	, m_outputSensorDataMPSTSD(false)
 	, m_outputSensorDataSPMTMD(false)
 	, m_outputSensorDataMPMTMD(false)
+	, m_outputSensorDataSparseFactor(1.0)
 {
 }
 
@@ -33,6 +34,7 @@ OutputConfig::OutputConfig(const OutputConfig& config)
 	, m_outputSensorDataMPSTSD(config.m_outputSensorDataMPSTSD)
 	, m_outputSensorDataSPMTMD(config.m_outputSensorDataSPMTMD)
 	, m_outputSensorDataMPMTMD(config.m_outputSensorDataMPMTMD)
+	, m_outputSensorDataSparseFactor(config.m_outputSensorDataSparseFactor)
 {
 }
 
@@ -57,6 +59,7 @@ OutputConfig& OutputConfig::operator=(const OutputConfig& config)
 	m_outputSensorDataMPSTSD=config.m_outputSensorDataMPSTSD;
 	m_outputSensorDataSPMTMD=config.m_outputSensorDataSPMTMD;
 	m_outputSensorDataMPMTMD=config.m_outputSensorDataMPMTMD;
+	m_outputSensorDataSparseFactor = config.m_outputSensorDataSparseFactor;
 	return *this;
 }
 
@@ -69,6 +72,10 @@ bool OutputConfig::IsValid() const
 		static_cast<int>(m_outputSensorDataMPMTMD);
 	if (sensorDataOutputStateSum > 1) {					//若数量总数大于1，则表明两种状态同时存在，错误
 		LOG_ERROR << "OutputConfig: sensor data output flag can't exist simultaneously." << ENDL;
+		return false;
+	}
+	if (m_outputSensorDataSparseFactor < 0.1) {
+		LOG_ERROR << "OuputConfig: sensor data output sparse factor must greater than 0.1." << ENDL;
 		return false;
 	}
 	return true;
@@ -92,6 +99,7 @@ void OutputConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD.c_str());							writer.Bool(m_outputSensorDataMPSTSD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str());							writer.Bool(m_outputSensorDataSPMTMD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str());							writer.Bool(m_outputSensorDataMPMTMD);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str());							writer.Double(m_outputSensorDataSparseFactor);
 	writer.EndObject();
 }
 
@@ -162,6 +170,10 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str() << ENDL;
 		return false;
 	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str() << ENDL;
+		return false;
+	}
 
 	const rapidjson::Value& rtDirectoryValue = value[KEY_OUTPUTCONFIG_RTDIRECTORY.c_str()];
 	const rapidjson::Value& lbsDirectoryValue = value[KEY_OUTPUTCONFIG_LBSDIRECTORY.c_str()];
@@ -178,6 +190,7 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& outputSensorDataMPSTSDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD.c_str()];
 	const rapidjson::Value& outputSensorDataSPMTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str()];
 	const rapidjson::Value& outputSensorDataMPMTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str()];
+	const rapidjson::Value& outputSensorDataSparseFactorValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str()];
 
 	if (!rtDirectoryValue.IsString()) {
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_RTDIRECTORY.c_str() << ", wrong value format." << ENDL;
@@ -239,6 +252,10 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
+	if (!outputSensorDataSparseFactorValue.IsDouble()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
 
 	m_rtDirectory = rtDirectoryValue.GetString();
 	m_lbsDirectory = lbsDirectoryValue.GetString();
@@ -255,6 +272,7 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	m_outputSensorDataMPSTSD = outputSensorDataMPSTSDValue.GetBool();
 	m_outputSensorDataSPMTMD = outputSensorDataSPMTMDValue.GetBool();
 	m_outputSensorDataMPMTMD = outputSensorDataMPMTMDValue.GetBool();
+	m_outputSensorDataSparseFactor = outputSensorDataSparseFactorValue.GetDouble();
 
 	if (!IsValid()) {													//若验证不通过，返回false
 		return false;

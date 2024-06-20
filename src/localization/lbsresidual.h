@@ -40,5 +40,33 @@ public:
 	void SetWeight(RtLbsType weight);					//设置权重
 };
 
+class AOALSResidual {
+private:
+	RtLbsType m_x;			/** @brief	x 坐标	*/
+	RtLbsType m_y;			/** @brief	y 坐标	*/
+	RtLbsType m_phi;		/** @brief	测量到的角度值	*/
+	RtLbsType m_cosPhi;		/** @brief	角度值余弦	*/
+	RtLbsType m_sinPhi;		/** @brief	角度值正弦	*/
+
+public:
+	AOALSResidual();
+	AOALSResidual(RtLbsType x, RtLbsType y, RtLbsType phi);
+	AOALSResidual(const GeneralSource* source);
+	~AOALSResidual();
+	AOALSResidual& operator = (const AOALSResidual& residual);
+
+	void Init(const GeneralSource* source);						//从广义源初始化
+	RtLbsType GetResidual(RtLbsType* position) const;	//计算残差
+
+	//广义残差表达式，适用于ceres优化库
+	template <typename T> bool operator()(const T* const position, T* residual) const {
+		T dx = position[0] - T(m_x);
+		T dy = position[1] - T(m_y);
+		residual[0] = dx * T(m_sinPhi) - dy * T(m_cosPhi);
+		return true;
+	}
+
+};
+
 
 #endif

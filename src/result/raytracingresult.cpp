@@ -199,80 +199,149 @@ void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbs
 	}
 }
 
-void RaytracingResult::GetAllSensorData(SensorDataCollection& collection) const
+void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
 {
-	//规范化处理
-std:vector<PathInfo> pathInfoCopy = m_multipathInfo;
-	//按照角度分辨率的规则进行能量合并，一般而言，可按照角度分辨率矩阵进行对号入座，能量的大小进行矢量叠加or标量叠加？
-	std::sort(pathInfoCopy.begin(), pathInfoCopy.end(), ComparedByPower_PathInfo);								//按照能量的大小进行排序
-
-	for (auto it = m_multipathInfo.begin(); it != m_multipathInfo.end(); ++it) {
-		const PathInfo& curPathInfo = *it;
-		if (curPathInfo.m_rayPathType != RAYPATH_COMMON) {				//只转换常规路径，不对地面反射和地面绕射等三维路径进行转换
-			continue;
-		}
-		SensorData curSensorData;
-		curPathInfo.Convert2SensorData(curSensorData);
-		collection.m_data.push_back(curSensorData);
-	}
-	collection.SortByPower();
-}
-
-void RaytracingResult::GetAllSensorData(SensorDataCollection* collection) const
-{
-	if (collection == nullptr) {
-		collection = new SensorDataCollection();
-	}
-	for (auto it = m_multipathInfo.begin(); it != m_multipathInfo.end(); ++it) {
-		const PathInfo& curPathInfo = *it;
-		if (curPathInfo.m_rayPathType != RAYPATH_COMMON) {				//只转换常规路径，不对地面反射和地面绕射等三维路径进行转换
-			continue;
-		}
-		SensorData curSensorData;
-		curPathInfo.Convert2SensorData(curSensorData);
-		collection->m_data.push_back(curSensorData);
-	}
-	collection->SortByPower();
-}
-
-void RaytracingResult::GetMaxPowerSensorData(SensorDataCollection& collection) const
-{
-	collection.m_data.resize(1);
 	if (m_pathNum == 0) {
 		return;
 	}
-	const PathInfo* maxPowerPathInfo = &m_multipathInfo.front();
-	for (auto it = std::next(m_multipathInfo.begin()); it != m_multipathInfo.end(); ++it) {
-		const PathInfo& curPathInfo = *it;
-		if (curPathInfo.m_rayPathType != RAYPATH_COMMON) {				//只转换常规路径，不对地面反射和地面绕射等三维路径进行转换
-			continue;
+	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
+	//将pathCopy按照角度进行聚类
+	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA2D(pathInfoCopy, threshold);
+	//按照功率大小对类进行从大到小排序
+	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+
+	int clusterNum = static_cast<int>(clusters.size());															//簇数量
+	int sparsedClusterNum = static_cast<int>(std::round(sparseFactor * clusters.size()));									//按照百分比保留稀疏的数据簇
+	if (sparsedClusterNum < 3) {																				//至少保留三个有效数据
+		if (clusterNum >= 3) {
+			sparsedClusterNum = 3;
 		}
-		if (maxPowerPathInfo->m_power < curPathInfo.m_power) {
-			maxPowerPathInfo = &curPathInfo;
+		else {
+			sparsedClusterNum = clusterNum;
+			LOG_WARNING << "RaytracingResult: generate sensor data size is " << sparsedClusterNum << " , may not satisfy localization condition." << ENDL;
 		}
+		
 	}
-	maxPowerPathInfo->Convert2SensorData(collection.m_data[0]);
-	collection.m_data[0].m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
+
+	for (int i = 0; i < sparsedClusterNum; ++i) {
+		SensorData curSensorData;
+		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
+		collection.m_data.push_back(curSensorData);
+	}
 }
 
-void RaytracingResult::GetMaxPowerSensorData(SensorDataCollection* collection) const
+
+void RaytracingResult::GetMaxPowerSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold) const
 {
-	if (collection == nullptr) {
-		collection = new SensorDataCollection();
+	if (m_pathNum == 0) {
+		return;
 	}
-	collection->m_data.resize(1);
-	const PathInfo* maxPowerPathInfo = &m_multipathInfo.front();
-	for (auto it = std::next(m_multipathInfo.begin()); it != m_multipathInfo.end(); ++it) {
-		const PathInfo& curPathInfo = *it;
-		if (curPathInfo.m_rayPathType != RAYPATH_COMMON) {				//只转换常规路径，不对地面反射和地面绕射等三维路径进行转换
-			continue;
-		}
-		if (maxPowerPathInfo->m_power < curPathInfo.m_power) {
-			maxPowerPathInfo = &curPathInfo;
-		}
+	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
+	//将pathCopy按照角度进行聚类
+	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA2D(pathInfoCopy, threshold);
+	//按照功率大小对类进行从大到小排序
+	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+	SensorData maxPowerSensorData;
+	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
+	
+	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
+	collection.m_data.push_back(maxPowerSensorData);
+}
+
+void RaytracingResult::GetAllSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
+{
+	if (m_pathNum == 0) {
+		return;
 	}
-	maxPowerPathInfo->Convert2SensorData(collection->m_data[0]);
-	collection->m_data[0].m_power = m_vectorPower[0];					//最大功率传感器数据应对应的是合成功率
+	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
+	//将pathCopy按照角度进行聚类
+	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA3D(pathInfoCopy, threshold);
+	//按照功率大小对类进行从大到小排序
+	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+
+	int clusterNum = static_cast<int>(clusters.size());															//簇数量
+	int sparsedClusterNum = static_cast<int>(std::round(sparseFactor * clusters.size()));									//按照百分比保留稀疏的数据簇
+	if (sparsedClusterNum < 3) {																				//至少保留三个有效数据
+		if (clusterNum >= 3) {
+			sparsedClusterNum = 3;
+		}
+		else {
+			sparsedClusterNum = clusterNum;
+			LOG_WARNING << "RaytracingResult: generate sensor data size is " << sparsedClusterNum << " , may not satisfy localization condition." << ENDL;
+		}
+
+	}
+
+	for (int i = 0; i < sparsedClusterNum; ++i) {
+		SensorData curSensorData;
+		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
+		collection.m_data.push_back(curSensorData);
+	}
+}
+
+void RaytracingResult::GetMaxPowerSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold) const
+{
+	if (m_pathNum == 0) {
+		return;
+	}
+	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
+	//将pathCopy按照角度进行聚类
+	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA3D(pathInfoCopy, threshold);
+	//按照功率大小对类进行从大到小排序
+	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+	SensorData maxPowerSensorData;
+	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
+
+	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
+	collection.m_data.push_back(maxPowerSensorData);
+}
+
+void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
+{
+	if (m_pathNum == 0) {
+		return;
+	}
+	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
+	//将pathCopy按照角度进行聚类
+	std::vector<PathInfoCluster> clusters = ClusterPathInfoByDelay(pathInfoCopy, threshold);
+	//按照功率大小对类进行从大到小排序
+	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
+
+	int clusterNum = static_cast<int>(clusters.size());															//簇数量
+	int sparsedClusterNum = static_cast<int>(std::round(sparseFactor * clusters.size()));									//按照百分比保留稀疏的数据簇
+	if (sparsedClusterNum < 3) {																				//至少保留三个有效数据
+		if (clusterNum >= 3) {
+			sparsedClusterNum = 3;
+		}
+		else {
+			sparsedClusterNum = clusterNum;
+			LOG_WARNING << "RaytracingResult: generate sensor data size is " << sparsedClusterNum << " , may not satisfy localization condition." << ENDL;
+		}
+
+	}
+
+	for (int i = 0; i < sparsedClusterNum; ++i) {
+		SensorData curSensorData;
+		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
+		collection.m_data.push_back(curSensorData);
+	}
+}
+
+void RaytracingResult::GetMaxPowerSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold) const
+{
+	if (m_pathNum == 0) {
+		return;
+	}
+	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
+	//将pathCopy按照角度进行聚类
+	std::vector<PathInfoCluster> clusters = ClusterPathInfoByDelay(pathInfoCopy, threshold);
+	//按照功率大小对类进行从大到小排序
+	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
+	SensorData maxPowerSensorData;
+	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
+
+	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
+	collection.m_data.push_back(maxPowerSensorData);
 }
 
 void RaytracingResult::OutputVectorEField(std::ofstream& stream) const

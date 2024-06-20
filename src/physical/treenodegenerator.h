@@ -5,7 +5,6 @@
 #include "utility/define.h"
 #include "utility/enum.h"
 #include "tree/raytreenode.h"
-#include "result/result.h"
 #include "result/lbsresult.h"
 #include "geometry/scene.h"
 #include "equipment/sensor.h"
@@ -13,6 +12,8 @@
 #include "tree/gpu/treenodegpu.h"
 #include "parallel/threadpool.h"
 
+class CPUConverterPathNode;
+class Result;
 
 //CPU 单核树节点遍历
 void TreeNodeGenerator_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, Result& result);
@@ -22,5 +23,7 @@ void TreeNodeGenerator_CPUMultiThread(const std::vector<RayTreeNode*>& vroots, c
 
 //GPU 多核树节点遍历
 void TreeNodeGenerator_GPUMultiThread(const std::vector<std::vector<TreeNodeGPU*>>& gpuTreeNodes, const Scene* scene, Result& result);
+
+void GenerateAllTreeNodeAndConvertToCPUConvertPathNode(const std::vector<RayTreeNode*>& roots, std::vector<CPUConverterPathNode>& outNodes, int& maxDepth);			//产生树结构中的所有节点并进行转换为GPU中的CPUConvertPathNode
 
 #endif

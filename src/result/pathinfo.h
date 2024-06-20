@@ -38,6 +38,9 @@ public:
 	PathInfo(const PathInfo& pathInfo);
 	~PathInfo();
 	PathInfo& operator = (const PathInfo& pathInfo);
+	RtLbsType DistanceAOA2D(const PathInfo& info) const;
+	RtLbsType DistanceAOA3D(const PathInfo& info) const;
+	RtLbsType DistanceDelay(const PathInfo& info) const;
 	void SetRayPath(RayPath3D* path);
 	void SetRayPath(TerrainDiffractionPath* path);
 	void CalculateBaseInfo(RtLbsType freq, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, Transmitter* transmitter, Receiver* receiver);					//计算基本信息-射线追踪模式
@@ -75,5 +78,23 @@ inline bool ComparedByAODTheta_PathInfo(const PathInfo& info1, const PathInfo& i
 	return info1.m_aoDTheta > info2.m_aoDTheta;
 }
 
+//AOA二维角度距离
+inline RtLbsType DistanceAOA2D(const PathInfo& info1, const PathInfo& info2) {
+	RtLbsType dPhi = info1.m_aoAPhi - info2.m_aoAPhi;
+	return std::abs(dPhi);
+}
+
+//AOA三维角度距离
+inline RtLbsType DistanceAOA3D(const PathInfo& info1, const PathInfo& info2) {
+	RtLbsType dPhi = info1.m_aoAPhi - info2.m_aoAPhi;
+	RtLbsType dTheta = info1.m_aoATheta - info2.m_aoATheta;
+	return sqrt(dPhi * dPhi + dTheta * dTheta);
+}
+
+//时延距离
+inline RtLbsType DistanceDelay(const PathInfo& info1, const PathInfo& info2) {
+	RtLbsType dDelay = info1.m_timeDelay - info2.m_timeDelay;
+	return std::abs(dDelay);
+}
 
 #endif

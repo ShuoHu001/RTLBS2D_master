@@ -225,7 +225,7 @@ void PathBuilder_DEBUG(const std::vector<RayTreeNode*>& vroots, const Scene* sce
 	}
 }
 
-void DirectlySetResultPath_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, const Point2D& targetPoint, std::vector<RaytracingResult>& rtResult)
+void DirectlySetResultPath_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, const Point2D& targetPoint, std::vector<RaytracingResult>* rtResult)
 {
 	//首先产生从每个传感器射线树到目标坐标点p的路径集合
 	//将路径放入对应的rtResult中并标记为逆向路径
@@ -233,9 +233,9 @@ void DirectlySetResultPath_CPUSingleThread(const std::vector<RayTreeNode*>& vroo
 	RtLbsType sensorHeight = scene->m_sensors[0]->m_position.z;												/** @brief	传感器所在高度，二维情况下所有传感器均在一个平面上	*/
 	Point3D targetPoint3D(targetPoint.x, targetPoint.y, sensorHeight);										/** @brief	三维目标坐标	*/
 
-	rtResult.resize(sensorNum);																				//需要输出的射线追踪结果
+	rtResult->resize(sensorNum);																				//需要输出的射线追踪结果
 	for (int i = 0; i < sensorNum; ++i) {
-		RaytracingResult& curRTResult = rtResult[i];														/** @brief	当前需要填充的射线追踪结果	*/
+		RaytracingResult& curRTResult = (*rtResult)[i];														/** @brief	当前需要填充的射线追踪结果	*/
 		const Sensor* curSensor = scene->m_sensors[i];
 		std::vector<RayPath*> commonPath2D;
 		GenerateMultipathofPoint(vroots[i], targetPoint, scene, splitRadius, commonPath2D);
@@ -288,5 +288,21 @@ void DirectlySetResultPath_CPUSingleThread(const std::vector<RayTreeNode*>& vroo
 			delete* it;
 		}
 
+	}
+}
+
+void DirectlySetResultPath_CPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, const std::vector<Point2D>& targetPoints, uint16_t threadNum, std::vector<std::vector<RaytracingResult>>& rtResults)
+{
+	rtResults.resize(targetPoints.size());
+	ThreadPool pool(threadNum);
+	for (int i = 0; i < static_cast<int>(targetPoints.size()); ++i) {
+		auto future = pool.enqueue(DirectlySetResultPath_CPUSingleThread, vroots, scene, splitRadius, targetPoints[i], &rtResults[i]);
+	}
+
+	while (true) {
+		if (pool.getTaskCount() == 0) {
+			break;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));						//每100ms检查一次
 	}
 }

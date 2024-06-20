@@ -113,26 +113,30 @@ void System::RayTracing(const HARDWAREMODE hardwareMode)
 
 void System::RayTracingLBS(const HARDWAREMODE hardwareMode)
 {
-	//增加-在LBS的同时进行射线追踪，用于计算路径做校正处理
-	RayTracing(hardwareMode);
+	HARDWAREMODE curHardWareMode = hardwareMode;
+	if (hardwareMode == GPU_MULTITHREAD) {								//定位算法中初始的射线追踪禁止采用GPU加速
+		curHardWareMode = CPU_MULTITHREAD;
+	}
 
 	//定位射线追踪模块
 	const LimitInfo& limitinfo = m_simConfig.m_raytracingConfig.m_limitInfo;
 	bool raySplitFlag = m_simConfig.m_raytracingConfig.m_raySplitFlag;
 	RtLbsType raySplitRadius = m_simConfig.m_raytracingConfig.m_raySplitRadius;
-	if (hardwareMode == CPU_SINGLETHREAD) {
+	if (curHardWareMode == CPU_SINGLETHREAD) {
 		RayTracingLBS_CPUSingleThread(m_sysMode, m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_lbsTreeRoot);
 	}
-	else if (hardwareMode == CPU_MULTITHREAD) {
+	else if (curHardWareMode == CPU_MULTITHREAD) {				
 		uint16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
 		RayTracingLBS_CPUMultiThread(m_sysMode, m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, threadNum, m_lbsTreeRoot);
 	}
-	else if (hardwareMode == GPU_MULTITHREAD) {
-		m_scene->ConvertToGPUHostScene();																							//在使用GPU进行计算时需要将场景转换为GPU场景
-		RayTracing_GPUMultiThreadWithNode(m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_gpuTreeNodes);
-	}
+	//else if (hardwareMode == GPU_MULTITHREAD) {
+	//	m_scene->ConvertToGPUHostScene();																							//在使用GPU进行计算时需要将场景转换为GPU场景
+	//	RayTracing_GPUMultiThreadWithNode(m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_gpuTreeNodes);
+	//}
 
-	//LBS射线追踪完成之后，需要对LBS中额外的射线追踪模型进行PathBuilder
+	//增加-在LBS的同时进行射线追踪，用于计算路径做校正处理
+	RayTracing(curHardWareMode);
+
 	
 	LOG_INFO << "raytracing: has already traced all the rays." << ENDL;
 }
@@ -176,22 +180,38 @@ void System::TreeNodeGenerator(const HARDWAREMODE hardwareNode)
 	}
 }
 
-void System::OutputResults()
+void System::PostProcessing()
 {
 	//计算基本信息
 	const FrequencyConfig& freqConfig = m_simConfig.m_frequencyConfig;
 	if (m_sysMode == MODE_RT) {
 		
 		const OutputConfig& outputConfig = m_simConfig.m_outputConfig;
-		m_result.CalculateResult(freqConfig, &m_scene->m_materialLibrary, m_tranFunctionData, outputConfig);
+		m_result.CalculateResult_RT_SensorData(freqConfig, &m_scene->m_materialLibrary, m_tranFunctionData, outputConfig);
 		
 	}
 	else if(m_sysMode == MODE_LBS) {
+		HARDWAREMODE hardwareMode = m_simConfig.m_lbsConfig.m_hardWareMode;								/** @brief	定位算法工作模式	*/
+		LOCALIZATION_MODE lbsMode = m_simConfig.m_lbsConfig.m_lbsMode;
 		LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
+		uint16_t threadNum = m_simConfig.m_lbsConfig.m_threadNum;
+		RtLbsType gsPairClusterThreshold = m_simConfig.m_lbsConfig.m_gsPairClusterThreshold;
 		RtLbsType splitRadius = m_simConfig.m_raytracingConfig.m_raySplitRadius;
+		
+		
 		//增加输入射线追踪树结构
-		m_result.CalculateResult(m_rtTreeRoot, m_scene, splitRadius, lbsMethod, freqConfig, m_tranFunctionData);
+		if (lbsMode == LBS_MODE_MPSTSD) {
+			m_result.CalculateResult_LBS_AOA_MPSTSD(m_rtTreeRoot, m_scene, splitRadius, lbsMethod, freqConfig, m_tranFunctionData);
+		}
+		else if (lbsMode == LBS_MODE_SPSTMD) {
+			m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, freqConfig, m_tranFunctionData);
+		}
 	}
+	
+}
+
+void System::OutputResults()
+{
 	//输出结果至文件
 	m_result.OutputResult(m_sysMode, m_simConfig.m_outputConfig);
 }

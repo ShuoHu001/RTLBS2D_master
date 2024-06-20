@@ -11,10 +11,12 @@
 #include "tree/raypath3d.h"
 #include "tree/terraindiffractionpath.h"
 #include "pathinfo.h"
+#include "pathinfocluster.h"
 #include "math/complex.h"
 #include "material/material.h"
 #include "material/materiallibrary.h"
 #include "equipment/sensordata.h"
+
 
 class RaytracingResult {
 public:
@@ -46,11 +48,14 @@ public:
 	void SetRayPath(std::vector<RayPath3D*>& paths);		//设置路径信息 常规路径
 	void SetRayPath(TerrainDiffractionPath* path);			//设置路径信息 地形绕射
 	void CalculateBaseInfo(std::vector<RtLbsType>& freqs, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction);								//计算基本信息-射线追踪模式
+	
 	void CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction);		//计算基本信息-定位模式中的伴随射线追踪
-	void GetAllSensorData(SensorDataCollection& collection) const;			//获取所有的传感器数据（转化）
-	void GetAllSensorData(SensorDataCollection* collection) const;			//获取所有的传感器数据		指针型
-	void GetMaxPowerSensorData(SensorDataCollection& collection) const;		//获取最大功率的传感器数据 （转化）
-	void GetMaxPowerSensorData(SensorDataCollection* collection) const;		//获取最大功率的传感器数据 指针型
+	void GetAllSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于AOA2D定位
+	void GetMaxPowerSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于AOA2D定位
+	void GetAllSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于AOA3D定位
+	void GetMaxPowerSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于AOA3D定位
+	void GetAllSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于时延型定位
+	void GetMaxPowerSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于时延型定位
 	void OutputVectorEField(std::ofstream& stream) const;																					//输出矢量场
 	void OutputScalarEField(std::ofstream& stream) const;																					//输出标量场
 	void OutputVectorPower(std::ofstream& stream) const;																					//输出矢量功率信息

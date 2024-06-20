@@ -8,11 +8,17 @@
 
 const std::string KEY_LOCALIZATIONCONFIG_LOCALIZATIONMODE = "LBSMode";
 const std::string KEY_LOCALIZATIONCONFIG_LOCALIZATIONMETHOD = "LBSMethod";
+const std::string KEY_LOCALIZATIONCONFIG_HARDWAREMODE = "HardWareMode";
+const std::string KEY_LOCALIZATIONCONFIG_THREADNUM = "ThreadNum";
+const std::string KEY_LOCALIZATIONCONFIG_GSPAIRCLUSTERTHRESHOLD = "GSPairClusterThreshold";
 
 class LocalizeConfig:public Serializable {
 public:
 	LOCALIZATION_MODE m_lbsMode;				/** @brief	定位模式	*/
 	LOCALIZATION_METHOD m_lbsMethod;			/** @brief	定位方法	*/
+	HARDWAREMODE m_hardWareMode;				/** @brief	硬件计算模式	*/
+	uint16_t m_threadNum;						/** @brief	多线程数量	*/
+	RtLbsType m_gsPairClusterThreshold;			/** @brief	广义源对聚类门限，单位m	*/
 	 
 public:
 	LocalizeConfig();

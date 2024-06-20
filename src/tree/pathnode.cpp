@@ -1,5 +1,6 @@
 #include "pathnode.h"
 #include "pathnode3d.h"
+#include "gpu/cpuconverterpathnode.h"
 
 PathNode::PathNode()
     : m_type(NODE_INIT)
@@ -133,6 +134,27 @@ bool PathNode::IsContainPointByAngle(Point2D p)
     if (costheta_op < m_nextRay.m_costheta)//夹角大于射线半张角
         return false;
     return true;
+}
+
+void PathNode::ConvertFrom(const CPUConverterPathNode& node, const std::vector<Segment2D*>& segments, const std::vector<Wedge2D*>& wedges)
+{
+    m_type = node.m_type;
+    m_point = node.m_point;
+    m_source = node.m_generalSource;
+    m_ft = node.m_ft;
+	if (node.m_type == NODE_TRANIN ||
+		node.m_type == NODE_TRANOUT ||
+		node.m_type == NODE_ETRANIN ||
+		node.m_type == NODE_ETRANOUT) {
+		m_bTraceBack = false;
+	}
+	if (node.m_segmentId != -1) {
+		m_segment = segments[node.m_segmentId];
+	}
+	if (node.m_wedgeId != -1) {
+		m_wedge = wedges[node.m_wedgeId];
+	}
+	m_prevRay = node.m_prevRay;
 }
 
 

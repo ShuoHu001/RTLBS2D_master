@@ -6,6 +6,7 @@ LimitInfo::LimitInfo()
 	, m_limitTransmit(0)
 	, m_limitDiffract(0)
 	, m_limitScatter(0)
+	, m_depth(0)
 {
 }
 
@@ -15,6 +16,7 @@ LimitInfo::LimitInfo(uint8_t limitTotal, uint8_t limitReflect, uint8_t limitTran
 	, m_limitTransmit(limitTransmit)
 	, m_limitDiffract(limitDiffract)
 	, m_limitScatter(limitScatter)
+	, m_depth(0)
 {
 }
 
@@ -24,6 +26,7 @@ LimitInfo::LimitInfo(const LimitInfo& info)
 	, m_limitTransmit(info.m_limitTransmit)
 	, m_limitDiffract(info.m_limitDiffract)
 	, m_limitScatter(info.m_limitScatter)
+	, m_depth(info.m_depth)
 {
 }
 
@@ -38,6 +41,7 @@ LimitInfo& LimitInfo::operator=(const LimitInfo& info)
 	m_limitTransmit = info.m_limitTransmit;
 	m_limitDiffract = info.m_limitDiffract;
 	m_limitScatter = info.m_limitScatter;
+	m_depth = info.m_depth;
 	return *this;
 }
 
@@ -52,6 +56,8 @@ bool LimitInfo::operator==(const LimitInfo& info) const
 	if (m_limitDiffract != info.m_limitDiffract)
 		return false;
 	if (m_limitScatter != info.m_limitScatter)
+		return false;
+	if (m_depth != info.m_depth)
 		return false;
 	return true;
 }
@@ -74,6 +80,7 @@ void LimitInfo::MinusReflectLimit()
 		return;
 	m_limitReflect--;
 	m_limitTotal--;
+	m_depth++;
 }
 
 void LimitInfo::MinusTransmitLimit()
@@ -82,6 +89,7 @@ void LimitInfo::MinusTransmitLimit()
 		return;
 	m_limitTransmit--;
 	m_limitTotal--;
+	m_depth++;
 }
 
 void LimitInfo::MinusDiffractLimit()
@@ -90,6 +98,7 @@ void LimitInfo::MinusDiffractLimit()
 		return;
 	m_limitDiffract--;
 	m_limitTotal--;
+	m_depth++;
 }
 
 void LimitInfo::MinusScatterLimit()
@@ -98,6 +107,7 @@ void LimitInfo::MinusScatterLimit()
 		return;
 	m_limitScatter--;
 	m_limitTotal--;
+	m_depth++;
 }
 
 HOST_DEVICE_FUNC void LimitInfo::SetETranLimitInfo()

@@ -26,6 +26,11 @@ typedef double RtLbsType;
 #define INV_THREE_PI	0.10610329539459689051			//3pi分之一
 #define INV_FOUR_PI		0.07957747154594766788			//4pi分之一
 #define TWO_THIRD_PI	2.09439510239319549230			//120度，三分之二pi
+#define ONE_DEGEREE		0.01745329251994329577			//1度对应的角度值
+#define TWO_DEGEREE		0.03490658503988659154			//2度对应的角度值
+#define THREE_DEGREE	0.05235987755982988731			//3度对应的角度值
+#define FOUR_DEGREE		0.06981317007977318308			//4度对应的角度值
+#define FIVE_DEGREE		0.08726646259971647885			//5度对应的角度值
 
 
 #define SQRT2			1.41421356237309504880			//sqrt(2)
@@ -52,6 +57,7 @@ typedef double RtLbsType;
 #define THIRD_SQRT5		0.74535599249992989880			//三分之一倍的sqrt(5)
 #define QUARTER_SQRT5	0.55901699437494742410			//四分之一倍的sqrt(5)
 
+#define ONE_THIRD		0.33333333333333333333			//三分之一
 
 #define LIGHT_VELOCITY_AIR  299702547.1					//光在空气中的传播速度(标准大气压，20℃)
 #define LIGHT_VELOCITY_VACUME  299792458				//光在真空中的传播速度

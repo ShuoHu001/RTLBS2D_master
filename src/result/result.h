@@ -13,11 +13,16 @@
 #include "math/complex.h"
 #include "result/lbsresult.h"
 #include "equipment/sensordata.h"
+#include "equipment/sensordatacollection.h"
+#include "equipment/sensordataprocessing.h"
 #include "configuration/sensor/sensorcollectionconfig.h"
 #include "localization/generalsource.h"
 #include "localization/gspair.h"
 #include "physical/pathbuilder.h"
 #include "localization/aoa/aoasolver.h"
+#include "physical/gpu/pathbuildergpu.h"
+#include "localization/gspaircluster.h"
+
 
 
 class Result {
@@ -27,7 +32,6 @@ public:
 	unsigned m_rxNum;														/** @brief	接收机数量	*/
 	unsigned m_sensorNum;													/** @brief	传感器数量	*/
 	std::vector<RaytracingResult> m_raytracingResult;						/** @brief	射线追踪仿真结果	*/
-	std::vector<LBSResult> m_lbsResult;										/** @brief	初始定位结果 非线性方程组	*/
 	std::vector<LBSResultGS> m_lbsGSResult;									/** @brief	定位结果 广义源	*/
 
 	std::vector<SensorDataCollection> m_sensorDataSPSTMD;					/** @brief	单站单源多数据定位, 接收数量为1	  支持定位类型：TOA、TDOA、AOA*/
@@ -48,10 +52,9 @@ public:
 	void Init(const std::vector<Sensor*>& sensors, const std::vector<Receiver*>& receivers);												//初始化结果-无源定位
 	void Init(const std::vector<Sensor*>& sensors);																							//初始化结果-无源定位GS
 	void OutputResult(SYSTEM_MODE systemMode, const OutputConfig& config) const;															//输出计算结果
-	void CalculateResult(const FrequencyConfig& freqConfig, MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction,
-		const OutputConfig& outputConfig);																									//计算射线追踪结果
-	void CalculateResult(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method,
-		const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);														//计算结果，GS定位方法AOAMPSTSD定位模式
+	void CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const OutputConfig& outputConfig);														//计算射线追踪结果
+	void CalculateResult_LBS_AOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法AOAMPSTSD定位模式
+	void CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法AOASPSTMD定位模式
 	std::vector<GeneralSource*> GetGeneralSource() const;																					//获得广义源
 	void LocalizationSolver();																												//定位求解器
 

@@ -6,6 +6,7 @@
 #include "utility/enum.h"
 #include "managers/logmanager.h"
 #include "sensordata.h"
+#include "sensordatacollection.h"
 
 
 class SensorDataLibrary {

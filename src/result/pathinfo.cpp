@@ -60,6 +60,25 @@ PathInfo& PathInfo::operator=(const PathInfo& pathInfo)
 	return *this;
 }
 
+RtLbsType PathInfo::DistanceAOA2D(const PathInfo& info) const
+{
+	RtLbsType dPhi = m_aoAPhi - info.m_aoAPhi;
+	return std::abs(dPhi);
+}
+
+RtLbsType PathInfo::DistanceAOA3D(const PathInfo& info) const
+{
+	RtLbsType dPhi = m_aoAPhi - info.m_aoAPhi;
+	RtLbsType dTheta = m_aoATheta - info.m_aoATheta;
+	return sqrt(dPhi * dPhi + dTheta * dTheta);
+}
+
+RtLbsType PathInfo::DistanceDelay(const PathInfo& info) const
+{
+	RtLbsType dDelay = m_timeDelay - info.m_timeDelay;
+	return std::abs(dDelay);
+}
+
 void PathInfo::SetRayPath(RayPath3D* path)
 {
 	m_rayPath = path;
@@ -149,3 +168,4 @@ void PathInfo::Convert2SensorData(SensorData& data) const
 	data.m_time = m_timeDelay;
 	data.m_timeDiff = 0.0;
 }
+

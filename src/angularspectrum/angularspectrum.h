@@ -5,8 +5,6 @@
 #include "utility/define.h"
 #include "angularelement.h"
 
-using std::vector;
-
 class AngularSpectrum {
 public:
 	RtLbsType m_size;							/** @brief	将2PI分为N个部分	*/

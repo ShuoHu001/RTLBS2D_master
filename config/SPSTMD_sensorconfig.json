@@ -1,6 +1,7 @@
 {
 	"SensorCollectionConfig": {
-		"SensorConfigs": [{
+		"SensorConfigs": [
+			{
 				"Id": 0,
 				"AntId": 0,
 				"AntName": "0-Omni",
@@ -13,7 +14,8 @@
 				"AttachGain": 0.0,
 				"ThetaDegreeErrorSTD": 0.0,
 				"TimeErrorSTD": 0.0,
-				"SensorDataFileName": ""
-			}]
+				"SensorDataFileName": "config/sensor data/tx0_SPSTMD.json"
+			}
+		]
 	}
 }

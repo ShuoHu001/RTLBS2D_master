@@ -100,6 +100,9 @@
     <Filter Include="localization\aoa">
       <UniqueIdentifier>{26c9a4a7-6e4c-42f1-b3c1-04dee4300bd8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="algorithm\decisiontoolkit">
+      <UniqueIdentifier>{a4fedb54-6a44-47e8-ad35-b26d5e2ac882}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rtlbs.h" />
@@ -413,6 +416,21 @@
     <ClInclude Include="src\localization\lbsresidual.h">
       <Filter>localization</Filter>
     </ClInclude>
+    <ClInclude Include="src\result\pathinfocluster.h">
+      <Filter>result</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensordatacollection.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensordataprocessing.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\algorithm\decisiontoolkit\assignalgorithm.h">
+      <Filter>algorithm\decisiontoolkit</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\gspaircluster.h">
+      <Filter>localization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -702,6 +720,21 @@
     <ClCompile Include="src\localization\lbsresidual.cpp">
       <Filter>localization</Filter>
     </ClCompile>
+    <ClCompile Include="src\result\pathinfocluster.cpp">
+      <Filter>result</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensordatacollection.cpp">
+      <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensordataprocessing.cpp">
+      <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\algorithm\decisiontoolkit\assignalgorithm.cpp">
+      <Filter>algorithm\decisiontoolkit</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\gspaircluster.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\geometry\vector2d.cpp">
@@ -838,6 +871,18 @@
     </CudaCompile>
     <CudaCompile Include="src\tree\gpu\treenodegpu.h">
       <Filter>tree\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.h">
+      <Filter>tree\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.cpp">
+      <Filter>tree\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\pathbuildergpu.h">
+      <Filter>physical\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\physical\gpu\pathbuildergpu.cpp">
+      <Filter>physical\gpu</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

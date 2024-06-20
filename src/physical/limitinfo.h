@@ -16,11 +16,12 @@ const std::string KEY_LIMITINFO_LIMITSCATTER = "LimitScatter";
 
 class LimitInfo {
 public:
-	uint8_t m_limitTotal;										/** @brief	总限制数	*/
+	uint8_t m_limitTotal;									/** @brief	总限制数	*/
 	uint8_t m_limitReflect;									/** @brief	反射限制数	*/
-	uint8_t m_limitTransmit;									/** @brief	透射限制数	*/
-	uint8_t m_limitDiffract;									/** @brief	绕射限制数	*/
+	uint8_t m_limitTransmit;								/** @brief	透射限制数	*/
+	uint8_t m_limitDiffract;								/** @brief	绕射限制数	*/
 	uint8_t m_limitScatter;									/** @brief	散射限制数	*/
+	uint8_t m_depth;										/** @brief	限制深度	*/
 
 public:
 	HOST_DEVICE_FUNC LimitInfo();
