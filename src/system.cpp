@@ -168,16 +168,28 @@ void System::PathBuilder(const HARDWAREMODE mode)
 
 void System::TreeNodeGenerator(const HARDWAREMODE hardwareNode)
 {
-	if (hardwareNode == CPU_SINGLETHREAD) {
-		TreeNodeGenerator_CPUSingleThread(m_lbsTreeRoot, m_scene, m_result);
+	const LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
+	int16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
+	if (lbsMethod == LBS_METHOD_RT_AOA || lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+		if (hardwareNode == CPU_SINGLETHREAD) {
+			TreeNodeGenerator_AOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_result);
+		}
+		else if (hardwareNode == CPU_MULTITHREAD) {
+			TreeNodeGenerator_AOA_CPUMultiThread(m_lbsTreeRoot, m_scene, threadNum, m_result);
+		}
 	}
-	else if (hardwareNode == CPU_MULTITHREAD) {
-		int16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
-		TreeNodeGenerator_CPUMultiThread(m_lbsTreeRoot, m_scene, threadNum, m_result);
+	else if(lbsMethod == LBS_METHOD_RT_TDOA) {
+		if (hardwareNode == CPU_SINGLETHREAD) {
+			TreeNodeGenerator_TDOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_result);
+		}
+		else if (hardwareNode == CPU_MULTITHREAD) {
+			TreeNodeGenerator_TDOA_CPUMultiThread(m_lbsTreeRoot, m_scene, threadNum, m_result);
+		}
+		else if (hardwareNode == GPU_MULTITHREAD) {
+			TreeNodeGenerator_GPUMultiThread(m_gpuTreeNodes, m_scene, m_result);
+		}
 	}
-	else if (hardwareNode == GPU_MULTITHREAD) {
-		TreeNodeGenerator_GPUMultiThread(m_gpuTreeNodes, m_scene, m_result);
-	}
+	
 }
 
 void System::PostProcessing()
@@ -201,10 +213,21 @@ void System::PostProcessing()
 		
 		//增加输入射线追踪树结构
 		if (lbsMode == LBS_MODE_MPSTSD) {
-			m_result.CalculateResult_LBS_AOA_MPSTSD(m_rtTreeRoot, m_scene, splitRadius, lbsMethod, freqConfig, m_tranFunctionData);
+			if (lbsMethod == LBS_METHOD_RT_AOA) {
+				m_result.CalculateResult_LBS_AOA_MPSTSD(m_rtTreeRoot, m_scene, splitRadius, lbsMethod, freqConfig, m_tranFunctionData);
+			}
+			else if (lbsMethod == LBS_METHOD_RT_TDOA) {
+
+			}
+			
 		}
 		else if (lbsMode == LBS_MODE_SPSTMD) {
-			m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, freqConfig, m_tranFunctionData);
+			if (lbsMethod == LBS_METHOD_RT_AOA) {
+				m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, freqConfig, m_tranFunctionData);
+			}
+			else if (lbsMethod == LBS_METHOD_RT_TDOA) {
+				m_result.CalculateResult_LBS_TDOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, freqConfig, m_tranFunctionData);
+			}
 		}
 	}
 	

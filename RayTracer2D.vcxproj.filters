@@ -103,6 +103,9 @@
     <Filter Include="algorithm\decisiontoolkit">
       <UniqueIdentifier>{a4fedb54-6a44-47e8-ad35-b26d5e2ac882}</UniqueIdentifier>
     </Filter>
+    <Filter Include="localization\tdoa">
+      <UniqueIdentifier>{10620015-0b1a-4b4c-835f-e9a31b8c1d5d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rtlbs.h" />
@@ -431,6 +434,9 @@
     <ClInclude Include="src\localization\gspaircluster.h">
       <Filter>localization</Filter>
     </ClInclude>
+    <ClInclude Include="src\localization\tdoa\tdoasolver.h">
+      <Filter>localization\tdoa</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -734,6 +740,9 @@
     </ClCompile>
     <ClCompile Include="src\localization\gspaircluster.cpp">
       <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\tdoa\tdoasolver.cpp">
+      <Filter>localization\tdoa</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

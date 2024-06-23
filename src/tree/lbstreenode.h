@@ -24,16 +24,19 @@ public:
 	SensorData* m_sensorData;										/** @brief	传感器数据	*/
 	Segment2D* m_segment;											/** @brief	节点所在面元	*/
 	Wedge2D* m_wedge;												/** @brief	节点所在棱劈	*/
+	PathNode m_originPathNode;										/** @brief	从pathnode来源的本体	*/
 
 public:
 	LBSTreeNode();
 	LBSTreeNode(const LBSTreeNode& node);
-	LBSTreeNode(const PathNode& node, SensorData* sensorData);													//由路径节点进行初始化
-	LBSTreeNode(const TreeNodeGPU& node, Segment2D* segment, Wedge2D* wedge, SensorData* sensorData);			//由GPU树节点进行初始化
+	LBSTreeNode(const PathNode& node, SensorData* sensorData);													//由路径节点进行初始化，含AOA型的定位算法
+	LBSTreeNode(const PathNode& node);																			//由路径节点进行初始化，只适合TDOA的定位算法
+	LBSTreeNode(const TreeNodeGPU& node, Segment2D* segment, Wedge2D* wedge, SensorData* sensorData);			//由GPU树节点进行初始化-弃用
 	~LBSTreeNode();
 	LBSTreeNode& operator = (const LBSTreeNode& node);
 
-	void GetGeneralSource(GeneralSource* source) const;
+	void GetGeneralSource_AOA(GeneralSource* source) const;														//获取广义源-AOA型方法，包含： AOA、AOA-TDOA
+	void GetGeneralSource_TDOA(GeneralSource* source) const;						//获取广义源-TDOA型方法，包含：TDOA
 };
 
 #endif

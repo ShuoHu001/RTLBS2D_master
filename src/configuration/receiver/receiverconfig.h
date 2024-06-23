@@ -27,6 +27,8 @@ const std::string KEY_RECEIVERCONFIG_ANTNAME = "AntName";
 const std::string KEY_RECEIVERCONFIG_INSERTLOSS = "InsertLoss";
 const std::string KEY_RECEIVERCONFIG_ATTACHGAIN = "AttachGain";
 const std::string KEY_RECEIVERCONFIG_POWERTHRESHOLD = "PowerThreshold";
+const std::string KEY_RECEIVERCONFIG_ANGULARTHRESHOLD = "AngularThreshold";
+const std::string KEY_RECEIVERCONFIG_DELAYTHRESHOLD = "DelayThreshold";
 const std::string KEY_RECEIVERCONFIG_POSTURE = "Posture";
 const std::string KEY_RECEIVERCONFIG_RECEIVERS = "Receivers";
 const std::string KEY_RECEIVERCONFIG = "ReceiverConfig";
@@ -46,7 +48,9 @@ public:
 	std::string m_antName;				/** @brief	天线名称	*/
 	RtLbsType m_insertLoss;				/** @brief	接收机插入损耗	*/
 	RtLbsType m_attachGain;				/** @brief	接收机附加增益	*/
-	RtLbsType m_powerShreshold;			/** @brief	接收机最低识别功率电平, 单位:dBm	*/
+	RtLbsType m_powerThreshold;			/** @brief	接收机最低识别功率电平, 单位:dBm	*/
+	RtLbsType m_angularThreshold;		/** @brief	接收机最低识别角度误差, 单位：度	*/
+	RtLbsType m_delayThreshold;			/** @brief	接收机最低识别时延误差, 单位: s	*/
 	Euler m_posture;					/** @brief	接收机姿态	*/
 
 

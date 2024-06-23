@@ -9,6 +9,8 @@ GeneralSource::GeneralSource()
 	, m_segment(nullptr)
 	, m_wedge(nullptr)
 	, m_phiRepeatCount(1)
+	, m_fatherSource(nullptr)
+	, m_replaceValidSource(nullptr)
 {
 }
 
@@ -24,6 +26,8 @@ GeneralSource::GeneralSource(const GeneralSource& s)
 	, m_segment(s.m_segment)
 	, m_wedge(s.m_wedge)
 	, m_phiRepeatCount(s.m_phiRepeatCount)
+	, m_fatherSource(s.m_fatherSource)
+	, m_replaceValidSource(s.m_replaceValidSource)
 {
 }
 
@@ -44,6 +48,9 @@ GeneralSource& GeneralSource::operator=(const GeneralSource& s)
 	m_segment = s.m_segment;
 	m_wedge = s.m_wedge;
 	m_phiRepeatCount = s.m_phiRepeatCount;
+	m_fatherSource = s.m_fatherSource;
+	m_originPathNode = s.m_originPathNode;
+	m_replaceValidSource = s.m_replaceValidSource;
 	return *this;
 }
 

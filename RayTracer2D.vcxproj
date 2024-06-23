@@ -215,6 +215,7 @@
     <ClCompile Include="src\localization\gspaircluster.cpp" />
     <ClCompile Include="src\localization\lbsresidual.cpp" />
     <CudaCompile Include="src\physical\gpu\pathbuildergpu.cpp" />
+    <ClCompile Include="src\localization\tdoa\tdoasolver.cpp" />
     <ClCompile Include="src\physical\pathbuilder.cpp" />
     <ClCompile Include="src\physical\raylaunch.cpp" />
     <CudaCompile Include="src\physical\raytracing.cpp" />
@@ -326,6 +327,7 @@
     <ClInclude Include="src\localization\gspaircluster.h" />
     <ClInclude Include="src\localization\lbsresidual.h" />
     <CudaCompile Include="src\physical\gpu\pathbuildergpu.h" />
+    <ClInclude Include="src\localization\tdoa\tdoasolver.h" />
     <ClInclude Include="src\physical\pathbuilder.h" />
     <CudaCompile Include="src\utility\gpuutil.h" />
     <ClInclude Include="src\physical\treenodegenerator.h" />

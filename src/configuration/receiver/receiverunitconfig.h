@@ -28,7 +28,7 @@ public:
 	RtLbsType m_attachGain;				/** @brief	附加增益 dB	*/
 	RtLbsType m_powerShreshold;			/** @brief	接收机最低电平识别，单位：dBm	*/
 	RtLbsType m_angularThreshold;		/** @brief	接收机最低角度识别，单位：度	*/
-	RtLbsType m_delayThreshold;			/** @brief	接收机最低时延识别，单位：ns	*/
+	RtLbsType m_delayThreshold;			/** @brief	接收机最低时延识别，单位：s	*/
 	Point3D m_position;					/** @brief	位置信息	*/
 	Euler m_posture;					/** @brief	姿态信息	*/
 	RtLbsType m_velocity;				/** @brief	速度信息	*/

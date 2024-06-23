@@ -352,7 +352,7 @@ RtLbsType TerrainDiffractionPath::GetPropagationTime() const
 	for (int i = 0; i < m_nodes.size() - 1; ++i) {
 		routeLength += (m_nodes[i + 1]->m_point - m_nodes[i]->m_point).Length();
 	}
-	return routeLength / LIGHT_VELOCITY_AIR * 1e9;
+	return routeLength / LIGHT_VELOCITY_AIR;
 }
 
 RtLbsType TerrainDiffractionPath::GetPropagationLength() const

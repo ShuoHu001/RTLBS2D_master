@@ -11,7 +11,7 @@
 #include "geometry/scene.h"
 #include "equipment/sensordata.h"
 #include "equipment/sensor.h"
-
+#include "tree/pathnode.h"
 
 class GeneralSource {
 public:
@@ -26,6 +26,9 @@ public:
 	Segment2D* m_segment;					/** @brief	广义源所在平面	*/
 	Wedge2D* m_wedge;						/** @brief	广义源所在棱劈	*/
 	int m_phiRepeatCount;					/** @brief	广义源角度重复的数量，默认为1 表示不重复	*/
+	GeneralSource* m_fatherSource;			/** @brief	父广义源	*/
+	PathNode m_originPathNode;				/** @brief	从pathNode中来源的本体	*/
+	GeneralSource* m_replaceValidSource;	/** @brief	可以进行平替的指针，若当前广义源即将被释放，可进行平替的对象指针，在消除重复广义源时候会用到	*/
 
 public:
 	GeneralSource();
@@ -86,12 +89,6 @@ inline bool HasValidAOASolution(const GeneralSource* gs1, const GeneralSource* g
 	if (scene->GetIntersect(segment1, nullptr)) {
 		return false;
 	}
-
-	//判定准测-4 解相对于接收机的接收参数是否满足，若为功率差，则给定弹性阈值若满足弹性阈值，则有效；若为角度，则给定角度阈值，若满足，则为有效
-	
-	//增加函数，求解点到各个传感器的主能量路径，若满足主能量满足准则4，则表明路径点有效
-
-
 	return true;
 }
 

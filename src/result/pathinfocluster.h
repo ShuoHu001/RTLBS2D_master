@@ -93,6 +93,9 @@ inline std::vector<PathInfoCluster> ClusterPathInfoByDelay(std::vector<PathInfo>
 	std::vector<PathInfoCluster> clusters;								/** @brief	需要聚成的类集合	*/
 
 	for (auto& curInfo : infos) {
+		if (curInfo.m_rayPathType != RAYPATH_COMMON) {					//限制地面反射径和绕射径
+			continue;
+		}
 		bool addFlag = false;
 		for (auto& curCluster : clusters) {
 			if (curCluster.CanAddToClusterByDelay(curInfo, threshold)) {

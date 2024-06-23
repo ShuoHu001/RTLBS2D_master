@@ -57,4 +57,7 @@
 //include fftw3 library
 #include <fftw3.h>
 
+//include OMP for multi-core accelerate
+#include <omp.h>
+
 #endif

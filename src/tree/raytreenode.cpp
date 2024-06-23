@@ -113,7 +113,8 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 	//先产生所有路径，再由路径中添加节点
 
 	struct StackItem {
-		RayTreeNode* node;
+		RayTreeNode* node;									/** @brief	当前节点	*/
+		int fatherNodeId;									/** @brief	父节点在数组中的ID	*/
 	};
 	std::stack<StackItem> stack;
 	if (root == nullptr)
@@ -134,7 +135,7 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 			tempNode = tempNode->m_pRight;
 			continue;
 		}
-		stack.push({ tempNode });
+		stack.push({ tempNode, -1 });						//根节点的父节点ID为-1
 		tempNode = tempNode->m_pRight;
 	}
 
@@ -142,26 +143,28 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 		StackItem curItem = stack.top();
 		stack.pop();
 
-		RayTreeNode* curNode = curItem.node;
+		RayTreeNode* curNode = curItem.node;				/** @brief	当前节点	*/
+		int curFatherNodeId = curItem.fatherNodeId;			/** @brief	当前节点的父节点ID	*/
 
 		if (!curNode->m_isValid ||
-			curNode->m_data.m_type == NODE_ROOT ||
 			curNode->m_data.m_type == NODE_LOS  ||
 			curNode->m_data.m_type == NODE_STOP ||
 			curNode->m_data.m_type == NODE_TRANIN ||
-			curNode->m_data.m_type == NODE_ETRANIN) { //无效节点、根节点、停止节点、透射入节点、经验透射入节点均为无效节点(对于求解广义源来说是无效的),不纳入节点
+			curNode->m_data.m_type == NODE_ETRANIN) { //无效节点：停止节点、透射入节点、经验透射入节点均为无效节点(对于求解广义源来说是无效的),不纳入节点
 		}
 		else {
 			outNodes.push_back(&curNode->m_data);
+			outNodes.back()->m_fatherNodeId = curFatherNodeId;		//修改新入数组元素的父节点ID
 		}
 		if (curNode->m_pLeft) {
 			RayTreeNode* child = curNode->m_pLeft;
+			int curNodeId = static_cast<int>(outNodes.size()) - 1;			/** @brief	当前入数组节点的ID	*/
 			while (child) {
 				if (!child->m_isValid) {					//禁止无效节点入栈
 					child = child->m_pRight;
 					continue;
 				}
-				stack.push({ child });
+				stack.push({ child, curNodeId });
 				child = child->m_pRight;
 			}
 		}

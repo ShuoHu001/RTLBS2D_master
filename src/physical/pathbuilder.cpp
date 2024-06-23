@@ -132,9 +132,9 @@ void PathBuilder_CPUMultiThread(const std::vector<RayTreeNode*>& vroots, const S
 
 void PathBuilder_GPUMultiThread(const std::vector<std::vector<PathNodeGPU*>>& gpuPathNodes, const Scene* scene, Result& result)
 {
-	size_t txNum = scene->m_transmitters.size();
-	size_t rxNum = scene->m_receivers.size();
-	for (size_t i = 0; i < txNum; ++i) {
+	int txNum = static_cast<int>(scene->m_transmitters.size());
+	int rxNum = static_cast<int>(scene->m_receivers.size());
+	for (int i = 0; i < txNum; ++i) {
 		LOG_INFO << "PathBuilder: starting tx-" << i << "path builder." << ENDL;
 		const Transmitter* curTransmitter = scene->m_transmitters[i];		/** @brief	当前遍历到的发射机	*/
 		if (!curTransmitter->m_isValid) {									//跳过无效的发射机

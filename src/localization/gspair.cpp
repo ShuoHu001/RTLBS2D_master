@@ -147,7 +147,74 @@ bool GSPair::HasValidTOASolution(const Scene* scene)
 
 bool GSPair::HasValidTDOASolution(const Scene* scene)
 {
-	return false;
+	if (!_calTDOASolution()) {
+		m_isValid = false;
+		return false;
+	}
+
+	//判定准测0-解是否和传感器位置重复
+	for (auto curSensor : scene->m_sensors) {
+		Point2D curSensorPoint = curSensor->GetPosition2D();
+		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
+			return false;
+		}
+	}
+
+
+	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
+	if (!scene->IsValidPoint(m_targetSolution)) {
+		m_isValid = false;
+		return false;
+	}
+
+	//判定准则2- 在满足AOA规则的条件下，广义源所在传播节点与目标间的构成的末端路径是否被环境所遮挡
+	const Point2D& np1 = m_gs1->m_position;								/** @brief	广义源1坐标	*/
+	const Point2D& np2 = m_gs2->m_position;								/** @brief	广义源2坐标	*/
+
+	Segment2D segment1(m_targetSolution, np1);							/** @brief	组合测试线段1	*/
+	Segment2D segment2(m_targetSolution, np2);							/** @brief	组合测试线段2	*/
+
+	if (m_gs1->m_type == NODE_REFL) {									//反射广义源处理
+		Intersection2D intersect;
+		if (!scene->GetIntersect(segment1, &intersect)) {				//线段与反射面不相交，代表解集所构成的路径不存在
+			return false;
+		}
+		if (intersect.m_segment->m_id != m_gs1->m_segment->m_id) {		//若线段1与环境相交，其交点所在环境线段与产生广义源的线段不同，则代表解无效
+			m_isValid = false;
+			return false;
+		}
+	}
+	else {																//绕射、根节点广义源处理
+		Intersection2D intersect;
+		if (scene->GetIntersect(segment1, &intersect)) {				//若目标坐标与绕射、根节点广义源间构成的线段与环境相交，则表明解无效
+			m_isValid = false;
+			return false;
+		}
+	}
+	
+	if (m_gs2->m_type == NODE_REFL) {									//反射广义源处理
+		Intersection2D intersect;
+		if (!scene->GetIntersect(segment2, &intersect)) {				//线段与反射面不相交，代表解集所构成的路径不存在
+			return false;
+		}
+		if (intersect.m_segment->m_id != m_gs2->m_segment->m_id) {		//若线段2与环境相交，其交点所在环境线段与产生广义源的线段不同，则代表解无效
+			m_isValid = false;
+			return false;
+		}
+	}
+	else {
+		Intersection2D intersect;
+		if (scene->GetIntersect(segment2, &intersect)) {				//若目标坐标与绕射、根节点广义源间构成的线段与环境相交，则表明解无效
+			m_isValid = false;
+			return false;
+		}
+	}
+	
+	//运行到此处证明解为有效解，权重计数+1
+	m_gs1->m_wCount += 1;
+	m_gs2->m_wCount += 1;
+
+	return true;
 }
 
 void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, int max_clusterNum)
@@ -238,5 +305,12 @@ bool GSPair::_calTOASolution()
 
 bool GSPair::_calTDOASolution()
 {
-	return false;
+	//采用ceres求解TDOA解
+	TDOASolver tdoaSolver;
+	tdoaSolver.SetGeneralSource(m_gsRef, m_gs1, m_gs2);				//设定广义源
+	RtLbsType accuracy = tdoaSolver.Solving_LS(m_targetSolution);
+	if (accuracy > EPSILON) {													//若精度高于EPSILON则认定为该组方程为无解情况
+		return false;
+	}
+	return true;
 }

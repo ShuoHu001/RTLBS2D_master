@@ -61,6 +61,9 @@ SensorData* SensorDataLibrary::GetData(int dataId) const
 	if (dataId < m_sensorDatas.size() && dataId >= 0) {
 		reVal = m_sensorDatas[dataId];
 	}
+	else if (dataId == -2) {									//-2为TDOA对应的广义源获取方法
+		return nullptr;
+	}
 	else {
 		LOG_ERROR << "SensorDataLibrary: wrong dataId: " << dataId << " , max Id: " << m_sensorDatas.size() << " ." << ENDL;
 	}

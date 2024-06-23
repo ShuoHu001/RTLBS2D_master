@@ -8,6 +8,7 @@
 #include "geometry/bbox2d.h"
 #include "geometry/scene.h"
 #include "generalsource.h"
+#include "localization/tdoa/tdoasolver.h"
 
 class GSPair {
 public:

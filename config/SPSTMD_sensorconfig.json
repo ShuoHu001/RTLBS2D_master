@@ -6,14 +6,14 @@
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 84.0,
-					"y": 33.0,
+					"x": 126.0,
+					"y": 65.0,
 					"z": 2.0
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
-				"ThetaDegreeErrorSTD": 0.0,
-				"TimeErrorSTD": 0.0,
+				"ThetaDegreeErrorSTD": 2.0,
+				"TimeErrorSTD": 5.0e-9,
 				"SensorDataFileName": "config/sensor data/tx0_SPSTMD.json"
 			}
 		]

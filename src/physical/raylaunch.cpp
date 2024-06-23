@@ -106,7 +106,6 @@ void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const
 		double rayTheta = TWO_PI / rayNum;												/** @brief	射线张角	*/
 		double rayHalfTheta = 0.5 * rayTheta;											/** @brief	射线半张角	*/
 		double rayHalfCosTheta = cos(rayHalfTheta);										/** @brief	射线半张角余弦	*/
-		const SensorData& curSensorData = sensor->m_sensorDataCollection.m_data[0];		/** @brief	传感器数据，TDOA定位模式下传感器数据仅有一个	*/
 		for (uint64_t i = 0; i < rayNum; ++i) {
 			outRays[i].m_theta = rayHalfTheta;
 			outRays[i].m_costheta = rayHalfCosTheta;
@@ -117,7 +116,7 @@ void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const
 			else {																		// 旋转theta
 				outRays[i].m_Dir = initDir.Rotate(rayTheta);
 			}
-			outRays[i].m_sensorDataId = curSensorData.m_id;
+			outRays[i].m_sensorDataId = -2;												//TDOA 方法时设定数据为-2，代表数据需要进行扩展，即每个广义源都要扩展所有的数据
 		}
 		return;
 	}

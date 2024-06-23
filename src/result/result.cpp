@@ -124,9 +124,15 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 	//计算传感器数据结果,默认定位为单频点下的定位模式
 	if (outputConfig.m_outputSensorDataSPSTMD) {				//若为单站单源多数据定位，发射机可以为多个，接收机为1
 		m_sensorDataSPSTMD.resize(m_txNum);
-		RtLbsType threshold = m_raytracingResult[0].m_receiver->m_angularThreshold;
+		//RtLbsType threshold = m_raytracingResult[0].m_receiver->m_angularThreshold;
+		//for (unsigned i = 0; i < m_txNum; ++i) {
+		//	m_raytracingResult[i].GetAllSensorData_AOA2D(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
+		//	m_sensorDataSPSTMD[i].m_sensorId = 0;				//计算传感器ID
+		//	m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
+		//}
+		RtLbsType threshold = m_raytracingResult[0].m_receiver->m_delayThreshold;
 		for (unsigned i = 0; i < m_txNum; ++i) {
-			m_raytracingResult[i].GetAllSensorData_AOA2D(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
+			m_raytracingResult[i].GetAllSensorData_Delay(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
 			m_sensorDataSPSTMD[i].m_sensorId = 0;				//计算传感器ID
 			m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
 		}
@@ -640,6 +646,42 @@ void Result::CalculateResult_LBS_TDOA_MPSTSD(const std::vector<RayTreeNode*>& vr
 {
 
 }
+
+void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+{
+	//0-计算基本信息-计算广义源的位置 
+	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
+		LBSResultGS& curResult = *it;
+		curResult.CalculateBaseInfo(method);
+	}
+
+	//1-合并定位结果-将多个传感器的广义源进行合并
+	size_t sourceSize = 0;
+	for (int i = 0; i < m_lbsGSResult.size(); ++i) {
+		size_t oldSize = m_allGeneralSource.size();
+		sourceSize += m_lbsGSResult[i].m_sources.size();
+		m_allGeneralSource.resize(sourceSize);
+		std::copy(m_lbsGSResult[i].m_sources.begin(), m_lbsGSResult[i].m_sources.end(), m_allGeneralSource.begin() + oldSize);
+	}
+
+	//1-求解最优的参考站，按照循环的模式求解
+	std::vector<GeneralSource*> refSources;												/** @brief	参考广义源	*/
+	for (auto curSource : m_allGeneralSource) {
+		refSources.push_back(curSource);
+	}
+
+	std::vector<SensorData> sensorDatas;
+	scene->m_sensorDataLibrary.GetAllSensorData(sensorDatas);
+	std::vector<GSPairCluster> clusters;
+	for (auto refSource : refSources) {
+		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster(refSource, m_allGeneralSource, sensorDatas, scene, gsPairClusterThreshold);
+		clusters.push_back(newCluster);
+	}
+
+	std::cout << "未定义" << std::endl;
+
+}
+
 
 std::vector<GeneralSource*> Result::GetGeneralSource() const
 {

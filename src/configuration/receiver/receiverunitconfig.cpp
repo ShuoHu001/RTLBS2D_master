@@ -7,7 +7,7 @@ ReceiverUnitConfig::ReceiverUnitConfig()
 	, m_attachGain(0.0)
 	, m_powerShreshold(-160.0)
 	, m_angularThreshold(1.0)
-	, m_delayThreshold(5)
+	, m_delayThreshold(5.0e-9)
 	, m_velocity(0.0)
 {
 }
@@ -19,7 +19,7 @@ ReceiverUnitConfig::ReceiverUnitConfig(const Point3D& p)
 	, m_attachGain(0.0)
 	, m_powerShreshold(-160.0)
 	, m_angularThreshold(1.0)
-	, m_delayThreshold(5)
+	, m_delayThreshold(5.0e-9)
 	, m_velocity(0.0)
 {
 	m_position = p;

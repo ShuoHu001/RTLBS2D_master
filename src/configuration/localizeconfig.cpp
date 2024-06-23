@@ -123,13 +123,7 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 
 bool LocalizeConfig::IsValid() const
 {
-	if (m_lbsMode == LBS_MODE_SPSTMD) {
-		if (m_lbsMethod == LBS_METHOD_RT_AOA_TDOA || m_lbsMethod == LBS_METHOD_RT_TDOA) {
-			LOG_ERROR << "LocalizeConfig: SPSTMD not support TDOA method." << ENDL;
-			return false;
-		}
-	}
-	else if (m_lbsMode == LBS_MODE_SPMTMD) {
+	if (m_lbsMode == LBS_MODE_SPMTMD) {
 		if (m_lbsMethod == LBS_METHOD_RT_AOA_TDOA || m_lbsMethod == LBS_METHOD_RT_TDOA) {
 			LOG_ERROR << "LocalizeConfig: SPMTMD not support TDOA method." << ENDL;
 			return false;

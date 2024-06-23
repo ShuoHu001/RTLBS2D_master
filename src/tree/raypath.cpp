@@ -126,7 +126,9 @@ bool RayPath::IsValidAndRectifyCommon(const Point2D& p, const Scene* scene)//·´Ï
 	//ÕûÌåË¼Â·ÊÇ´ÓÄ©Î²½Úµã³ö·¢£¬ĞŞÕıµ½Ç°Ãæ¸÷¸ö¹ãÒåÔ´µÄÂ·¾¶
 	if (m_nodes.empty())
 		return false;
-	PathNode*& endNode = m_nodes.back(); endNode->m_point = p;//¸üĞÂÄ©Î²½ÚµãµÄ½Úµã×ø±ê
+	PathNode*& endNode = m_nodes.back(); 
+	endNode->m_point = p;//¸üĞÂÄ©Î²½ÚµãµÄ½Úµã×ø±ê
+	endNode->m_type = NODE_STOP;
 	Point2D endPoint = p;//Ä©Î²½ÚµãµÄ×ø±ê
 	Ray2D t_ray;//ÓÃÓÚÏà½»²âÊÔµÄray
 	Intersection2D t_inter;//ÓÃÓÚÏà½»²âÊÔµÄintersect

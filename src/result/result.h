@@ -56,6 +56,7 @@ public:
 	void CalculateResult_LBS_AOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法AOAMPSTSD定位模式
 	void CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法AOASPSTMD定位模式
 	void CalculateResult_LBS_TDOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法TDOAMPSTSD定位模式
+	void CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法TDOASPSTMD定位模式
 	std::vector<GeneralSource*> GetGeneralSource() const;																					//获得广义源
 	void LocalizationSolver();																												//定位求解器
 
@@ -76,6 +77,7 @@ private:
 	void OutputSensorDataSPMTMD() const;																									//输出单站多源多数据定位传感器仿真数据
 	void OutputSensorDataMPMTMD() const;																									//输出多站多源多数据定位传感器仿真数据
 	void OutputGeneralSource() const;																										//输出广义源信息
+	
 };
 
 #endif

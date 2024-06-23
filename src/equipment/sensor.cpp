@@ -7,7 +7,7 @@ Sensor::Sensor()
 	, m_interLoss(0.0)
 	, m_attachGain(0.0)
 	, m_phiErrorSTD(0.1)
-	, m_timeErrorSTD(0.1)
+	, m_timeErrorSTD(5.0e-9)
 {
 }
 

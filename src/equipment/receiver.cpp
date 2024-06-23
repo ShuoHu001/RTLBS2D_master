@@ -9,7 +9,7 @@ Receiver::Receiver()
 	, m_attachGain(0.0)
 	, m_powerThreshold(0.0)
 	, m_angularThreshold(ONE_DEGEREE)
-	, m_delayThreshold(5)
+	, m_delayThreshold(5.0e-9)
 {
 }
 

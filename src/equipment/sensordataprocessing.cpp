@@ -3,7 +3,11 @@
 
 void CalculateResidual_AOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_phi)
 {
-	r_phi = (d1.m_phi - d2.m_phi) * (d1.m_phi - d2.m_phi);								//计算角度残差平方
+	RtLbsType cur_r_phi = std::abs(d1.m_phi - d2.m_phi);
+	if (cur_r_phi > PI) {
+		cur_r_phi -= PI;
+	}
+	r_phi = cur_r_phi * cur_r_phi;								//计算角度残差平方
 }
 
 void CalculateResidual_TDOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_timediff)
@@ -13,8 +17,13 @@ void CalculateResidual_TDOA(const SensorData& d1, const SensorData& d2, RtLbsTyp
 
 void CalculateResidual_TDOA_AOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_phi, RtLbsType& r_timediff)
 {
-	r_phi = (d1.m_phi - d2.m_phi) * (d1.m_phi - d2.m_phi);								//计算角度残差平方
-	r_timediff = (d1.m_timeDiff - d2.m_timeDiff) * (d1.m_timeDiff - d2.m_timeDiff);		//计算时间差残差平方
+	RtLbsType cur_r_phi = std::abs(d1.m_phi - d2.m_phi);
+	RtLbsType cur_r_timeDiff = d1.m_timeDiff - d2.m_timeDiff;
+	if (cur_r_phi > PI) {
+		cur_r_phi -= PI;
+	}
+	r_phi = cur_r_phi * cur_r_phi;								//计算角度残差平方
+	r_timediff = cur_r_timeDiff * cur_r_timeDiff;				//计算时间差残差平方
 }
 
 bool ComparedByPower_SensorDataCollection(const SensorDataCollection& c1, const SensorDataCollection& c2) {
@@ -73,10 +82,14 @@ inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1
 	for (int i = 0; i < n; ++i) {
 		norm_cost[i].assign(m, 0);
 		for (int j = 0; j < m; ++j) {
-			RtLbsType cur_r_phi = (c1.m_data[i].m_phi - c2.m_data[j].m_phi) * (c1.m_data[i].m_phi - c2.m_data[j].m_phi);
-			RtLbsType cur_r_powerDiff = (c1.m_data[i].m_power - c2.m_data[j].m_power) * (c1.m_data[i].m_power - c2.m_data[j].m_power);
-			cost[i][j].r_phi = cur_r_phi;
-			cost[i][j].r_powerDiff = cur_r_powerDiff;
+
+			RtLbsType cur_r_phi = std::abs(c1.m_data[i].m_phi - c2.m_data[j].m_phi);
+			if (cur_r_phi > PI) {			//保证残差在0-PI内(最小残差准则)
+				cur_r_phi -= PI;
+			}
+			RtLbsType cur_r_powerDiff = c1.m_data[i].m_power - c2.m_data[j].m_power;
+			cost[i][j].r_phi = cur_r_phi * cur_r_phi;
+			cost[i][j].r_powerDiff = cur_r_powerDiff * cur_r_powerDiff;
 			if (max_r_phi < cur_r_phi) {
 				max_r_phi = cur_r_phi;
 			}
@@ -323,12 +336,13 @@ void CalculateSensorResidual_TDOA_AOA_MultiData(const SensorDataCollection& c1, 
 		norm_cost[n].resize(m);
 		norm_cost[n].assign(m, 0);
 		for (int j = 0; j < m; ++j) {
-			RtLbsType cur_r_phi = (c1.m_data[i].m_phi - c2.m_data[j].m_phi) * (c1.m_data[i].m_phi - c2.m_data[j].m_phi);
-			RtLbsType cur_r_timeDiff = (c1.m_data[i].m_timeDiff - c2.m_data[j].m_timeDiff) * (c1.m_data[i].m_timeDiff - c2.m_data[j].m_timeDiff);
-			RtLbsType cur_r_powerDiff = (c1.m_data[i].m_power - c2.m_data[j].m_power) * (c1.m_data[i].m_power - c2.m_data[j].m_power);
-			cost[i][j].r_phi = cur_r_phi;
-			cost[i][j].r_timeDiff = cur_r_timeDiff;
-			cost[i][j].r_powerDiff = cur_r_powerDiff;
+
+			RtLbsType cur_r_phi = std::abs(c1.m_data[i].m_phi - c2.m_data[j].m_phi);
+			RtLbsType cur_r_timeDiff = c1.m_data[i].m_timeDiff - c2.m_data[j].m_timeDiff;
+			RtLbsType cur_r_powerDiff = c1.m_data[i].m_power - c2.m_data[j].m_power;
+			cost[i][j].r_phi = cur_r_phi * cur_r_phi;
+			cost[i][j].r_timeDiff = cur_r_timeDiff * cur_r_timeDiff;
+			cost[i][j].r_powerDiff = cur_r_powerDiff * cur_r_powerDiff;
 			if (max_r_phi < cur_r_phi) {
 				max_r_phi = cur_r_phi;
 			}

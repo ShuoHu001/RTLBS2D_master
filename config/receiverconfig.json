@@ -3,8 +3,8 @@
     "PredictionMode": 0,
     "SingleConfig": {
       "Position": {
-        "x": 84.0,
-        "y": 33.0,
+        "x": 126.0,
+        "y": 65.0,
         "z": 2.0
       },
       "Velocity": 0.0
@@ -76,7 +76,7 @@
     "AttachGain": 0.0,
     "PowerThreshold": -160.0,
     "AngularThreshold": 1.0,
-    "DelayThreshold": 5.0,
+    "DelayThreshold": 1.0e-9,
     "Posture": {
       "IsRadian": false,
       "Yaw": 0.0,

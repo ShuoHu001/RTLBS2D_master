@@ -168,8 +168,8 @@ void Polarization3D::CalculateReflectionField_ReverseRT(RtLbsType& st, const Poi
 	//首先进行特殊处理，若计算场点位置与反射点的位置较为接近，则不做任何场的叠加计算
 	Vector3D sr = rP - sP;
 	Vector3D re = eP - rP;
-	Vector3D srNormal = sr.Normalize();
-	Vector3D reNormal = re.Normalize();
+	Vector3D srNormal = Normalize(sr);
+	Vector3D reNormal = Normalize(re);
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	if (srLen < EPSILON || reLen < EPSILON) {                                //若累加距离小于系统默认最小值，则认为不进行任何形式的场计算叠加
@@ -220,8 +220,8 @@ void Polarization3D::CalculateReflectionField_ForwardRT(RtLbsType& st, const Poi
 	//1-计算几何常量
 	Vector3D sr = rP - sP;
 	Vector3D re = eP - rP;
-	Vector3D srNormal = sr.Normalize();
-	Vector3D reNormal = re.Normalize();
+	Vector3D srNormal = Normalize(sr);
+	Vector3D reNormal = Normalize(re);
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	st += reLen;															 //传播距离叠加
@@ -257,8 +257,8 @@ void Polarization3D::CalculateTransmissionField_ReverseRT(RtLbsType& st, const P
 	//首先进行特殊处理，若计算场点位置与反射点的位置较为接近，则不做任何场的叠加计算
 	Vector3D sr = tP - sP;
 	Vector3D re = eP - tP;
-	Vector3D srNormal = sr.Normalize();
-	Vector3D reNormal = re.Normalize();
+	Vector3D srNormal = Normalize(sr);
+	Vector3D reNormal = Normalize(re);
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	if (srLen < EPSILON || reLen < EPSILON) {                                //若累加距离小于系统默认最小值，则认为不进行任何形式的场计算叠加
@@ -309,8 +309,8 @@ void Polarization3D::CalculateTransmissionField_ForwardRT(RtLbsType& st, const P
 	//1-计算几何常量
 	Vector3D sr = tP - sP;
 	Vector3D re = eP - tP;
-	Vector3D srNormal = sr.Normalize();
-	Vector3D reNormal = re.Normalize();
+	Vector3D srNormal = Normalize(sr);
+	Vector3D reNormal = Normalize(re);
 	RtLbsType srLen = sr.Length();                                           /** @brief	场计算起点与反射点坐标间的距离	*/
 	RtLbsType reLen = re.Length();                                           /** @brief	场计算反射点与终点坐标间的距离	*/
 	st += reLen;															 //传播距离叠加
@@ -356,8 +356,8 @@ void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Ve
 	//首先进行特殊处理，若计算场点的位置与绕射点的位置较为接近，则不进行场的任何计算
 	Vector3D sd = dP - sP;																										/** @brief	场计算起点指向绕射点坐标的向量	*/
 	Vector3D de = eP - dP;																										/** @brief	绕射点指向终点坐标的向量	*/
-	Vector3D sdNormal = sd.Normalize();
-	Vector3D deNormal = de.Normalize();
+	Vector3D sdNormal = Normalize(sd);
+	Vector3D deNormal = Normalize(de);
 	RtLbsType sdLen = sd.Length();																								/** @brief	起点到绕射点的距离	*/
 	RtLbsType deLen = de.Length();																								/** @brief	绕射点至终点的距离	*/
 	if (sdLen < EPSILON || deLen < EPSILON)																						//若累加距离小于系统的默认值，则不进行任何场计算
@@ -399,8 +399,8 @@ void Polarization3D::CalculateDiffractionField_ForwardRT(RtLbsType& st, const Ve
 	//1-几何参量求解
 	Vector3D sd = dP - sP;																										/** @brief	场计算起点指向绕射点坐标的向量	*/
 	Vector3D de = eP - dP;																										/** @brief	绕射点指向终点坐标的向量	*/
-	Vector3D sdNormal = sd.Normalize();
-	Vector3D deNormal = sd.Normalize();
+	Vector3D sdNormal = Normalize(sd);
+	Vector3D deNormal = Normalize(sd);
 	RtLbsType sdLen = sd.Length();																								/** @brief	起点到绕射点的距离	*/
 	RtLbsType deLen = de.Length();																								/** @brief	绕射点至终点的距离	*/
 	Vector3D v3 = sdNormal.Cross(deNormal);
@@ -430,8 +430,8 @@ void Polarization3D::CalculateDiffractionField_TerrainUTD(RtLbsType& st, const V
 	//1-几何参量求解
 	Vector3D sd = dP - sP;																										/** @brief	场计算起点指向绕射点坐标的向量	*/
 	Vector3D de = eP - dP;																										/** @brief	绕射点指向终点坐标的向量	*/
-	Vector3D sdNormal = sd.Normalize();
-	Vector3D deNormal = de.Normalize();
+	Vector3D sdNormal = Normalize(sd);
+	Vector3D deNormal = Normalize(de);
 	RtLbsType sdLen = sd.Length();																								/** @brief	起点到绕射点的距离	*/
 	RtLbsType deLen = de.Length();																								/** @brief	绕射点至终点的距离	*/
 	Vector3D v3 = sdNormal.Cross(deNormal);
