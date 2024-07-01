@@ -45,7 +45,7 @@ __global__ void FindPathNodeKernel(CPUConverterPathNode* allNodes, int numNodes,
 	}
 }
 
-void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRaidus, std::vector<Point2D>& targetPoints, std::vector<std::vector<RaytracingResult>>& rtResults)
+void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRaidus, std::vector<GSPairCluster>& clusters)
 {
 	//遍历vroots中的所有数据，生成CPUConverterPathNode,在CPUConverterPathNode添加传感器ID属性，用于标识其属于哪一个传感器，在GPU代码中，增加循环，循环的参数是接收点的数量
 
@@ -55,6 +55,26 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 	std::vector<CPUConverterPathNode> host_AllPathNodes;
 	GenerateAllTreeNodeAndConvertToCPUConvertPathNode(vroots, host_AllPathNodes, maxDepth);
 	maxNodeSize = maxDepth + 1;																			/** @brief	最大节点数量为最大深度+1	*/
+
+	//合并cluster中所有的坐标点数量
+	std::vector<Point2D> targetPoints;
+	targetPoints.reserve(5 * clusters.size());
+	for (auto& cluster : clusters) {
+		for (auto& point : cluster.m_aroundPoints) {
+			targetPoints.push_back(point);
+		}
+	}
+
+	//构造对应坐标点的射线追踪结果数组
+	std::vector<std::vector<RaytracingResult>*> targetRtResults;
+	for (auto& cluster : clusters) {
+		for (auto& results : cluster.m_rtResult) {
+			results.resize(scene->m_sensors.size());
+			targetRtResults.push_back(&results);
+		}
+	}
+
+
 	int num_Nodes = static_cast<int>(host_AllPathNodes.size());											/** @brief	节点数量	*/
 	int num_Targets = static_cast<int>(targetPoints.size());											/** @brief	目标数量	*/
 
@@ -137,7 +157,6 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 	dev_TargetPathNodeIds.swap(dev_TargetPathNodeIds);
 
 	//分析数据拓扑关系
-	rtResults.resize(num_Targets);
 	int nId = 0;																						/** @brief	初始的节点ID	*/
 	int pId = 0;																						/** @brief	目标坐标点 ID	*/
 	for (auto curTargetNodeNum : everyTargetNodesNum) {													//遍历每个目标
@@ -168,7 +187,6 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 
 		RtLbsType sensorHeight = scene->m_sensors[0]->m_position.z;
 		Point3D targetPoint3D(targetPoints[pId].x, targetPoints[pId].y, sensorHeight);
-		rtResults[pId].resize(scene->m_sensors.size());
 		for (int i = 0; i < static_cast<int>(scene->m_sensors.size()); ++i) {
 			const Sensor* curSensor = scene->m_sensors[i];
 			//将常规路径转换为三维路径
@@ -192,19 +210,20 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 				RayPath3D* curPath = *it;
 				if (!scene->IsValidRayPath(curPath)) {															//路径验证不通过，无效路径，直接删除
 					delete curPath;
+					curPath = nullptr;
 				}
 				else {
 					validPath.push_back(curPath);
 				}
 			}
-			rtResults[pId][i].SetRayPath(validPath);
+			(*targetRtResults[pId])[i].SetRayPath(validPath);
 
 
 			//处理地形绕射路径
 			TerrainDiffractionPath* terrainDifftactionPath = nullptr;
 			if (scene->GetGroundDiffractionPath(targetPoint3D, curSensor->m_position, terrainDifftactionPath)) {
 				if (scene->IsValidRayPath(terrainDifftactionPath))
-					rtResults[pId][i].SetRayPath(terrainDifftactionPath);												//设定地形绕射路径
+					(*targetRtResults[pId])[i].SetRayPath(terrainDifftactionPath);												//设定地形绕射路径
 				else																							//若地形绕射路径无效，则进行删除
 					delete terrainDifftactionPath;
 			}
@@ -213,9 +232,34 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 			for (auto it = commonPath2Ds[i].begin(); it != commonPath2Ds[i].end(); ++it) {
 				delete* it;
 			}
+			commonPath2Ds[i].clear();
+			std::vector<RayPath*>().swap(commonPath2Ds[i]);
+
+			terrainReflectPaths.clear();
+			std::vector<RayPath3D*>().swap(terrainReflectPaths);
+
+			commonPath3D.clear();
+			std::vector<RayPath3D*>().swap(commonPath3D);
+
+			validPath.clear();
+			std::vector<RayPath3D*>().swap(validPath);
 		}
 		
 		//将路径设定在result中
 		pId++;
 	}
+
+
+
+	targetRtResults.clear();
+	std::vector <std::vector<RaytracingResult>*>().swap(targetRtResults);
+
+	targetPoints.clear();
+	std::vector<Point2D>().swap(targetPoints);
+
+	host_AllPathNodes.clear();
+	std::vector<CPUConverterPathNode>().swap(host_AllPathNodes);
+
+	host_TargetPathNodeIds.clear();
+	std::vector<int>().swap(host_TargetPathNodeIds);
 }

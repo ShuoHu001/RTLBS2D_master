@@ -57,7 +57,7 @@ public:
 	~Scene();
 	bool LoadScene(const SimConfig& config);																				//基于几何配置初始化场景
 	void ConvertToGPUHostScene();																							//将场景中的环境转换为GPU中（内存数据仍然在主机中）
-	bool GetIntersect(Ray2D& r, Intersection2D* intersect) const;															//求解射线与环境的相交情况
+	bool GetIntersect(const Ray2D& r, Intersection2D* intersect) const;															//求解射线与环境的相交情况
 	bool GetIntersect(const Segment2D& segment, Intersection2D* intersect) const;											//求解线段与环境的相交情况
 	bool IsBlock(const Point3D& ps, const Point3D& pe) const;																//判定两点组成的线段是否被环境遮挡
 	bool IsBlockOnlyObject(const Point3D& ps, const Point3D& pe) const;														//判定两点组成的线段是否被环境遮挡-仅适用于环境中物体
@@ -72,7 +72,7 @@ public:
 	bool IsValidPoint(const Point2D& p) const;																				//检测二维坐标点是否有效
 	bool InitSceneTransmitters(const TransmitterCollectionConfig& config, AntennaLibrary* antLibrary);						//初始化场景中的发射机
 	bool InitSceneReceivers(const std::vector<ReceiverUnitConfig>& configs, AntennaLibrary* antLibrary);					//初始化场景中的接收机
-	bool InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrary* antLibrary);								//初始化场景中的传感器
+	bool InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrary* antLibrary, bool hasSimuError);								//初始化场景中的传感器
 	bool GetGroundReflectPaths(const Point3D& ps, const Point3D& pe, std::vector<RayPath3D*>& outPaths) const;				//获得地面反射路径
 	bool GetGroundDiffractionPath(const Point3D& ps, const Point3D& pe, TerrainDiffractionPath*& outPath) const;			//获得地面绕射路径
 	bool IsValidRayPath(const RayPath3D* path) const;																		//判定常规路径是否有效，利用地形进行判定
@@ -80,7 +80,7 @@ public:
 
 
 private:
-	bool _bfIntersect(Ray2D& r, Intersection2D* intersect) const;															//射线与环境元素进行相交判定-暴力求解
+	bool _bfIntersect(const Ray2D& r, Intersection2D* intersect) const;															//射线与环境元素进行相交判定-暴力求解
 	bool _isRepeatToTransmitter(const Point3D& p) const;																	//检测坐标是否与发射机相同
 	
 

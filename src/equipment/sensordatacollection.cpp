@@ -48,6 +48,13 @@ std::vector<RtLbsType> SensorDataCollection::GetPowerDiffMatrix() const
 	return powerDiff;
 }
 
+void SensorDataCollection::AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeErrorSigma, RtLbsType powerErrorSigma)
+{
+	for (auto& data : m_data) {
+		data.AddSimulationError(phiErrorSigma, timeErrorSigma, powerErrorSigma);
+	}
+}
+
 bool SensorDataCollection::Init(const std::string& filename)
 {
 	if (filename.empty()) {

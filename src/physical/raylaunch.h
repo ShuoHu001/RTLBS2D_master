@@ -21,5 +21,5 @@ void RayLaunch_Uniform(const uint64_t& rayNum, const Point2D& position, std::vec
 void RayLaunch_MultiDirection(uint64_t& rayNum, const Point2D& position, const AngularSpectrum& spectrum, std::vector<Ray2D>& outRays);
 
 //基于传感器进行发射射线
-void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const Sensor* sensor, std::vector<Ray2D>& outRays);
+void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const Sensor* sensor, RtLbsType rayLaunchTheta, std::vector<Ray2D>& outRays);
 #endif

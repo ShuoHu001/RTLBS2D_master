@@ -6,6 +6,7 @@
 #include "utility/enum.h"
 #include "utility/serializable.h"
 #include "managers/logmanager.h"
+#include "managers/randomanager.h"
 #include "geometry/vector2d.h"
 
 
@@ -31,8 +32,10 @@ public:
 	SensorData operator = (const SensorData& data);
 	bool operator < (const SensorData& data);									//重载小于符号，按照功率大小进行逆向排序
 	Vector2D GetDirection() const;												//将接收到的角度转换为方向矢量
+	void AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeErrorSigma, RtLbsType powerErrorSigma);			//增加仿真误差
 	void Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 	bool Deserialize(const rapidjson::Value& value);
+	
 };
 
 #endif

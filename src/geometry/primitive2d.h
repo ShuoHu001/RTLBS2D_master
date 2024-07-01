@@ -28,7 +28,7 @@ public:
 	virtual ~Primitive2D(){}
 
 public:
-	virtual bool GetIntersect(const Ray2D& r, Intersection2D* intersect) const = 0;
+	virtual bool GetIntersect(const Ray2D& r, Intersection2D* intersect) = 0;
 	virtual const BBox2D& GetBBox() const = 0;
 	virtual void CLearBBoxCache();
 	void SetID(int id) { m_id = id; }

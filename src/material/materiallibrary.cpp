@@ -17,10 +17,12 @@ MaterialLibrary::MaterialLibrary(const MaterialLibraryConfig& config)
 
 MaterialLibrary::~MaterialLibrary()
 {
-	for (auto it = m_materials.begin(); it != m_materials.end(); ++it) {
-		Material* mat = *it;
-		//delete mat;
+	for (auto& mat:m_materials) {
+		delete mat;
+		mat = nullptr;
 	}
+	m_materials.clear();
+	std::vector<Material*>().swap(m_materials);
 }
 
 bool MaterialLibrary::Init(const MaterialLibraryConfig& config)

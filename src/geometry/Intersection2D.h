@@ -25,12 +25,12 @@ public:
 	Intersection2D(Point2D intersect, PATHNODETYPE type, RtLbsType t, Segment2D* segment); //反射节点配置
 	Intersection2D(Point2D intersect, PATHNODETYPE type, RtLbsType t);						//视距节点配置
 	~Intersection2D();
-	bool Update(Ray2D& ray); //更新交点信息,初级相交判断只是几何结果，需要根据进一步物理信息更新相交信息
+	bool Update(const Ray2D& ray); //更新交点信息,初级相交判断只是几何结果，需要根据进一步物理信息更新相交信息
 
 	Intersection2DGPU Convert2GPU();
 	
 private:
-	bool ValidWedges(Ray2D& ray);
+	bool ValidWedges(const Ray2D& ray);
 
 };
 

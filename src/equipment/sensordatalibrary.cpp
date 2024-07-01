@@ -15,10 +15,14 @@ SensorDataLibrary::~SensorDataLibrary()
 	for (auto it = m_sensorDatas.begin(); it != m_sensorDatas.end(); ++it) {
 		delete* it;
 	}
+	m_sensorDatas.clear();
+	std::vector<SensorData*>().swap(m_sensorDatas);
 
 	for (auto it = m_sensorDataCollection.begin(); it != m_sensorDataCollection.end(); ++it) {
 		delete* it;
 	}
+	m_sensorDataCollection.clear();
+	std::vector<SensorDataCollection*>().swap(m_sensorDataCollection);
 }
 
 SensorDataLibrary& SensorDataLibrary::operator=(const SensorDataLibrary& library)
@@ -80,6 +84,25 @@ void SensorDataLibrary::GetAllSensorDataCollection(std::vector<SensorDataCollect
 	}
 }
 
+void SensorDataLibrary::GetAllSeneorDataCollectionWithAOAPhiError(std::vector<SensorDataCollection>& collections, RtLbsType phiErrorSTD, RtLbsType powerErrorSTD) const
+{
+	if (collections.size() != m_sensorDataCollection.size()) {
+		collections.resize(m_sensorDataCollection.size());
+	}
+	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
+		collections[i] = *m_sensorDataCollection[i];
+	}
+	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
+		for (auto& curData : collections[i].m_data) {
+			RtLbsType phiError = NORMDOUBLE(0, phiErrorSTD);
+			RtLbsType powerError = NORMDOUBLE(0, powerErrorSTD);
+			curData.m_phi += phiError;
+			curData.m_power += powerError;
+			std::cout << phiError<<","<< powerError << std::endl;
+		}
+	}
+}
+
 void SensorDataLibrary::GetAllSensorData(std::vector<SensorData>& datas) const
 {
 	if (datas.size() != m_sensorDatas.size()) {
@@ -87,6 +110,16 @@ void SensorDataLibrary::GetAllSensorData(std::vector<SensorData>& datas) const
 	}
 	for (size_t i = 0; i < m_sensorDatas.size(); ++i) {
 		datas[i] = *m_sensorDatas[i];
+	}
+}
+
+void SensorDataLibrary::SetRandomPhiValue(RtLbsType deltaPhi)
+{
+	for (auto& curData : m_sensorDatas) {
+		curData->m_phi += RANDDOUBLE(0, deltaPhi);
+		if (curData->m_phi < 0) {
+			curData->m_phi += TWO_PI;
+		}
 	}
 }
 

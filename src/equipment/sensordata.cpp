@@ -51,6 +51,18 @@ Vector2D SensorData::GetDirection() const
 	return dir;
 }
 
+void SensorData::AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeErrorSigma, RtLbsType powerErrorSigma)
+{
+	RtLbsType phiError = NORMDOUBLE(0, phiErrorSigma);
+	RtLbsType timeError = NORMDOUBLE(0, timeErrorSigma);
+	RtLbsType powerError = NORMDOUBLE(0, powerErrorSigma);
+	m_time += timeError;
+	m_timeDiff += timeError;
+	m_phi += phiError;
+	m_power += powerError;
+	m_phiDegree += phiError / ONE_DEGEREE;
+}
+
 
 void SensorData::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
 {

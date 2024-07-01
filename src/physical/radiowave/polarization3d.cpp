@@ -520,7 +520,7 @@ Polarization2D Polarization3D::_calculateTransmissionCoef(RtLbsType freq, RtLbsT
 	Complex cnum = Complex(cos(theta) * cos(theta), 0);
 	Complex ee1 = (matEPara - cnum).Sqrt();
 
-	//开始计算反射系数
+	//开始计算透射系数
 	Polarization2D tCoef;												/** @brief	透射系数	*/
 	tCoef.para = matEPara * snum * 2.0 / (matEPara * snum + ee1);		/** @brief	平行极化波	*/
 	tCoef.perp = snum*2.0 / (snum + ee1);								/** @brief	垂直极化波	*/

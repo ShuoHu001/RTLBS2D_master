@@ -8,9 +8,9 @@
 #include "geometry/Intersection2D.h"
 #include "geometry/segment2d.h"
 
-bool GenerateTransmitRay(Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type);
+bool GenerateTransmitRay(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type);
 
 //产生经验透射路径
-bool GenerateEmpiricalTransmitRay(Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type);
+bool GenerateEmpiricalTransmitRay(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type);
 
 #endif

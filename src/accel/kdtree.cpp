@@ -9,8 +9,6 @@ KDTreeNode::KDTreeNode()
 
 KDTreeNode::~KDTreeNode()
 {
-	delete left;
-	delete right;
 }
 
 bool KDTreeNode::IsLeaf() const

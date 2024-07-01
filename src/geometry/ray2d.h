@@ -37,7 +37,7 @@ public:
 	Ray2D(const Point2D& ori, const Vector2D& dir, double theta, double costheta);
 	Ray2D(const Ray2DGPU& rayGPU);
 	Ray2D(const Ray2D& r);
-	~Ray2D() {};
+	~Ray2D() { m_vWedge.clear(); std::vector<Wedge2D*>().swap(m_vWedge); };
 	Ray2D operator = (const Ray2D& ray);
 	Ray2D operator = (const Ray2DGPU& rayGPU);
 	Point2D operator () (RtLbsType t) const;

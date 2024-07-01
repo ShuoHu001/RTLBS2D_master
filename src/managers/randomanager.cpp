@@ -18,6 +18,19 @@ double RandoManager::RandDouble(double min_val, double max_val)
 	return dis(m_gen);
 }
 
+double RandoManager::NormDistributionDouble(RtLbsType mean, RtLbsType mu)
+{
+	if (mu == 0) {
+		return mean;
+	}
+	std::normal_distribution<double> dis(mean, mu);
+	RtLbsType reVal = dis(m_gen);
+	while (std::abs(reVal) > mu) {
+		reVal = dis(m_gen);
+	}
+	return reVal;
+}
+
 RandoManager::RandoManager()
 	: m_gen(std::random_device()())
 {

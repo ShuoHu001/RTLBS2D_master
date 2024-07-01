@@ -13,7 +13,7 @@ public:
 	ACCEL_TYPE GetAccelType() const override;
 
 private:
-	std::vector<Segment2D*>* m_pVoxels;
+	std::vector<std::vector<Segment2D*>> m_pVoxels;
 	int64_t m_voxelNum[2];
 	RtLbsType m_voxelExtent[2];
 	RtLbsType m_voxelInvExtent[2];

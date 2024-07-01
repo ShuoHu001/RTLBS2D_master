@@ -1,6 +1,6 @@
 #include "diffraction.h"
 
-bool GenerateDiffractRays(Ray2D& incident_ray, Wedge2D* wedge, std::vector<Ray2D>* rays) {
+bool GenerateDiffractRays(const Ray2D& incident_ray, Wedge2D* wedge, std::vector<Ray2D>* rays) {
 
 	if (wedge->m_face1->m_refractN == wedge->m_face1->m_refractNOut)//分界面折射率相同，不发生绕射
 		return false;

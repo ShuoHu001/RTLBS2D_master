@@ -11,6 +11,17 @@ PathNode::PathNode()
 {
 }
 
+PathNode::PathNode(const Point2D& point, PATHNODETYPE type)
+	: m_type(type)
+	, m_point(point)
+	, m_segment(nullptr)
+	, m_wedge(nullptr)
+	, m_ft(static_cast<RtLbsType>(0.0))
+	, m_source(point)
+	, m_fatherNodeId(-1)
+{
+}
+
 
 PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point)
 	: m_limitInfo(limitInfo)

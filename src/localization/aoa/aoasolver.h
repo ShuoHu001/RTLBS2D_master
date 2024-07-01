@@ -28,7 +28,7 @@ public:
 	void SetGeneralSource(const std::vector<GeneralSource*>& gsData);
 	void Solving_LS();																//最小二乘方法求解器
 	void Solving_WLS();																//加权最小二乘方法求解器
-	void Solving_WIRLS(int iterNum, RtLbsType tol);									//初始权重迭代加权最小二乘方法求解器
+	Point2D Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& initPoint);				//初始权重迭代加权最小二乘方法求解器
 	void Solving_IRLS(int iterNum, RtLbsType tol);									//迭代加权最小二乘方法求解器
 	void Solving_ElaspNet(RtLbsType lamda1, RtLbsType lamda2);						//弹性网络求解器（L1正则、L2正则）
 };

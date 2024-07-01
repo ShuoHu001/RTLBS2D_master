@@ -3,13 +3,14 @@
 
 RayTreeNode::RayTreeNode()
 	: m_isValid(true)
+	, m_data(nullptr)
 	, m_pLeft(nullptr)
 	, m_pRight(nullptr)
 	, m_pGeneralFather(nullptr)
 {
 }
 
-RayTreeNode::RayTreeNode(PathNode data) 
+RayTreeNode::RayTreeNode(PathNode*& data) 
 	: m_isValid(true)
 	, m_data(data)
 	, m_pLeft(nullptr)
@@ -20,51 +21,19 @@ RayTreeNode::RayTreeNode(PathNode data)
 
 RayTreeNode::~RayTreeNode()
 {
-	//delete_tree_recursive(this);
-	delete_tree_iterative(this); //这里选用迭代方法求解，因树结构深度过深
+	if (m_data != nullptr) {
+		delete m_data;
+		m_data = nullptr;
+	}
 }
 
 void RayTreeNode::SetGeneralFatherNode(RayTreeNode* prevNode)
 {
-	if (m_data.m_type == NODE_ROOT || m_data.m_type == NODE_DIFF) {		//若分裂节点本身为根节点，则认定其本身为广义父节点
+	if (m_data->m_type == NODE_ROOT || m_data->m_type == NODE_DIFF) {		//若分裂节点本身为根节点，则认定其本身为广义父节点
 		m_pGeneralFather = this;
 	}
 	else {																//其余情况均复制原节点的广义父节点
 		m_pGeneralFather = prevNode->m_pGeneralFather;
-	}
-}
-
-void RayTreeNode::delete_tree_recursive(RayTreeNode* node)
-{
-	if (!node) return;
-	delete_tree_recursive(node->m_pLeft);
-	delete_tree_recursive(node->m_pRight);
-	delete node;
-}
-
-void RayTreeNode::delete_tree_iterative(RayTreeNode* node)
-{
-	if (!node) return;
-	std::stack<RayTreeNode*> node_stack;
-	RayTreeNode* current = node;
-	RayTreeNode* last_visited = nullptr;
-	while (current || !node_stack.empty()) {
-		if (current) { //遍历左子节点
-			node_stack.push(current);
-			current = current->m_pLeft;
-		}
-		else {
-			RayTreeNode* top_node = node_stack.top(); //获取栈顶元素
-			if (top_node->m_pRight && top_node->m_pRight != last_visited) { //遍历右子节点
-				current = top_node->m_pRight;
-			}
-			else {
-				
-				last_visited = top_node;
-				node_stack.pop();
-				delete top_node;
-			}
-		}
 	}
 }
 
@@ -74,16 +43,16 @@ bool RayTreeNode::IsCaptureByPoint(const Point2D& p, RtLbsType splitRadius, RayT
 		return false;
 	if (prev_treenode == nullptr)//若当前节点为根节点，不进行剪枝
 		return false;
-	if (m_data.m_type == NODE_DIFF)			//若当前节点为绕射节点，则不进行接收判定（因绕射路径为多余出的路径，已存在射线管）
+	if (m_data->m_type == NODE_DIFF)			//若当前节点为绕射节点，则不进行接收判定（因绕射路径为多余出的路径，已存在射线管）
 		return false;
-	PathNode& cur_node = m_data;
-	PathNode& prev_node = prev_treenode->m_data;
+	PathNode* cur_node = m_data;
+	PathNode* prev_node = prev_treenode->m_data;
 
-	Vector2D op = p - prev_node.m_source ;   //广义源到当前节点的向量，这里必须用前一个节点的坐标值 
+	Vector2D op = p - prev_node->m_source ;   //广义源到当前节点的向量，这里必须用前一个节点的坐标值 
 	RtLbsType t_op = op.Length();				//当前节点距离广义源的距离
-	RtLbsType t = t_op + cur_node.m_prevRay.m_fMin;//修正为root源的距离  p到广义源距离+广义源所在节点出射射线的最小距离值
-	RtLbsType tmin = prev_node.m_ft;//距离最小值
-	RtLbsType tmax = cur_node.m_ft + splitRadius;//距离最大值 增加修正splitRadius(近似)
+	RtLbsType t = t_op + cur_node->m_prevRay.m_fMin;//修正为root源的距离  p到广义源距离+广义源所在节点出射射线的最小距离值
+	RtLbsType tmin = prev_node->m_ft;//距离最小值
+	RtLbsType tmax = cur_node->m_ft + splitRadius;//距离最大值 增加修正splitRadius(近似)
 
 	//20240521 增加修正最大t值的判定
 
@@ -100,7 +69,7 @@ bool RayTreeNode::IsCaptureByPoint(const Point2D& p, RtLbsType splitRadius, RayT
 	//if (acos(costheta_op) > ray.m_theta)
 	//	return false;
 	//方案-2 进行余弦判定
-	const Ray2D& ray = cur_node.m_prevRay;
+	const Ray2D& ray = cur_node->m_prevRay;
 	double costheta_op = ray.m_Dir * op / t_op;//计算余弦值
 	if (costheta_op < ray.m_costheta)//不在射线管内
 		return false;
@@ -124,12 +93,13 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 	RayTreeNode* tempNode = root;							/** @brief	临时节点，用于进行迭代	*/
 
 	//确定虚拟根节点的数量
-	int vrootNum = 0;
+	int vrootNum = 0; 
+	tempNode = tempNode->m_pRight;							//过滤掉第一个无效root,只保留vroot
 	while (tempNode != nullptr) {
 		tempNode = tempNode->m_pRight;
 		vrootNum++;
 	}
-	tempNode = root;
+	tempNode = root->m_pRight;
 	for (int i = 0; i < vrootNum; ++i) {
 		if (!tempNode->m_isValid) {							//禁止无效节点入栈
 			tempNode = tempNode->m_pRight;
@@ -147,13 +117,13 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 		int curFatherNodeId = curItem.fatherNodeId;			/** @brief	当前节点的父节点ID	*/
 
 		if (!curNode->m_isValid ||
-			curNode->m_data.m_type == NODE_LOS  ||
-			curNode->m_data.m_type == NODE_STOP ||
-			curNode->m_data.m_type == NODE_TRANIN ||
-			curNode->m_data.m_type == NODE_ETRANIN) { //无效节点：停止节点、透射入节点、经验透射入节点均为无效节点(对于求解广义源来说是无效的),不纳入节点
+			curNode->m_data->m_type == NODE_LOS ||
+			curNode->m_data->m_type == NODE_STOP ||
+			curNode->m_data->m_type == NODE_TRANIN ||
+			curNode->m_data->m_type == NODE_ETRANIN) { //无效节点：停止节点、透射入节点、经验透射入节点均为无效节点(对于求解广义源来说是无效的),不纳入节点
 		}
 		else {
-			outNodes.push_back(&curNode->m_data);
+			outNodes.push_back(new PathNode(*curNode->m_data));
 			outNodes.back()->m_fatherNodeId = curFatherNodeId;		//修改新入数组元素的父节点ID
 		}
 		if (curNode->m_pLeft) {
@@ -213,13 +183,12 @@ void GenerateMultiPath(RayTreeNode* root, std::vector<RayPath*>& outPaths)
 		RayTreeNode* curNode = curItem.node;
 		RayPath* curPath = curItem.path;
 
-		curPath->m_nodes.push_back(new PathNode(curNode->m_data));
+		curPath->m_nodes.push_back(new PathNode(*curNode->m_data));
 		if (!curNode->m_pLeft ) {//当前节点是叶子节点(不存在下级节点-左二子节点),纳入路径
 			//深度复制raypath
 			if (curPath->m_nodes.size() < 2)
 				continue;
-			RayPath* newPath = new RayPath();
-			newPath->DeepCopy(curPath);
+			RayPath* newPath = new RayPath(*curPath);
 			outPaths.push_back(newPath);
 		}
 		else {
@@ -229,8 +198,7 @@ void GenerateMultiPath(RayTreeNode* root, std::vector<RayPath*>& outPaths)
 					child = child->m_pRight;
 					continue;
 				}
-				RayPath* newRayPath = new RayPath();
-				newRayPath->DeepCopy(curPath);
+				RayPath* newRayPath = new RayPath(*curPath);
 				extraTempPaths.push_back(newRayPath);
 				stack.push({ child,newRayPath });
 				child = child->m_pRight;
@@ -238,14 +206,26 @@ void GenerateMultiPath(RayTreeNode* root, std::vector<RayPath*>& outPaths)
 		}
 
 	}
+
+
 	//释放在模拟栈迭代过程中所申请的内存
-	for (int i = 0; i < vrootNum; ++i) {
-		delete tempPaths[i];
+	for (auto& path : tempPaths) {
+		if (path != nullptr) {
+			delete path;
+			path = nullptr;
+		}
 	}
-	for (auto it = extraTempPaths.begin(); it != extraTempPaths.end(); ++it) {
-		delete* it;
+	tempPaths.clear();
+	std::vector<RayPath*>().swap(tempPaths);
+
+	for (auto& path : extraTempPaths) {
+		if (path != nullptr) {
+			delete path;
+			path = nullptr;
+		}
 	}
-	return;
+	extraTempPaths.clear();
+	std::vector<RayPath*>().swap(extraTempPaths);
 }
 
 void GenerateMultipathofPoint(RayTreeNode* root, Point2D rx, const Scene* scene, RtLbsType splitRadius, std::vector<RayPath*>& outPaths)
@@ -289,17 +269,16 @@ void GenerateMultipathofPoint(RayTreeNode* root, Point2D rx, const Scene* scene,
 		RayTreeNode* prev_node = current_item.prev_node;
 		RayPath* current_path = current_item.path;
 
-		if (cur_node->m_data.m_type == NODE_TRANOUT) {//若当前节点为透射节点，则该条路径被认定为透射路径, 经验透射路径不被认为是需要被路径修正的透射路径
+		if (cur_node->m_data->m_type == NODE_TRANOUT) {//若当前节点为透射节点，则该条路径被认定为透射路径, 经验透射路径不被认为是需要被路径修正的透射路径
 			current_path->m_bContainRefract = true;
 		}
-		current_path->m_nodes.push_back(&cur_node->m_data);
+		current_path->m_nodes.push_back(new PathNode(*cur_node->m_data));
 		
 		debugId++;
 		if (cur_node->IsCaptureByPoint(rx, splitRadius, prev_node)) {//当前节点rx节点位置
 			//当前 current_path进行自检，若自检成功，则保留当前路径
 			if (current_path->IsValidAndRectify(rx, scene)) {
-				RayPath* newPath = new RayPath();
-				newPath->DeepCopy(current_path);
+				RayPath* newPath = new RayPath(*current_path);
 				outPaths.push_back(newPath);
 			}
 			continue;
@@ -328,4 +307,23 @@ void GenerateMultipathofPoint(RayTreeNode* root, Point2D rx, const Scene* scene,
 			}
 		}
 	}
+
+	//释放在模拟栈迭代过程中所申请的内存
+	for (auto& path : tempPaths) {
+		if (path != nullptr) {
+			delete path;
+			path = nullptr;
+		}
+	}
+	tempPaths.clear();
+	std::vector<RayPath*>().swap(tempPaths);
+
+	for (auto& path : extraTempPaths) {
+		if (path != nullptr) {
+			delete path;
+			path = nullptr;
+		}
+	}
+	extraTempPaths.clear();
+	std::vector<RayPath*>().swap(extraTempPaths);
 }

@@ -20,6 +20,7 @@
 
 class RaytracingResult {
 public:
+	bool m_isValid;											/** @brief	结果是否有效	*/
 	int m_pathNum;											/** @brief	路径数量	*/
 	int m_freqNum;											/** @brief	频率数量	*/
 	Transmitter* m_transmitter;								/** @brief	发射机	*/

@@ -126,7 +126,8 @@ bool RayPathGPU::IsValidAndRectifyRefractMixed(const Point2D& p, const Scene* sc
 		if (next(it) == m_nodes.end()) {//是否到达序列的尾部
 			RayPathGPU path(nodes, containRefract);
 			splitPaths.push_back(path);
-			nodes.clear(); nodes.shrink_to_fit();
+			nodes.clear();
+			std::vector<PathNodeGPU*>().swap(nodes);
 		}
 		if (node->m_inter.m_type == NODE_TRANIN ||
 			node->m_inter.m_type == NODE_TRANOUT ||

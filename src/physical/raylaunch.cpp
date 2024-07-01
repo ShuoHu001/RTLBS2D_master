@@ -84,20 +84,34 @@ void RayLaunch_MultiDirection(uint64_t& rayNum, const Point2D& position, const A
 	rayNum = rayId;
 }
 
-void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const Sensor* sensor, std::vector<Ray2D>& outRays)
+void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const Sensor* sensor, RtLbsType rayLaunchTheta, std::vector<Ray2D>& outRays)
 {
 	int sDataSize = static_cast<int>(sensor->m_sensorDataCollection.m_data.size());
 	const Point2D& sPosition = sensor->GetPosition2D();										/** @brief	传感器坐标	*/
 	//根据定位模式的不同，进行不同的发射操作
 	if (localizeMode == LBS_METHOD_RT_AOA || localizeMode == LBS_METHOD_RT_AOA_TDOA) {		//包含测向角度的定位，可按照角度进行特定发射
-		outRays.resize(sDataSize);
+		int singleDirectionRayNum = 1;														/** @brief	每个方向的射线数量	*/
+		double thetaofSingleDirection = sensor->m_phiErrorSTD;								/** @brief	每个方向的张角	*/
+		if (sensor->m_phiErrorSTD != 0) {
+			singleDirectionRayNum = static_cast<int>(std::ceil(sensor->m_phiErrorSTD / rayLaunchTheta));
+		}
+		int rayNum = singleDirectionRayNum * sDataSize;
+		outRays.resize(rayNum);
+		double rayHalfTheta = rayLaunchTheta / 2.0;											/** @brief	射线半张角	*/
+
 		for (int i = 0; i < sDataSize; ++i) {
 			const SensorData& curSensorData = sensor->m_sensorDataCollection.m_data[i];
-			outRays[i].m_Ori = sPosition;
-			outRays[i].m_Dir = curSensorData.GetDirection();
-			outRays[i].m_theta = sensor->m_phiErrorSTD;									//射线管角度为传感器的角度测量误差
-			outRays[i].m_costheta = cos(sensor->m_phiErrorSTD);
-			outRays[i].m_sensorDataId = curSensorData.m_id;								//进行传感器数据ID的赋值
+			Vector2D initRayDir = curSensorData.GetDirection();
+			initRayDir.Rotate(-1 * thetaofSingleDirection / 2.0 - rayHalfTheta);
+			for (int j = 0; j < singleDirectionRayNum; ++j) {
+				int offset = i * singleDirectionRayNum + j;
+				initRayDir.Rotate(rayHalfTheta);
+				outRays[offset].m_Ori = sPosition;
+				outRays[offset].m_Dir = initRayDir;
+				outRays[offset].m_theta = rayHalfTheta;									//射线管角度为传感器的角度测量误差
+				outRays[offset].m_costheta = cos(rayHalfTheta);
+				outRays[offset].m_sensorDataId = curSensorData.m_id;								//进行传感器数据ID的赋值
+			}
 		}
 	}
 	else if (localizeMode == LBS_METHOD_RT_TDOA) {										//未包含测向角度的定位，按照均匀角度进行反射

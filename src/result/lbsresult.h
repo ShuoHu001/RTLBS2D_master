@@ -20,6 +20,7 @@ public:
 public:
 	LBSResultGS();
 	~LBSResultGS();
+	void SetSensorData(const SensorData& data);											//设置传感器数据
 	void SetNodes(std::vector<LBSTreeNode*>& nodes);
 	void CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod);								//计算基本信息
 };

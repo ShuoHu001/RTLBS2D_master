@@ -1,7 +1,7 @@
 #include "transmission.h"
 
 
-bool GenerateTransmitRay(Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type) {
+bool GenerateTransmitRay(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type) {
 	type = NODE_TRANIN;				//默认为透射入状态
 	if (!inter.m_propagationProperty.m_hasTransmission)			//若面元无透射属性，则返回false
 		return false;
@@ -57,7 +57,7 @@ bool GenerateTransmitRay(Ray2D& incident_ray, const Intersection2D& inter, Ray2D
 	return true;
 }
 
-bool GenerateEmpiricalTransmitRay(Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type)
+bool GenerateEmpiricalTransmitRay(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray, PATHNODETYPE& type)
 {
 	type = NODE_ETRANIN;													//默认为经验透射入节点
 	if (!inter.m_propagationProperty.m_hasEmpiricalTransmission)			//交点不具备经验穿透属性，直接返回

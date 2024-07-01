@@ -17,6 +17,12 @@ UniformGrid::UniformGrid()
 
 UniformGrid::~UniformGrid()
 {
+	for (auto& voxel : m_voxels) {
+		voxel.clear();
+		std::vector<GridNode>().swap(voxel);
+	}
+	m_voxels.clear();
+	std::vector<std::vector< GridNode>>().swap(m_voxels);
 }
 
 void UniformGrid::Build()

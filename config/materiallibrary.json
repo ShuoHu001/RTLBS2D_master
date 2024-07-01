@@ -1,13 +1,11 @@
 {
-  "MaterialLibraryConfig": {
-    "Materials": [
-      {
-        "Id": 0,
-        "Name": "brick",
-        "Permittivity": 9.0,
-        "Conductivity": 1.3,
-        "PenetrationLoss": 1.0
-      }
-    ]
-  }
+	"MaterialLibraryConfig": {
+		"Materials": [{
+				"Id": 0,
+				"Name": "brick",
+				"Permittivity": 9.0,
+				"Conductivity": 1.3,
+				"PenetrationLoss": 1.0
+			}]
+	}
 }

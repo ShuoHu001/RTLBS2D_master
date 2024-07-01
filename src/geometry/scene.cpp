@@ -9,6 +9,54 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+    for (auto& element : m_segmentBuf) {
+        delete element;
+        element = nullptr;
+    }
+    m_segmentBuf.clear();
+    std::vector<Segment2D*>().swap(m_segmentBuf);
+
+	for (auto& element : m_wedgeBuf) {
+		delete element;
+        element = nullptr;
+	}
+    m_wedgeBuf.clear();
+    std::vector<Wedge2D*>().swap(m_wedgeBuf);
+
+    m_gpuSegmentBuf.clear();
+    std::vector<Segment2DGPU>().swap(m_gpuSegmentBuf);
+
+    m_gpuWedgeBuf.clear();
+    std::vector<Wedge2DGPU>().swap(m_gpuWedgeBuf);
+
+	for (auto& element : m_objects) {
+		delete element;
+        element = nullptr;
+	}
+    m_objects.clear();
+    std::vector<Object2D*>().swap(m_objects);
+
+	for (auto& element : m_transmitters) {
+		delete element;
+        element = nullptr;
+	}
+    m_transmitters.clear();
+    std::vector<Transmitter*>().swap(m_transmitters);
+
+	for (auto& element : m_receivers) {
+		delete element;
+        element = nullptr;
+	}
+    m_receivers.clear();
+    std::vector<Receiver*>().swap(m_receivers);
+
+	for (auto& element : m_sensors) {
+		delete element;
+        element = nullptr;
+	}
+    m_sensors.clear();
+    std::vector<Sensor*>().swap(m_sensors);
+    delete m_pAccelerator;
 }
 
 bool Scene::LoadScene(const SimConfig& config)
@@ -141,7 +189,8 @@ bool Scene::LoadScene(const SimConfig& config)
 		}
     }
     else if (config.m_systemMode == MODE_LBS) {          //系统为定位服务时
-        if (!InitSceneSensors(config.m_sensorConfig, &m_antennaLibrary)) {                           //定位模式初始化传感器
+        bool hasSimuError = config.m_lbsConfig.m_hasSimuError;
+        if (!InitSceneSensors(config.m_sensorConfig, &m_antennaLibrary, hasSimuError)) {                           //定位模式初始化传感器
 			LOG_ERROR << "Scene: Sensor loading failed." << ENDL;
 			return false;
         }
@@ -167,7 +216,7 @@ void Scene::ConvertToGPUHostScene()
     return;
 }
 
-bool Scene::GetIntersect(Ray2D& r, Intersection2D* intersect) const
+bool Scene::GetIntersect(const Ray2D& r, Intersection2D* intersect) const
 {
     if (m_pAccelerator == nullptr) {//若没有加速结构，则暴力求解
         return _bfIntersect(r, intersect);
@@ -178,11 +227,11 @@ bool Scene::GetIntersect(Ray2D& r, Intersection2D* intersect) const
 bool Scene::GetIntersect(const Segment2D& segment, Intersection2D* intersect) const
 {
     Ray2D ray;
-    ray.m_Ori = segment.m_ps;
+    ray.m_Ori = segment.m_ps + EPSILON * segment.m_dir;             //扩大EPSILON位移，防止求解起点
     ray.m_Dir = segment.m_dir;
     Intersection2D interTemp;
     if (GetIntersect(ray, &interTemp)) {
-        if ((segment.m_length - interTemp.m_ft) > EPSILON) {        //若线段长度大于交点距离，则证明线段间有障碍物存在
+        if ((segment.m_length - interTemp.m_ft) > 2*EPSILON) {        //若线段长度大于交点距离，则证明线段间有障碍物存在
             if (intersect != nullptr) {
                 *intersect = interTemp;
             }
@@ -274,11 +323,11 @@ bool Scene::GetRayTubeWedges(const Ray2D& r, RayTreeNode* treenode, Intersection
     Ray2D t_ray(r);//测试射线
     
 
-    PathNode& node = treenode->m_data;
+    PathNode* node = treenode->m_data;
 
     for (Wedge2D* wedge : m_wedgeBuf) {
-        if (node.m_type == NODE_DIFF) {
-			if (wedge == node.m_wedge)//避免重复的棱角
+        if (node->m_type == NODE_DIFF) {
+			if (wedge == node->m_wedge)//避免重复的棱角
 				continue;
         }
         //射线管捕捉阶段
@@ -307,7 +356,7 @@ bool Scene::GetRayTubeWedges(const Ray2D& r, RayTreeNode* treenode, Intersection
 
         //2-非广义源情况讨论
         Intersection2D t_inter1;//测试交点
-        if (!node.m_segment->GetIntersect(t_ray, &t_inter1))                                                           //若构造的射线与面元无交点，表明该条射线实际上不存在
+        if (!node->m_segment->GetIntersect(t_ray, &t_inter1))                                                           //若构造的射线与面元无交点，表明该条射线实际上不存在
             continue;
         if (t_inter1.m_intersect == wedge->m_point)//若面元交点与目标棱角相同，则排除该种情况（由计算误差造成的，不合理的路径）
             continue;
@@ -503,7 +552,7 @@ bool Scene::InitSceneReceivers(const std::vector<ReceiverUnitConfig>& configs, A
 	return true;
 }
 
-bool Scene::InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrary* antLibrary)
+bool Scene::InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrary* antLibrary, bool hasSimuError)
 {
 	int validSensorNum = 0;                                                 /** @brief	有效的传感器数量	*/
     int sensorDataId = 0;                                                   /** @brief	传感器数据ID	*/
@@ -514,6 +563,11 @@ bool Scene::InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrar
 			continue;
 		}
         validSensorNum++;
+
+        //在sensor基础上增加测量误差用于模拟真实的情况，若flag为false则不进行模拟仿真误差加持
+        if (hasSimuError) {
+            m_sensors[i]->AddSimulationError();
+        }
         //将sensor中的数据拷贝至sensordatalibrary中，并修改对应数据ID和传感器ID
         m_sensorDataLibrary.AddNew(m_sensors[i]->m_sensorDataCollection);
 	}
@@ -633,7 +687,7 @@ bool Scene::IsValidRayPath(const TerrainDiffractionPath* path) const
     return true;
 }
 
-bool Scene::_bfIntersect(Ray2D& r, Intersection2D* intersect) const
+bool Scene::_bfIntersect(const Ray2D& r, Intersection2D* intersect) const
 {
     
     if (intersect)//重新初始化intersect防止出错
@@ -641,7 +695,7 @@ bool Scene::_bfIntersect(Ray2D& r, Intersection2D* intersect) const
     int n = static_cast<int>(m_segmentBuf.size());
     Intersection2D curIntersect;//当前距离交点
     bool hasIntersect = false;
-    for (const Segment2D* segment : m_segmentBuf) {
+    for (Segment2D* segment : m_segmentBuf) {
         bool flag = segment->GetIntersect(r, &curIntersect);
         if (flag && intersect == nullptr)//在不求解交点的情况下，flag为真代表与环境相交
             return true;

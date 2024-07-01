@@ -9,8 +9,8 @@
 #include "tree/pathnode.h"
 
 
-bool IsGenerateSplittingRays(Ray2D& rayInit, RtLbsType t, bool splitFlag, RtLbsType splitRadius, int& splitNum);
+bool IsGenerateSplittingRays(const Ray2D& rayInit, RtLbsType t, bool splitFlag, RtLbsType splitRadius, int& splitNum);
 
-void GenerateSplittingRay(Ray2D& ray, int splitNum, std::vector<Ray2D>* rays);
+void GenerateSplittingRay(const Ray2D& ray, int splitNum, std::vector<Ray2D>* rays);
 
 #endif

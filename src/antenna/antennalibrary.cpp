@@ -7,8 +7,12 @@ AntennaLibrary::AntennaLibrary()
 
 AntennaLibrary::~AntennaLibrary()
 {
+	for (auto& ant : m_antennas) {
+		delete ant;
+		ant = nullptr;
+	}
     m_antennas.clear();
-    m_antennas.shrink_to_fit();
+	std::vector<Antenna*>().swap(m_antennas);
 }
 
 Antenna* AntennaLibrary::GetAntenna(unsigned id) const

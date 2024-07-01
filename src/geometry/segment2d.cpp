@@ -153,23 +153,21 @@ bool Segment2D::operator!=(const Segment2D& other) const
 
 Segment2D& Segment2D::operator=(const Segment2D& segment)
 {
-	if (*this != &segment) {
-		m_ps = segment.m_ps;
-		m_pe = segment.m_pe;
-		m_normal = segment.m_normal;
-		m_dir = segment.m_dir;
-		m_ws = segment.m_ws;
-		m_we = segment.m_we;
-		m_length = segment.m_length;
-		//父类赋值
-		m_id = segment.m_id;
-		m_objectId = segment.m_objectId;
-		m_matId = segment.m_matId;
-		m_refractN = segment.m_refractN;
-		m_refractNOut = segment.m_refractNOut;
-		m_propagationProperty = segment.m_propagationProperty;
-		m_bbox = segment.m_bbox;
-	}
+	m_ps = segment.m_ps;
+	m_pe = segment.m_pe;
+	m_normal = segment.m_normal;
+	m_dir = segment.m_dir;
+	m_ws = segment.m_ws;
+	m_we = segment.m_we;
+	m_length = segment.m_length;
+	//父类赋值
+	m_id = segment.m_id;
+	m_objectId = segment.m_objectId;
+	m_matId = segment.m_matId;
+	m_refractN = segment.m_refractN;
+	m_refractNOut = segment.m_refractNOut;
+	m_propagationProperty = segment.m_propagationProperty;
+	m_bbox = segment.m_bbox;
 	return (*this);
 }
 
@@ -205,7 +203,7 @@ RtLbsType Segment2D::GetCenter(int axis) const
 }
 
 
-bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect) const
+bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect)
 {
 	RtLbsType tmax;
 	RtLbsType tmin = m_bbox.Intersect(ray, &tmax);
@@ -219,7 +217,7 @@ bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect) const
 				return false;
 			if (intersect) {
 				intersect->m_ft = tmin;//更新交点距离源点的距离
-				intersect->m_segment = new Segment2D(this);//绕射加入面元赋值，方便判断
+				intersect->m_segment = this;//绕射加入面元赋值，方便判断
 				intersect->m_propagationProperty = m_propagationProperty;			//传播属性赋值
 				if (Dot(ray.m_Dir, m_dir) < 0) {//射线方向与面元方向相反,交点为线段终点
 					intersect->m_intersect = m_pe;
@@ -238,7 +236,7 @@ bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect) const
 					}
 				}
 				//反射节点
-				intersect->m_segment = new Segment2D(this);
+				intersect->m_segment = this;
 				intersect->m_type = NODE_REFL;
 				return true;
 			}
@@ -254,7 +252,7 @@ bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect) const
 		if (intersect) {
 			intersect->m_intersect = ray.m_Ori + ray.m_Dir * t;
 			intersect->m_ft = t;
-			intersect->m_segment = new Segment2D(this);
+			intersect->m_segment = this;
 			intersect->m_propagationProperty = m_propagationProperty;			//传播属性赋值
 			intersect->m_type = NODE_REFL;//反射节点
 			intersect->m_u = u;
@@ -274,7 +272,7 @@ bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect) const
 	return false;
 }
 
-bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect) const
+bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect)
 {
 	RtLbsType denominator = Cross(ray.m_Dir, m_dir);
 	if (abs(denominator) < EPSILON) { //射线与面元共线情况
@@ -288,7 +286,7 @@ bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect) 
 					return false;
 				}
 				intersect->m_ft = tmin;//更新交点距离源点的距离
-				intersect->m_segment = new Segment2D(this);//绕射加入面元赋值，方便判断
+				intersect->m_segment = this;//绕射加入面元赋值，方便判断
 				intersect->m_propagationProperty = m_propagationProperty;			//传播属性赋值
 				if (Dot(ray.m_Dir, m_dir) < 0) {//射线方向与面元方向相反,交点为线段终点
 					intersect->m_intersect = m_pe;
@@ -307,7 +305,7 @@ bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect) 
 					}
 				}
 				//反射节点
-				intersect->m_segment = new Segment2D(this);
+				intersect->m_segment = this;
 				intersect->m_type = NODE_REFL;
 				return true;
 			}
@@ -323,7 +321,7 @@ bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect) 
 		if (intersect) {
 			intersect->m_intersect = ray.m_Ori + ray.m_Dir * t;
 			intersect->m_ft = t;
-			intersect->m_segment = new Segment2D(this);
+			intersect->m_segment = this;
 			intersect->m_type = NODE_REFL;//反射节点
 			intersect->m_u = u;
 			intersect->m_propagationProperty = m_propagationProperty;			//传播属性赋值
@@ -341,6 +339,24 @@ bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect) 
 		return true;
 	}
 	return false;
+}
+
+bool Segment2D::GetIntersect(const Segment2D& segment, Intersection2D* intersect)
+{
+	//构造基本射线
+	Ray2D ray(segment.m_ps, segment.m_dir);
+	Intersection2D newIntersect;
+	if (!GetIntersectNoBBox(ray, &newIntersect)) {						//若射线与不相交，则返回false
+		return false;
+	}
+	RtLbsType distanceDiff = newIntersect.m_ft - segment.m_length;		/** @brief	交点距离与线段长度的距离差	*/
+	if (distanceDiff > EPSILON) {										//若交点距离线段起点的长度大于线段长度，则表明线段与线段不相交,返回false
+		return false;
+	}
+	if (intersect != nullptr) {
+		*intersect = newIntersect;
+	}
+	return true;
 }
 
 const BBox2D& Segment2D::GetBBox() const

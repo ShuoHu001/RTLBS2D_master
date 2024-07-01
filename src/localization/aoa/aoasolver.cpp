@@ -50,7 +50,6 @@ void AOASolver::Solving_LS()
 	ceres::Solve(options, &problem, &summary);
 
 	//输出结果
-	std::cout << summary.FullReport() << std::endl;
 	std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
 }
 
@@ -71,20 +70,19 @@ void AOASolver::Solving_WLS()
 	//配置求解器
 	ceres::Solver::Options options;
 	options.linear_solver_type = ceres::DENSE_QR;
-	options.minimizer_progress_to_stdout = true;
+	options.minimizer_progress_to_stdout = false;
 
 	//开始求解问题
 	ceres::Solver::Summary summary;
 	ceres::Solve(options, &problem, &summary);
 
 	//输出结果
-	std::cout << summary.FullReport() << std::endl;
 	std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
 }
 
-void AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol)
+Point2D AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& initPoint)
 {
-	RtLbsType position[2] = { 0,0 };								//初始位置估计
+	RtLbsType position[2] = { initPoint.x, initPoint.y };								//初始位置估计
 	RtLbsType prevPosition[2] = { 0,0 };							//前一个节点的位置估计
 
 	int dataNum = static_cast<int>(m_gsData.size());				//数据数量
@@ -111,16 +109,16 @@ void AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol)
 
 		//配置求解器
 		ceres::Solver::Options options;
-		options.linear_solver_type = ceres::DENSE_QR;
+		options.linear_solver_type = ceres::DENSE_SCHUR;
 		options.minimizer_progress_to_stdout = true;
+		options.logging_type = ceres::LoggingType::SILENT; // 禁止日志输出
 
 		//开始求解问题
 		ceres::Solver::Summary summary;
 		ceres::Solve(options, &problem, &summary);
 
 		//输出结果
-		std::cout << summary.FullReport() << std::endl;
-		std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
+		//std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
 
 
 		//求解预测坐标点与上一次优化的坐标之间的增量，若满足tolerance则进行break
@@ -133,17 +131,12 @@ void AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol)
 		std::vector<RtLbsType> weights(dataNum);								//权重系数
 		for (int i = 0; i < dataNum; ++i) {
 			RtLbsType res = aoaResiduals[i].GetResidual(position);
-			weights[i] = 1.0 / (res * res + 1e-6);								//权重
+			weights[i] = aoaResiduals[i].GetWeight() / (res * res + 1e-6);								//权重
+			aoaResiduals[i].SetWeight(weights[i]);
 		}
-
-		RtLbsType maxWeight = *std::max_element(weights.begin(), weights.end());
-		for (int i = 0; i < dataNum; ++i) {
-			RtLbsType cur_w = aoaResiduals[i].GetWeight() * (weights[i] / maxWeight);
-			aoaResiduals[i].SetWeight(cur_w);
-		}
-
 
 	}
+	return Point2D(position[0], position[1]);
 }
 
 void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
@@ -176,14 +169,13 @@ void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
 		//配置求解器
 		ceres::Solver::Options options;
 		options.linear_solver_type = ceres::DENSE_QR;
-		options.minimizer_progress_to_stdout = true;
+		options.minimizer_progress_to_stdout = false;
 
 		//开始求解问题
 		ceres::Solver::Summary summary;
 		ceres::Solve(options, &problem, &summary);
 
 		//输出结果
-		std::cout << summary.FullReport() << std::endl;
 		std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
 
 

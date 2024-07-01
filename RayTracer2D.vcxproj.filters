@@ -106,6 +106,9 @@
     <Filter Include="localization\tdoa">
       <UniqueIdentifier>{10620015-0b1a-4b4c-835f-e9a31b8c1d5d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{4122a225-4a87-44d3-904a-681d0727fde9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rtlbs.h" />
@@ -437,6 +440,12 @@
     <ClInclude Include="src\localization\tdoa\tdoasolver.h">
       <Filter>localization\tdoa</Filter>
     </ClInclude>
+    <ClInclude Include="src\test\testlbs.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\weightfactor.h">
+      <Filter>localization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -743,6 +752,12 @@
     </ClCompile>
     <ClCompile Include="src\localization\tdoa\tdoasolver.cpp">
       <Filter>localization\tdoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\testlbs.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\weightfactor.cpp">
+      <Filter>localization</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

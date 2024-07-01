@@ -10,6 +10,30 @@ Result::Result()
 
 Result::~Result()
 {
+	m_raytracingResult.clear();
+	std::vector<RaytracingResult>().swap(m_raytracingResult);
+
+	m_lbsGSResult.clear();
+	std::vector<LBSResultGS>().swap(m_lbsGSResult);
+
+	m_sensorDataSPSTMD.clear();
+	std::vector<SensorDataCollection>().swap(m_sensorDataSPSTMD);
+
+	m_sensorDataMPSTSD.clear();
+	std::vector<SensorDataCollection>().swap(m_sensorDataMPSTSD);
+
+	m_sensorDataSPMTMD.clear();
+	std::vector<SensorDataCollection>().swap(m_sensorDataSPMTMD);
+
+	m_sensorDataMPMTMD.clear();
+	std::vector<SensorDataCollection>().swap(m_sensorDataMPMTMD);
+
+	for (auto& source : m_allGeneralSource) {
+		delete source;
+		source = nullptr;
+	}
+	m_allGeneralSource.clear();
+	std::vector<GeneralSource*>().swap(m_allGeneralSource);
 }
 
 void Result::Init(const std::vector<Transmitter*>& transmitters, const std::vector<Receiver*> receivers)
@@ -124,17 +148,21 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 	//计算传感器数据结果,默认定位为单频点下的定位模式
 	if (outputConfig.m_outputSensorDataSPSTMD) {				//若为单站单源多数据定位，发射机可以为多个，接收机为1
 		m_sensorDataSPSTMD.resize(m_txNum);
-		//RtLbsType threshold = m_raytracingResult[0].m_receiver->m_angularThreshold;
-		//for (unsigned i = 0; i < m_txNum; ++i) {
-		//	m_raytracingResult[i].GetAllSensorData_AOA2D(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
-		//	m_sensorDataSPSTMD[i].m_sensorId = 0;				//计算传感器ID
-		//	m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
-		//}
-		RtLbsType threshold = m_raytracingResult[0].m_receiver->m_delayThreshold;
-		for (unsigned i = 0; i < m_txNum; ++i) {
-			m_raytracingResult[i].GetAllSensorData_Delay(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
-			m_sensorDataSPSTMD[i].m_sensorId = 0;				//计算传感器ID
-			m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
+		if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA || outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA_TDOA) {
+			RtLbsType threshold = m_raytracingResult[0].m_receiver->m_angularThreshold;
+			for (unsigned i = 0; i < m_txNum; ++i) {
+				m_raytracingResult[i].GetAllSensorData_AOA2D(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
+				m_sensorDataSPSTMD[i].m_sensorId = 0;				//计算传感器ID
+				m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
+			}
+		}
+		else if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_TDOA) {
+			RtLbsType threshold = m_raytracingResult[0].m_receiver->m_delayThreshold;
+			for (unsigned i = 0; i < m_txNum; ++i) {
+				m_raytracingResult[i].GetAllSensorData_Delay(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
+				m_sensorDataSPSTMD[i].m_sensorId = 0;				//计算传感器ID
+				m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
+			}
 		}
 	}
 	if (outputConfig.m_outputSensorDataMPSTSD) {				//若为多站单源单数据定位，发射机可以为多个，接收机为多个
@@ -187,189 +215,7 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 	
 }
 
-void Result::CalculateResult_LBS_AOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method,const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
-{
-	//0-计算基本信息-计算广义源的位置 
-	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
-		LBSResultGS& curResult = *it;
-		curResult.CalculateBaseInfo(method);
-	}
-
-	//1-合并定位结果-将多个传感器的广义源进行合并
-	size_t sourceSize = 0;
-	for (int i = 0; i < m_lbsGSResult.size(); ++i) {
-		size_t oldSize = m_allGeneralSource.size();
-		sourceSize += m_lbsGSResult[i].m_sources.size();
-		m_allGeneralSource.resize(sourceSize);
-		std::copy(m_lbsGSResult[i].m_sources.begin(), m_lbsGSResult[i].m_sources.end(), m_allGeneralSource.begin() + oldSize);
-	}
-
-	//2-求解权重矩阵
-
-	//2-按照几何约束条件删除无效广义源
-	//创建广义源对,数量为 n*(n-1)/2
-	size_t pairNum = static_cast<int>(sourceSize * (sourceSize - 1) / 2);
-	std::vector<GSPair*> gsPair(pairNum);										/** @brief	广义源对	*/
-	size_t pairId = 0;																/** @brief	广义源对ID	*/
-	for (size_t i = 0; i < sourceSize; ++i) {
-		for (size_t j = i + 1; j < sourceSize; ++j) {
-			gsPair[pairId] = new GSPair(m_allGeneralSource[i], m_allGeneralSource[j]);
-			if (!gsPair[pairId]->HasValidAOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
-				delete gsPair[pairId];
-				continue;
-			}
-			pairId++;															//广义源对有效，计数增加
-		}
-	}
-	pairNum = pairId;
-	gsPair.resize(pairNum);
-	gsPair.shrink_to_fit();
-
-	
-	//删除权重为0值的广义源-先释放内存，后从数组中删除
-	for (auto it = m_allGeneralSource.begin(); it != m_allGeneralSource.end(); ++it) {
-		GeneralSource*& curGS = *it;
-		if (!curGS->IsValid()) {
-			delete curGS;
-			curGS = nullptr;
-		}
-	}
-	m_allGeneralSource.erase(std::remove_if(m_allGeneralSource.begin(), m_allGeneralSource.end(), [](const GeneralSource* source) {		//移除无效的广义源
-		return source == nullptr;
-		}), m_allGeneralSource.end());
-
-	//将所有广义源权重置0
-	for (int i = 0; i < m_allGeneralSource.size(); ++i) {
-		m_allGeneralSource[i]->m_wCount = 0;					//权重计数归零
-		m_allGeneralSource[i]->m_weight = 0;					//权重归零
-	}
-
-	//2-2 去除重复的广义源
-	EraseRepeatGeneralSources(m_allGeneralSource);
-	sourceSize = m_allGeneralSource.size();
-	//重新构建广义源对
-	for (auto it = gsPair.begin(); it != gsPair.end(); ++it) {
-		GSPair* curPair = *it;
-		delete curPair;
-	}
-	gsPair.clear();
-	pairNum = static_cast<int>(sourceSize * (sourceSize - 1) / 2);
-	gsPair.resize(pairNum);
-	pairId = 0;
-	for (size_t i = 0; i < sourceSize; ++i) {
-		for (size_t j = i + 1; j < sourceSize; ++j) {
-			gsPair[pairId] = new GSPair(m_allGeneralSource[i], m_allGeneralSource[j]);
-			if (!gsPair[pairId]->HasValidAOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
-				delete gsPair[pairId];
-				continue;
-			}
-			pairId++;															//广义源对有效，计数增加
-		}
-	}
-	pairNum = pairId;
-	gsPair.resize(pairNum);
-	gsPair.shrink_to_fit();
-
-	//2-2  按照物理约束条件计算权重并删除不满足权重阈值的广义源
-	// 采用射线追踪算法计算重新计算广义源与广义源之间可能的结果值，若该值不满足相似度阈值，则舍弃
-	
-	std::vector<std::vector<RaytracingResult>> tempRTResult;									//第一维度为初步解的数量，第二维度为传感器的数量，调用射线追踪，判定解对传感器的有效性
-	std::vector<RtLbsType> freqs = freqConfig.GetFrequencyInformation();
-	const MaterialLibrary* matLibrary = &scene->m_materialLibrary;
-	const AntennaLibrary* antLibrary = &scene->m_antennaLibrary;
-	tempRTResult.resize(pairNum);
-	int sensorNum = static_cast<int>(scene->m_sensors.size());																	/** @brief	传感器数量	*/
-	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
-	std::vector<SensorDataCollection> originalSensorDataCollection(sensorNum);													/** @brief	原始的传感器数据	*/
-	scene->m_sensorDataLibrary.GetAllSensorDataCollection(originalSensorDataCollection);										//获取原始传感器数据
-	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
-	//为了同级比较残差，这里将原始数据按照功率的大小进行排序
-	RtLbsType max_r_phi = 0.0, max_r_powerDiff = 0.0;																			//角度最大残差、功率最大残差
-	for (size_t i = 0; i < pairNum; ++i) {
-		targetSensorDataCollection.clear();
-		targetSensorDataCollection.resize(sensorNum);
-		GSPair* curPair = gsPair[i];
-		DirectlySetResultPath_CPUSingleThread(vroots, scene, splitRadius, curPair->m_targetSolution, &tempRTResult[i]);
-		for (int j = 0; j< tempRTResult[i].size(); ++j) {
-			const Sensor* curSensor = scene->m_sensors[j];
-			tempRTResult[i][j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
-			tempRTResult[i][j].GetMaxPowerSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD);			//收集实时计算的传感器结果
-			if (targetSensorDataCollection[j].m_data.size() == 0) {
-				curPair->m_isValid = false;
-			}
-		}
-		RtLbsType cur_r_phi = 0.0;																								/** @brief	当前的角度残差	*/
-		RtLbsType cur_r_powerDiff = 0.0;																						/** @brief	当前的功率差残差	*/
-
-		if (!curPair->m_isValid) {																								//若当前广义源对无效，则跳过当前pair的相关权重计算
-			continue;
-		}
-		std::sort(targetSensorDataCollection.begin(), targetSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
-		CalculateSensorCollectionResidual_AOA_SingleData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_powerDiff);		//计算残差二范数和
-		curPair->m_phiResidual = cur_r_phi;
-		curPair->m_powerDiffResidual = cur_r_powerDiff;
-		if (max_r_phi < cur_r_phi) {
-			max_r_phi = cur_r_phi;
-		}
-		if (max_r_powerDiff < cur_r_powerDiff) {
-			max_r_powerDiff = cur_r_powerDiff;
-		}
-	}
-
-	
-	//循环pair计算归一化残差系数,并将系数加入对应的广义源权重矩阵中
-	for (auto it = gsPair.begin(); it != gsPair.end(); ++it) {
-		GSPair* curPair = *it;
-		if (curPair->m_isValid) {
-			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff, 1);
-		}
-	}
-
-
-	//计算所有广义源中权重最大的数值，进行权重归一化
-	RtLbsType max_weight = 0.0;
-	for (auto it = m_allGeneralSource.begin(); it != m_allGeneralSource.end(); ++it) {
-		GeneralSource* curSource = *it;
-		if (max_weight < curSource->m_weight) {
-			max_weight = curSource->m_weight;
-		}
-	}
-
-	//广义源权重归一化, 并删除未达到阈值权重的广义源
-	for (auto it = m_allGeneralSource.begin(); it != m_allGeneralSource.end(); ++it) {
-		GeneralSource*& curSource = *it;
-		curSource->NormalizedWeight(max_weight);
-		if (curSource->m_weight < 0.5) {
-			delete curSource;
-			curSource = nullptr;
-		}
-	}
-
-	//删除无效的广义源
-	m_allGeneralSource.erase(std::remove_if(m_allGeneralSource.begin(), m_allGeneralSource.end(), [](const GeneralSource* source) {
-		return source == nullptr;
-		}), m_allGeneralSource.end());
-
-	//Pair 中的权重归一化，并删除未达到阈值权重的pair
-	for (auto it = gsPair.begin(); it != gsPair.end(); ++it) {
-		GSPair* curPair = *it;
-		curPair->NormalizedWeight(max_weight);
-		if (curPair->m_weight < 0.5) {
-			delete curPair;
-			curPair = nullptr;
-		}
-	}
-
-	//删除无效的pair
-	gsPair.erase(std::remove_if(gsPair.begin(), gsPair.end(), [](const GSPair* pair) {
-		return pair == nullptr;
-		}), gsPair.end());
-
-
-	LocalizationSolver();
-}
-
-void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
 {
 	//0-计算基本信息-计算广义源的位置 
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -407,7 +253,7 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 	gsPairs.resize(pairNum);
 	gsPairs.shrink_to_fit();
 
-
+	
 	//删除权重为0值的广义源-先释放内存，后从数组中删除
 	for (auto it = m_allGeneralSource.begin(); it != m_allGeneralSource.end(); ++it) {
 		GeneralSource*& curGS = *it;
@@ -452,152 +298,85 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 	gsPairs.resize(pairNum);
 	gsPairs.shrink_to_fit();
 
-	//对GSPair中的数据进行聚类，按照距离得到cluster，按照簇中心的坐标作为预测坐标，生成簇，给每个gsPair定义clusterId
-	int max_cluster_num = 1;																									/** @brief	最大簇中数据数量	*/
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, gsPairClusterThreshold, max_cluster_num);		//进行距离聚类，减少计算量
+	//对初步过滤后的gspair进行聚类
+	int max_cluster_num = 0;
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, max_cluster_num);
 
-	int clusterNum = static_cast<int>(gsPairClusters.size());																	//簇数量
 
 	//2-2  按照物理约束条件计算权重并删除不满足权重阈值的广义源
 	// 采用射线追踪算法计算重新计算广义源与广义源之间可能的结果值，若该值不满足相似度阈值，则舍弃
-
-	std::vector<std::vector<RaytracingResult>> tempRTResult;									//第一维度为初步解的数量，第二维度为传感器的数量，调用射线追踪，判定解对传感器的有效性
+	
 	std::vector<RtLbsType> freqs = freqConfig.GetFrequencyInformation();
 	const MaterialLibrary* matLibrary = &scene->m_materialLibrary;
 	const AntennaLibrary* antLibrary = &scene->m_antennaLibrary;
-	tempRTResult.resize(clusterNum);
 	int sensorNum = static_cast<int>(scene->m_sensors.size());																	/** @brief	传感器数量	*/
 	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
 	std::vector<SensorDataCollection> originalSensorDataCollection(sensorNum);													/** @brief	原始的传感器数据	*/
 	scene->m_sensorDataLibrary.GetAllSensorDataCollection(originalSensorDataCollection);										//获取原始传感器数据
 	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
 	//为了同级比较残差，这里将原始数据按照功率的大小进行排序
-	RtLbsType max_r_phi = 0.0;																									//角度最大残差
-	RtLbsType max_r_powerDiff = 0.0;																							//功率最大残差
-	RtLbsType mean_r_phi = 0.0;																									/** @brief	角度平均残差	*/
-	RtLbsType mean_r_powerDiff = 0.0;																							/** @brief	功率平均残差	*/
+
 
 	if (hardwareMode == CPU_SINGLETHREAD) {
-		for (size_t i = 0; i < clusterNum; ++i) {
-			targetSensorDataCollection.clear();
-			targetSensorDataCollection.resize(sensorNum);
-			GSPairCluster& curCluster = gsPairClusters[i];																			/** @brief	当前遍历到的cluster	*/
-			DirectlySetResultPath_CPUSingleThread(vroots, scene, splitRadius, curCluster.m_point, &tempRTResult[i]);
-			for (int j = 0; j < static_cast<int>(tempRTResult[i].size()); ++j) {
-				const Sensor* curSensor = scene->m_sensors[j];
-				tempRTResult[i][j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
-				tempRTResult[i][j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真，因此不进行稀疏
-				if (targetSensorDataCollection[j].m_data.size() == 0) {
-					curCluster.m_isValid = false;
-				}
-			}
-			RtLbsType cur_r_phi = 0.0;																								/** @brief	当前的角度残差	*/
-			RtLbsType cur_r_powerDiff = 0.0;																						/** @brief	当前的功率差残差	*/
-			int cur_nullDataNum = 0;																								/** @brief	不满足条件的匹配数	*/
-
-			if (!curCluster.m_isValid) {																								//若当前广义源对无效，则跳过当前pair的相关权重计算
-				continue;
-			}
-			CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
-			curCluster.SetElementAOAResidual(cur_r_phi, cur_r_powerDiff, cur_nullDataNum);
-			mean_r_phi += cur_r_phi;
-			mean_r_powerDiff += cur_r_powerDiff;
-
+		for (auto& curClutser : gsPairClusters) {
+			DirectlySetResultPath_CPUSingleThread(vroots, scene, splitRadius, &curClutser);
 		}
 	}
 	else if (hardwareMode == CPU_MULTITHREAD) {
-		//将所有可能的解构成数组
-		std::vector<Point2D> targetPoints;
-		targetPoints.reserve(clusterNum);
-		for (auto& curCluster : gsPairClusters) {
-			targetPoints.push_back(curCluster.m_point);
-		}
-		DirectlySetResultPath_CPUMultiThread(vroots, scene, splitRadius, targetPoints, threadNum, tempRTResult);
-
-		for (size_t i = 0; i < clusterNum; ++i) {
-			targetSensorDataCollection.clear();
-			targetSensorDataCollection.resize(sensorNum);
-			GSPairCluster& curCluster = gsPairClusters[i];																			/** @brief	当前遍历到的cluster	*/
-			for (int j = 0; j < static_cast<int>(tempRTResult[i].size()); ++j) {
-				const Sensor* curSensor = scene->m_sensors[j];
-				tempRTResult[i][j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
-				tempRTResult[i][j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏
-				if (targetSensorDataCollection[j].m_data.size() == 0) {
-					curCluster.m_isValid = false;
-				}
-			}
-			RtLbsType cur_r_phi = 0.0;																								/** @brief	当前的角度残差	*/
-			RtLbsType cur_r_powerDiff = 0.0;																						/** @brief	当前的功率差残差	*/
-			int cur_nullDataNum = 0;																								/** @brief	不满足条件的匹配数	*/
-
-			if (!curCluster.m_isValid) {																								//若当前广义源对无效，则跳过当前pair的相关权重计算
-				continue;
-			}
-			CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
-			curCluster.SetElementAOAResidual(cur_r_phi, cur_r_powerDiff, cur_nullDataNum);
-			mean_r_phi += cur_r_phi;
-			mean_r_powerDiff += cur_r_powerDiff;
-		}
+		DirectlySetResultPath_CPUMultiThread(vroots, scene, splitRadius, threadNum, gsPairClusters);
 	}
 	else if (hardwareMode == GPU_MULTITHREAD) {
-		//将所有可能的解构成数组
-		std::vector<Point2D> targetPoints;
-		targetPoints.reserve(clusterNum);
-		for (auto& curCluster : gsPairClusters) {
-			targetPoints.push_back(curCluster.m_point);
-		}
+		DirectlySetResultPath_GPUMultiThread(vroots, scene, splitRadius, gsPairClusters);
+	}
 
-		//调用GPU计算程序进行计算射线追踪结果
-		DirectlySetResultPath_GPUMultiThread(vroots, scene, splitRadius, targetPoints, tempRTResult);
+	RtLbsType mean_r_phi = 0.0;																									/** @brief	角度平均残差	*/
+	RtLbsType mean_r_powerDiff = 0.0;																							/** @brief	功率差平均残差	*/
+	RtLbsType max_r_phi = 0.0;																									/** @brief	角度最大残差	*/
+	RtLbsType max_r_powerDiff = 0.0;																							/** @brief	功率最大残差	*/
 
-		for (size_t i = 0; i < clusterNum; ++i) {
+	for (auto& curCluster : gsPairClusters) {
+		RtLbsType curCluster_min_r_phi = FLT_MAX;																				/** @brief	最大角度残差	*/
+		RtLbsType curCluster_min_r_powerDiff = FLT_MAX;																			/** @brief	最大功率差残差	*/
+		int curCluster_min_nullDataNum = INT_MAX;																				/** @brief	最大空数据数量	*/
+
+		for (auto& curResult : curCluster.m_rtResult) {																			//寻找cluster中多个解result中的残差最小值
 			targetSensorDataCollection.clear();
 			targetSensorDataCollection.resize(sensorNum);
-			GSPairCluster& curCluster = gsPairClusters[i];																			/** @brief	当前遍历到的cluster	*/
-			for (int j = 0; j < static_cast<int>(tempRTResult[i].size()); ++j) {
-				const Sensor* curSensor = scene->m_sensors[j];
-				tempRTResult[i][j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
-				tempRTResult[i][j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏
-				if (targetSensorDataCollection[j].m_data.size() == 0) {
-					curCluster.m_isValid = false;
-				}
+			for (int i = 0; i < sensorNum; ++i) {
+				const Sensor* curSensor = scene->m_sensors[i];
+				curResult[i].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);
+				curResult[i].GetMaxPowerSensorData_AOA2D(targetSensorDataCollection[i], curSensor->m_phiErrorSTD);
 			}
-			RtLbsType cur_r_phi = 0.0;																								/** @brief	当前的角度残差	*/
-			RtLbsType cur_r_powerDiff = 0.0;																						/** @brief	当前的功率差残差	*/
-			int cur_nullDataNum = 0;																								/** @brief	不满足条件的匹配数	*/
-
-			if (!curCluster.m_isValid) {																								//若当前广义源对无效，则跳过当前pair的相关权重计算
-				continue;
-			}
-			CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
-			curCluster.SetElementAOAResidual(cur_r_phi, cur_r_powerDiff, cur_nullDataNum);
-			mean_r_phi += cur_r_phi;
-			mean_r_powerDiff += cur_r_powerDiff;
+			RtLbsType cur_r_phi = 0.0;
+			RtLbsType cur_r_powerDiff = 0.0;
+			int cur_nullDataNum = 0;
+			CalculateSensorCollectionResidual_AOA_SingleData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
+			curCluster_min_r_phi = std::min(curCluster_min_r_phi, cur_r_phi);
+			curCluster_min_r_powerDiff = std::min(curCluster_min_r_powerDiff, cur_r_powerDiff);
+			curCluster_min_nullDataNum = std::min(curCluster_min_nullDataNum, cur_nullDataNum);
 		}
+
+		curCluster.SetElementAOAResidual(curCluster_min_r_phi, curCluster_min_r_powerDiff, curCluster_min_nullDataNum);
+
+		mean_r_phi += curCluster_min_r_phi;
+		mean_r_powerDiff += curCluster_min_r_powerDiff;
 	}
-	mean_r_phi /= clusterNum;
-	mean_r_powerDiff /= clusterNum;
+	mean_r_phi /= gsPairClusters.size();
+	mean_r_powerDiff /= gsPairClusters.size();
 
-	for (auto curPair : gsPairs) {
-		curPair->m_phiResidual += curPair->m_nullDataNum * mean_r_phi;
-		curPair->m_powerDiffResidual += curPair->m_nullDataNum * mean_r_powerDiff;
-		if (max_r_phi < curPair->m_phiResidual) {
-			max_r_phi = curPair->m_phiResidual;
-		}
-		if (max_r_powerDiff < curPair->m_powerDiffResidual) {
-			max_r_powerDiff = curPair->m_powerDiffResidual;
-		}
+	for (auto& curPair : gsPairs) {
+		curPair->m_phiResidual += mean_r_phi * curPair->m_nullDataNum;
+		curPair->m_powerDiffResidual += mean_r_powerDiff * curPair->m_nullDataNum;
+		max_r_phi = std::max(max_r_phi, curPair->m_phiResidual);
+		max_r_powerDiff = std::max(max_r_powerDiff, curPair->m_powerDiffResidual);
 	}
-
 
 	//循环pair计算归一化残差系数,并将系数加入对应的广义源权重矩阵中
-	for (auto it = gsPairs.begin(); it != gsPairs.end(); ++it) {
-		GSPair* curPair = *it;
+	for (auto& curPair : gsPairs) {
 		if (curPair->m_isValid) {
-			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff, max_cluster_num);
+			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff, weightFactor, max_cluster_num);
 		}
 	}
-
 
 	//计算所有广义源中权重最大的数值，进行权重归一化
 	RtLbsType max_weight = 0.0;
@@ -638,16 +417,376 @@ void Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std
 		return pair == nullptr;
 		}), gsPairs.end());
 
+	Point2D initPoint = { 0,0 };
 
-	LocalizationSolver();
+	return LocalizationSolver(initPoint);
 }
 
-void Result::CalculateResult_LBS_TDOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
 {
+	
+	//0-计算基本信息-计算广义源的位置 
+	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
+		LBSResultGS& curResult = *it;
+		curResult.CalculateBaseInfo(method);
+	}
+
+	//1-合并定位结果-将多个传感器的广义源进行合并
+	size_t sourceSize = 0;
+	for (int i = 0; i < m_lbsGSResult.size(); ++i) {
+		size_t oldSize = m_allGeneralSource.size();
+		sourceSize += m_lbsGSResult[i].m_sources.size();
+		m_allGeneralSource.resize(sourceSize);
+		std::copy(m_lbsGSResult[i].m_sources.begin(), m_lbsGSResult[i].m_sources.end(), m_allGeneralSource.begin() + oldSize);
+	}
+
+
+	//2-求解权重矩阵
+
+	//2-按照几何约束条件删除无效广义源
+	//创建广义源对,数量为 n*(n-1)/2
+	size_t pairNum = static_cast<int>(sourceSize * (sourceSize - 1) / 2);
+	std::vector<GSPair*> gsPairs;													/** @brief	广义源对	*/
+	gsPairs.reserve(pairNum);
+	
+
+	size_t pairId = 0;																/** @brief	广义源对ID	*/
+	#pragma omp parallel for num_threads(10)
+	for (size_t i = 0; i < sourceSize; ++i) {
+		for (size_t j = i + 1; j < sourceSize; ++j) {
+			GSPair* newPair = new GSPair(m_allGeneralSource[i], m_allGeneralSource[j]);
+			if (!newPair->HasValidAOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
+				delete newPair;
+				continue;
+			}
+			gsPairs.push_back(newPair);
+		}
+	}
+
+
+	//删除权重为0值的广义源-先释放内存，后从数组中删除
+	for (auto& source:m_allGeneralSource) {
+		if (!source->IsValid()) {
+			delete source;
+			source = nullptr;
+		}
+	}
+	m_allGeneralSource.erase(std::remove_if(m_allGeneralSource.begin(), m_allGeneralSource.end(), [](const GeneralSource* source) {		//移除无效的广义源
+		return source == nullptr;
+		}), m_allGeneralSource.end());
+
+	//将所有广义源权重置0
+	for (int i = 0; i < m_allGeneralSource.size(); ++i) {
+		m_allGeneralSource[i]->m_wCount = 0;					//权重计数归零
+		m_allGeneralSource[i]->m_weight = 0;					//权重归零
+	}
+
+	//2-2 去除重复的广义源
+	EraseRepeatGeneralSources(m_allGeneralSource);
+	sourceSize = m_allGeneralSource.size();
+
+	//重新构建广义源对
+	for (auto& pair : gsPairs) {
+		delete pair;
+	}
+	gsPairs.clear();
+	std::vector<GSPair*>().swap(gsPairs);
+
+	pairNum = static_cast<int>(sourceSize * (sourceSize - 1) / 2);
+	gsPairs.resize(pairNum);
+	pairId = 0;
+	for (size_t i = 0; i < sourceSize; ++i) {
+		for (size_t j = i + 1; j < sourceSize; ++j) {
+			gsPairs[pairId] = new GSPair(m_allGeneralSource[i], m_allGeneralSource[j]);
+			if (!gsPairs[pairId]->HasValidAOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
+				delete gsPairs[pairId];
+				continue;
+			}
+			pairId++;															//广义源对有效，计数增加
+		}
+	}
+	pairNum = pairId;
+	gsPairs.resize(pairNum);
+	gsPairs.shrink_to_fit();
+
+	//对GSPair中的数据进行聚类，按照距离得到cluster，按照簇中心的坐标作为预测坐标，生成簇，给每个gsPair定义clusterId
+	int max_cluster_num = 1;																									/** @brief	最大簇中数据数量	*/
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, max_cluster_num);		//进行距离聚类，减少计算量
+
+	int clusterNum = static_cast<int>(gsPairClusters.size());																	//簇数量
+
+	//2-2  按照物理约束条件计算权重并删除不满足权重阈值的广义源
+	// 采用射线追踪算法计算重新计算广义源与广义源之间可能的结果值，若该值不满足相似度阈值，则舍弃
+
+
+
+	std::vector<RtLbsType> freqs = freqConfig.GetFrequencyInformation();
+	const MaterialLibrary* matLibrary = &scene->m_materialLibrary;
+	const AntennaLibrary* antLibrary = &scene->m_antennaLibrary;
+	int sensorNum = static_cast<int>(scene->m_sensors.size());																	/** @brief	传感器数量	*/
+	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
+	std::vector<SensorDataCollection> originalSensorDataCollection(sensorNum);													/** @brief	原始的传感器数据	*/
+	scene->m_sensorDataLibrary.GetAllSensorDataCollection(originalSensorDataCollection);										//获取原始传感器数据
+	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
+	//为了同级比较残差，这里将原始数据按照功率的大小进行排序
+	RtLbsType max_r_phi = 0.0;																									//角度最大残差
+	RtLbsType max_r_powerDiff = 0.0;																							//功率最大残差
+	RtLbsType mean_r_phi = 0.0;																									/** @brief	角度平均残差	*/
+	RtLbsType mean_r_powerDiff = 0.0;																							/** @brief	功率平均残差	*/
+
+	
+
+	if (hardwareMode == CPU_SINGLETHREAD) {
+		for (auto& curCluster : gsPairClusters) {
+			DirectlySetResultPath_CPUSingleThread(vroots, scene, splitRadius, &curCluster);
+		}
+	}
+	else if (hardwareMode == CPU_MULTITHREAD) {
+		DirectlySetResultPath_CPUMultiThread(vroots, scene, splitRadius, threadNum, gsPairClusters);
+	}
+	else if (hardwareMode == GPU_MULTITHREAD) {
+		DirectlySetResultPath_GPUMultiThread(vroots, scene, splitRadius, gsPairClusters);
+	}
+
+	for (auto& curCluster : gsPairClusters) {																				//遍历所有簇
+
+		RtLbsType curCluster_min_r_phi = FLT_MAX;
+		RtLbsType curCluster_min_r_powerDiff = FLT_MAX;
+		int curCluster_min_nullDataNum = INT_MAX;
+
+		for (auto& curResult : curCluster.m_rtResult) {																		//遍历簇中所有的解（位移导致的多解）
+
+			RtLbsType cur_r_phi = 0.0;																								/** @brief	当前的角度残差	*/
+			RtLbsType cur_r_powerDiff = 0.0;																						/** @brief	当前的功率差残差	*/
+			int cur_nullDataNum = 0;																								/** @brief	不满足条件的匹配数	*/
+			targetSensorDataCollection.clear();
+			targetSensorDataCollection.resize(sensorNum);
+			for (int j = 0; j < sensorNum; ++j) {
+				const Sensor* curSensor = scene->m_sensors[j];
+				curResult[j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
+				curResult[j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏
+				CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
+
+				curCluster_min_r_phi = std::min(curCluster_min_r_phi, cur_r_phi);
+				curCluster_min_r_powerDiff = std::min(curCluster_min_r_powerDiff, cur_r_powerDiff);
+				curCluster_min_nullDataNum = std::min(curCluster_min_nullDataNum, cur_nullDataNum);
+			}
+		}
+
+		curCluster.SetElementAOAResidual(curCluster_min_r_phi, curCluster_min_r_powerDiff, curCluster_min_nullDataNum);
+		mean_r_phi += curCluster_min_r_phi;
+		mean_r_powerDiff += curCluster_min_r_powerDiff;
+	}
+
+
+	mean_r_phi /= clusterNum;
+	mean_r_powerDiff /= clusterNum;
+
+
+
+	#pragma omp parallel for num_threads(10)
+	for (auto curPair : gsPairs) {
+		curPair->m_phiResidual += curPair->m_nullDataNum * mean_r_phi;
+		curPair->m_powerDiffResidual += curPair->m_nullDataNum * mean_r_powerDiff;
+		max_r_phi = std::max(max_r_phi, curPair->m_phiResidual);
+		max_r_powerDiff = std::max(max_r_powerDiff, curPair->m_powerDiffResidual);
+	}
+
+
+	//循环pair计算归一化残差系数,并将系数加入对应的广义源权重矩阵中
+	for (auto it = gsPairs.begin(); it != gsPairs.end(); ++it) {
+		GSPair* curPair = *it;
+		if (curPair->m_isValid) {
+			curPair->CalNormalizedWeightAndUpdate_AOA(max_r_phi, max_r_powerDiff, weightFactor,  max_cluster_num);
+		}
+	}
+
+
+	//计算所有广义源中权重最大的数值，进行权重归一化
+	RtLbsType max_weight = 0.0;
+	for (auto it = m_allGeneralSource.begin(); it != m_allGeneralSource.end(); ++it) {
+		GeneralSource* curSource = *it;
+		if (max_weight < curSource->m_weight) {
+			max_weight = curSource->m_weight;
+		}
+	}
+
+	//广义源权重归一化, 并删除未达到阈值权重的广义源
+	for (auto it = m_allGeneralSource.begin(); it != m_allGeneralSource.end(); ++it) {
+		GeneralSource*& curSource = *it;
+		curSource->NormalizedWeight(max_weight);
+		if (curSource->m_weight < 0.5) {
+			delete curSource;
+			curSource = nullptr;
+		}
+	}
+
+	//单源定位中，root源的数据最大只保留一个
+	int hasRootNum = 0;
+	for (auto& source : m_allGeneralSource) {
+		if (source == nullptr) {
+			continue;
+		}
+		if (source->m_type == NODE_ROOT) {
+			hasRootNum++;
+			if (hasRootNum > 1) {
+				delete source;
+				source = nullptr;
+			}
+		}
+	}
+
+	//删除无效的广义源
+	m_allGeneralSource.erase(std::remove_if(m_allGeneralSource.begin(), m_allGeneralSource.end(), [](const GeneralSource* source) {
+		return source == nullptr;
+		}), m_allGeneralSource.end());
+
+
+	//获取最大权重的Cluster
+	RtLbsType maxClusterWeight = 0;
+	Point2D initPoint;
+	for (auto& curCluster : gsPairClusters) {
+		if (maxClusterWeight < curCluster.m_pairs[0]->m_weight) {
+			maxClusterWeight = curCluster.m_pairs[0]->m_weight;
+			initPoint = curCluster.m_point;
+		}
+	}
+
+	Point2D targetPoint;
+	targetPoint = LocalizationSolver(initPoint);
+
+	gsPairClusters.clear();
+	std::vector<GSPairCluster>().swap(gsPairClusters);
+
+	return targetPoint;
+}
+
+void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& w, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+{
+	//0-计算基本信息-计算广义源的位置
+	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
+		LBSResultGS& curResult = *it;
+		curResult.CalculateBaseInfo(method);
+	}
+
+	
+
+	//组合数据，遍历每个传感器所产生的广义源，设定参考广义源，组合形成非线性方程
+	int sensorNum = static_cast<int>(m_lbsGSResult.size());
+	//给每个广义源赋值对应的传感器数据
+	std::vector<SensorData> sensorDatas;
+	scene->m_sensorDataLibrary.GetAllSensorData(sensorDatas);
+	for (int i = 0; i < sensorNum; ++i) {
+		m_lbsGSResult[i].SetSensorData(sensorDatas[i]);
+	}
+	std::vector<GeneralSource*> refSources = m_lbsGSResult[0].m_sources;												/** @brief	参考广义源, 默认第0个传感器数据为参考数据传感器	*/
+	std::vector<GeneralSource*> dataSources;																			/** @brief	数据广义源	*/
+	int dataSourceSize = 0;																								/** @brief	数据广义源的数量	*/
+	for (int i = 1; i < sensorNum; ++i) {
+		size_t oldSize = dataSources.size();
+		dataSourceSize = static_cast<int>(oldSize + m_lbsGSResult[i].m_sources.size());
+		dataSources.resize(dataSourceSize);
+		std::copy(m_lbsGSResult[i].m_sources.begin(), m_lbsGSResult[i].m_sources.end(), dataSources.begin() + oldSize);
+	}
+
+	std::vector<GSPairCluster> gsPairClusters;
+
+	for (auto& refSource : refSources) {
+		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_MPSTSD(refSource, dataSources, scene, gsPairClusterThreshold, freqConfig.m_centerFrequency, tranFunction);
+		if (newCluster.m_pairs.size() != 0) {
+			gsPairClusters.push_back(newCluster);
+		}
+	}
+
+
+	//采用射线追踪算法计算目标解到各个传感器之间的残差
+	int clusterNum = static_cast<int>(gsPairClusters.size());
+	std::vector<std::vector<RaytracingResult>> tempRTResult;									//第一维度为初步解的数量，第二维度为传感器的数量，调用射线追踪，判定解对传感器的有效性
+	std::vector<RtLbsType> freqs = freqConfig.GetFrequencyInformation();
+	const MaterialLibrary* matLibrary = &scene->m_materialLibrary;
+	const AntennaLibrary* antLibrary = &scene->m_antennaLibrary;
+	tempRTResult.resize(clusterNum);																/** @brief	传感器数量	*/
+	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
+	std::vector<SensorDataCollection> originalSensorDataCollection(sensorNum);													/** @brief	原始的传感器数据	*/
+	scene->m_sensorDataLibrary.GetAllSensorDataCollection(originalSensorDataCollection);										//获取原始传感器数据
+	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
+
+	if (hardwareMode == CPU_SINGLETHREAD) {
+		for (auto& curCluster : gsPairClusters) {
+			DirectlySetResultPath_CPUSingleThread(vroots, scene, splitRadius, &curCluster);
+		}
+	}
+	else if (hardwareMode == CPU_MULTITHREAD) {
+		DirectlySetResultPath_CPUMultiThread(vroots, scene, splitRadius, threadNum, gsPairClusters);
+	}
+	else if (hardwareMode == GPU_MULTITHREAD) {
+		DirectlySetResultPath_GPUMultiThread(vroots, scene, splitRadius, gsPairClusters);
+	}
+
+	RtLbsType max_r_timeDiff = 0.0;
+	RtLbsType max_r_powerDiff = 0.0;
+	RtLbsType mean_r_timeDiff = 0.0;																							/** @brief	时间差平均残差	*/
+	RtLbsType mean_r_powerDiff = 0.0;																							/** @brief	功率平均残差	*/
+
+	for (auto& curCluster : gsPairClusters) {
+		RtLbsType curCluster_min_r_timeDiff = FLT_MAX;																			/** @brief	最大时延差残差	*/
+		RtLbsType curCluster_min_r_powerDiff = FLT_MAX;																			/** @brief	最大功率差残差	*/
+		int curCluster_min_nullDataNum = INT_MAX;																				/** @brief	最大空数据数量	*/
+
+		for (auto& curResult : curCluster.m_rtResult) {
+			targetSensorDataCollection.clear();
+			targetSensorDataCollection.resize(sensorNum);
+			for (int i = 0; i < sensorNum; ++i) {
+				const Sensor* curSensor = scene->m_sensors[i];
+				curResult[i].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);
+				curResult[i].GetMaxPowerSensorData_Delay(targetSensorDataCollection[i], curSensor->m_timeErrorSTD);
+			}
+			RtLbsType cur_r_timeDiff = 0.0;
+			RtLbsType cur_r_powerDiff = 0.0;
+			int cur_nullDataNum = 0;
+			CalculateSensorCollectionResidual_TDOA_SingleData(originalSensorDataCollection, targetSensorDataCollection, cur_r_timeDiff, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
+			curCluster_min_r_timeDiff = std::min(curCluster_min_r_timeDiff, cur_r_timeDiff);
+			curCluster_min_r_powerDiff = std::min(curCluster_min_r_powerDiff, cur_r_powerDiff);
+			curCluster_min_nullDataNum = std::min(curCluster_min_nullDataNum, cur_nullDataNum);
+		}
+
+		curCluster.SetElementTDOAResidual(curCluster_min_r_timeDiff, curCluster_min_r_powerDiff, curCluster_min_nullDataNum);
+		mean_r_timeDiff += curCluster_min_r_timeDiff;
+		mean_r_powerDiff += curCluster_min_r_powerDiff;
+	}
+	mean_r_timeDiff /= gsPairClusters.size();
+	mean_r_powerDiff /= gsPairClusters.size();
+
+	for (auto& curCluster : gsPairClusters) {
+		curCluster.m_timeDiffResidual += curCluster.m_nullDataNum * mean_r_timeDiff;
+		curCluster.m_powerDiffResidual += curCluster.m_nullDataNum * mean_r_powerDiff;
+		max_r_timeDiff = std::max(max_r_timeDiff, curCluster.m_timeDiffResidual);
+		max_r_powerDiff = std::max(max_r_powerDiff, curCluster.m_powerDiffResidual);
+	}
+
+	//计算cluster权重
+	RtLbsType maxWeight = 0.0;
+	for (auto& curCluster : gsPairClusters) {
+		curCluster.CalNormalizedTDOAWeight(max_r_timeDiff, max_r_powerDiff, w);
+		maxWeight = std::max(maxWeight, curCluster.m_weight);
+	}
+
+	//计算归一化权重
+	for (auto& curCluster : gsPairClusters) {
+		curCluster.m_weight /= maxWeight;
+	}
+
+	std::sort(gsPairClusters.begin(), gsPairClusters.end(), ComparedByClusterWeight);
+
+
+
+	Point2D targetPoint = gsPairClusters.front().m_point;
+
+	std::cout << targetPoint.x << "," << targetPoint.y << std::endl;
 
 }
 
-void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
 {
 	//0-计算基本信息-计算广义源的位置 
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -673,12 +812,19 @@ void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const st
 	std::vector<SensorData> sensorDatas;
 	scene->m_sensorDataLibrary.GetAllSensorData(sensorDatas);
 	std::vector<GSPairCluster> clusters;
-	for (auto refSource : refSources) {
-		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster(refSource, m_allGeneralSource, sensorDatas, scene, gsPairClusterThreshold);
-		clusters.push_back(newCluster);
+	for (auto& refSource : refSources) {
+		refSource->m_sensorData = sensorDatas.front();						//参考源接收数据赋值
+		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_SPSTMD(refSource, m_allGeneralSource, sensorDatas, scene, gsPairClusterThreshold, freqConfig.m_centerFrequency, tranFunction);
+		if (newCluster.m_pairs.size() != 0) {
+			clusters.push_back(newCluster);
+		}
 	}
 
-	std::cout << "未定义" << std::endl;
+	std::sort(clusters.begin(), clusters.end(), ComparedByClusterResidual);
+
+	Point2D targetPoint = clusters.front().m_point;
+
+	std::cout << targetPoint.x<<","<<targetPoint.y << std::endl;
 
 }
 
@@ -688,12 +834,11 @@ std::vector<GeneralSource*> Result::GetGeneralSource() const
 	return m_allGeneralSource;
 }
 
-void Result::LocalizationSolver()
+Point2D Result::LocalizationSolver(const Point2D& initPoint)
 {
-	google::InitGoogleLogging("rtlbs_ceres.log");
 	m_aoaSolver.SetGeneralSource(m_allGeneralSource);
 	//m_aoaSolver.Solving_LS();										//使用加权最小二乘方法求解
-	m_aoaSolver.Solving_WIRLS(20, 1e-6);								//使用迭代加权最小二乘方法求解
+	return m_aoaSolver.Solving_WIRLS(20, 1e-6, initPoint);								//使用迭代加权最小二乘方法求解
 }
 
 void Result::OutputVectorEField() const

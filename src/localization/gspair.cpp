@@ -103,7 +103,7 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 	}
 
 	//判定准测0-解是否和传感器位置重复
-	for (auto curSensor : scene->m_sensors) {
+	for (auto& curSensor : scene->m_sensors) {
 		Point2D curSensorPoint = curSensor->GetPosition2D();
 		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
 			return false;
@@ -123,7 +123,7 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 
 	Segment2D segment1(m_targetSolution, np1);							/** @brief	组合测试线段1	*/
 	Segment2D segment2(m_targetSolution, np2);							/** @brief	组合测试线段2	*/
-
+	
 	if (scene->GetIntersect(segment1, nullptr)) {						//若线段1与环境相交，则表明解无效
 		m_isValid = false;
 		return false;
@@ -145,7 +145,7 @@ bool GSPair::HasValidTOASolution(const Scene* scene)
 	return false;
 }
 
-bool GSPair::HasValidTDOASolution(const Scene* scene)
+bool GSPair::HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunction)
 {
 	if (!_calTDOASolution()) {
 		m_isValid = false;
@@ -167,64 +167,106 @@ bool GSPair::HasValidTDOASolution(const Scene* scene)
 		return false;
 	}
 
-	//判定准则2- 在满足AOA规则的条件下，广义源所在传播节点与目标间的构成的末端路径是否被环境所遮挡
-	const Point2D& np1 = m_gs1->m_position;								/** @brief	广义源1坐标	*/
-	const Point2D& np2 = m_gs2->m_position;								/** @brief	广义源2坐标	*/
+	//判定准则2- 按照反向射线追踪计算模式，计算从源到各个广义源之间的路径是否真实存在
 
-	Segment2D segment1(m_targetSolution, np1);							/** @brief	组合测试线段1	*/
-	Segment2D segment2(m_targetSolution, np2);							/** @brief	组合测试线段2	*/
-
-	if (m_gs1->m_type == NODE_REFL) {									//反射广义源处理
-		Intersection2D intersect;
-		if (!scene->GetIntersect(segment1, &intersect)) {				//线段与反射面不相交，代表解集所构成的路径不存在
-			return false;
-		}
-		if (intersect.m_segment->m_id != m_gs1->m_segment->m_id) {		//若线段1与环境相交，其交点所在环境线段与产生广义源的线段不同，则代表解无效
-			m_isValid = false;
-			return false;
-		}
+	RtLbsType delay_refSource = 0.0;
+	RtLbsType power_refSource = 0.0;
+	if (!m_gsRef->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunction, delay_refSource, power_refSource)) {
+		return false;
 	}
-	else {																//绕射、根节点广义源处理
-		Intersection2D intersect;
-		if (scene->GetIntersect(segment1, &intersect)) {				//若目标坐标与绕射、根节点广义源间构成的线段与环境相交，则表明解无效
-			m_isValid = false;
-			return false;
-		}
+
+	RtLbsType delay_source1 = 0.0;
+	RtLbsType power_source1 = 0.0;
+	if (!m_gs1->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunction, delay_source1, power_source1)) {
+		return false;
+	}
+
+	RtLbsType delay_source2 = 0.0;
+	RtLbsType power_source2 = 0.0;
+	if (!m_gs2->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunction, delay_source2, power_source2)) {
+		return false;
 	}
 	
-	if (m_gs2->m_type == NODE_REFL) {									//反射广义源处理
-		Intersection2D intersect;
-		if (!scene->GetIntersect(segment2, &intersect)) {				//线段与反射面不相交，代表解集所构成的路径不存在
-			return false;
-		}
-		if (intersect.m_segment->m_id != m_gs2->m_segment->m_id) {		//若线段2与环境相交，其交点所在环境线段与产生广义源的线段不同，则代表解无效
-			m_isValid = false;
-			return false;
-		}
-	}
-	else {
-		Intersection2D intersect;
-		if (scene->GetIntersect(segment2, &intersect)) {				//若目标坐标与绕射、根节点广义源间构成的线段与环境相交，则表明解无效
-			m_isValid = false;
-			return false;
-		}
-	}
+	RtLbsType timeDiff_gs1 = (delay_source1 - delay_refSource) * 1e9;
+	RtLbsType timeDiff_gs2 = (delay_source2 - delay_refSource) * 1e9;
+	RtLbsType powerDiff_gs1 = power_source1 - power_refSource;
+	RtLbsType powerDiff_gs2 = power_source2 - power_refSource;
+
+	RtLbsType r_timeDiff_gs1 = timeDiff_gs1 - m_gs1->m_sensorData.m_timeDiff * 1e9;						//转换为ns
+	RtLbsType r_timeDiff_gs2 = timeDiff_gs2 - m_gs2->m_sensorData.m_timeDiff * 1e9;
+	RtLbsType r_powerDiff_gs1 = powerDiff_gs1 - (m_gs1->m_sensorData.m_power - m_gsRef->m_sensorData.m_power);
+	RtLbsType r_powerDiff_gs2 = powerDiff_gs2 - (m_gs2->m_sensorData.m_power - m_gsRef->m_sensorData.m_power);
 	
+	m_powerDiffResidual = r_powerDiff_gs1 * r_powerDiff_gs1 + r_powerDiff_gs2 * r_powerDiff_gs2;
+	m_timeDiffResidual = r_timeDiff_gs1 * r_timeDiff_gs1 + r_timeDiff_gs2 * r_timeDiff_gs2;
+
+
 	//运行到此处证明解为有效解，权重计数+1
 	m_gs1->m_wCount += 1;
 	m_gs2->m_wCount += 1;
-
 	return true;
 }
 
-void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, int max_clusterNum)
+bool GSPair::HasValidTDOASolution_MPSTSD(const Scene* scene)
+{
+	if (!_calTDOASolution()) {
+		m_isValid = false;
+		return false;
+	}
+
+	//判定准测0-解是否和传感器位置重复
+	for (auto curSensor : scene->m_sensors) {
+		Point2D curSensorPoint = curSensor->GetPosition2D();
+		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
+			return false;
+		}
+	}
+
+
+	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
+	if (!scene->IsValidPoint(m_targetSolution)) {
+		m_isValid = false;
+		return false;
+	}
+
+	//判定准则2- 判定路径的有效性，追根溯源型
+	RtLbsType delay_refSource = 0.0;
+	RtLbsType power_refSource = 0.0;
+	if (!m_gsRef->CalTDOAParameters_MPSTSD(m_targetSolution, scene)) {
+		return false;
+	}
+
+	RtLbsType delay_source1 = 0.0;
+	RtLbsType power_source1 = 0.0;
+	if (!m_gs1->CalTDOAParameters_MPSTSD(m_targetSolution, scene)) {
+		return false;
+	}
+
+	RtLbsType delay_source2 = 0.0;
+	RtLbsType power_source2 = 0.0;
+	if (!m_gs2->CalTDOAParameters_MPSTSD(m_targetSolution, scene)) {
+		return false;
+	}
+	return true;
+}
+
+void GSPair::CalculateSinglePairResidual()
+{
+	//1-追根溯源
+
+	//2-计算电磁场
+
+	//3-计算残差
+}
+
+void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
 {
 	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
 	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
 	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-4);													/** @brief	角度权重	*/
 	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-4);										/** @brief	功率差权重	*/
-	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
-	RtLbsType w_total = ONE_THIRD * w_phi + ONE_THIRD * w_powerDiff + ONE_THIRD * w_cluster;			/** @brief	总权重	*/
+	RtLbsType w_cluster = static_cast<RtLbsType>(m_clusterSize) / static_cast<RtLbsType>(max_clusterNum);		/** @brief	聚类权重	*/
+	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_powerWeight * w_powerDiff)  * m_clusterSize* m_clusterSize;						/** @brief	总权重	*/
 	if (m_gs1->m_weight < w_total) {
 		m_gs1->m_weight = w_total;
 	}
@@ -234,14 +276,14 @@ void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max
 	m_weight = w_total;
 }
 
-void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, int max_clusterNum)
+void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
 {
 	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
 	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
 	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);										/** @brief	时间差权重	*/
 	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);										/** @brief	功率差权重	*/
 	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
-	RtLbsType w_total = ONE_THIRD * w_timeDiff + ONE_THIRD * w_powerDiff + +ONE_THIRD * w_cluster;		/** @brief	总权重	*/
+	RtLbsType w_total = (w.m_timeWeight * w_timeDiff + w.m_phiWeight * w_powerDiff) * m_clusterSize * m_clusterSize;		/** @brief	总权重	*/
 	if (m_gs1->m_weight < w_total) {
 		m_gs1->m_weight = w_total;
 	}
@@ -251,7 +293,7 @@ void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsTy
 	m_weight = w_total;
 }
 
-void GSPair::CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, int max_clusterNum)
+void GSPair::CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
 {
 	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
 	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
@@ -260,7 +302,7 @@ void GSPair::CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsTyp
 	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);										/** @brief	时间差权重	*/
 	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);										/** @brief	功率差权重	*/
 	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
-	RtLbsType w_total = 0.25 * w_phi + 0.25 * w_timeDiff + 0.25 * w_powerDiff + 0.25 * w_cluster;		/** @brief	总权重	*/
+	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_timeWeight * w_timeDiff + w.m_powerWeight * w_powerDiff) * m_clusterSize * m_clusterSize;		/** @brief	总权重	*/
 	if (m_gs1->m_weight < w_total) {
 		m_gs1->m_weight = w_total;
 	}

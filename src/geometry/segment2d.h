@@ -36,8 +36,9 @@ public:
 	RtLbsType DistanceToPoint(const Point2D& p) const;											//空间中点到线段的距离
 	bool IsInSegment(const Point2D& p) const;													//点是否在线段上
 	RtLbsType GetCenter(int axis) const;
-	bool GetIntersect(const Ray2D& ray, Intersection2D* intersect) const;
-	bool GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect) const; /** @brief	计算相交不需要与包围盒相交	*/
+	bool GetIntersect(const Ray2D& ray, Intersection2D* intersect);
+	bool GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect);					/** @brief	计算相交不需要与包围盒相交	*/
+	bool GetIntersect(const Segment2D& segment, Intersection2D* intersect);				//判定与线段相交
 	const BBox2D& GetBBox() const;
 
 	Segment2DGPU Convert2GPU();

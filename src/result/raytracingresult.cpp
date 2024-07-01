@@ -1,7 +1,8 @@
 #include "raytracingresult.h"
 
 RaytracingResult::RaytracingResult()
-	: m_pathNum(0)
+	: m_isValid(true)
+	, m_pathNum(0)
 	, m_freqNum(0)
 	, m_transmitter(nullptr)
 	, m_receiver(nullptr)
@@ -10,7 +11,8 @@ RaytracingResult::RaytracingResult()
 }
 
 RaytracingResult::RaytracingResult(const RaytracingResult& result)
-	: m_pathNum(result.m_pathNum)
+	: m_isValid(result.m_isValid)
+	, m_pathNum(result.m_pathNum)
 	, m_freqNum(result.m_freqNum)
 	, m_transmitter(result.m_transmitter)
 	, m_receiver(result.m_receiver)
@@ -30,11 +32,49 @@ RaytracingResult::RaytracingResult(const RaytracingResult& result)
 
 RaytracingResult::~RaytracingResult()
 {
-	//删除路径
+	m_freqs.clear();
+	std::vector<RtLbsType>().swap(m_freqs);
+
+	for (auto& path : m_commonPaths) {
+		if (path != nullptr) {
+			delete path;
+		}
+	}
+	m_commonPaths.clear();
+	std::vector<RayPath3D*>().swap(m_commonPaths);
+
+	if (m_terrainDiffPath != nullptr) {
+		delete m_terrainDiffPath;
+	}
+
+	m_multipathInfo.clear();
+	std::vector<PathInfo>().swap(m_multipathInfo);
+
+	m_totalVectorEField.clear();
+	std::vector<Complex>().swap(m_totalVectorEField);
+
+	m_totalScalarEField.clear();
+	std::vector<RtLbsType>().swap(m_totalScalarEField);
+
+	m_vectorPower.clear();
+	std::vector<RtLbsType>().swap(m_vectorPower);
+
+	m_scalarPower.clear();
+	std::vector<RtLbsType>().swap(m_scalarPower);
+
+	m_loss.clear();
+	std::vector<RtLbsType>().swap(m_loss);
+
+	m_magnitudesCFR.clear();
+	std::vector<Complex>().swap(m_magnitudesCFR);
+
+	m_magnitudesCIR.clear();
+	std::vector<Complex>().swap(m_magnitudesCIR);
 }
 
 RaytracingResult& RaytracingResult::operator=(const RaytracingResult& result)
 {
+	m_isValid = result.m_isValid;
 	m_pathNum = result.m_pathNum;
 	m_freqNum = result.m_freqNum;
 	m_transmitter = result.m_transmitter;
@@ -232,10 +272,29 @@ void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, 
 		
 	}
 
+	RtLbsType powerDiff = 40;
+	RtLbsType maxPower = clusters[0].m_mergedInfo.m_power;
 	for (int i = 0; i < sparsedClusterNum; ++i) {
+		if (i != 0 && (maxPower - clusters[i].m_mergedInfo.m_power) > powerDiff) {			//去除大于45dB功率差的多径，无法检测到
+			continue;
+		}
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
 		collection.m_data.push_back(curSensorData);
+	}
+	if (collection.m_data.size() < 2 && clusters.size() > 1) {														//保证数据量至少有2个
+		while (collection.m_data.size() < 2) {
+			for (int i = static_cast<int>(collection.m_data.size()); i < sparsedClusterNum; ++i) {
+				SensorData curSensorData;
+				clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
+				if (curSensorData.m_power < -120) {
+					break;
+				}
+				collection.m_data.push_back(curSensorData);
+				break;
+			}
+			break;
+		}
 	}
 }
 
@@ -329,7 +388,11 @@ void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, 
 
 	}
 
+	RtLbsType maxPower = clusters[0].m_mergedInfo.m_power;
 	for (int i = 0; i < sparsedClusterNum; ++i) {
+		if (i != 0 && (maxPower - clusters[i].m_mergedInfo.m_power) > 40) {			//去除大于25dB功率差的多径，无法检测到
+			continue;
+		}
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
 		collection.m_data.push_back(curSensorData);

@@ -1,7 +1,7 @@
 #include "reflection.h"
 
 
-bool GenerateReflectRay(Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray) {
+bool GenerateReflectRay(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray) {
 	if (inter.m_segment->m_refractN == inter.m_segment->m_refractNOut)//面元折射率与外界折射率相同，无反射
 		return false;
 	if (!inter.m_propagationProperty.m_hasRelfection)			//若面元不具有反射属性，则返回false

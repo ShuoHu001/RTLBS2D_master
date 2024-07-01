@@ -3,7 +3,7 @@
 
 
 
-bool IsGenerateSplittingRays(Ray2D& rayInit, RtLbsType t, bool splitFlag, RtLbsType splitRadius, int& splitNum)
+bool IsGenerateSplittingRays(const Ray2D& rayInit, RtLbsType t, bool splitFlag, RtLbsType splitRadius, int& splitNum)
 {
 	if (rayInit.m_bsplit == false || !splitFlag) {				//若射线不具备分裂属性，不进行分裂
 		return false;
@@ -22,7 +22,7 @@ bool IsGenerateSplittingRays(Ray2D& rayInit, RtLbsType t, bool splitFlag, RtLbsT
 	return true;
 }
 
-void GenerateSplittingRay(Ray2D& ray, int splitNum, std::vector<Ray2D>* rays) {//障碍物存在条件下射线分裂,修正，透射禁止分裂
+void GenerateSplittingRay(const Ray2D& ray, int splitNum, std::vector<Ray2D>* rays) {//障碍物存在条件下射线分裂,修正，透射禁止分裂
 	//计算出射线管总张角
 	double total_theta = 2 * ray.m_theta;
 	(*rays).resize(splitNum);

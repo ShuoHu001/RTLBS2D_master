@@ -9,8 +9,6 @@ BVHNode::BVHNode(std::vector<Segment2D*> segments)
 
 BVHNode::~BVHNode()
 {
-	delete left;
-	delete right;
 }
 
 bool BVHNode::IsLeaf() const

@@ -11,7 +11,7 @@
 
 class SDFNode {
 public:
-	std::vector<Segment2D*> m_segemnts; /** @brief	节点中包含的面元	*/
+	std::vector<Segment2D*> m_segments; /** @brief	节点中包含的面元	*/
 	Point2D m_cornerPoint; /** @brief	网格左下角角点坐标	*/
 	int64_t x, y;           /** @brief	节点的二维索引值，用于计算距离场	*/
 	int64_t id;				/** @brief	节点的一维索引值	*/

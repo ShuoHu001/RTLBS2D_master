@@ -91,7 +91,7 @@ void ReceiverConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 	writer.Key(KEY_RECEIVERCONFIG_PLANECONFIG.c_str());										m_planeConfig.Serialize(writer);
 	writer.Key(KEY_RECEIVERCONFIG_SOLIDCONFIG.c_str());										m_solidConfig.Serialize(writer);
 	writer.Key(KEY_RECEIVERCONFIG_ATTACHFILENAME.c_str());									writer.String(m_attachFileName.c_str());
-	writer.Key(KEY_RECEIVERCONFIG_ANTID.c_str());											writer.Double(m_antId);
+	writer.Key(KEY_RECEIVERCONFIG_ANTID.c_str());											writer.Uint(m_antId);
 	writer.Key(KEY_RECEIVERCONFIG_ANTNAME.c_str());											writer.String(m_antName.c_str());
 	writer.Key(KEY_RECEIVERCONFIG_INSERTLOSS.c_str());										writer.Double(m_insertLoss);
 	writer.Key(KEY_RECEIVERCONFIG_ATTACHGAIN.c_str());										writer.Double(m_attachGain);

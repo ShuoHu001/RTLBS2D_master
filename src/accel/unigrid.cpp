@@ -33,7 +33,7 @@ void UniGrid::Construct(std::vector<Segment2D*>& segments)
 
 	//初始化网格
 	m_voxelCount = m_voxelNum[0] * m_voxelNum[1];
-	m_pVoxels = new std::vector<Segment2D*>[m_voxelCount];
+	m_pVoxels.resize(m_voxelCount, std::vector<Segment2D*>());
 
 	//将图元分配到网格,这里按照包围盒进行赋值
 	// distribute the primitives
@@ -79,7 +79,7 @@ void UniGrid::Build()
 
 bool UniGrid::GetIntersect(const Ray2D& ray, Intersection2D* intersect) const
 {
-	if (m_pVoxels == 0 || m_segments == 0)
+	if (m_pVoxels.size() == 0 || m_segments == 0)
 		return false;
 	RtLbsType maxt;
 	RtLbsType cur_t = Intersect_BBox2D(ray, m_bbox, &maxt);
@@ -150,19 +150,17 @@ void UniGrid::_init()
 		m_voxelInvExtent[i] = 0.0;
 	}
 	m_voxelCount = 0;
-	m_pVoxels = 0;
 }
 
 void UniGrid::_release()
 {
-	for (auto it = m_pVoxels->begin(); it != m_pVoxels->end(); ++it) {
-		delete* it;  // 删除指针指向的对象
+	for (int i = 0; i < m_voxelCount; ++i) {
+		m_pVoxels[i].clear();
+		std::vector<Segment2D*>().swap(m_pVoxels[i]);
 	}
 	// 清空指针向量
-	m_pVoxels->clear();
-	// 释放指针向量本身的内存
-	delete m_pVoxels;
-	m_pVoxels = nullptr;  // 置空指针
+	m_pVoxels.clear();
+	std::vector<std::vector<Segment2D*>>().swap(m_pVoxels);
 }
 
 int64_t UniGrid::_point2VoxelId(const Point2D& p, unsigned axis) const

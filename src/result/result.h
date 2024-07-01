@@ -22,6 +22,7 @@
 #include "localization/aoa/aoasolver.h"
 #include "physical/gpu/pathbuildergpu.h"
 #include "localization/gspaircluster.h"
+#include "localization/weightfactor.h"
 
 
 
@@ -53,12 +54,12 @@ public:
 	void Init(const std::vector<Sensor*>& sensors);																							//初始化结果-无源定位GS
 	void OutputResult(SYSTEM_MODE systemMode, const OutputConfig& config) const;															//输出计算结果
 	void CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const OutputConfig& outputConfig);														//计算射线追踪结果
-	void CalculateResult_LBS_AOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法AOAMPSTSD定位模式
-	void CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法AOASPSTMD定位模式
-	void CalculateResult_LBS_TDOA_MPSTSD(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法TDOAMPSTSD定位模式
-	void CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法TDOASPSTMD定位模式
+	Point2D CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);
+	Point2D CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法AOASPSTMD定位模式
+	void CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法TDOAMPSTSD定位模式
+	void CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction);		//计算结果，GS定位方法TDOASPSTMD定位模式
 	std::vector<GeneralSource*> GetGeneralSource() const;																					//获得广义源
-	void LocalizationSolver();																												//定位求解器
+	Point2D LocalizationSolver(const Point2D& initPoint);																												//定位求解器
 
 private:
 	void OutputVectorEField() const;																										//输出矢量电磁场

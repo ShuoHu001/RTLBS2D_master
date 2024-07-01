@@ -61,6 +61,7 @@ private:
 public:
 	SimConfig();
 	~SimConfig();
+	void SetSeneorConfigFile(const std::string& filename);
 	bool Init(const std::string& filename);												//初始化simconfig
 	void Writer2Json(const std::string& fielname);										//将json写入指定文件中
 	void Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);			//序列化仿真配置对象

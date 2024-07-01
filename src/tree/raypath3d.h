@@ -29,6 +29,7 @@ public:
 public:
 	RayPath3D();																									//默认构造函数
 	RayPath3D(const RayPath& path, const Point3D& tx, const Point3D& rx);											//二维射线路径构造函数
+	RayPath3D(const RayPath& path, RtLbsType height);																//二维射线路径构造函数-用于定位中的电磁计算
 	RayPath3D(const RayPathGPU& path, const Point3D& tx, const Point3D& rx, const std::vector<Segment2D*>& segments, const std::vector<Wedge2D*>& wedges);			//GPU二维射线路径构造函数
 	RayPath3D(const RayPath3D& path);																				//赋值构造函数
 	~RayPath3D();																									//析构函数
@@ -57,6 +58,7 @@ public:
 		const Antenna* txAntenna, const Antenna* rxAntenna);														//反向计算路径复电场值（涉及传输函数的计算）
 	Complex CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary,
 		const Antenna* txAntenna, const Antenna* rxAntenna);														//反向计算路径复电场值（不涉及传输函数的计算）
+	RtLbsType CalculatePowerInLBSSystem(RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* trxAntenna);			//计算LBS定位系统中的功率值
 	RtLbsType GetPropagationTime() const;																			//计算多径传播时间
 	RtLbsType GetPropagationLength() const;																			//计算传播距离
 	RtLbsType GetPhaseOffset(RtLbsType freq) const;																	//计算相位偏移量	

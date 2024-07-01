@@ -7,6 +7,7 @@
 #include "managers/logmanager.h"
 #include "sensordata.h"
 #include "sensordatacollection.h"
+#include "managers/randomanager.h"
 
 
 class SensorDataLibrary {
@@ -23,7 +24,9 @@ public:
 	SensorDataCollection* GetDataCollection(int sensorId) const;
 	SensorData* GetData(int dataId) const;
 	void GetAllSensorDataCollection(std::vector<SensorDataCollection>& collections) const;
+	void GetAllSeneorDataCollectionWithAOAPhiError(std::vector<SensorDataCollection>& collections, RtLbsType phiErrorSTD, RtLbsType powerErrorSTD) const;		//获取所有传感器的数据，给定噪声
 	void GetAllSensorData(std::vector<SensorData>& datas) const;
+	void SetRandomPhiValue(RtLbsType deltaPhi);						//对数据设置随机变化量
 };
 
 #endif

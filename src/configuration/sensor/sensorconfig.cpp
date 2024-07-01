@@ -6,9 +6,10 @@ SensorConfig::SensorConfig()
 	, m_antName("0-Omni")
 	, m_insertLoss(0.0)
 	, m_attachGain(0.0)
-	, m_phiDegreeErrorSTD(0.0)
-	, m_phiErrorSTD(0.0)
-	, m_timeErrorSTD(0.0)
+	, m_phiDegreeErrorSTD(1.0)
+	, m_phiErrorSTD(ONE_DEGEREE)
+	, m_timeErrorSTD(5.0)
+	, m_powerErrorSTD(3.0)
 {
 
 }
@@ -24,6 +25,7 @@ SensorConfig::SensorConfig(const SensorConfig& config)
 	, m_phiErrorSTD(config.m_phiErrorSTD)
 	, m_timeErrorSTD(config.m_timeErrorSTD)
 	, m_sensorDataFileName(config.m_sensorDataFileName)
+	, m_powerErrorSTD(config.m_powerErrorSTD)
 {
 }
 
@@ -42,6 +44,7 @@ SensorConfig& SensorConfig::operator=(const SensorConfig& config)
 	m_phiDegreeErrorSTD = config.m_phiDegreeErrorSTD;
 	m_phiErrorSTD = config.m_phiErrorSTD;
 	m_timeErrorSTD = config.m_timeErrorSTD;
+	m_powerErrorSTD = config.m_powerErrorSTD;
 	m_sensorDataFileName = config.m_sensorDataFileName;
 	return *this;
 }
@@ -55,8 +58,9 @@ void SensorConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 	writer.Key(KEY_SENSORCONFIG_POSITION.c_str());										m_position.Serialize(writer);
 	writer.Key(KEY_SENSORCONFIG_INSERTLOSS.c_str());									writer.Double(m_insertLoss);
 	writer.Key(KEY_SENSORCONFIG_ATTACHGAIN.c_str());									writer.Double(m_attachGain);
-	writer.Key(KEY_SENSORCONFIG_THETADEGREEERRORSTD.c_str());							writer.Double(m_phiDegreeErrorSTD);
+	writer.Key(KEY_SENSORCONFIG_PHIDEGREEERRORSTD.c_str());							writer.Double(m_phiDegreeErrorSTD);
 	writer.Key(KEY_SENSORCONFIG_TIMEERRORSTD.c_str());									writer.Double(m_timeErrorSTD);
+	writer.Key(KEY_SENSORCONFIG_POWERERRORSTD.c_str());									writer.Double(m_powerErrorSTD);
 	writer.Key(KEY_SENSORCONFIG_SENSORDATAFILENAME.c_str());							writer.String(m_sensorDataFileName.c_str());
 	writer.EndObject();
 }
@@ -92,12 +96,16 @@ bool SensorConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "SensorConfig: missing " << KEY_SENSORCONFIG_ATTACHGAIN.c_str() << ENDL;
 		return false;
 	}
-	if (!value.HasMember(KEY_SENSORCONFIG_THETADEGREEERRORSTD.c_str())) {
-		LOG_ERROR << "SensorConfig: missing " << KEY_SENSORCONFIG_THETADEGREEERRORSTD.c_str() << ENDL;
+	if (!value.HasMember(KEY_SENSORCONFIG_PHIDEGREEERRORSTD.c_str())) {
+		LOG_ERROR << "SensorConfig: missing " << KEY_SENSORCONFIG_PHIDEGREEERRORSTD.c_str() << ENDL;
 		return false;
 	}
 	if (!value.HasMember(KEY_SENSORCONFIG_TIMEERRORSTD.c_str())) {
 		LOG_ERROR << "SensorConfig: missing " << KEY_SENSORCONFIG_TIMEERRORSTD.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_SENSORCONFIG_POWERERRORSTD.c_str())) {
+		LOG_ERROR << "SensorConfig: missing " << KEY_SENSORCONFIG_POWERERRORSTD.c_str() << ENDL;
 		return false;
 	}
 	if (!value.HasMember(KEY_SENSORCONFIG_SENSORDATAFILENAME.c_str())) {
@@ -111,8 +119,9 @@ bool SensorConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& positionValue = value[KEY_SENSORCONFIG_POSITION.c_str()];
 	const rapidjson::Value& insertLossValue = value[KEY_SENSORCONFIG_INSERTLOSS.c_str()];
 	const rapidjson::Value& attachGainValue = value[KEY_SENSORCONFIG_ATTACHGAIN.c_str()];
-	const rapidjson::Value& phiDegreeErrorSTDValue = value[KEY_SENSORCONFIG_THETADEGREEERRORSTD.c_str()];
+	const rapidjson::Value& phiDegreeErrorSTDValue = value[KEY_SENSORCONFIG_PHIDEGREEERRORSTD.c_str()];
 	const rapidjson::Value& timeErrorSTDValue = value[KEY_SENSORCONFIG_TIMEERRORSTD.c_str()];
+	const rapidjson::Value& powerErrorSTDValue = value[KEY_SENSORCONFIG_POWERERRORSTD.c_str()];
 	const rapidjson::Value& sensorDataFileNameValue = value[KEY_SENSORCONFIG_SENSORDATAFILENAME.c_str()];
 
 	if (!idValue.IsUint()) {
@@ -140,11 +149,15 @@ bool SensorConfig::Deserialize(const rapidjson::Value& value)
 		return false;
 	}
 	if (!phiDegreeErrorSTDValue.IsDouble()) {
-		LOG_ERROR << "SensorConfig: " << KEY_SENSORCONFIG_THETADEGREEERRORSTD.c_str() << ", wrong value format." << ENDL;
+		LOG_ERROR << "SensorConfig: " << KEY_SENSORCONFIG_PHIDEGREEERRORSTD.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
 	if (!timeErrorSTDValue.IsDouble()) {
 		LOG_ERROR << "SensorConfig: " << KEY_SENSORCONFIG_TIMEERRORSTD.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!powerErrorSTDValue.IsDouble()) {
+		LOG_ERROR << "SensorConfig: " << KEY_SENSORCONFIG_POWERERRORSTD.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
 	if (!sensorDataFileNameValue.IsString()) {
@@ -159,6 +172,7 @@ bool SensorConfig::Deserialize(const rapidjson::Value& value)
 	m_attachGain = attachGainValue.GetDouble();
 	m_phiDegreeErrorSTD = phiDegreeErrorSTDValue.GetDouble();
 	m_timeErrorSTD = timeErrorSTDValue.GetDouble();
+	m_powerErrorSTD = powerErrorSTDValue.GetDouble();
 	m_sensorDataFileName = sensorDataFileNameValue.GetString();
 
 	m_phiErrorSTD = (m_phiDegreeErrorSTD / 180.0) * PI;

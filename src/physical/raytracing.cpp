@@ -16,11 +16,10 @@ void RayTracing_CPUSingleThread(SYSTEM_MODE systemMode, const std::vector<std::v
 			RayTreeNode* tempNode = new RayTreeNode();														/** @brief	临时节点挂载	*/
 			tempNode->m_isValid = false;
 			RayTreeNode* visualTempNode = tempNode;															/** @brief	临时节点的复制	*/
-			for (auto it = rays[i].begin(); it != rays[i].end(); ++it) {
-				const Ray2D& ray = *it;																		/** @brief	当前遍历到的射线	*/
-				PathNode vrootPathNode(limitInfo, NODE_ROOT, txPosition);									/** @brief	根路径节点	*/
-				vrootPathNode.m_nextRay = ray;
-				RayTreeNode* vrootTreeNode = new RayTreeNode(vrootPathNode);								/** @brief	根树节点	*/
+			for (const auto& ray:rays[i]) {																	
+				RayTreeNode* vrootTreeNode = new RayTreeNode();												/** @brief	根树节点	*/
+				vrootTreeNode->m_data = new PathNode(limitInfo, NODE_ROOT, txPosition);
+				vrootTreeNode->m_data->m_nextRay = ray;
 				tempNode->m_pRight = vrootTreeNode;															/** @brief	将根树节点挂载至虚拟根节点右兄弟节点	*/
 				tempNode = tempNode->m_pRight;																	//继续迭代并赋值当前根节点的下一右兄弟节点
 				stack.push({ tempNode });																		//将数据压入栈
@@ -58,8 +57,8 @@ void RayTracing_CPUSingleThread(SYSTEM_MODE systemMode, const std::vector<std::v
 			RayTreeNode* visualTempNode = tempNode;															/** @brief	临时节点的复制	*/
 			for (auto it = rays[i].begin(); it != rays[i].end(); ++it) {
 				const Ray2D& ray = *it;																		/** @brief	当前遍历到的射线	*/
-				PathNode vrootPathNode(limitInfo, NODE_ROOT, txPosition);									/** @brief	根路径节点	*/
-				vrootPathNode.m_nextRay = ray;
+				PathNode* vrootPathNode = new PathNode(limitInfo, NODE_ROOT, txPosition);									/** @brief	根路径节点	*/
+				vrootPathNode->m_nextRay = ray;
 				RayTreeNode* vrootTreeNode = new RayTreeNode(vrootPathNode);								/** @brief	根树节点	*/
 				tempNode->m_pRight = vrootTreeNode;															/** @brief	将根树节点挂载至虚拟根节点右兄弟节点	*/
 				tempNode = tempNode->m_pRight;																//继续迭代并赋值当前根节点的下一右兄弟节点
@@ -105,8 +104,8 @@ void RayTracingLBS_CPUSingleThread(SYSTEM_MODE systemMode, const std::vector<std
 		RayTreeNode* visualTempNode = tempNode;															/** @brief	临时节点的复制	*/
 		for (auto it = rays[i].begin(); it != rays[i].end(); ++it) {
 			const Ray2D& ray = *it;																		/** @brief	当前遍历到的射线	*/
-			PathNode vrootPathNode(limitInfo, NODE_ROOT, txPosition);									/** @brief	根路径节点	*/
-			vrootPathNode.m_nextRay = ray;
+			PathNode* vrootPathNode = new PathNode(limitInfo, NODE_ROOT, txPosition);									/** @brief	根路径节点	*/
+			vrootPathNode->m_nextRay = ray;
 			RayTreeNode* vrootTreeNode = new RayTreeNode(vrootPathNode);								/** @brief	根树节点	*/
 			tempNode->m_pRight = vrootTreeNode;															/** @brief	将根树节点挂载至虚拟根节点右兄弟节点	*/
 			tempNode = tempNode->m_pRight;																	//继续迭代并赋值当前根节点的下一右兄弟节点
@@ -145,8 +144,8 @@ void RayTracing_CPUMultiThread(SYSTEM_MODE systemMode, const std::vector<std::ve
 			Point2D txPosition = scene->m_transmitters[i]->GetPosition2D();												/** @brief	发射机位置	*/
 			std::vector<RayTreeNode*> vrootTemp(rays[i].size());														/** @brief	临时存储	*/
 			for (size_t j = 0; j < rays[i].size(); ++j) {
-				PathNode vrootPathNode(limitInfo, NODE_ROOT, txPosition);
-				vrootPathNode.m_nextRay = rays[i][j];
+				PathNode* vrootPathNode = new PathNode(limitInfo, NODE_ROOT, txPosition);
+				vrootPathNode->m_nextRay = rays[i][j];
 				RayTreeNode* vrootTreeNode = new RayTreeNode(vrootPathNode);
 				auto future = pool.enqueue(PathTrace, raySplitFlag, raySplitRadius, scene, vrootTreeNode);
 
@@ -184,8 +183,8 @@ void RayTracing_CPUMultiThread(SYSTEM_MODE systemMode, const std::vector<std::ve
 			Point2D txPosition = scene->m_sensors[i]->GetPosition2D();												/** @brief	发射机位置	*/
 			std::vector<RayTreeNode*> vrootTemp(rays[i].size());														/** @brief	临时存储	*/
 			for (size_t j = 0; j < rays[i].size(); ++j) {
-				PathNode vrootPathNode(limitInfo, NODE_ROOT, txPosition);
-				vrootPathNode.m_nextRay = rays[i][j];
+				PathNode* vrootPathNode = new PathNode(limitInfo, NODE_ROOT, txPosition);
+				vrootPathNode->m_nextRay = rays[i][j];
 				RayTreeNode* vrootTreeNode = new RayTreeNode(vrootPathNode);
 				auto future = pool.enqueue(PathTrace, raySplitFlag, raySplitRadius, scene, vrootTreeNode);
 
@@ -227,8 +226,8 @@ void RayTracingLBS_CPUMultiThread(SYSTEM_MODE systemMode, const std::vector<std:
 		const Point2D& sensorPosition = scene->m_sensors[i]->GetPosition2D();										/** @brief	发射机位置	*/
 		std::vector<RayTreeNode*> vrootTemp(rays[i].size());														/** @brief	临时存储	*/
 		for (size_t j = 0; j < rays[i].size(); ++j) {
-			PathNode vrootPathNode(limitInfo, NODE_ROOT, sensorPosition);
-			vrootPathNode.m_nextRay = rays[i][j];
+			PathNode* vrootPathNode = new PathNode(limitInfo, NODE_ROOT, sensorPosition);
+			vrootPathNode->m_nextRay = rays[i][j];
 			RayTreeNode* vrootTreeNode = new RayTreeNode(vrootPathNode);
 			auto future = pool.enqueue(PathTraceLBS, raySplitFlag, raySplitRadius, scene, vrootTreeNode);
 			vrootTemp[j] = vrootTreeNode;

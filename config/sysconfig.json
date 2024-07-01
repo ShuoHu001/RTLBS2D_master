@@ -11,28 +11,35 @@
 			"RayNum": 10000,
 			"LimitInfo": {
 				"LimitTotal": 10,
-				"LimitReflect": 1,
+				"LimitReflect": 3,
 				"LimitTransmit": 0,
 				"LimitDiffract": 0,
 				"LimitScatter": 0
 			},
 			"RaySplitFlag": true,
 			"RaySplitRadius": 1.0,
-			"SceneAccelType": 4,
+			"SceneAccelType": 5,
 			"HardwareMode": 0,
 			"RayLaunchMode": 1,
 			"CPUThreadNum": 20
 		},
 		"LocalizationConfig": {
 			"LBSMode": 0,
-			"LBSMethod": 1,
+			"LBSMethod": 0,
 			"HardWareMode": 2,
 			"ThreadNum": 10,
-			"GSPairClusterThreshold": 3.0
+			"RayLaunchHalfTheta": 0.1,
+			"GSPairClusterThreshold": 2.0,
+			"WeightFactor": {
+				"PhiWeight": 1.0,
+				"TimeWeight": 1.0,
+				"PowerWeight": 1.0
+			},
+			"HasSimuError": true
 		},
 		"FrequencyConfig": {
-			"CenterFrequency": 10e9,
-			"BandWidth": 5e6,
+			"CenterFrequency": 10000000000.0,
+			"BandWidth": 5000000.0,
 			"SubCarrierNum": 1
 		},
 		"OutputConfig": {
@@ -51,7 +58,8 @@
 			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
-			"OutputSensorDataSparseFactor": 1.0
+			"OutputSensorDataSparseFactor": 1.0,
+			"OutputLBSMethod": 0
 		}
 	}
 }

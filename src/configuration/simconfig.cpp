@@ -15,6 +15,11 @@ SimConfig::~SimConfig()
 {
 }
 
+void SimConfig::SetSeneorConfigFile(const std::string& filename)
+{
+	m_sensorConfigFile = filename;
+}
+
 bool SimConfig::Init(const std::string& filename)
 {
 	std::ifstream config_ifs(filename);

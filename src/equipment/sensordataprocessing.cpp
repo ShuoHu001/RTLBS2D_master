@@ -40,11 +40,15 @@ void CalculateSensorResidual_AOA_SingleData(const SensorDataCollection& c1, cons
 	}
 }
 
-void CalculateSensorCollectionResidual_AOA_SingleData(std::vector<SensorDataCollection>& c1, std::vector<SensorDataCollection>& c2, RtLbsType& r_phi, RtLbsType& r_powerDiff)
+void CalculateSensorCollectionResidual_AOA_SingleData(std::vector<SensorDataCollection>& c1, std::vector<SensorDataCollection>& c2, RtLbsType& r_phi, RtLbsType& r_powerDiff, int& nullDataNum)
 {
 
 	//计算角度残差二范数和
 	for (int i = 0; i < static_cast<int>(c1.size()); ++i) {
+		if (c2[i].m_data.size() == 0) {
+			nullDataNum++;
+			continue;
+		}
 		RtLbsType cur_r_phi = 0;
 		CalculateSensorResidual_AOA_SingleData(c1[i], c2[i], cur_r_phi);
 		r_phi += cur_r_phi;
@@ -52,6 +56,9 @@ void CalculateSensorCollectionResidual_AOA_SingleData(std::vector<SensorDataColl
 
 	//计算功率差残差二范数和
 	for (int i = 1; i < static_cast<int>(c1.size()); ++i) {
+		if (c2[i].m_data.size() == 0) {
+			continue;
+		}
 		RtLbsType powerDiff1 = c1[i].m_data[0].m_power - c1[0].m_data[0].m_power;
 		RtLbsType powerDiff2 = c2[i].m_data[0].m_power - c2[0].m_data[0].m_power;
 		r_powerDiff += (powerDiff1 - powerDiff2) * (powerDiff1 - powerDiff2);
@@ -156,10 +163,14 @@ void CalculateSensorResidual_TDOA_SingleData(const SensorDataCollection& c1, con
 	}
 }
 
-void CalculateSensorCollectionResidual_TDOA_SingleData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff)
+void CalculateSensorCollectionResidual_TDOA_SingleData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum)
 {
 	//计算时延差残差二范数和
 	for (int i = 0; i < static_cast<int>(c1.size()); ++i) {
+		if (c2[i].m_data.size() == 0) {
+			nullDataNum++;
+			continue;
+		}
 		RtLbsType cur_r_timeDiff = 0;
 		CalculateSensorResidual_TDOA_SingleData(c1[i], c2[i], cur_r_timeDiff);
 		r_timeDiff += cur_r_timeDiff;
@@ -167,6 +178,9 @@ void CalculateSensorCollectionResidual_TDOA_SingleData(const std::vector<SensorD
 
 	//计算功率差残差二范数和
 	for (int i = 1; i < static_cast<int>(c1.size()); ++i) {
+		if (c2[i].m_data.size() == 0) {
+			continue;
+		}
 		RtLbsType powerDiff1 = c1[i].m_data[0].m_power - c1[0].m_data[0].m_power;
 		RtLbsType powerDiff2 = c2[i].m_data[0].m_power - c2[0].m_data[0].m_power;
 		r_powerDiff += (powerDiff1 - powerDiff2) * (powerDiff1 - powerDiff2);

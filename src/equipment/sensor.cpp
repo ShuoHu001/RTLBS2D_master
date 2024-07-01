@@ -8,6 +8,7 @@ Sensor::Sensor()
 	, m_attachGain(0.0)
 	, m_phiErrorSTD(0.1)
 	, m_timeErrorSTD(5.0e-9)
+	, m_powerErrorSTD(0.0)
 {
 }
 
@@ -21,6 +22,7 @@ Sensor::Sensor(const Sensor& sensor)
 	, m_phiErrorSTD(sensor.m_phiErrorSTD)
 	, m_timeErrorSTD(sensor.m_timeErrorSTD)
 	, m_sensorDataCollection(sensor.m_sensorDataCollection)
+	, m_powerErrorSTD(sensor.m_powerErrorSTD)
 {
 }
 
@@ -34,6 +36,7 @@ Sensor::Sensor(const SensorConfig& config, AntennaLibrary* antLibrary)
 	m_attachGain = config.m_attachGain;
 	m_phiErrorSTD = config.m_phiErrorSTD;
 	m_timeErrorSTD = config.m_timeErrorSTD;
+	m_powerErrorSTD = config.m_powerErrorSTD;
 	m_sensorDataCollection.Init(config.m_sensorDataFileName);
 }
 
@@ -51,6 +54,7 @@ Sensor& Sensor::operator=(const Sensor& sensor)
 	m_attachGain = sensor.m_attachGain;
 	m_phiErrorSTD = sensor.m_phiErrorSTD;
 	m_timeErrorSTD = sensor.m_timeErrorSTD;
+	m_powerErrorSTD = sensor.m_phiErrorSTD;
 	return *this;
 }
 
@@ -62,4 +66,9 @@ RtLbsType Sensor::GetGain() const
 Point2D Sensor::GetPosition2D() const
 {
 	return Point2D(m_position.x, m_position.y);
+}
+
+void Sensor::AddSimulationError()
+{
+	m_sensorDataCollection.AddSimulationError(m_phiErrorSTD, m_timeErrorSTD, m_powerErrorSTD);
 }

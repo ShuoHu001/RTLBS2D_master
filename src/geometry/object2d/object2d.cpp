@@ -11,14 +11,7 @@ Object2D::Object2D()
 
 Object2D::~Object2D()
 {
-	for (auto it = m_segments.begin(); it != m_segments.end(); ++it) {
-		delete* it;
-	}
 	m_segments.clear();
-
-	for (auto it = m_wedges.begin(); it != m_wedges.end(); ++it) {
-		delete* it;
-	}
 	m_wedges.clear();
 }
 

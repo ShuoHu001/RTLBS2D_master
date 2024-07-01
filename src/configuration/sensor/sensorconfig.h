@@ -15,8 +15,9 @@ const std::string KEY_SENSORCONFIG_ANTNAME = "AntName";
 const std::string KEY_SENSORCONFIG_POSITION = "Position";
 const std::string KEY_SENSORCONFIG_INSERTLOSS = "InsertLoss";
 const std::string KEY_SENSORCONFIG_ATTACHGAIN = "AttachGain";
-const std::string KEY_SENSORCONFIG_THETADEGREEERRORSTD = "ThetaDegreeErrorSTD";
+const std::string KEY_SENSORCONFIG_PHIDEGREEERRORSTD = "PhiDegreeErrorSTD";
 const std::string KEY_SENSORCONFIG_TIMEERRORSTD = "TimeErrorSTD";
+const std::string KEY_SENSORCONFIG_POWERERRORSTD = "PowerErrorSTD";
 const std::string KEY_SENSORCONFIG_SENSORDATAFILENAME = "SensorDataFileName";
 
 class SensorConfig {
@@ -29,9 +30,8 @@ public:
 	RtLbsType m_attachGain;							/** @brief	传感器附加增益	*/
 	RtLbsType m_phiErrorSTD;						/** @brief	传感器角度测量误差标准差 单位弧度	*/
 	RtLbsType m_timeErrorSTD;						/** @brief	传感器角度测量误差标准差 单位ns	*/
+	RtLbsType m_powerErrorSTD;						/** @brief	传感器功率测量误差标准差 单位dB	*/
 	std::string m_sensorDataFileName;				/** @brief	传感器对应的数据	*/
-
-private:
 	RtLbsType m_phiDegreeErrorSTD;					/** @brief	传感器角度测量误差标准差 单位°	*/
 
 public:

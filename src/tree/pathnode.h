@@ -29,7 +29,8 @@ public:
 	int m_fatherNodeId;													/** @brief	父节点ID，定位模式中需要用到，用于追根溯源组成路径	*/
 
 public:
-	PathNode();//统一跟正，所有的pathnode存储为前一个节点的ray																
+	PathNode();//统一跟正，所有的pathnode存储为前一个节点的ray				
+	PathNode(const Point2D& point, PATHNODETYPE type);																									//LBS中计算单路径功率时进行初始化节点
 	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point);															//根节点的初始化
 	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, const Ray2D& prevRay);											//视距节点的初始化/终止节点的初始化
 	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Segment2D* primitive, const Ray2D& prevRay);					//反射终止节点的初始化

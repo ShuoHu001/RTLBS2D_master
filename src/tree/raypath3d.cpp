@@ -55,6 +55,28 @@ RayPath3D::RayPath3D(const RayPath& path, const Point3D& tx, const Point3D& rx)
 	}
 }
 
+RayPath3D::RayPath3D(const RayPath& path, RtLbsType height)
+	: m_propagationLength(0.0)
+	, m_energyRatio(0.0)
+	, m_containRefract(false)
+	, m_containSplitNode(false)
+	, m_isValid(true)
+	, m_type(RAYPATH_COMMON)
+	, m_angularSpectrumCategoryId(-1)
+{
+	m_nodes.resize(path.m_nodes.size());
+	for (int i = 0; i < m_nodes.size(); ++i) {
+		m_nodes[i] = new PathNode3D();
+		m_nodes[i]->ConvertBy(*path.m_nodes[i], height);
+		if (m_nodes[i]->m_type == NODE_TRANIN ||
+			m_nodes[i]->m_type == NODE_TRANOUT ||
+			m_nodes[i]->m_type == NODE_ETRANIN ||
+			m_nodes[i]->m_type == NODE_ETRANOUT) {												//若包含透射节点，则该路径为透射路径
+			m_containRefract = true;
+		}
+	}
+}
+
 RayPath3D::RayPath3D(const RayPathGPU& path, const Point3D& tx, const Point3D& rx, const std::vector<Segment2D*>& segments, const std::vector<Wedge2D*>& wedges)
 	: m_propagationLength(0.0)
 	, m_energyRatio(0.0)
@@ -390,6 +412,19 @@ Complex RayPath3D::CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq
 	Complex raypathEField;																							/** @brief	输出的复电场值	*/
 	rxAntenna->CalReceivedField(efield3d, freq, GetAOA_Phi(), GetAOA_Theta(), raypathEField);
 	return raypathEField;
+}
+
+RtLbsType RayPath3D::CalculatePowerInLBSSystem(RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* trxAntenna)
+{
+	//先计算输出场
+	RtLbsType power = 1.0;				/** @brief	默认功率设定为1W	*/
+	Polarization3D efield3d = CalculateStrengthField3D(power, freq, matLibrary, trxAntenna);							/** @brief	计算三维复电磁场	*/
+	Complex raypathEField;				/** @brief	路径场值	*/
+	trxAntenna->CalReceivedField(efield3d, freq, GetAOA_Phi(), GetAOA_Theta(), raypathEField);
+	//计算能量
+	RtLbsType conterm = 20 * log10(LIGHT_VELOCITY_AIR / (freq / QUARTER_PI)) - 20 * log10(30);								/** @brief	电磁计算中间变量	*/
+	RtLbsType receivedPower = 20 * log10(raypathEField.MValue()) + conterm + 30;											/** @brief	计算路径功率	*/
+	return receivedPower;
 }
 
 RtLbsType RayPath3D::GetPropagationTime() const

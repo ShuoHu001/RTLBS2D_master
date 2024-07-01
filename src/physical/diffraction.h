@@ -9,7 +9,7 @@
 #include "managers/randomanager.h"
 
 
-bool GenerateDiffractRays(Ray2D& incident_ray, Wedge2D* wedge, std::vector<Ray2D>* rays);
+bool GenerateDiffractRays(const Ray2D& incident_ray, Wedge2D* wedge, std::vector<Ray2D>* rays);
 
 
 #endif

@@ -46,7 +46,7 @@ RtLbsType TDOASolver::Solving_LS(Point2D& outP)
 	//定义问题
 	ceres::Problem problem;
 
-	RtLbsType position[2] = { 0,0 };		//初始位置估计
+	RtLbsType position[2] = { outP.x,outP.y };		//初始位置估计
 
 	//指定数据集
 	for (auto& curSource : m_gsData) {
@@ -57,7 +57,7 @@ RtLbsType TDOASolver::Solving_LS(Point2D& outP)
 	//配置求解器
 	ceres::Solver::Options options;
 	options.linear_solver_type = ceres::DENSE_QR;
-	options.minimizer_progress_to_stdout = false;
+	options.minimizer_progress_to_stdout = true;
 
 	//求解
 	ceres::Solver::Summary summary;

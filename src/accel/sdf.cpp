@@ -12,6 +12,8 @@ SDFNode::SDFNode()
 
 SDFNode::~SDFNode()
 {
+	m_segments.clear();
+	std::vector<Segment2D*>().swap(m_segments);
 }
 
 bool SDFNode::operator<(const SDFNode& node) const
@@ -25,11 +27,11 @@ SDFNodeGPU SDFNode::Convert2GPU()
 	nodeGPU.id = id;
 	nodeGPU.x = x;
 	nodeGPU.y = y;
-	nodeGPU.m_segmentCount = m_segemnts.size();
-	if (!m_segemnts.empty()) {
+	nodeGPU.m_segmentCount = m_segments.size();
+	if (!m_segments.empty()) {
 		nodeGPU.m_segmentIds = new int64_t[nodeGPU.m_segmentCount];
 		for (size_t i = 0; i < nodeGPU.m_segmentCount; ++i) {
-			nodeGPU.m_segmentIds[i] = m_segemnts[i]->m_id;
+			nodeGPU.m_segmentIds[i] = m_segments[i]->m_id;
 		}
 	}
 	nodeGPU.m_cornerPoint = m_cornerPoint;
@@ -44,6 +46,8 @@ SignedDistanceField::SignedDistanceField()
 
 SignedDistanceField::~SignedDistanceField()
 {
+	m_voxels.clear();
+	std::vector<SDFNode>().swap(m_voxels);
 }
 
 void SignedDistanceField::Build()
@@ -212,7 +216,7 @@ void SignedDistanceField::_constructBasicGrid(std::vector<Segment2D*>& segments)
 		if (Ids.empty())
 			LOG_WARNING << "empty vector" << ENDL;
 		for (size_t i = 0; i < Ids.size(); ++i) {
-			m_voxels[Ids[i]].m_segemnts.push_back(segment);
+			m_voxels[Ids[i]].m_segments.push_back(segment);
 		}
 	}
 
@@ -221,7 +225,7 @@ void SignedDistanceField::_constructBasicGrid(std::vector<Segment2D*>& segments)
 	outFile.open("UniGrid-1.txt");
 	for (int64_t j = 0; j < m_voxelNum[1]; ++j) {
 		for (int64_t i = 0; i < m_voxelNum[0]; ++i) {
-			outFile << static_cast<int64_t>(m_voxels[j * m_voxelNum[0] + i].m_segemnts.size()) << " ";
+			outFile << static_cast<int64_t>(m_voxels[j * m_voxelNum[0] + i].m_segments.size()) << " ";
 		}
 		outFile << "\n";
 	}
@@ -358,13 +362,13 @@ std::vector<int64_t>  SignedDistanceField::_getGridCoordAlongSegment(Segment2D& 
 
 bool SignedDistanceField::_getIntersect(int64_t id, const Ray2D& ray, Intersection2D* intersect) const
 {
-	if (m_voxels[id].m_segemnts.empty())
+	if (m_voxels[id].m_segments.empty())
 		return false;
 	if (intersect)
 		intersect->m_ft = FLT_MAX;//重置intersect的值
 	bool hasIntersect = false;
 	Intersection2D curIntersect;//当前的交点
-	for (auto it = m_voxels[id].m_segemnts.begin(); it != m_voxels[id].m_segemnts.end(); ++it) {
+	for (auto it = m_voxels[id].m_segments.begin(); it != m_voxels[id].m_segments.end(); ++it) {
 		Segment2D* segment = *it;
 		if (segment->GetIntersectNoBBox(ray, &curIntersect)) {
 			if (!intersect) //若intersect为nullptr直接返回true

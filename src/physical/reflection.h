@@ -9,7 +9,7 @@
 
 
 
-bool GenerateReflectRay(Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray);
+bool GenerateReflectRay(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray);
 
 void GenerateReflectRayOnToughSurface(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray);
 

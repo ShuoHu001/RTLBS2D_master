@@ -143,6 +143,13 @@
       <Profile>true</Profile>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>mkl_intel_lp64.lib;mkl_sequential.lib;mkl_core.lib;FresnelIntegralTranFunction.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>104857600</StackReserveSize>
+      <StackCommitSize>
+      </StackCommitSize>
+      <HeapReserveSize>
+      </HeapReserveSize>
+      <HeapCommitSize>
+      </HeapCommitSize>
     </Link>
     <CudaCompile>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
@@ -216,6 +223,7 @@
     <ClCompile Include="src\localization\lbsresidual.cpp" />
     <CudaCompile Include="src\physical\gpu\pathbuildergpu.cpp" />
     <ClCompile Include="src\localization\tdoa\tdoasolver.cpp" />
+    <ClCompile Include="src\localization\weightfactor.cpp" />
     <ClCompile Include="src\physical\pathbuilder.cpp" />
     <ClCompile Include="src\physical\raylaunch.cpp" />
     <CudaCompile Include="src\physical\raytracing.cpp" />
@@ -224,6 +232,7 @@
     <CudaCompile Include="src\tree\gpu\treenodegpu.cpp" />
     <ClCompile Include="src\result\pathinfocluster.cpp" />
     <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.cpp" />
+    <ClCompile Include="src\test\testlbs.cpp" />
     <ClCompile Include="src\tree\lbstreenode.cpp" />
     <ClCompile Include="src\tree\terraindiffractionpath.cpp" />
     <ClCompile Include="src\utility\fileoperation.cpp" />
@@ -328,6 +337,7 @@
     <ClInclude Include="src\localization\lbsresidual.h" />
     <CudaCompile Include="src\physical\gpu\pathbuildergpu.h" />
     <ClInclude Include="src\localization\tdoa\tdoasolver.h" />
+    <ClInclude Include="src\localization\weightfactor.h" />
     <ClInclude Include="src\physical\pathbuilder.h" />
     <CudaCompile Include="src\utility\gpuutil.h" />
     <ClInclude Include="src\physical\treenodegenerator.h" />
@@ -335,6 +345,7 @@
     <CudaCompile Include="src\tree\gpu\treenodegpu.h" />
     <ClInclude Include="src\result\pathinfocluster.h" />
     <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.h" />
+    <ClInclude Include="src\test\testlbs.h" />
     <ClInclude Include="src\tree\lbstreenode.h" />
     <ClInclude Include="src\utility\struct.h" />
     <CudaCompile Include="src\accel\gpu\sdfgpu.h" />

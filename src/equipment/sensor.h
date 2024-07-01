@@ -24,6 +24,7 @@ public:
 	RtLbsType m_attachGain;							/** @brief	传感器附加增益	*/
 	RtLbsType m_phiErrorSTD;						/** @brief	传感器角度测量的标准差 单位 弧度	*/
 	RtLbsType m_timeErrorSTD;						/** @brief	传感器时延测量的标准差 单位 ns	*/
+	RtLbsType m_powerErrorSTD;						/** @brief	功率测量的标准差 单位 dB	*/
 	SensorDataCollection m_sensorDataCollection;	/** @brief	传感器测量到的数据集合	*/
 
 public:
@@ -34,6 +35,7 @@ public:
 	Sensor& operator = (const Sensor& sensor);
 	RtLbsType GetGain() const;
 	Point2D GetPosition2D() const;
+	void AddSimulationError();			//增加仿真误差
 
 };
 

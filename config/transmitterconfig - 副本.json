@@ -1,0 +1,3893 @@
+{
+	"TransmitterCollectionConfig": {
+		"TransmitterConfigs": [{
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 28.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 33.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 38.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 43.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 48.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 53.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 58.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 63.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 68.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 73.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 33.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 38.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 43.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 48.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 53.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 58.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 63.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 68.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 73.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 78.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 83.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 88.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 93.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 98.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 103.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 108.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 113.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 118.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 123.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 128.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}, {
+				"AntId": 0,
+				"AntName": "0-omni",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 133.0,
+					"y": 78.0,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			}]
+	}
+}

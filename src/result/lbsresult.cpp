@@ -7,6 +7,22 @@ LBSResultGS::LBSResultGS()
 
 LBSResultGS::~LBSResultGS()
 {
+	for (auto& node : m_nodes) {
+		delete node;
+		node = nullptr;
+	}
+	m_nodes.clear();
+	std::vector<LBSTreeNode*>().swap(m_nodes);
+
+	m_sources.clear();
+	std::vector<GeneralSource*>().swap(m_sources);
+}
+
+void LBSResultGS::SetSensorData(const SensorData& data)
+{
+	for (auto& curSource : m_sources) {
+		curSource->m_sensorData = data;
+	}
 }
 
 void LBSResultGS::SetNodes(std::vector<LBSTreeNode*>& nodes)
@@ -53,6 +69,7 @@ inline void EraseRepeatGeneralSources(std::vector<GeneralSource*>& sources)
 	//1-采用hash映射过滤掉反射中冗余的广义源
 	/---------------------------------------------------------------------------------------------------------------*/
 	std::unordered_map<size_t, GeneralSource*> sourceMap;			/** @brief	hash映射源图	*/
+#pragma omp parallel for num_threads(10)
 	for (auto it = sources.begin(); it != sources.end(); ++it) {
 		GeneralSource*& curSource = *it;
 		size_t hashCode = curSource->GetHash();
@@ -82,6 +99,7 @@ inline void EraseRepeatGeneralSources(std::vector<GeneralSource*>& sources)
 	}
 
 	//删除source中的无效广义源(重复性无效)
+#pragma omp parallel for num_threads(10)
 	for (auto& curSource : sources) {
 		if (!curSource->m_isValid) {
 			delete curSource;
@@ -96,6 +114,7 @@ inline void EraseRepeatGeneralSources(std::vector<GeneralSource*>& sources)
 		}), sources.end());
 
 	//重新计算phi值
+#pragma omp parallel for num_threads(10)
 	for (auto it = sources.begin(); it != sources.end(); ++it) {
 		(*it)->UpdateEvenPhiValue();
 	}

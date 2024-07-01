@@ -14,6 +14,7 @@ OutputConfig::OutputConfig()
 	, m_outputSensorDataMPSTSD(false)
 	, m_outputSensorDataSPMTMD(false)
 	, m_outputSensorDataMPMTMD(false)
+	, m_outputLBSMethod(LBS_METHOD_RT_AOA)
 	, m_outputSensorDataSparseFactor(1.0)
 {
 }
@@ -34,6 +35,7 @@ OutputConfig::OutputConfig(const OutputConfig& config)
 	, m_outputSensorDataMPSTSD(config.m_outputSensorDataMPSTSD)
 	, m_outputSensorDataSPMTMD(config.m_outputSensorDataSPMTMD)
 	, m_outputSensorDataMPMTMD(config.m_outputSensorDataMPMTMD)
+	, m_outputLBSMethod(config.m_outputLBSMethod)
 	, m_outputSensorDataSparseFactor(config.m_outputSensorDataSparseFactor)
 {
 }
@@ -59,6 +61,7 @@ OutputConfig& OutputConfig::operator=(const OutputConfig& config)
 	m_outputSensorDataMPSTSD=config.m_outputSensorDataMPSTSD;
 	m_outputSensorDataSPMTMD=config.m_outputSensorDataSPMTMD;
 	m_outputSensorDataMPMTMD=config.m_outputSensorDataMPMTMD;
+	m_outputLBSMethod = config.m_outputLBSMethod;
 	m_outputSensorDataSparseFactor = config.m_outputSensorDataSparseFactor;
 	return *this;
 }
@@ -99,7 +102,8 @@ void OutputConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD.c_str());							writer.Bool(m_outputSensorDataMPSTSD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str());							writer.Bool(m_outputSensorDataSPMTMD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str());							writer.Bool(m_outputSensorDataMPMTMD);
-	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str());							writer.Double(m_outputSensorDataSparseFactor);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str());						writer.Double(m_outputSensorDataSparseFactor);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str());									SerializeEnum(m_outputLBSMethod, writer);
 	writer.EndObject();
 }
 
@@ -170,6 +174,10 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str() << ENDL;
 		return false;
 	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str() << ENDL;
+		return false;
+	}
 	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str())) {
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str() << ENDL;
 		return false;
@@ -190,6 +198,7 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& outputSensorDataMPSTSDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD.c_str()];
 	const rapidjson::Value& outputSensorDataSPMTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str()];
 	const rapidjson::Value& outputSensorDataMPMTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str()];
+	const rapidjson::Value& outputLBSMethodValue = value[KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str()];
 	const rapidjson::Value& outputSensorDataSparseFactorValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str()];
 
 	if (!rtDirectoryValue.IsString()) {
@@ -252,6 +261,10 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
+	if (!outputLBSMethodValue.IsInt()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
 	if (!outputSensorDataSparseFactorValue.IsDouble()) {
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str() << ", wrong value format." << ENDL;
 		return false;
@@ -273,6 +286,10 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	m_outputSensorDataSPMTMD = outputSensorDataSPMTMDValue.GetBool();
 	m_outputSensorDataMPMTMD = outputSensorDataMPMTMDValue.GetBool();
 	m_outputSensorDataSparseFactor = outputSensorDataSparseFactorValue.GetDouble();
+	if (!DeserializeEnum(m_outputLBSMethod, outputLBSMethodValue)) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str() << ", deserialize failed." << ENDL;
+		return false;
+	}
 
 	if (!IsValid()) {													//若验证不通过，返回false
 		return false;

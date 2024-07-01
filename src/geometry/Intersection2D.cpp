@@ -21,7 +21,7 @@ Intersection2D::~Intersection2D()
 {
 }
 
-bool Intersection2D::Update(Ray2D& ray)
+bool Intersection2D::Update(const Ray2D& ray)
 {
 	return ValidWedges(ray);//更新*intersect,找到相交面元后再进行楔形角判定
 }
@@ -40,7 +40,7 @@ Intersection2DGPU Intersection2D::Convert2GPU()
 	return intersectGPU;
 }
 
-bool Intersection2D::ValidWedges(Ray2D& ray)
+bool Intersection2D::ValidWedges(const Ray2D& ray)
 {
 	//针对交点为重复绕射点的特殊情况修正
 	if (m_type == NODE_DIFF && ray.m_vWedge.size() != 0) {

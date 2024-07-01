@@ -21,14 +21,6 @@ void TreeNodeGenerator_AOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroo
 			lbsNodes[j] = new LBSTreeNode(*curPathNode, sensorData);
 		}
 
-		//添加根节点,每个数据都是一个节点
-		std::vector<SensorData>& sensorDatas = scene->m_sensors[i]->m_sensorDataCollection.m_data;
-		for (auto it = sensorDatas.begin(); it != sensorDatas.end(); ++it) {
-			int sensorDataId = (*it).m_id;
-			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
-			lbsNodes.push_back(new LBSTreeNode(vroots[i]->m_data, sensorData));
-		}
-
 		result.m_lbsGSResult[i].SetNodes(lbsNodes);
 	}
 }
@@ -87,7 +79,7 @@ void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroot
 		for (auto it = sensorDatas.begin(); it != sensorDatas.end(); ++it) {
 			int sensorDataId = (*it).m_id;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
-			lbsNodes.push_back(new LBSTreeNode(vroots[i]->m_data, sensorData));
+			lbsNodes.push_back(new LBSTreeNode(*vroots[i]->m_data, sensorData));
 		}
 
 		result.m_lbsGSResult[i].SetNodes(lbsNodes);
@@ -126,7 +118,7 @@ void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroo
 		for (auto it = sensorDatas.begin(); it != sensorDatas.end(); ++it) {
 			int sensorDataId = (*it).m_id;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
-			lbsNodes.push_back(new LBSTreeNode(vroots[i]->m_data, sensorData));
+			lbsNodes.push_back(new LBSTreeNode(*vroots[i]->m_data, sensorData));
 		}
 
 		result.m_lbsGSResult[i].SetNodes(lbsNodes);
@@ -204,7 +196,7 @@ void GenerateAllTreeNodeAndConvertToCPUConvertPathNode(const std::vector<RayTree
 				maxDepth = cur_layerId;
 			}
 
-			CPUConverterPathNode newNode(curNode->m_data, cur_faterNodeId, sensorId, cur_layerId);
+			CPUConverterPathNode newNode(*curNode->m_data, cur_faterNodeId, sensorId, cur_layerId);
 			outNodes.push_back(newNode);
 
 			if (curNode->m_pLeft) {

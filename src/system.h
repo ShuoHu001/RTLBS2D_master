@@ -55,7 +55,7 @@ public:
 	~System();
 
 public:
-	bool Setup();																//设置系统
+	bool Setup(SYSTEM_MODE mode = MODE_RT);										//设置系统
 	void Render();																//基于射线追踪进行电磁渲染
 	void RayLaunch(const RAYLAUNCHMODE& mode, uint64_t rayNum);					//射线发射模块
 	void RayTracing(const HARDWAREMODE mode);									//射线追踪模块
@@ -63,6 +63,7 @@ public:
 	void PathBuilder(const HARDWAREMODE mode);									//路径构造模块
 	void TreeNodeGenerator(const HARDWAREMODE hardwareNode);					//树节点产生模块
 	void PostProcessing();														//后处理数据（算法相关）
+	Point2D TargetLocalization(LOCALIZATION_MODE lbsMode, LOCALIZATION_METHOD lbsMethod);			//定位算法
 	void OutputResults();														//输出数据
 	void PreProcess();															//预处理系统
 	
