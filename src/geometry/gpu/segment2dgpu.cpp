@@ -8,12 +8,13 @@
 HOST_DEVICE_FUNC Segment2DGPU::Segment2DGPU()
 	: m_length(0.0)
 	, m_primitive_id(-1)
+	, m_matId(-1)
 	, m_refractN(1.0)
 	, m_refractNOut(1.0)
 {
 }
 
-HOST_DEVICE_FUNC Segment2DGPU::Segment2DGPU(Point2D ps, Point2D pe, Vector2D normal, Vector2D dir, RtLbsType length, BBox2DGPU bbox, int primitive_id, RtLbsType refractN, RtLbsType refractNOut)
+HOST_DEVICE_FUNC Segment2DGPU::Segment2DGPU(Point2D ps, Point2D pe, Vector2D normal, Vector2D dir, RtLbsType length, BBox2DGPU bbox, int primitive_id, int matId, RtLbsType refractN, RtLbsType refractNOut)
 	: m_ps(ps)
 	, m_pe(pe)
 	, m_normal(normal)
@@ -21,6 +22,7 @@ HOST_DEVICE_FUNC Segment2DGPU::Segment2DGPU(Point2D ps, Point2D pe, Vector2D nor
 	, m_length(length)
 	, m_bbox(bbox)
 	, m_primitive_id(primitive_id)
+	, m_matId(matId)
 	, m_refractN(refractN)
 	, m_refractNOut(refractNOut)
 {
@@ -34,6 +36,7 @@ Segment2DGPU::Segment2DGPU(const Segment2DGPU& segment)
 	, m_length(segment.m_length)
 	, m_bbox(segment.m_bbox)
 	, m_primitive_id(segment.m_primitive_id)
+	, m_matId(segment.m_matId)
 	, m_refractN(segment.m_refractN)
 	, m_refractNOut(segment.m_refractNOut)
 	, m_propagationProperty(segment.m_propagationProperty)
@@ -66,6 +69,7 @@ HOST_DEVICE_FUNC Segment2DGPU& Segment2DGPU::operator=(const Segment2DGPU& segme
 		m_length = segment.m_length;
 		m_bbox = segment.m_bbox;
 		m_primitive_id = segment.m_primitive_id;
+		m_matId = segment.m_matId;
 		m_refractN = segment.m_refractN;
 		m_refractNOut = segment.m_refractNOut;
 		m_propagationProperty = segment.m_propagationProperty;
@@ -89,6 +93,7 @@ HOST_DEVICE_FUNC bool Segment2DGPU::GetIntersect(const Ray2DGPU& ray, Intersecti
 				}
 				intersect->m_ft = tmin;//更新交点距离源点的距离
 				intersect->m_segmentId = m_primitive_id;//绕射加入面元赋值，方便判断
+				intersect->m_matId = m_matId;
 				//取消绕射判定，后续还会计算
 				//反射节点
 				intersect->m_type = NODE_REFL;
@@ -111,6 +116,7 @@ HOST_DEVICE_FUNC bool Segment2DGPU::GetIntersect(const Ray2DGPU& ray, Intersecti
 			intersect->m_intersect = ray.m_Ori + ray.m_Dir * t;
 			intersect->m_ft = t;
 			intersect->m_segmentId = m_primitive_id; //采用Id赋值
+			intersect->m_matId = m_matId;
 			intersect->m_type = NODE_REFL;//反射节点
 			intersect->m_isValid = true;
 			intersect->m_ray = ray;

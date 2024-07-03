@@ -15,6 +15,7 @@ public:
 	int m_layerId;											/** @brief	当前节点所在的层ID	*/
 	int m_sensorId;											/** @brief	当前节点归属的传感器 ID	*/
 	PATHNODETYPE m_type;									/** @brief	节点类型	*/
+	int m_matId;											/** @brief	材质 ID	*/
 	Point2D m_point;										/** @brief	节点坐标	*/
 	int m_segmentId;										/** @brief	节点所在线段ID	*/
 	int m_wedgeId;											/** @brief	节点所在	棱劈ID*/

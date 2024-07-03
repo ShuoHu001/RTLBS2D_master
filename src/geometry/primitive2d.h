@@ -14,7 +14,7 @@ public:
 	int m_id;										/** @brief	全局ID，全局唯一	*/
 	int m_objectId;									/** @brief	面元所属物体编号	*/
 	OBJECT2DCATEGORY m_objectCategory;				/** @brief	面源所在物体的种类	*/
-	int m_matId;									/** @brief	材料	ID*/
+	Material* m_mat;								/** @brief	介质材料	*/
 	RtLbsType m_refractN;							/** @brief	介质折射率,介质本身的折射率	*/
 	RtLbsType m_refractNOut;						/** @brief	介质法向量朝外的介质的折射率	*/
 	PropagationProperty m_propagationProperty;		/** @brief	面元上的传播属性	*/

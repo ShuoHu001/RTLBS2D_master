@@ -4,6 +4,7 @@
 
 PathNode::PathNode()
     : m_type(NODE_INIT)
+    , m_mat(nullptr)
     , m_segment(nullptr)
     , m_wedge(nullptr)
     , m_ft(0.0)
@@ -14,6 +15,7 @@ PathNode::PathNode()
 PathNode::PathNode(const Point2D& point, PATHNODETYPE type)
 	: m_type(type)
 	, m_point(point)
+    , m_mat(nullptr)
 	, m_segment(nullptr)
 	, m_wedge(nullptr)
 	, m_ft(static_cast<RtLbsType>(0.0))
@@ -27,6 +29,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point)
 	: m_limitInfo(limitInfo)
 	, m_type(type)
 	, m_point(point)
+    , m_mat(nullptr)
 	, m_segment(nullptr)
 	, m_wedge(nullptr)
     , m_ft(static_cast<RtLbsType>(0.0))
@@ -39,6 +42,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     : m_limitInfo(limitInfo)
     , m_type(type)
     , m_point(point)
+    , m_mat(nullptr)
     , m_segment(nullptr)
     , m_wedge(nullptr)
     , m_prevRay(prevRay)
@@ -53,6 +57,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
 PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Segment2D* primitive, const Ray2D& prevRay) //反射终止节点, ray 为指向该node的射线（该node为终点）
     : m_limitInfo(limitInfo)
     , m_type(type)
+    , m_mat(primitive->m_mat)
     , m_point(point)
     , m_segment(primitive)
     , m_wedge(nullptr)
@@ -67,6 +72,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
 PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Segment2D* primitive, const Ray2D& prevRay, const Ray2D& nextRay) //反射节点
 	: m_limitInfo(limitInfo)
 	, m_type(type)
+    , m_mat(primitive->m_mat)
 	, m_point(point)
 	, m_segment(primitive)
 	, m_wedge(nullptr)
@@ -82,6 +88,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
 PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Wedge2D* wedge, const Ray2D& prevRay, const Ray2D& nextRay)
 	: m_limitInfo(limitInfo)
 	, m_type(type)
+    , m_mat(wedge->m_face1->m_mat)
 	, m_point(point)
 	, m_wedge(wedge)
 	, m_segment(nullptr)
@@ -98,6 +105,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
 PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Wedge2D* wedge, const Ray2D& prevRay) //绕射终止节点, ray 为指向该node的射线（该node为终点）
     : m_limitInfo(limitInfo)
     , m_type(type)
+    , m_mat(wedge->m_face1->m_mat)
     , m_point(point)
     , m_wedge(wedge)
     , m_segment(nullptr)
@@ -112,6 +120,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
 PathNode::PathNode(const PathNode& pathnode)
     : m_limitInfo(pathnode.m_limitInfo)
     , m_type(pathnode.m_type)
+    , m_mat(pathnode.m_mat)
     , m_point(pathnode.m_point)
     , m_segment(pathnode.m_segment)
     , m_wedge(pathnode.m_wedge)
@@ -127,6 +136,7 @@ PathNode& PathNode::operator=(const PathNode& node)
 {
     m_limitInfo = node.m_limitInfo;
     m_type = node.m_type;
+    m_mat = node.m_mat;
     m_point = node.m_point;
     m_segment = node.m_segment;
     m_wedge = node.m_wedge;
@@ -155,9 +165,11 @@ void PathNode::ConvertFrom(const CPUConverterPathNode& node, const std::vector<S
     m_ft = node.m_ft;
 	if (node.m_segmentId != -1) {
 		m_segment = segments[node.m_segmentId];
+        m_mat = m_segment->m_mat;
 	}
 	if (node.m_wedgeId != -1) {
 		m_wedge = wedges[node.m_wedgeId];
+        m_mat = m_wedge->m_face1->m_mat;
 	}
 	m_prevRay = node.m_prevRay;
     m_fatherNodeId = -1;

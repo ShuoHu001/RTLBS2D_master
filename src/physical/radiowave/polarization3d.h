@@ -9,6 +9,7 @@
 #include "geometry/wedge2d.h"
 #include "polarization2d.h"
 #include "geometry/terrain/terrainridge.h"
+#include "global/globalvariables.h"
 
 //三维极化电场（x、y、z三个方向的电场极化矢量）
 class Polarization3D {
@@ -45,11 +46,11 @@ public:
 	void CalculateTransmissionField_ForwardRT(RtLbsType& st, const Point3D& sP, const Point3D& tP, const Point3D& eP, Material* mat, RtLbsType freq);							//计算透射电磁场-正向电磁计算方法
 	void CalculateStraightTransmissionField_ReverseRT(RtLbsType& st, const Point3D& tP, const Point3D& eP, Material* mat, RtLbsType freq);						//计算经验透射电磁场-反向电磁计算方法
 	void CalculateDiffractionField_ReverseRT(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const Wedge2D* wedge,
-		const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFucntion);																			//计算绕射电磁场-反向电磁计算方法
+		const Material* mat, RtLbsType freq);																			//计算绕射电磁场-反向电磁计算方法
 	void CalculateDiffractionField_ForwardRT(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const Wedge2D* wedge,
-		const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFunction);																			//计算绕射电磁场-正向电磁计算方法
+		const Material* mat, RtLbsType freq);																			//计算绕射电磁场-正向电磁计算方法
 	void CalculateDiffractionField_TerrainUTD(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const TerrainRidge* ridge,
-		const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFunction);																			//计算绕射电磁场-地形绕射UTD方法
+		const Material* mat, RtLbsType freq);																			//计算绕射电磁场-地形绕射UTD方法
 	void CalculateLOSFieldByDistance(RtLbsType s, RtLbsType freq);			//计算视距电磁场-按照距离进行计算（距离为正值表损耗，负值表增益）
 	void CalculateLOSFieldByLoss(RtLbsType loss, RtLbsType freq);			//计算视距电磁场-按照损耗值进行计算（loss为正值表损耗，负值表增益）
 	bool IsZero() const;													//是否是零值(当且仅当三个分量均为0值是成立)
@@ -58,10 +59,10 @@ public:
 private:
 	Polarization2D _calculateReflectionCoef(RtLbsType freq, RtLbsType theta, Material* mat);			//计算反射系数
 	Polarization2D _calculateTransmissionCoef(RtLbsType freq, RtLbsType theta, Material* mat);			//计算透射系数
-	Polarization2D _calculateSallabiDiffractionCoef(RtLbsType n, RtLbsType a1, RtLbsType a2, RtLbsType l, const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFucntion);	//	计算绕射系数
+	Polarization2D _calculateSallabiDiffractionCoef(RtLbsType n, RtLbsType a1, RtLbsType a2, RtLbsType l, const Material* mat, RtLbsType freq);	//	计算绕射系数
 	Polarization2D _specularReflectionCoef(RtLbsType theta, const Material* mat, RtLbsType freq);				//反射系数
 	RtLbsType _redefineAngle(RtLbsType n, RtLbsType phi1, RtLbsType phi2);								//重新定义N面的反射角
-	Complex _newTransactionFunction(double x, const std::vector<Complex>& tranFucntion);						//新的过渡函数的定义
+	Complex _newTransactionFunction(double x);						//新的过渡函数的定义
 	Polarization2D _rectifiedReflectionCoef(RtLbsType a1, RtLbsType a2, const Material* mat, RtLbsType freq);	//修正的反射系数(绕射用到)
 };
 

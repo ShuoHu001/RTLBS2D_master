@@ -139,6 +139,73 @@ RtLbsType AOALSResidual::GetResidual(RtLbsType* position) const
 	return dx * m_cosPhi - dy * m_sinPhi;
 }
 
+
+RDOAWLSResidual::RDOAWLSResidual()
+	: m_x1(0.0)
+	, m_y1(0.0)
+	, m_xi(0.0)
+	, m_yi(0.0)
+	, m_powerDiff(0.0)
+	, m_refSource(nullptr)
+	, m_dataSource(nullptr)
+{
+}
+
+RDOAWLSResidual::RDOAWLSResidual(GeneralSource* refSource, GeneralSource* dataSource)
+	: m_x1(refSource->m_position.x)
+	, m_y1(refSource->m_position.y)
+	, m_xi(dataSource->m_position.x)
+	, m_yi(dataSource->m_position.y)
+	, m_powerDiff(refSource->m_sensorData.m_power - dataSource->m_sensorData.m_power)
+	, m_refSource(refSource)
+	, m_dataSource(dataSource)
+{
+}
+
+RDOAWLSResidual::RDOAWLSResidual(const RDOAWLSResidual& residual)
+	: m_x1(residual.m_x1)
+	, m_y1(residual.m_y1)
+	, m_xi(residual.m_xi)
+	, m_yi(residual.m_yi)
+	, m_powerDiff(residual.m_powerDiff)
+	, m_refSource(residual.m_refSource)
+	, m_dataSource(residual.m_dataSource)
+{
+}
+
+RDOAWLSResidual::~RDOAWLSResidual()
+{
+}
+
+RDOAWLSResidual& RDOAWLSResidual::operator=(const RDOAWLSResidual& residual)
+{
+	m_x1 = residual.m_x1;
+	m_y1 = residual.m_y1;
+	m_xi = residual.m_xi;
+	m_yi = residual.m_yi;
+	m_powerDiff = residual.m_powerDiff;
+	m_refSource = residual.m_refSource;
+	m_dataSource = residual.m_dataSource;
+	return *this;
+}
+
+void RDOAWLSResidual::Init(GeneralSource* refSource, GeneralSource* dataSource)
+{
+	m_x1 = refSource->m_position.x;
+	m_y1 = refSource->m_position.y;
+	m_xi = dataSource->m_position.x;
+	m_yi = dataSource->m_position.y;
+	m_powerDiff = refSource->m_sensorData.m_power - dataSource->m_sensorData.m_power;
+	m_refSource = refSource;
+	m_dataSource = dataSource;
+}
+
+RtLbsType RDOAWLSResidual::GetResidual(RtLbsType* position) const
+{
+	return RtLbsType();
+}
+
+
 TDOALSResidual::TDOALSResidual()
 	: m_x1(0.0)
 	, m_y1(0.0)
@@ -280,3 +347,4 @@ RtLbsType TDOAWLSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType di = std::sqrt((x - m_xi) * (x - m_xi) + (y - m_yi) * (y - m_yi));
 	return ((di - d1) - m_timeDiff * LIGHT_VELOCITY_AIR) * m_weight;
 }
+

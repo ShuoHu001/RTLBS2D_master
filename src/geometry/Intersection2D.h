@@ -5,6 +5,7 @@
 #include "ray2d.h"
 #include "geometry/gpu/Intersection2Dgpu.h"
 #include "physical/propagationproperty.h"
+#include "material/material.h"
 
 class Point2D;
 class Segment2D;
@@ -15,6 +16,7 @@ public:
 	Point2D m_intersect;									/** @brief	交点坐标	*/
 	PATHNODETYPE m_type;									/** @brief	节点类型	*/
 	RtLbsType m_ft;											/** @brief	交点端距离原始坐标点的距离	*/
+	Material* m_mat;										/** @brief	交点信息所处材质	*/
 	Segment2D* m_segment;									/** @brief	反射/透射 判定的面元	*/
 	std::vector<Wedge2D*> m_wedges;							/** @brief	绕射判定的楔形角,绕射角会有多个的情况	*/
 	RtLbsType m_u;											/** @brief	线段的分割参数,即交点所处的位置	*/

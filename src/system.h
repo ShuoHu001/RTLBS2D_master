@@ -3,6 +3,7 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
+#include "global/globalvariables.h"
 #include "geometry/scene.h"
 #include "configuration/simconfig.h"
 #include "result/result.h"
@@ -44,8 +45,6 @@ private:
 
 	std::vector<RayTreeNode*> m_lbsTreeRoot;									/** @brief	射线追踪结构数组，LBS模式用到	*/
 	std::vector<std::vector<Ray2D>> m_lbsInitRays;								/** @brief	初始的射线集合，LBS模式用到	*/
-
-	std::vector<Complex> m_tranFunctionData;									/** @brief	绕射计算过程中需要用到的过渡函数	*/
 
 	std::vector<std::vector<PathNodeGPU*>> m_rtGPUPathNodes;					/** @brief	GPU加速中输出的路径结果,第一层为tx数量，第二层为每个rx中的数据	*/
 	std::vector<std::vector<TreeNodeGPU*>> m_gpuTreeNodes;						/** @brief	GPU加速中输出的树节点数据，第一层为sensor数量，第二层为每个sensor中的数据	*/

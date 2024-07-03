@@ -203,7 +203,7 @@ void RayPath3D::Union(PathNode3D* node)
 	m_nodes.push_back(node);
 }
 
-Polarization3D RayPath3D::CalculateStrengthField3D(RtLbsType power, RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* txAntenna)
+Polarization3D RayPath3D::CalculateStrengthField3D(RtLbsType power, RtLbsType freq, const Antenna* txAntenna)
 {
 	if (m_nodes.size() < 2)		//不满足电磁计算的条件
 		return Polarization3D();
@@ -223,7 +223,7 @@ Polarization3D RayPath3D::CalculateStrengthField3D(RtLbsType power, RtLbsType fr
 			preNode = curNode;							//更新前一节点
 		curNode = m_nodes[i];						//更新当前节点
 		nextNode = m_nodes[i + 1];					//更新下一节点
-		Material* matCurNode = matLibrary->GetMaterial(curNode->m_matId);
+		Material* matCurNode = curNode->m_mat;
 		if (curNode->m_type == NODE_REFL) {
 			efield.CalculateReflectionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, matCurNode, freq);
 		}
@@ -237,7 +237,7 @@ Polarization3D RayPath3D::CalculateStrengthField3D(RtLbsType power, RtLbsType fr
 			efield.CalculateDirectionField(st, curNode->m_point, nextNode->m_point, freq);
 		}
 		else if (curNode->m_type == NODE_DIFF) {
-			efield.CalculateDiffractionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, curNode->m_wedge, matCurNode, freq, tranFucntion);
+			efield.CalculateDiffractionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, curNode->m_wedge, matCurNode, freq);
 		}
 		else {
 			LOG_ERROR << "Raypath: error in raypath information." << ENDL;
@@ -246,54 +246,7 @@ Polarization3D RayPath3D::CalculateStrengthField3D(RtLbsType power, RtLbsType fr
 	return efield;				//直接返回三维复电场
 }
 
-Polarization3D RayPath3D::CalculateStrengthField3D(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna)
-{
-	if (m_nodes.size() < 2)		//不满足电磁计算的条件
-		return Polarization3D();
-	Polarization3D efield;								/** @brief	初始三维极化电磁场	*/
-	PathNode3D* curNode = nullptr;
-	PathNode3D* preNode = nullptr;
-	PathNode3D* nextNode = nullptr;
-	preNode = m_nodes[0];
-	curNode = m_nodes[1];
-	//首节点--计算辐射场
-	Vector3D pc = curNode->m_point - preNode->m_point;												/** @brief	前一节点指向当前节点的向量	*/
-	RtLbsType st = pc.Length();																		/** @brief	累积距离	*/
-	RtLbsType azimuth = pc.Azimuth();
-	RtLbsType elevation = pc.Elevation();
-	txAntenna->CalRadiationField_ReverseRT(power, freq, azimuth, elevation, st, efield);					/** @brief	计算初始辐射场	*/
-	//计算中间节点的辐射场
-	for (int i = 1; i < m_nodes.size() - 1; ++i) {
-		if (i != 1)										//当且仅当在首节点时不会进行前节点替换操作
-			preNode = curNode;							//更新前一节点
-		curNode = m_nodes[i];						//更新当前节点
-		nextNode = m_nodes[i + 1];					//更新下一节点
-		Material* matCurNode = matLibrary->GetMaterial(curNode->m_matId);
-
-		if (curNode->m_type == NODE_REFL) {
-			efield.CalculateReflectionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, matCurNode, freq);
-		}
-		else if (curNode->m_type == NODE_TRANIN || curNode->m_type == NODE_TRANOUT) {
-			efield.CalculateTransmissionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, matCurNode, freq);
-		}
-		else if (curNode->m_type == NODE_ETRANIN) {
-			efield.CalculateStraightTransmissionField_ReverseRT(st, curNode->m_point, nextNode->m_point, matCurNode, freq);
-		}
-		else if (curNode->m_type == NODE_ETRANOUT) {
-			efield.CalculateDirectionField(st, curNode->m_point, nextNode->m_point, freq);
-		}
-		else if (curNode->m_type == NODE_DIFF) {
-			LOG_ERROR << "RayPath: not support for diffraction." << ENDL;
-			//efield.CalculateDiffractionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, curNode->m_wedge, matCurNode, freq, tranFucntion);
-		}
-		else {
-			LOG_ERROR << "Raypath: error in raypath information." << ENDL;
-		}
-	}
-	return efield;					//直接返回三维复电场
-}
-
-Polarization3D RayPath3D::CalculateStrengthField3DReverse(RtLbsType power, RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* txAntenna)
+Polarization3D RayPath3D::CalculateStrengthField3DReverse(RtLbsType power, RtLbsType freq, const Antenna* txAntenna)
 {
 	if (m_nodes.size() < 2)		//不满足电磁计算的条件
 		return Polarization3D();
@@ -313,8 +266,7 @@ Polarization3D RayPath3D::CalculateStrengthField3DReverse(RtLbsType power, RtLbs
 			preNode = curNode;							//更新前一节点
 		curNode = *it;							//更新当前节点
 		nextNode = *(it + 1);					//更新下一节点
-		Material* matCurNode = matLibrary->GetMaterial(curNode->m_matId);
-
+		Material* matCurNode = curNode->m_mat;
 		if (curNode->m_type == NODE_REFL) {
 			efield.CalculateReflectionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, matCurNode, freq);
 		}
@@ -328,7 +280,7 @@ Polarization3D RayPath3D::CalculateStrengthField3DReverse(RtLbsType power, RtLbs
 			efield.CalculateDirectionField(st, curNode->m_point, nextNode->m_point, freq);
 		}
 		else if (curNode->m_type == NODE_DIFF) {
-			efield.CalculateDiffractionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, curNode->m_wedge, matCurNode, freq, tranFucntion);
+			efield.CalculateDiffractionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, curNode->m_wedge, matCurNode, freq);
 		}
 		else {
 			LOG_ERROR << "Raypath: error in raypath information." << ENDL;
@@ -337,88 +289,29 @@ Polarization3D RayPath3D::CalculateStrengthField3DReverse(RtLbsType power, RtLbs
 	return efield;				//直接返回三维复电场
 }
 
-Polarization3D RayPath3D::CalculateStrengthField3DReverse(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna)
+Complex RayPath3D::CalculateStrengthField(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna)
 {
-	if (m_nodes.size() < 2)		//不满足电磁计算的条件
-		return Polarization3D();
-	Polarization3D efield;								/** @brief	初始三维极化电磁场	*/
-	PathNode3D* curNode = nullptr;
-	PathNode3D* preNode = nullptr;
-	PathNode3D* nextNode = nullptr;
-	preNode = m_nodes.back();
-	curNode = std::prev(m_nodes.back());
-	//首节点--计算辐射场
-	Vector3D pc = curNode->m_point - preNode->m_point;												/** @brief	前一节点指向当前节点的向量	*/
-	RtLbsType st = pc.Length();																		/** @brief	累积距离	*/
-	txAntenna->CalRadiationField_ReverseRT(power, freq, pc.Azimuth(), pc.Elevation(), st, efield);		/** @brief	计算初始辐射场	*/
-	//计算中间节点的辐射场
-	for (auto it = std::next(m_nodes.rbegin()); it != std::prev(m_nodes.rend()); ++it) {
-		if (it != std::next(m_nodes.rbegin()))										//当且仅当在首节点时不会进行前节点替换操作
-			preNode = curNode;							//更新前一节点
-		curNode = *it;							//更新当前节点
-		nextNode = *(it + 1);					//更新下一节点
-		Material* matCurNode = matLibrary->GetMaterial(curNode->m_matId);
-
-		if (curNode->m_type == NODE_REFL) {
-			efield.CalculateReflectionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, matCurNode, freq);
-		}
-		else if (curNode->m_type == NODE_TRANIN || curNode->m_type == NODE_TRANOUT) {
-			efield.CalculateTransmissionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, matCurNode, freq);
-		}
-		else if (curNode->m_type == NODE_ETRANIN) {
-			efield.CalculateStraightTransmissionField_ReverseRT(st, curNode->m_point, nextNode->m_point, matCurNode, freq);
-		}
-		else if (curNode->m_type == NODE_ETRANOUT) {
-			efield.CalculateDirectionField(st, curNode->m_point, nextNode->m_point, freq);
-		}
-		else if (curNode->m_type == NODE_DIFF) {
-			LOG_ERROR << "RayPath: not support for diffraction." << ENDL;
-			//efield.CalculateDiffractionField_ReverseRT(st, preNode->m_point, curNode->m_point, nextNode->m_point, curNode->m_wedge, matCurNode, freq, tranFucntion);
-		}
-		else {
-			LOG_ERROR << "Raypath: error in raypath information." << ENDL;
-		}
-	}
-	return efield;				//直接返回三维复电场
-}
-
-Complex RayPath3D::CalculateStrengthField(RtLbsType power, RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna)
-{
-	Polarization3D efield3d = CalculateStrengthField3D(power, freq, tranFucntion, matLibrary, txAntenna);			/** @brief	计算三维复电磁场	*/
+	Polarization3D efield3d = CalculateStrengthField3D(power, freq, txAntenna);			/** @brief	计算三维复电磁场	*/
 	Complex raypathEField;																							/** @brief	输出的复电场值	*/
 	rxAntenna->CalReceivedField(efield3d, freq, GetAOA_Phi(), GetAOA_Theta(), raypathEField);
 	return raypathEField;
 }
 
-Complex RayPath3D::CalculateStrengthField(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna)
-{
-	Polarization3D efield3d = CalculateStrengthField3D(power, freq, matLibrary, txAntenna);							/** @brief	计算三维复电磁场	*/
-	Complex raypathEField;																							/** @brief	输出的复电场值	*/
-	rxAntenna->CalReceivedField(efield3d, freq, GetAOA_Phi(), GetAOA_Theta(), raypathEField);
-	return raypathEField;
-}
 
-Complex RayPath3D::CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna)
+Complex RayPath3D::CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna)
 {
-	Polarization3D efield3d = CalculateStrengthField3DReverse(power, freq, tranFucntion, matLibrary, txAntenna);			/** @brief	计算三维复电磁场	*/
+	Polarization3D efield3d = CalculateStrengthField3DReverse(power, freq, txAntenna);			/** @brief	计算三维复电磁场	*/
 	Complex raypathEField;																									/** @brief	输出的复电场值	*/
 	rxAntenna->CalReceivedField(efield3d, freq, GetAOA_Phi(), GetAOA_Theta(), raypathEField);
 	return raypathEField;
 }
 
-Complex RayPath3D::CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna)
-{
-	Polarization3D efield3d = CalculateStrengthField3DReverse(power, freq, matLibrary, txAntenna);							/** @brief	计算三维复电磁场	*/
-	Complex raypathEField;																							/** @brief	输出的复电场值	*/
-	rxAntenna->CalReceivedField(efield3d, freq, GetAOA_Phi(), GetAOA_Theta(), raypathEField);
-	return raypathEField;
-}
 
-RtLbsType RayPath3D::CalculatePowerInLBSSystem(RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* trxAntenna)
+RtLbsType RayPath3D::CalculatePowerInLBSSystem(RtLbsType freq, const Antenna* trxAntenna)
 {
 	//先计算输出场
 	RtLbsType power = 1.0;				/** @brief	默认功率设定为1W	*/
-	Polarization3D efield3d = CalculateStrengthField3D(power, freq, matLibrary, trxAntenna);							/** @brief	计算三维复电磁场	*/
+	Polarization3D efield3d = CalculateStrengthField3D(power, freq, trxAntenna);							/** @brief	计算三维复电磁场	*/
 	Complex raypathEField;				/** @brief	路径场值	*/
 	trxAntenna->CalReceivedField(efield3d, freq, GetAOA_Phi(), GetAOA_Theta(), raypathEField);
 	//计算能量

@@ -18,6 +18,7 @@
 #include "equipment/sensordata.h"
 
 
+
 class RaytracingResult {
 public:
 	bool m_isValid;											/** @brief	结果是否有效	*/
@@ -48,9 +49,9 @@ public:
 
 	void SetRayPath(std::vector<RayPath3D*>& paths);		//设置路径信息 常规路径
 	void SetRayPath(TerrainDiffractionPath* path);			//设置路径信息 地形绕射
-	void CalculateBaseInfo(std::vector<RtLbsType>& freqs, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction);								//计算基本信息-射线追踪模式
+	void CalculateBaseInfo(std::vector<RtLbsType>& freqs);								//计算基本信息-射线追踪模式
 	
-	void CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction);		//计算基本信息-定位模式中的伴随射线追踪
+	void CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary);		//计算基本信息-定位模式中的伴随射线追踪
 	void GetAllSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于AOA2D定位
 	void GetMaxPowerSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于AOA2D定位
 	void GetAllSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于AOA3D定位

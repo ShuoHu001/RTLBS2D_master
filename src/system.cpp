@@ -42,8 +42,11 @@ System::~System()
 	m_rtInitRays.clear();
 	std::vector<std::vector<Ray2D>>().swap(m_rtInitRays);
 
-	m_tranFunctionData.clear();
-	std::vector<Complex>().swap(m_tranFunctionData);
+	_global_tranFunctionData.clear();
+	std::vector<Complex>().swap(_global_tranFunctionData);
+
+	_global_innerAntennas.clear();
+	std::vector<Antenna>().swap(_global_innerAntennas);
 
 	for (auto& nodes : m_rtGPUPathNodes) {
 		nodes.clear();
@@ -62,8 +65,9 @@ System::~System()
 
 bool System::Setup(SYSTEM_MODE mode)
 {
-	//0-数据初始化
-	m_tranFunctionData = GetTranFunctionData();
+	//0-数据初始化(全局变量)
+	_global_tranFunctionData = GetTranFunctionData();
+	InitInternalAntennas(_global_innerAntennas);
 
 	//1-初始化整体配置
 	if (!m_simConfig.Init(m_configFileName))
@@ -249,7 +253,7 @@ void System::PostProcessing()
 	if (m_sysMode == MODE_RT) {
 		
 		const OutputConfig& outputConfig = m_simConfig.m_outputConfig;
-		m_result.CalculateResult_RT_SensorData(freqConfig, &m_scene->m_materialLibrary, m_tranFunctionData, outputConfig);
+		m_result.CalculateResult_RT_SensorData(freqConfig, outputConfig);
 		
 	}
 	else if(m_sysMode == MODE_LBS) {
@@ -264,19 +268,19 @@ void System::PostProcessing()
 		//增加输入射线追踪树结构
 		if (lbsMode == LBS_MODE_MPSTSD) {
 			if (lbsMethod == LBS_METHOD_RT_AOA) {
-				m_result.CalculateResult_LBS_AOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+				m_result.CalculateResult_LBS_AOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 			}
 			else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-				m_result.CalculateResult_LBS_TDOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+				m_result.CalculateResult_LBS_TDOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 			}
 			
 		}
 		else if (lbsMode == LBS_MODE_SPSTMD) {
 			if (lbsMethod == LBS_METHOD_RT_AOA) {
-				m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+				m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 			}
 			else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-				m_result.CalculateResult_LBS_TDOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+				m_result.CalculateResult_LBS_TDOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 			}
 		}
 	}
@@ -293,19 +297,19 @@ Point2D System::TargetLocalization(LOCALIZATION_MODE lbsMode, LOCALIZATION_METHO
 	const FrequencyConfig& freqConfig = m_simConfig.m_frequencyConfig;
 	if (lbsMode == LBS_MODE_MPSTSD) {
 		if (lbsMethod == LBS_METHOD_RT_AOA) {
-			return m_result.CalculateResult_LBS_AOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+			return m_result.CalculateResult_LBS_AOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 		}
 		else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-			m_result.CalculateResult_LBS_TDOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+			m_result.CalculateResult_LBS_TDOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 		}
 
 	}
 	else if (lbsMode == LBS_MODE_SPSTMD) {
 		if (lbsMethod == LBS_METHOD_RT_AOA) {
-			return m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+			return m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 		}
 		else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-			m_result.CalculateResult_LBS_TDOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig, m_tranFunctionData);
+			m_result.CalculateResult_LBS_TDOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor, freqConfig);
 		}
 	}
 	return Point2D();

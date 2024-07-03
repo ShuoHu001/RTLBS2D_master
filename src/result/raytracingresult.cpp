@@ -103,7 +103,7 @@ void RaytracingResult::SetRayPath(TerrainDiffractionPath* path)
 	m_terrainDiffPath = path;
 }
 
-void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction)
+void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 {
 	//内存分配
 	int pathNum = 0;															/** @brief	总路径数量	*/
@@ -130,11 +130,11 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const Ma
 	for (int i = 0; i < m_freqs.size(); ++i) {
 		for (int j = 0; j < m_commonPaths.size(); ++j) {						//设置常规多径
 			m_multipathInfo[infoId].SetRayPath(m_commonPaths[j]);
-			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], matLibrary, tranFunction, m_transmitter, m_receiver);
+			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], m_transmitter, m_receiver);
 		}
 		if (m_terrainDiffPath != nullptr) {
 			m_multipathInfo[infoId].SetRayPath(m_terrainDiffPath);
-			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], matLibrary, tranFunction, m_transmitter, m_receiver);
+			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], m_transmitter, m_receiver);
 		}
 	}
 	//计算合成场强与功率
@@ -194,7 +194,7 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const Ma
 
 }
 
-void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction)
+void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary)
 {
 	//内存分配
 	int pathNum = 0;															/** @brief	总路径数量	*/
@@ -220,11 +220,11 @@ void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbs
 	for (int i = 0; i < m_freqs.size(); ++i) {
 		for (int j = 0; j < m_commonPaths.size(); ++j) {						//设置常规多径
 			m_multipathInfo[infoId].SetRayPath(m_commonPaths[j]);
-			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, matLibrary, tranFunction, sensor);
+			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, sensor);
 		}
 		if (m_terrainDiffPath != nullptr) {
 			m_multipathInfo[infoId].SetRayPath(m_terrainDiffPath);
-			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, matLibrary, tranFunction, sensor);
+			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, sensor);
 		}
 	}
 

@@ -3,12 +3,12 @@
 
 
 TerrainCell::TerrainCell()
-	: m_matId(-1)
+	: m_mat(nullptr)
 {
 }
 
 TerrainCell::TerrainCell(const TerrainCell& cell)
-	: m_matId(cell.m_matId)
+	: m_mat(cell.m_mat)
 	, m_cornerPoint(cell.m_cornerPoint)
 {
 	int segmentSize = static_cast<int>(cell.m_segments.size());
@@ -197,16 +197,17 @@ bool Terrain::Init(const TerrainConfig& config, const MaterialLibrary& matLibrar
 			RtLbsType colGap = abs(geoTransform[1]);																/** @brief	X 方向间隔	*/
 			RtLbsType rowGap = abs(geoTransform[5]);																/** @brief	Y 方向间隔	*/
 			//读取地形对应的材质信息，这里给出默认值
-			int* matIdMatrix = new int[rows * cols];															/** @brief	材质索引矩阵	*/
-			for (unsigned i = 0; i < static_cast<unsigned>(rows * cols); ++i) {
-				matIdMatrix[i] = 0;
+			std::vector<Material*> matMatrix(rows * cols);
+			for (auto& mat : matMatrix) {
+				mat = matLibrary.GetDefaultMaterial();																//这里给定材质的默认值
 			}
 			//基于数据初始化terrain
-			this->_initData(elevation, matIdMatrix, rows, cols, rowGap, colGap, minmaxValue[0], minmaxValue[1], 1.0);
+			this->_initData(elevation, matMatrix, rows, cols, rowGap, colGap, minmaxValue[0], minmaxValue[1], 1.0);
 			GDALClose(dataset);																						//关闭GDAL数据流
 			//释放无关内存
 			delete[] elevation;
-			delete[] matIdMatrix;
+			matMatrix.clear();
+			std::vector<Material*>().swap(matMatrix);
 			return true;
 		}
 		return false;
@@ -595,7 +596,7 @@ bool Terrain::IsBlock(const Point3D& ps, const Point3D& pe) const
 	return false;
 }
 
-int Terrain::GetMaterialId(const Point3D& p) const
+Material* Terrain::GetMaterial(const Point3D& p) const
 {
 	//计算出p点在cell中的栅格编号
 	//进行相关计算
@@ -604,7 +605,7 @@ int Terrain::GetMaterialId(const Point3D& p) const
 		voxelId[i] = _point2VoxelId(p, i);
 	}
 	unsigned offset = _offset(voxelId[0], voxelId[1]);		//体素Id在一维数据中的编号
-	return m_gridCells[offset]->m_matId;					//返回体素中的材质类型
+	return m_gridCells[offset]->m_mat;						//返回体素中的材质类型
 }
 
 bool Terrain::IsValidPoint(const Point3D& p) const
@@ -683,10 +684,10 @@ bool Terrain::GetTerrainDiffractionPath(Point3D tx, Point3D rx, TerrainDiffracti
 
 	TerrainProfile* profile = new TerrainProfile();
 	//获得路径上每个节点的电磁材质信息
-	std::vector<int> matIds(route.size());															/** @brief	地形点材质ID	*/
+	std::vector<Material*> mats(route.size());															/** @brief	地形点材质数组	*/
 	for (int i = 0; i < route.size(); ++i)
-		matIds[i] = GetMaterialId(route[i]);														//获得路径上每个点的材质ID
-	profile->InitParameters(route, matIds, tx, rx, m_averageRidgeGap);
+		mats[i] = GetMaterial(route[i]);														//获得路径上每个点的材质ID
+	profile->InitParameters(route, mats, tx, rx, m_averageRidgeGap);
 	profile->GetDiffractPathOverRidges(outPath);	//由profile生成绕射路径
 	if (outPath != nullptr) {								//当且仅当outPath不为nullptr时使用
 		outPath->m_terrainDiffractionMode = m_propagationProperty.m_terrainDiffractionMode;			//地形绕射计算模式判别
@@ -745,7 +746,7 @@ void Terrain::_init()
 	m_averageRidgeGap = 100;					//默认地形中峰峦间距为100m
 }
 
-bool Terrain::_initData(float* elevation, int* materialMatrix, int rows, int cols, RtLbsType rowGap, RtLbsType colGap, RtLbsType minValue, RtLbsType maxValue, RtLbsType ratio)
+bool Terrain::_initData(float* elevation, std::vector<Material*>& matMatrix, int rows, int cols, RtLbsType rowGap, RtLbsType colGap, RtLbsType minValue, RtLbsType maxValue, RtLbsType ratio)
 {
 	//栅格模式初始化地形参数
 	m_voxelNum[0] = cols - 1;
@@ -796,7 +797,7 @@ bool Terrain::_initData(float* elevation, int* materialMatrix, int rows, int col
 	if (!_transform(m_meshes))
 		return false;
 
-	_build(materialMatrix); //将线段和面元转换完成后开始执行build程序
+	_build(matMatrix); //将线段和面元转换完成后开始执行build程序
 	LOG_INFO << "Terrain: geometry loading success." << ENDL;
 	return true;
 }
@@ -892,7 +893,7 @@ void Terrain::_release()
 	m_gridCells.clear();
 }
 
-bool Terrain::_transform(const SurfaceMesh& mesh, int matId)
+bool Terrain::_transform(const SurfaceMesh& mesh, Material* mat)
 {
 	if (!CGAL::is_triangle_mesh(mesh)) {
 		LOG_ERROR << "Terrain: terrain mesh failed to transform, not a triangle mesh." << ENDL;
@@ -935,7 +936,7 @@ bool Terrain::_transform(const SurfaceMesh& mesh, int matId)
 				pointId++;
 			}
 			//开始赋值三角形
-			m_facetBuf[facetId++] = new TerrainFacet(facetId, m_pointBuf[p_offset[2]], m_pointBuf[p_offset[1]], m_pointBuf[p_offset[0]], matId); //由于CGAL中多边形顶点为顺序，这里改为逆序条件
+			m_facetBuf[facetId++] = new TerrainFacet(facetId, m_pointBuf[p_offset[2]], m_pointBuf[p_offset[1]], m_pointBuf[p_offset[0]], mat); //由于CGAL中多边形顶点为顺序，这里改为逆序条件
 		}
 	}
 
@@ -1056,7 +1057,7 @@ Point2D Terrain::_voxelId2Point(int voxel[2]) const
 	return p;
 }
 
-void Terrain::_build(int* matMatrix)
+void Terrain::_build(std::vector<Material*>& matMatrix)
 {
 	m_gridCells.resize(m_voxelCount);//初始化网格数据
 	int id = 0;
@@ -1073,7 +1074,7 @@ void Terrain::_build(int* matMatrix)
 				m_gridCells[cellId]->m_cornerPoint[1] = cornerPoint[1] + y * m_voxelExtent[1];
 				m_gridCells[cellId]->m_facets.push_back(facet1);
 				m_gridCells[cellId]->m_facets.push_back(facet2);
-				m_gridCells[cellId]->m_matId = matMatrix[cellId];//执行材质赋值
+				m_gridCells[cellId]->m_mat = matMatrix[cellId];//执行材质赋值
 
 			}
 		}
@@ -1086,7 +1087,7 @@ void Terrain::_build(int* matMatrix)
 				m_gridCells[cellId] = new TerrainCell();
 				m_gridCells[cellId]->m_cornerPoint[0] = cornerPoint[0] + x * m_voxelExtent[0];
 				m_gridCells[cellId]->m_cornerPoint[1] = cornerPoint[1] + y * m_voxelExtent[1];
-				m_gridCells[cellId]->m_matId = matMatrix[cellId];//执行材质赋值
+				m_gridCells[cellId]->m_mat = matMatrix[cellId];//执行材质赋值
 				id++;
 			}
 		}
@@ -1150,7 +1151,7 @@ void Terrain::_build()
 				for (unsigned x = minGridId[0]; x <= maxGridId[0]; ++x) {
 					unsigned offset = _offset(x, y);
 					m_gridCells[offset]->m_facets.push_back(facet);
-					m_gridCells[offset]->m_matId = facet->m_matId;			//材质信息赋值
+					m_gridCells[offset]->m_mat = facet->m_mat;			//材质信息赋值
 				}
 			}
 		}

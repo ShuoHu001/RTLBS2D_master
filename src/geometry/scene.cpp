@@ -91,16 +91,17 @@ bool Scene::LoadScene(const SimConfig& config)
             buildings[i]->m_objectId = objectNum;
             m_objects.push_back(buildings[i]);
             RtLbsType refractiveN = m_materialLibrary.GetMaterial(buildings[i]->m_matId)->GetRefractiveN();
-            for (auto it = buildings[i]->m_segments.begin(); it != buildings[i]->m_segments.end(); ++it) {          //线段赋值
-                (*it)->m_id = segmentNum++;                                                                   //线段全局ID更新
-                (*it)->m_objectId = objectNum;
-                (*it)->m_refractN = refractiveN;
-                (*it)->m_propagationProperty = buildings[i]->m_propagationProperty;
-                m_segmentBuf.push_back(*it);
+            for (auto& curSeg: buildings[i]->m_segments) {          //线段赋值
+                curSeg->m_id = segmentNum++;                                                                   //线段全局ID更新
+                curSeg->m_objectId = objectNum;
+                curSeg->m_mat = m_materialLibrary.GetMaterial(buildings[i]->m_matId);
+                curSeg->m_refractN = refractiveN;
+                curSeg->m_propagationProperty = buildings[i]->m_propagationProperty;
+                m_segmentBuf.push_back(curSeg);
             }
-            for (auto it = buildings[i]->m_wedges.begin(); it != buildings[i]->m_wedges.end(); ++it) {              //棱劈赋值
-                (*it)->m_globalId = wedgeNum++;                                                                     //棱劈全局ID更新
-                m_wedgeBuf.push_back(*it);
+            for (auto& curWedge: buildings[i]->m_wedges) {              //棱劈赋值
+                curWedge->m_globalId = wedgeNum++;                                                                     //棱劈全局ID更新
+                m_wedgeBuf.push_back(curWedge);
             }
             objectNum++;
         }
@@ -113,15 +114,18 @@ bool Scene::LoadScene(const SimConfig& config)
         if (!LoadVegetationsFromFile(config.m_geometryConfig.m_vegetationFile, config.m_geometryConfig.m_vegetationAttributeFile, vegetations))
             return false;
         for (int i = 0; i < vegetations.size(); ++i) {
-            vegetations[i]->m_objectId = static_cast<int>(m_objects.size());
+            vegetations[i]->m_objectId = objectNum;
             m_objects.push_back(vegetations[i]);
             RtLbsType refractiveN = m_materialLibrary.GetMaterial(vegetations[i]->m_matId)->GetRefractiveN();
-            for (auto it = vegetations[i]->m_segments.begin(); it != vegetations[i]->m_segments.end(); ++it) {      //线段赋值
-                (*it)->m_id = segmentNum++;                                                                   //线段全局ID更新
-                (*it)->m_refractN = refractiveN;
-                (*it)->m_propagationProperty = vegetations[i]->m_propagationProperty;
-                m_segmentBuf.push_back(*it);
+            for (auto& curSeg: vegetations[i]->m_segments) {      //线段赋值
+                curSeg->m_id = segmentNum++;                                                                   //线段全局ID更新
+                curSeg->m_objectId = objectNum;
+                curSeg->m_mat = m_materialLibrary.GetMaterial(vegetations[i]->m_matId);
+                curSeg->m_refractN = refractiveN;
+                curSeg->m_propagationProperty = vegetations[i]->m_propagationProperty;
+                m_segmentBuf.push_back(curSeg);
             }
+            objectNum++;
         }
         loadVegetationFlag = true;
     }
@@ -132,19 +136,22 @@ bool Scene::LoadScene(const SimConfig& config)
         if (!LoadWallsFromFile(config.m_geometryConfig.m_wallFile, config.m_geometryConfig.m_wallAttributeFile, walls))
             return false;
         for (int i = 0; i < walls.size(); ++i) {
-            walls[i]->m_objectId = static_cast<int>(m_objects.size());
+            walls[i]->m_objectId = objectNum;
             m_objects.push_back(walls[i]);
             RtLbsType refractiveN = m_materialLibrary.GetMaterial(walls[i]->m_matId)->GetRefractiveN();
-            for (auto it = walls[i]->m_segments.begin(); it != walls[i]->m_segments.end(); ++it) {                  //线段赋值
-                (*it)->m_id = segmentNum++;                                                                   //线段全局ID更新
-                (*it)->m_refractN = refractiveN;
-                (*it)->m_propagationProperty = walls[i]->m_propagationProperty;
-                m_segmentBuf.push_back(*it);
+            for (auto& curSeg: walls[i]->m_segments) {                  //线段赋值
+                curSeg->m_id = segmentNum++;                                                                   //线段全局ID更新
+                curSeg->m_objectId = objectNum;
+                curSeg->m_mat = m_materialLibrary.GetMaterial(walls[i]->m_matId);
+                curSeg->m_refractN = refractiveN;
+                curSeg->m_propagationProperty = walls[i]->m_propagationProperty;
+                m_segmentBuf.push_back(curSeg);
             }
-            for (auto it = walls[i]->m_wedges.begin(); it != walls[i]->m_wedges.end(); ++it) {
-                (*it)->m_globalId = wedgeNum++;                                                                     //棱劈全局ID更新
-                m_wedgeBuf.push_back(*it);
+            for (auto& curWedge: walls[i]->m_wedges) {
+                curWedge->m_globalId = wedgeNum++;                                                                     //棱劈全局ID更新
+                m_wedgeBuf.push_back(curWedge);
             }
+            objectNum++;
         }
         loadWallFlag = true;
     }

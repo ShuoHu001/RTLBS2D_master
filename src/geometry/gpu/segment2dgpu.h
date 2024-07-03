@@ -16,6 +16,7 @@ public:
 	RtLbsType m_length;										/** @brief	线段长度	*/
 	BBox2DGPU m_bbox;										/** @brief	包围盒	*/
 	int64_t m_primitive_id;
+	int m_matId;											/** @brief	材质ID	*/
 	RtLbsType m_refractN;
 	RtLbsType m_refractNOut;
 	PropagationProperty m_propagationProperty;				/** @brief	传播属性	*/
@@ -23,7 +24,7 @@ public:
 
 public:
 	HOST_DEVICE_FUNC Segment2DGPU();
-	HOST_DEVICE_FUNC Segment2DGPU(Point2D ps, Point2D pe, Vector2D normal, Vector2D dir, RtLbsType length, BBox2DGPU bbox, int primitive_id, RtLbsType refractN, RtLbsType refractNOut);  //面元复制
+	HOST_DEVICE_FUNC Segment2DGPU(Point2D ps, Point2D pe, Vector2D normal, Vector2D dir, RtLbsType length, BBox2DGPU bbox, int primitive_id, int matId, RtLbsType refractN, RtLbsType refractNOut);  //面元复制
 	HOST_DEVICE_FUNC Segment2DGPU(const Segment2DGPU& segment);
 	HOST_DEVICE_FUNC ~Segment2DGPU();
 	HOST_DEVICE_FUNC bool operator == (const Segment2DGPU& other) const;

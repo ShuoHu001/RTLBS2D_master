@@ -351,7 +351,7 @@ void Polarization3D::CalculateStraightTransmissionField_ReverseRT(RtLbsType& st,
 	efield *= loss_line;
 }
 
-void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const Wedge2D* wedge, const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFucntion)
+void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const Wedge2D* wedge, const Material* mat, RtLbsType freq)
 {
 	//首先进行特殊处理，若计算场点的位置与绕射点的位置较为接近，则不进行场的任何计算
 	Vector3D sd = dP - sP;																										/** @brief	场计算起点指向绕射点坐标的向量	*/
@@ -373,7 +373,7 @@ void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Ve
 
 	Polarization3D& efield = *this;
 	//求解绕射系数
-	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq, tranFucntion);
+	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq);
 	//入射电场的射线基表示
 	Vector3D v3 = sdNormal.Cross(deNormal);
 	Vector3D v4 = sdNormal.Cross(v3);
@@ -393,7 +393,7 @@ void Polarization3D::CalculateDiffractionField_ReverseRT(RtLbsType& st, const Ve
 	efield = dEField.perp * v3 + dEField.para * v5;
 }
 
-void Polarization3D::CalculateDiffractionField_ForwardRT(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const Wedge2D* wedge, const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFunction)
+void Polarization3D::CalculateDiffractionField_ForwardRT(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const Wedge2D* wedge, const Material* mat, RtLbsType freq)
 {
 	Polarization3D& efield = *this;														/** @brief	入射电磁场赋值	*/
 	//1-几何参量求解
@@ -412,7 +412,7 @@ void Polarization3D::CalculateDiffractionField_ForwardRT(RtLbsType& st, const Ve
 	wedge->CalDiffractionParameters(sdNormal, deNormal, dP, phiIncident, phiDiffraction);										/** @brief	求解绕射参数	*/
 	RtLbsType l = st / (st + deLen);																							/** @brief	球面波扩散因子	*/
 	st += deLen;																												//传播距离叠加
-	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq, tranFunction);	/** @brief	绕射系数	*/
+	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq);	/** @brief	绕射系数	*/
 	//3-求解绕射场
 	Polarization2D inEField;																									/** @brief	原始入射电场的射线基表示	*/
 	inEField.perp = efield * v3;																								/** @brief	原始电场在射线基坐标系中的垂直分量	*/
@@ -424,7 +424,7 @@ void Polarization3D::CalculateDiffractionField_ForwardRT(RtLbsType& st, const Ve
 	efield = dEField.perp * v3 + dEField.para * v5;																				//将绕射场转为笛卡尔坐标系下的表示
 }
 
-void Polarization3D::CalculateDiffractionField_TerrainUTD(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const TerrainRidge* ridge, const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFunction)
+void Polarization3D::CalculateDiffractionField_TerrainUTD(RtLbsType& st, const Vector3D& sP, const Vector3D& dP, const Vector3D& eP, const TerrainRidge* ridge, const Material* mat, RtLbsType freq)
 {
 	Polarization3D& efield = *this;														/** @brief	入射电磁场赋值	*/
 	//1-几何参量求解
@@ -443,7 +443,7 @@ void Polarization3D::CalculateDiffractionField_TerrainUTD(RtLbsType& st, const V
 	ridge->CalDiffractionParameters(sdNormal, deNormal, phiIncident, phiDiffraction);											//计算绕射角参数
 	RtLbsType l = st / (st + deLen);																							/** @brief	球面波扩散因子	*/
 	st += deLen;																												//传播距离叠加
-	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq, tranFunction);	/** @brief	绕射系数	*/
+	Polarization2D dCoef = _calculateSallabiDiffractionCoef(nValue, phiIncident, phiDiffraction, l, mat, freq);	/** @brief	绕射系数	*/
 	//3-求解绕射场
 	Polarization2D inEField;																									/** @brief	原始入射电场的射线基表示	*/
 	inEField.perp = efield * v3;																								/** @brief	原始电场在射线基坐标系中的垂直分量	*/
@@ -527,7 +527,7 @@ Polarization2D Polarization3D::_calculateTransmissionCoef(RtLbsType freq, RtLbsT
 	return tCoef;
 }
 
-Polarization2D Polarization3D::_calculateSallabiDiffractionCoef(RtLbsType n, RtLbsType a1, RtLbsType a2, RtLbsType l, const Material* mat, RtLbsType freq, const std::vector<Complex>& tranFucntion)
+Polarization2D Polarization3D::_calculateSallabiDiffractionCoef(RtLbsType n, RtLbsType a1, RtLbsType a2, RtLbsType l, const Material* mat, RtLbsType freq)
 {
 	//绕射系数计算需要用到的中间变量
 	Complex Cot1, Cot2, Cot3, Cot4;
@@ -566,7 +566,7 @@ Polarization2D Polarization3D::_calculateSallabiDiffractionCoef(RtLbsType n, RtL
 	RtLbsType tanGamma1 = tan(gamma1);
 	if (tanGamma1 != 0) {       //值不为0
 		Cot1.m_real = 1.0 / tanGamma1;      //实部计算
-		D1 = Cot1 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma1) * sin(gamma1), tranFucntion);
+		D1 = Cot1 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma1) * sin(gamma1));
 	}
 	else {      //值为0
 		D1.m_real = 0.5 * sqrt(2 * PI * 2 * waveNumber * l * n * n);            //计算D1的实部
@@ -577,7 +577,7 @@ Polarization2D Polarization3D::_calculateSallabiDiffractionCoef(RtLbsType n, RtL
 	RtLbsType tanGamma2 = tan(gamma2);
 	if (tanGamma2 != 0) {
 		Cot2.m_real = 1.0 / tanGamma2;      //实部计算
-		D2 = Cot2 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma2) * sin(gamma2), tranFucntion);
+		D2 = Cot2 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma2) * sin(gamma2));
 	}
 	else {      //值为0
 		D2.m_real = 0.5 * sqrt(2 * PI * 2 * waveNumber * l * n * n);        //计算D2的实部
@@ -588,7 +588,7 @@ Polarization2D Polarization3D::_calculateSallabiDiffractionCoef(RtLbsType n, RtL
 	RtLbsType tanGamma3 = tan(gamma3);
 	if (tanGamma3 != 0) {
 		Cot3.m_real = 1.0 / tanGamma3;      //实部计算
-		D3 = Cot3 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma3) * sin(gamma3), tranFucntion);
+		D3 = Cot3 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma3) * sin(gamma3));
 	}
 	else {      //值为0
 		D3.m_real = 0.5 * sqrt(2 * PI * 2 * waveNumber * l * n * n);        //计算D3的实部
@@ -599,7 +599,7 @@ Polarization2D Polarization3D::_calculateSallabiDiffractionCoef(RtLbsType n, RtL
 	RtLbsType tanGamma4 = tan(gamma4);
 	if (tan(gamma4) != 0) {     //值不为0
 		Cot4.m_real = 1.0 / tanGamma4;      //实部计算
-		D4 = Cot4 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma4) * sin(gamma4), tranFucntion);
+		D4 = Cot4 * _newTransactionFunction(2 * waveNumber * l * n * n * sin(gamma4) * sin(gamma4));
 	}
 	else {      //值为0
 		D4.m_real = 0.5 * sqrt(2 * PI * 2 * waveNumber * l * n * n);        //计算D4的实部
@@ -715,7 +715,7 @@ RtLbsType Polarization3D::_redefineAngle(RtLbsType n, RtLbsType phi1, RtLbsType 
 	return theta;
 }
 
-Complex Polarization3D::_newTransactionFunction(double x, const std::vector<Complex>& tranFucntion)
+Complex Polarization3D::_newTransactionFunction(double x)
 {
 	//局部变量定义
 	Complex ffx;            /** @brief	过渡函数值	*/
@@ -735,7 +735,7 @@ Complex Polarization3D::_newTransactionFunction(double x, const std::vector<Comp
 	else {      //其他情况
 		x = x * 10000 - 1 + 0.5;        //计算中间值
 		index = static_cast<int>(x);
-		ffx = tranFucntion[index];
+		ffx = _global_tranFunctionData[index];
 	}
 	return ffx;
 }

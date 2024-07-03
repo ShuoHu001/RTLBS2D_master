@@ -102,7 +102,7 @@ inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& 
 }
 
 //计算给定参考广义源下的聚类pair值最优的簇
-inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const std::vector<SensorData>& sensorDatas, const Scene* scene, RtLbsType threshold, RtLbsType freq, const std::vector<Complex>& tranFunction) {
+inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const std::vector<SensorData>& sensorDatas, const Scene* scene, RtLbsType threshold, RtLbsType freq) {
 	std::vector<GeneralSource*> sourceCopy;
 	for (auto& source : sources) {
 		if (source != refSource) {
@@ -145,7 +145,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSo
 				continue;
 			}
 			GSPair* pair = new GSPair(refSource, newSources[i], newSources[j]);
-			if (!pair->HasValidTDOASolution_SPSTMD(scene, freq, tranFunction)) {
+			if (!pair->HasValidTDOASolution_SPSTMD(scene, freq)) {
 				delete pair;
 				continue;
 			}
@@ -195,7 +195,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSo
 }
 
 
-inline GSPairCluster CalMaxTDOASolutionGSPairCluster_MPSTSD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const Scene* scene, RtLbsType threshold, RtLbsType freq, const std::vector<Complex>& tranFunction) {
+inline GSPairCluster CalMaxTDOASolutionGSPairCluster_MPSTSD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const Scene* scene, RtLbsType threshold, RtLbsType freq) {
 	std::vector<GeneralSource*> newSources;
 	for (auto& source : sources) {
 		if (source != refSource) {

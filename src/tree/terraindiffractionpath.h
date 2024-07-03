@@ -48,10 +48,10 @@ public:
 public:
 	TerrainDiffractionPath();
 	~TerrainDiffractionPath();
-	Complex CalculateDiffractionEField_PICQUENARD(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna) const;			//计算地形绕射损耗 Picquenard 方法
-	Complex CalculateDiffractionEField_EPSTEIN(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna) const;				//计算地形绕射损耗 EPSTEIN方法
-	Complex CalculateDiffractionEField_UTD(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const Antenna* txAntenna, const Antenna* rxAntenna) const;					//计算地形绕射损耗 UTD方法
-	Complex CalculateTerrainDiffractionEField(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const Antenna* txAntenna, const Antenna* rxAntenna) const;										//计算绕射损耗
+	Complex CalculateDiffractionEField_PICQUENARD(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const;			//计算地形绕射损耗 Picquenard 方法
+	Complex CalculateDiffractionEField_EPSTEIN(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const;				//计算地形绕射损耗 EPSTEIN方法
+	Complex CalculateDiffractionEField_UTD(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const;					//计算地形绕射损耗 UTD方法
+	Complex CalculateTerrainDiffractionEField(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const;										//计算绕射损耗
 	RtLbsType GetPropagationTime() const;							//计算路径传播时间
 	RtLbsType GetPropagationLength() const;							//计算路径传播距离
 	RtLbsType GetPhaseOffset(RtLbsType freq) const;					//计算相位偏移

@@ -31,6 +31,7 @@ public:
 
 	void Init(const GeneralSource* source);						//从广义源初始化
 	RtLbsType GetWeight() const;								//获得权重
+	RtLbsType Test(int a) { return a; };
 
 	//广义残差表达式，适用于ceres优化库
 	template <typename T> bool operator()(const T* const position, T* residual) const {
@@ -73,6 +74,39 @@ public:
 	}
 
 };
+
+class RDOAWLSResidual {
+private:
+	RtLbsType m_x1;						/** @brief	参考x坐标	*/
+	RtLbsType m_y1;						/** @brief	参考y坐标	*/
+	RtLbsType m_xi;						/** @brief	x坐标	*/
+	RtLbsType m_yi;						/** @brief	y坐标	*/
+	RtLbsType m_powerDiff;				/** @brief	测量到的功率差	*/
+	GeneralSource* m_refSource;			/** @brief	参考广义源	*/
+	GeneralSource* m_dataSource;		/** @brief	数据广义源	*/
+
+public:
+	RDOAWLSResidual();
+	RDOAWLSResidual(GeneralSource* refSource, GeneralSource* dataSource);
+	RDOAWLSResidual(const RDOAWLSResidual& residual);
+	~RDOAWLSResidual();
+	RDOAWLSResidual& operator = (const RDOAWLSResidual& residual);
+	void Init(GeneralSource* refSource, GeneralSource* dataSource);
+
+	RtLbsType GetResidual(RtLbsType* position) const;
+
+	template <typename T> bool operator ()(const T* const position, T* residual) const {
+		T p1_x = T(m_x1);							/** @brief	参考点P1 x坐标	*/
+		T p1_y = T(m_y1);							/** @brief	参考点P1 y坐标	*/
+		T pi_x = T(m_xi);							/** @brief	数据点Pi x坐标	*/
+		T pi_y = T(m_yi);							/** @brief	数据点Pi y坐标	*/
+		T x = position[0];							/** @brief	预测点 x坐标	*/
+		T y = position[1];							/** @brief	预测点 y坐标	*/
+		RtLbsType powerDiff = m_refSource->CalculateExtraRDOALoss(position) - m_dataSource->CalculateExtraRDOALoss(position);
+		residual[0] = T(powerDiff) - m_powerDiff;
+	}
+};
+
 
 //TDOA LS 定位残差表达式
 class TDOALSResidual {

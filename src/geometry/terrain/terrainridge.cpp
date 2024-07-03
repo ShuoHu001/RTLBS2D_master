@@ -8,7 +8,7 @@ TerrainRidge::TerrainRidge()
 	, m_curvRadius(0.0)
 	, m_actualHeight(0.0)
 	, m_relativeHeight(0.0)
-	, m_matId(-1)
+	, m_mat(nullptr)
 {
 }
 
@@ -18,7 +18,7 @@ TerrainRidge::TerrainRidge(TerrainProfilePoint* peak, TerrainProfilePoint* leftV
 	, m_leftValley(leftValley)
 	, m_rightValley(rightValley)
 	, m_points(points)
-	, m_matId(peak->m_matId)
+	, m_mat(peak->m_mat)
 {
 	if (points.size() < 3)
 		LOG_ERROR << "num must be large than 3." << CRASH;
@@ -38,7 +38,7 @@ TerrainRidge::TerrainRidge(const TerrainRidge& ridge)
 	, m_curvRadius(ridge.m_curvRadius)
 	, m_actualHeight(ridge.m_actualHeight)
 	, m_relativeHeight(ridge.m_relativeHeight)
-	, m_matId(ridge.m_matId)
+	, m_mat(ridge.m_mat)
 {
 }
 
@@ -55,7 +55,7 @@ TerrainRidge& TerrainRidge::operator=(const TerrainRidge& ridge)
 	m_rightValley = ridge.m_rightValley;
 	m_curvRadius = ridge.m_curvRadius;
 	m_actualHeight = ridge.m_actualHeight;
-	m_matId = ridge.m_matId;
+	m_mat = ridge.m_mat;
 	return *this;
 }
 
@@ -79,7 +79,7 @@ void TerrainRidge::Init(TerrainProfilePoint* peak, TerrainProfilePoint* leftVall
 	//计算相对峰峦高度-封顶在收发连线上的高度
 	m_relativeHeight = _calPeakRelativeHeightInTRX(sp, ep);
 	m_curvRadius = _calCurvRadius();	//计算曲率半径（中值公式法）
-	m_matId = peak->m_matId;
+	m_mat = peak->m_mat;
 
 	//判定ridge是否有效 判定标准为谷底和峰之间间隔超过5m，峰高度超过5m 需要进行确定和研究的点
 	if (abs(rightValley->m_point2d[1] - leftValley->m_point2d[1]) < 5.0 || abs(m_relativeHeight) < 5.0) {

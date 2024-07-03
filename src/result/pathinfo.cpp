@@ -91,14 +91,14 @@ void PathInfo::SetRayPath(TerrainDiffractionPath* path)
 	m_rayPathType = RAYPATH_TERRAIN_DIFFRACTION;
 }
 
-void PathInfo::CalculateBaseInfo(RtLbsType freq, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, Transmitter* transmitter, Receiver* receiver)
+void PathInfo::CalculateBaseInfo(RtLbsType freq, Transmitter* transmitter, Receiver* receiver)
 {
 	//赋值
 	m_freq = freq;
 	RtLbsType lamda = LIGHT_VELOCITY_AIR / freq;				//波长，单位m
 	//1-计算电磁场
 	if (m_rayPathType != RAYPATH_TERRAIN_DIFFRACTION) {			//常规路径电磁计算方法
-		m_vectorEField = m_rayPath->CalculateStrengthField(transmitter->m_power, freq, tranFunction, matLibrary, transmitter->m_antenna, receiver->m_antenna);
+		m_vectorEField = m_rayPath->CalculateStrengthField(transmitter->m_power, freq, transmitter->m_antenna, receiver->m_antenna);
 		m_scalarEField = m_vectorEField.MValue();
 		m_timeDelay = m_rayPath->GetPropagationTime();
 		m_phaseOffset = m_rayPath->GetPhaseOffset(freq);
@@ -108,7 +108,7 @@ void PathInfo::CalculateBaseInfo(RtLbsType freq, const MaterialLibrary* matLibra
 		m_aoATheta = m_rayPath->GetAOA_Theta();
 	}
 	else {														//绕射路径电磁计算方法
-		m_vectorEField = m_terrainDiffractionPath->CalculateTerrainDiffractionEField(transmitter->m_power, freq, matLibrary, tranFunction, transmitter->m_antenna, receiver->m_antenna);
+		m_vectorEField = m_terrainDiffractionPath->CalculateTerrainDiffractionEField(transmitter->m_power, freq, transmitter->m_antenna, receiver->m_antenna);
 		m_scalarEField = m_vectorEField.MValue();
 		m_timeDelay = m_terrainDiffractionPath->GetPropagationTime();
 		m_phaseOffset = m_terrainDiffractionPath->GetPhaseOffset(freq);
@@ -125,7 +125,7 @@ void PathInfo::CalculateBaseInfo(RtLbsType freq, const MaterialLibrary* matLibra
 	m_magnitude.Init(pow(10,m_power/10), m_phaseOffset);												//计算复数强度
 }
 
-void PathInfo::CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaLibrary* antLibrary, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const Sensor* sensor)
+void PathInfo::CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaLibrary* antLibrary, const Sensor* sensor)
 {
 	//赋值
 	m_freq = freq;
@@ -133,7 +133,7 @@ void PathInfo::CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaL
 	const Antenna* omniAntenna = antLibrary->GetAntenna(0);			//获取全向天线
 	//1-计算电磁场
 	if (m_rayPathType != RAYPATH_TERRAIN_DIFFRACTION) {			//常规路径电磁计算方法
-		m_vectorEField = m_rayPath->CalculateStrengthField(power, freq, tranFunction, matLibrary, omniAntenna, sensor->m_antenna);
+		m_vectorEField = m_rayPath->CalculateStrengthField(power, freq, omniAntenna, sensor->m_antenna);
 		m_scalarEField = m_vectorEField.MValue();
 		m_timeDelay = m_rayPath->GetPropagationTime();
 		m_phaseOffset = m_rayPath->GetPhaseOffset(freq);
@@ -143,7 +143,7 @@ void PathInfo::CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaL
 		m_aoATheta = m_rayPath->GetAOA_Theta();
 	}
 	else {														//绕射路径电磁计算方法
-		m_vectorEField = m_terrainDiffractionPath->CalculateTerrainDiffractionEField(power, freq, matLibrary, tranFunction, omniAntenna, sensor->m_antenna);
+		m_vectorEField = m_terrainDiffractionPath->CalculateTerrainDiffractionEField(power, freq, omniAntenna, sensor->m_antenna);
 		m_scalarEField = m_vectorEField.MValue();
 		m_timeDelay = m_terrainDiffractionPath->GetPropagationTime();
 		m_phaseOffset = m_terrainDiffractionPath->GetPhaseOffset(freq);

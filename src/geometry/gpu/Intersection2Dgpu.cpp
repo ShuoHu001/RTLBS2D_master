@@ -3,8 +3,9 @@
 
 HOST_DEVICE_FUNC Intersection2DGPU::Intersection2DGPU()
 	: m_isValid(false)
-	, m_ft(0.0)
 	, m_type(NODE_INIT)
+	, m_ft(0.0)
+	, m_matId(-1)
 	, m_segmentId(-1)
 	, m_wedgeId(-1)
 	, m_prevId(-1)
@@ -15,6 +16,7 @@ HOST_DEVICE_FUNC Intersection2DGPU::Intersection2DGPU(const Intersection2DGPU& i
 	, m_intersect(intersect.m_intersect)
 	, m_type(intersect.m_type)
 	, m_ft(intersect.m_ft)
+	, m_matId(intersect.m_matId)
 	, m_segmentId(intersect.m_segmentId)
 	, m_wedgeId(intersect.m_wedgeId)
 	, m_ray(intersect.m_ray)
@@ -32,6 +34,7 @@ HOST_DEVICE_FUNC Intersection2DGPU& Intersection2DGPU::operator=(const Intersect
 	m_intersect = intersect.m_intersect;
 	m_type = intersect.m_type;
 	m_ft = intersect.m_ft;
+	m_matId = intersect.m_matId;
 	m_segmentId = intersect.m_segmentId;
 	m_wedgeId = intersect.m_wedgeId;
 	m_ray = intersect.m_ray;

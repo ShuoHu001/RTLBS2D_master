@@ -7,6 +7,7 @@
 #include "terrainprofilesegment.h"
 #include "terrainridge.h"
 #include "tree/terraindiffractionpath.h"
+#include "material/material.h"
 
 //地形剖面对象
 class TerrainProfile {
@@ -28,7 +29,7 @@ private:
 public:
 	TerrainProfile();
 	~TerrainProfile();
-	void InitParameters(const std::vector<Point3D>& points, const std::vector<int>& matIds, const Point3D& txPosition, const Point3D& rxPosition, RtLbsType averRidgeGap);							//初始化常规参数
+	void InitParameters(const std::vector<Point3D>& points, const std::vector<Material*>& mats, const Point3D& txPosition, const Point3D& rxPosition, RtLbsType averRidgeGap);							//初始化常规参数
 	void GetDiffractPathOverRidges(TerrainDiffractionPath*& outPath) const;
 	void WritePeaksToFile(std::string filename) const;													//将peaks写入文件中
 	void WriteValleysToFile(std::string filename) const;												//将valleys写入文件中
@@ -36,7 +37,7 @@ public:
 	void WriteProfileToFile(std::string filename) const;												//将地形剖面写入到文件中
 
 private:
-	void _init(const std::vector<Point3D>& points, const std::vector<int>& matIds);										//初始化地形剖面(携带地形材质信息)
+	void _init(const std::vector<Point3D>& points, const std::vector<Material*>& mats);										//初始化地形剖面(携带地形材质信息)
 	void _calStaticalParameters();																						//计算统计参数
 	bool _isValidPeak(const TerrainProfilePoint* p) const;																//判定peak是否有效
 	bool _getIntersect(TerrainProfileSegment& segment);																	//判定地形剖面线段与地形剖面是否相交

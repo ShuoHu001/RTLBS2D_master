@@ -13,6 +13,7 @@
 #include "raypath.h"
 #include "pathnode3d.h"
 
+
 class RayPathGPU;
 
 class RayPath3D {
@@ -35,30 +36,13 @@ public:
 	~RayPath3D();																									//析构函数
 	RayPath3D& operator = (const RayPath3D& path);																	//赋值操作符
 	void ReverseRayPath();																							//将路径的头和尾互换，逆转路径
-
 	void ConvertByRayPath(const RayPath& path, const Point3D& tx, const Point3D& rx);								//将二维路径转换为三维路径
 	void Union(PathNode3D* node);																					//扩展路径节点
-	Polarization3D CalculateStrengthField3D(RtLbsType power, RtLbsType freq,
-		const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary,
-		const Antenna* txAntenna);																					//计算路径三维复电场值（涉及传输函数的计算）
-	Polarization3D CalculateStrengthField3D(RtLbsType power, RtLbsType freq,
-		const MaterialLibrary* matLibrary, const Antenna* txAntenna);												//计算路径三维复电场值（不涉及传输函数的计算）
-	Polarization3D CalculateStrengthField3DReverse(RtLbsType power, RtLbsType freq,
-		const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary,
-		const Antenna* txAntenna);																					//反向计算路径三维复电场值（涉及传输函数的计算）
-	Polarization3D CalculateStrengthField3DReverse(RtLbsType power, RtLbsType freq,
-		const MaterialLibrary* matLibrary, const Antenna* txAntenna);												//反向计算路径三维复电场值（不涉及传输函数的计算）
-	Complex CalculateStrengthField(RtLbsType power, RtLbsType freq,
-		const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary,
-		const Antenna* txAntenna, const Antenna* rxAntenna);														//计算路径复电场值（涉及传输函数的计算）
-	Complex CalculateStrengthField(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary,
-		const Antenna* txAntenna, const Antenna* rxAntenna);														//计算路径复电场值（不涉及传输函数的计算）
-	Complex CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq,
-		const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary,
-		const Antenna* txAntenna, const Antenna* rxAntenna);														//反向计算路径复电场值（涉及传输函数的计算）
-	Complex CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary,
-		const Antenna* txAntenna, const Antenna* rxAntenna);														//反向计算路径复电场值（不涉及传输函数的计算）
-	RtLbsType CalculatePowerInLBSSystem(RtLbsType freq, const std::vector<Complex>& tranFucntion, const MaterialLibrary* matLibrary, const Antenna* trxAntenna);			//计算LBS定位系统中的功率值
+	Polarization3D CalculateStrengthField3D(RtLbsType power, RtLbsType freq, const Antenna* txAntenna);				//计算路径三维复电场值
+	Polarization3D CalculateStrengthField3DReverse(RtLbsType power, RtLbsType freq, const Antenna* txAntenna);						//反向计算路径三维复电场值
+	Complex CalculateStrengthField(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna);			//计算路径复电场值
+	Complex CalculateStrengthFieldReverse(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna);		//反向计算路径复电场值
+	RtLbsType CalculatePowerInLBSSystem(RtLbsType freq, const Antenna* trxAntenna);													//计算LBS定位系统中的功率值
 	RtLbsType GetPropagationTime() const;																			//计算多径传播时间
 	RtLbsType GetPropagationLength() const;																			//计算传播距离
 	RtLbsType GetPhaseOffset(RtLbsType freq) const;																	//计算相位偏移量	

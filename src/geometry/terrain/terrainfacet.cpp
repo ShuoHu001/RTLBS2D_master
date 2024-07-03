@@ -10,11 +10,11 @@ TerrainFacet::TerrainFacet()
 	, m_segment1(nullptr)
 	, m_segment2(nullptr)
 	, m_segment3(nullptr)
-	, m_matId(-1)
+	, m_mat(nullptr)
 {
 }
 
-TerrainFacet::TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, int matId)
+TerrainFacet::TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, Material* mat)
 	: m_facetId(facetId)
 	, m_isEdgeFacet(false)
 	, m_p1(p1)
@@ -23,7 +23,7 @@ TerrainFacet::TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, i
 	, m_segment1(nullptr)
 	, m_segment2(nullptr)
 	, m_segment3(nullptr)
-	, m_matId(matId)
+	, m_mat(mat)
 {
 	m_bbox.Union(m_p1);
 	m_bbox.Union(m_p2);
@@ -32,7 +32,7 @@ TerrainFacet::TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, i
 	m_normal = Cross((*m_p2 - *m_p1), (*m_p3 - *m_p1)).Normalize();
 }
 
-TerrainFacet::TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, TerrainSegment* segment1, TerrainSegment* segment2, TerrainSegment* segment3, int matId)
+TerrainFacet::TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, TerrainSegment* segment1, TerrainSegment* segment2, TerrainSegment* segment3, Material* mat)
 	: m_facetId(facetId)
 	, m_isEdgeFacet(false)
 	, m_p1(p1)
@@ -41,7 +41,7 @@ TerrainFacet::TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, T
 	, m_segment1(segment1)
 	, m_segment2(segment2)
 	, m_segment3(segment3)
-	, m_matId(matId)
+	, m_mat(mat)
 {
 	m_bbox.Union(m_p1);
 	m_bbox.Union(m_p2);
@@ -62,7 +62,7 @@ TerrainFacet::TerrainFacet(const TerrainFacet& tf)
     , m_segment2(tf.m_segment2)
     , m_segment3(tf.m_segment3)
 	, m_bbox(tf.m_bbox)
-	, m_matId(tf.m_matId)
+	, m_mat(tf.m_mat)
 {
 }
 
@@ -82,7 +82,7 @@ TerrainFacet TerrainFacet::operator=(const TerrainFacet& tf)
     m_segment2 = tf.m_segment2;
     m_segment3 = tf.m_segment3;
 	m_bbox = tf.m_bbox;
-	m_matId = tf.m_matId;
+	m_mat = tf.m_mat;
     return *this;
 }
 

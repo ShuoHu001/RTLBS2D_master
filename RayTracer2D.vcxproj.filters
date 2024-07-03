@@ -109,6 +109,9 @@
     <Filter Include="test">
       <UniqueIdentifier>{4122a225-4a87-44d3-904a-681d0727fde9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="global">
+      <UniqueIdentifier>{bed90781-dda5-4f46-9b78-94bd26c28fe2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rtlbs.h" />
@@ -446,6 +449,9 @@
     <ClInclude Include="src\localization\weightfactor.h">
       <Filter>localization</Filter>
     </ClInclude>
+    <ClInclude Include="src\global\globalvariables.h">
+      <Filter>global</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -758,6 +764,9 @@
     </ClCompile>
     <ClCompile Include="src\localization\weightfactor.cpp">
       <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\globalvariables.cpp">
+      <Filter>global</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

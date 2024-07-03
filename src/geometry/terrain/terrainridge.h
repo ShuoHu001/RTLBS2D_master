@@ -4,6 +4,7 @@
 #include "rtlbs.h"
 #include "utility/define.h"
 #include "terrainprofilepoint.h"
+#include "material/material.h"
 
 //山峦对象
 class TerrainRidge {
@@ -16,7 +17,7 @@ public:
 	RtLbsType m_curvRadius;									/** @brief	峰顶半径	*/
 	RtLbsType m_actualHeight;								/** @brief	峰顶高度:真实高度	*/
 	RtLbsType m_relativeHeight;								/** @brief	峰顶高度:相对收发连线上的高度	*/
-	int m_matId;											/** @brief	材料ID	*/
+	Material* m_mat;										/** @brief	材料	*/
 
 public:
 	TerrainRidge();

@@ -10,6 +10,8 @@
 #include "geometry/point3d.h"
 #include "pathnode.h"
 #include "gpu/pathnodegpu.h"
+#include "material/material.h"
+#include "material/materiallibrary.h"
 
 
 
@@ -18,7 +20,7 @@ class PathNode3D {
 public:
 	unsigned m_depth;																												/** @brief	节点深度	*/
 	PATHNODETYPE m_type;																											/** @brief	节点类型	*/
-	int m_matId;																													/** @brief	材质ID	*/
+	Material* m_mat;																												/** @brief	节点所在材质	*/
 	Point3D m_point;																												/** @brief	节点坐标	*/
 	const Segment2D* m_primitive;																									/** @brief	节点所在面元的指针	*/
 	const Wedge2D* m_wedge;																											/** @brief	节点所在wedge的指针	*/

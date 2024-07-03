@@ -129,7 +129,7 @@ Segment2D::Segment2D(const Segment2D* segment)
 	m_bbox = segment->m_bbox;
 	m_id = segment->m_id;
 	m_objectId = segment->m_objectId;
-	m_matId = segment->m_matId;
+	m_mat = segment->m_mat;
 	m_refractN = segment->m_refractN;
 	m_refractNOut = segment->m_refractNOut;
 
@@ -163,7 +163,7 @@ Segment2D& Segment2D::operator=(const Segment2D& segment)
 	//父类赋值
 	m_id = segment.m_id;
 	m_objectId = segment.m_objectId;
-	m_matId = segment.m_matId;
+	m_mat = segment.m_mat;
 	m_refractN = segment.m_refractN;
 	m_refractNOut = segment.m_refractNOut;
 	m_propagationProperty = segment.m_propagationProperty;
@@ -217,6 +217,7 @@ bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect)
 				return false;
 			if (intersect) {
 				intersect->m_ft = tmin;//更新交点距离源点的距离
+				intersect->m_mat = m_mat;
 				intersect->m_segment = this;//绕射加入面元赋值，方便判断
 				intersect->m_propagationProperty = m_propagationProperty;			//传播属性赋值
 				if (Dot(ray.m_Dir, m_dir) < 0) {//射线方向与面元方向相反,交点为线段终点
@@ -252,6 +253,7 @@ bool Segment2D::GetIntersect(const Ray2D& ray, Intersection2D* intersect)
 		if (intersect) {
 			intersect->m_intersect = ray.m_Ori + ray.m_Dir * t;
 			intersect->m_ft = t;
+			intersect->m_mat = m_mat;
 			intersect->m_segment = this;
 			intersect->m_propagationProperty = m_propagationProperty;			//传播属性赋值
 			intersect->m_type = NODE_REFL;//反射节点
@@ -286,6 +288,7 @@ bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect)
 					return false;
 				}
 				intersect->m_ft = tmin;//更新交点距离源点的距离
+				intersect->m_mat = m_mat;
 				intersect->m_segment = this;//绕射加入面元赋值，方便判断
 				intersect->m_propagationProperty = m_propagationProperty;			//传播属性赋值
 				if (Dot(ray.m_Dir, m_dir) < 0) {//射线方向与面元方向相反,交点为线段终点
@@ -321,6 +324,7 @@ bool Segment2D::GetIntersectNoBBox(const Ray2D& ray, Intersection2D* intersect)
 		if (intersect) {
 			intersect->m_intersect = ray.m_Ori + ray.m_Dir * t;
 			intersect->m_ft = t;
+			intersect->m_mat = m_mat;
 			intersect->m_segment = this;
 			intersect->m_type = NODE_REFL;//反射节点
 			intersect->m_u = u;
@@ -374,6 +378,7 @@ Segment2DGPU Segment2D::Convert2GPU()
 	segmentGPU.m_length = m_length;
 	segmentGPU.m_bbox = m_bbox.Convert2GPU();
 	segmentGPU.m_primitive_id = m_id;
+	segmentGPU.m_matId = m_mat->m_id;
 	segmentGPU.m_refractN = m_refractN;
 	segmentGPU.m_refractNOut = m_refractNOut;
 	segmentGPU.m_propagationProperty = m_propagationProperty;

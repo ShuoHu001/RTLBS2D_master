@@ -43,8 +43,8 @@ public:
 	RtLbsType DistanceDelay(const PathInfo& info) const;
 	void SetRayPath(RayPath3D* path);
 	void SetRayPath(TerrainDiffractionPath* path);
-	void CalculateBaseInfo(RtLbsType freq, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, Transmitter* transmitter, Receiver* receiver);					//计算基本信息-射线追踪模式
-	void CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaLibrary* antLibrary, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const Sensor* sensor);		//计算基本信息-定位模式中的盘岁射线追踪
+	void CalculateBaseInfo(RtLbsType freq, Transmitter* transmitter, Receiver* receiver);					//计算基本信息-射线追踪模式
+	void CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaLibrary* antLibrary, const Sensor* sensor);		//计算基本信息-定位模式中的伴随射线追踪
 	void Convert2SensorData(SensorData& data) const;				//转换为传感器数据
 };
 

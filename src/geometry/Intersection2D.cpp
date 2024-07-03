@@ -2,18 +2,31 @@
 #include "segment2d.h"
 
 Intersection2D::Intersection2D()
-	:m_segment(nullptr)
+	: m_type(NODE_INIT)
 	, m_ft(FLT_MAX)
-	, m_type(NODE_INIT)
+	, m_mat(nullptr)
+	, m_segment(nullptr)
 	, m_u(-FLT_MAX)
 {
 }
 
 Intersection2D::Intersection2D(Point2D intersect, PATHNODETYPE type, RtLbsType t, Segment2D* segment)
-	:m_intersect(intersect), m_type(type), m_ft(t), m_segment(segment), m_u(-FLT_MAX) {}
+	: m_intersect(intersect)
+	, m_type(type)
+	, m_ft(t)
+	, m_mat(segment->m_mat)
+	, m_segment(segment)
+	, m_u(-FLT_MAX) 
+{
+}
 
 Intersection2D::Intersection2D(Point2D intersect, PATHNODETYPE type, RtLbsType t)
-	:m_intersect(intersect), m_type(type), m_ft(t), m_segment(nullptr), m_u(-FLT_MAX)
+	: m_intersect(intersect)
+	, m_type(type)
+	, m_ft(t)
+	, m_mat(nullptr)
+	, m_segment(nullptr)
+	, m_u(-FLT_MAX)
 {
 }
 
@@ -32,6 +45,9 @@ Intersection2DGPU Intersection2D::Convert2GPU()
 	intersectGPU.m_intersect = m_intersect;
 	intersectGPU.m_type = m_type;
 	intersectGPU.m_ft = m_ft;
+	if (m_mat != nullptr) {
+		intersectGPU.m_matId = m_mat->m_id;
+	}
 	if (m_segment != nullptr)
 		intersectGPU.m_segmentId = m_segment->m_id;
 	if (!m_wedges.empty()) { //若wedge有值，则用wedge初始值

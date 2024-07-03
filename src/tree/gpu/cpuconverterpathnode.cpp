@@ -5,6 +5,7 @@ CPUConverterPathNode::CPUConverterPathNode()
 	, m_layerId(-1)
 	, m_sensorId(-1)
 	, m_type(NODE_INIT)
+	, m_matId(-1)
 	, m_segmentId(-1)
 	, m_wedgeId(-1)
 	, m_ft(0.0)
@@ -16,6 +17,7 @@ CPUConverterPathNode::CPUConverterPathNode(const PathNode& node, int fatherNodeI
 	, m_layerId(layerId)
 	, m_sensorId(sensorId)
 	, m_type(node.m_type)
+	, m_matId(node.m_mat->m_id)
 	, m_point(node.m_point)
 	, m_segmentId(-1)
 	, m_wedgeId(-1)
@@ -36,6 +38,7 @@ CPUConverterPathNode::CPUConverterPathNode(const CPUConverterPathNode& node)
 	, m_layerId(node.m_layerId)
 	, m_sensorId(node.m_sensorId)
 	, m_type(node.m_type)
+	, m_matId(node.m_matId)
 	, m_point(node.m_point)
 	, m_segmentId(node.m_segmentId)
 	, m_wedgeId(node.m_wedgeId)
@@ -55,6 +58,7 @@ CPUConverterPathNode& CPUConverterPathNode::operator=(const CPUConverterPathNode
 	m_layerId = node.m_layerId;
 	m_sensorId = node.m_sensorId;
 	m_type = node.m_type;
+	m_matId = node.m_matId;
 	m_point = node.m_point;
 	m_segmentId = node.m_segmentId;
 	m_wedgeId = node.m_wedgeId;

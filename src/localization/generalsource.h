@@ -37,7 +37,8 @@ public:
 	GeneralSource(const GeneralSource& s);
 	~GeneralSource();
 	GeneralSource& operator = (const GeneralSource& s);
-	bool CalTDOAParameters_SPSTMD(const Point2D& targetPoint, const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunction, RtLbsType& delay, RtLbsType& power) const;			//计算TDOA定位模式的参数值-单站定位模式
+	RtLbsType CalculateExtraRDOALoss(RtLbsType* position) const;																																	//计算额外损耗
+	bool CalTDOAParameters_SPSTMD(const Point2D& targetPoint, const Scene* scene, RtLbsType freq, RtLbsType& delay, RtLbsType& power) const;			//计算TDOA定位模式的参数值-单站定位模式
 	bool CalTDOAParameters_MPSTSD(const Point2D& targetPoint, const Scene* scene) const;																										//多站定位模式
 	bool IsValid() const;														//是否有效
 	void NormalizedWeight(RtLbsType maxWeight);									//归一化权重

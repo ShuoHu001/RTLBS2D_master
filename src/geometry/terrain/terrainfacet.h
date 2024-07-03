@@ -25,13 +25,13 @@ public:
 	TerrainSegment* m_segment1;				//三角形对应的线段1
 	TerrainSegment* m_segment2;				//三角形对应的线段2
 	TerrainSegment* m_segment3;				//三角形对应的线段3
-	int m_matId;							/** @brief	面元材料ID	*/
+	Material* m_mat;						/** @brief	面元材料	*/
 	BBox3D m_bbox;							/** @brief	包围盒	*/
 
 public:
 	TerrainFacet();
-	TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, int matId = -1);
-	TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, TerrainSegment* segment1, TerrainSegment* segment2, TerrainSegment* segment3, int matId = -1);
+	TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, Material* mat = nullptr);
+	TerrainFacet(int facetId, Point3D* p1, Point3D* p2, Point3D* p3, TerrainSegment* segment1, TerrainSegment* segment2, TerrainSegment* segment3, Material* mat = nullptr);
 	TerrainFacet(const TerrainFacet& tf);												//浅层拷贝构造函数
 	~TerrainFacet();
 	TerrainFacet operator = (const TerrainFacet& tf);

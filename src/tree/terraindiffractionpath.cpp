@@ -109,7 +109,7 @@ TerrainDiffractionPath::~TerrainDiffractionPath()
 	m_nodes.clear();
 }
 
-Complex TerrainDiffractionPath::CalculateDiffractionEField_PICQUENARD(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna) const
+Complex TerrainDiffractionPath::CalculateDiffractionEField_PICQUENARD(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const
 {
 	//1-计算发射天线初始场能量
 	Vector3D routeStart = m_nodes[1]->m_point - m_nodes[0]->m_point;		/** @brief	绕射路径起始点向量	*/
@@ -173,7 +173,7 @@ Complex TerrainDiffractionPath::CalculateDiffractionEField_PICQUENARD(RtLbsType 
 	return receivedEField;
 }
 
-Complex TerrainDiffractionPath::CalculateDiffractionEField_EPSTEIN(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const Antenna* txAntenna, const Antenna* rxAntenna) const
+Complex TerrainDiffractionPath::CalculateDiffractionEField_EPSTEIN(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const
 {
 	RtLbsType tloss = 0.0;													/** @brief	总衰减损耗	*/
 	//1-计算发射天线初始场能量
@@ -305,7 +305,7 @@ Complex TerrainDiffractionPath::CalculateDiffractionEField_EPSTEIN(RtLbsType pow
 
 }
 
-Complex TerrainDiffractionPath::CalculateDiffractionEField_UTD(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const Antenna* txAntenna, const Antenna* rxAntenna) const
+Complex TerrainDiffractionPath::CalculateDiffractionEField_UTD(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const
 {
 	//1-计算发射天线初始场能量
 	Vector3D routeStart = m_nodes[1]->m_point - m_nodes[0]->m_point;		/** @brief	绕射路径起始点向量	*/
@@ -318,8 +318,8 @@ Complex TerrainDiffractionPath::CalculateDiffractionEField_UTD(RtLbsType power, 
 	//2-计算地形绕射节点能量
 	for (int i = 1; i < m_nodes.size() - 1; ++i) {//遍历节点，求解每个节点的绕射参数
 		//获得每个ridge的材质参数
-		const Material* mat = matLibrary->GetMaterial(m_nodes[i]->m_ridge->m_matId);
-		initEField3D.CalculateDiffractionField_TerrainUTD(st, m_nodes[i - 1]->m_point, m_nodes[i]->m_point, m_nodes[i + 1]->m_point, m_nodes[i]->m_ridge, mat, freq, tranFunction); //UTD 方法计算地形绕射
+		const Material* mat = m_nodes[i]->m_ridge->m_mat;
+		initEField3D.CalculateDiffractionField_TerrainUTD(st, m_nodes[i - 1]->m_point, m_nodes[i]->m_point, m_nodes[i + 1]->m_point, m_nodes[i]->m_ridge, mat, freq); //UTD 方法计算地形绕射
 	}
 
 	//3-计算接收场能量
@@ -331,17 +331,17 @@ Complex TerrainDiffractionPath::CalculateDiffractionEField_UTD(RtLbsType power, 
 	return receivedEField;
 }
 
-Complex TerrainDiffractionPath::CalculateTerrainDiffractionEField(RtLbsType power, RtLbsType freq, const MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const Antenna* txAntenna, const Antenna* rxAntenna) const
+Complex TerrainDiffractionPath::CalculateTerrainDiffractionEField(RtLbsType power, RtLbsType freq, const Antenna* txAntenna, const Antenna* rxAntenna) const
 {
 	Complex receivedPower;														/** @brief	接收功率	*/
 	if (m_terrainDiffractionMode == DIFFRACTIONMODE_PICQUENARD) {				//Picquenard 损耗计算模式
-		receivedPower = CalculateDiffractionEField_PICQUENARD(power, freq, matLibrary, txAntenna, rxAntenna);
+		receivedPower = CalculateDiffractionEField_PICQUENARD(power, freq, txAntenna, rxAntenna);
 	}
 	else if (m_terrainDiffractionMode == DIFFRACTIONMODE_EPSTEIN) {				//EPSTEIN损耗计算模式
-		receivedPower = CalculateDiffractionEField_EPSTEIN(power, freq, matLibrary, txAntenna, rxAntenna);
+		receivedPower = CalculateDiffractionEField_EPSTEIN(power, freq, txAntenna, rxAntenna);
 	}
 	else if (m_terrainDiffractionMode == DIFFRACTIONMODE_UTD) {					//UTD损耗计算模式
-		receivedPower = CalculateDiffractionEField_UTD(power, freq, matLibrary, tranFunction, txAntenna, rxAntenna);
+		receivedPower = CalculateDiffractionEField_UTD(power, freq, txAntenna, rxAntenna);
 	}
 	return receivedPower;
 }

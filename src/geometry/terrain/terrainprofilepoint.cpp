@@ -1,9 +1,9 @@
 #include "terrainprofilepoint.h"
 
-TerrainProfilePoint::TerrainProfilePoint(int id, const Point3D* point, const Point3D* startPoint, int matId)
+TerrainProfilePoint::TerrainProfilePoint(int id, const Point3D* point, const Point3D* startPoint, Material* material)
 	: pId(id)
 	, m_point3d(point)
-	, m_matId(matId)
+	, m_mat(material)
 {
 	Vector3D sp = *point - *startPoint;
 	m_point2d.x = sp.LengthXY();
@@ -13,7 +13,7 @@ TerrainProfilePoint::TerrainProfilePoint(int id, const Point3D* point, const Poi
 
 TerrainProfilePoint::TerrainProfilePoint(const TerrainProfilePoint& tpp)
 	: pId(tpp.pId)
-	, m_matId(tpp.m_matId)
+	, m_mat(tpp.m_mat)
 	, m_point3d(tpp.m_point3d)
 	, m_point2d(tpp.m_point2d)
 {
@@ -26,7 +26,7 @@ TerrainProfilePoint::~TerrainProfilePoint()
 TerrainProfilePoint& TerrainProfilePoint::operator=(const TerrainProfilePoint& tpp)
 {
 	pId = tpp.pId;
-	m_matId = tpp.m_matId;
+	m_mat = tpp.m_mat;
 	m_point3d = tpp.m_point3d;
 	m_point2d = tpp.m_point2d;
 	return *this;

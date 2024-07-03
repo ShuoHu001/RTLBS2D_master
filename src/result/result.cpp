@@ -135,13 +135,13 @@ void Result::OutputResult(SYSTEM_MODE systemMode, const OutputConfig& config) co
 	return;
 }
 
-void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, MaterialLibrary* matLibrary, const std::vector<Complex>& tranFunction, const OutputConfig& outputConfig)
+void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, const OutputConfig& outputConfig)
 {
 	//计算射线追踪结果
 	std::vector<RtLbsType> freqs = freqConfig.GetFrequencyInformation();
 	for (auto it = m_raytracingResult.begin(); it != m_raytracingResult.end(); ++it) {
 		RaytracingResult& result = *it;
-		result.CalculateBaseInfo(freqs, matLibrary, tranFunction);
+		result.CalculateBaseInfo(freqs);
 	}
 
 	RtLbsType sensorDataSparseFactor = outputConfig.m_outputSensorDataSparseFactor;					/** @brief	输出传感器数据的稀疏度	*/
@@ -215,7 +215,7 @@ void Result::CalculateResult_RT_SensorData(const FrequencyConfig& freqConfig, Ma
 	
 }
 
-Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig)
 {
 	//0-计算基本信息-计算广义源的位置 
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -344,7 +344,7 @@ Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const 
 			targetSensorDataCollection.resize(sensorNum);
 			for (int i = 0; i < sensorNum; ++i) {
 				const Sensor* curSensor = scene->m_sensors[i];
-				curResult[i].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);
+				curResult[i].CalculateBaseInfo(curSensor, freqs, antLibrary);
 				curResult[i].GetMaxPowerSensorData_AOA2D(targetSensorDataCollection[i], curSensor->m_phiErrorSTD);
 			}
 			RtLbsType cur_r_phi = 0.0;
@@ -422,7 +422,7 @@ Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const 
 	return LocalizationSolver(initPoint);
 }
 
-Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig)
 {
 	
 	//0-计算基本信息-计算广义源的位置 
@@ -563,7 +563,7 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 			targetSensorDataCollection.resize(sensorNum);
 			for (int j = 0; j < sensorNum; ++j) {
 				const Sensor* curSensor = scene->m_sensors[j];
-				curResult[j].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);						//执行电磁计算,LBS电磁计算
+				curResult[j].CalculateBaseInfo(curSensor, freqs, antLibrary);						//执行电磁计算,LBS电磁计算
 				curResult[j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏
 				CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
 
@@ -661,7 +661,7 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 	return targetPoint;
 }
 
-void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& w, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& w, const FrequencyConfig& freqConfig)
 {
 	//0-计算基本信息-计算广义源的位置
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -692,7 +692,7 @@ void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const st
 	std::vector<GSPairCluster> gsPairClusters;
 
 	for (auto& refSource : refSources) {
-		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_MPSTSD(refSource, dataSources, scene, gsPairClusterThreshold, freqConfig.m_centerFrequency, tranFunction);
+		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_MPSTSD(refSource, dataSources, scene, gsPairClusterThreshold, freqConfig.m_centerFrequency);
 		if (newCluster.m_pairs.size() != 0) {
 			gsPairClusters.push_back(newCluster);
 		}
@@ -703,7 +703,6 @@ void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const st
 	int clusterNum = static_cast<int>(gsPairClusters.size());
 	std::vector<std::vector<RaytracingResult>> tempRTResult;									//第一维度为初步解的数量，第二维度为传感器的数量，调用射线追踪，判定解对传感器的有效性
 	std::vector<RtLbsType> freqs = freqConfig.GetFrequencyInformation();
-	const MaterialLibrary* matLibrary = &scene->m_materialLibrary;
 	const AntennaLibrary* antLibrary = &scene->m_antennaLibrary;
 	tempRTResult.resize(clusterNum);																/** @brief	传感器数量	*/
 	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
@@ -738,7 +737,7 @@ void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const st
 			targetSensorDataCollection.resize(sensorNum);
 			for (int i = 0; i < sensorNum; ++i) {
 				const Sensor* curSensor = scene->m_sensors[i];
-				curResult[i].CalculateBaseInfo(curSensor, freqs, antLibrary, matLibrary, tranFunction);
+				curResult[i].CalculateBaseInfo(curSensor, freqs, antLibrary);
 				curResult[i].GetMaxPowerSensorData_Delay(targetSensorDataCollection[i], curSensor->m_timeErrorSTD);
 			}
 			RtLbsType cur_r_timeDiff = 0.0;
@@ -786,7 +785,7 @@ void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const st
 
 }
 
-void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunction)
+void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor, const FrequencyConfig& freqConfig)
 {
 	//0-计算基本信息-计算广义源的位置 
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -814,7 +813,7 @@ void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const st
 	std::vector<GSPairCluster> clusters;
 	for (auto& refSource : refSources) {
 		refSource->m_sensorData = sensorDatas.front();						//参考源接收数据赋值
-		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_SPSTMD(refSource, m_allGeneralSource, sensorDatas, scene, gsPairClusterThreshold, freqConfig.m_centerFrequency, tranFunction);
+		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_SPSTMD(refSource, m_allGeneralSource, sensorDatas, scene, gsPairClusterThreshold, freqConfig.m_centerFrequency);
 		if (newCluster.m_pairs.size() != 0) {
 			clusters.push_back(newCluster);
 		}

@@ -32,4 +32,57 @@ private:
 
 };
 
+void InitInternalAntennas(std::vector<Antenna>& innerAntennas) {
+	//目前内置的天线方向图主要分为两种类型，一种为全向型天线，另一种问半波偶极子类型的天线
+	Antenna ant_Omni;																	//全向天线
+	ant_Omni.m_antId = 0;
+	ant_Omni.m_typeId = 0;
+	ant_Omni.m_antName = "0-Omni";
+	ant_Omni.m_gain = 0;
+	ant_Omni.m_freqMin = 100e6;
+	ant_Omni.m_freqMax = 100e9;
+	ant_Omni.m_polarization = Vector3D(0, 0, 1, true);
+	innerAntennas.push_back(ant_Omni);
+
+	Antenna ant_WaveDipole;																//全波偶极子天线
+	ant_WaveDipole.m_antId = 1;
+	ant_WaveDipole.m_typeId = 1;
+	ant_WaveDipole.m_antName = "1-full-dipole";
+	ant_WaveDipole.m_gain = 1.2589;
+	ant_WaveDipole.m_freqMin = 100e6;
+	ant_WaveDipole.m_freqMax = 100e9;
+	ant_WaveDipole.m_polarization = Vector3D(0, 0, 1, true);
+	innerAntennas.push_back(ant_WaveDipole);
+
+	Antenna ant_HalfWaveDipole;															//半波偶极子天线
+	ant_HalfWaveDipole.m_antId = 2;
+	ant_HalfWaveDipole.m_typeId = 2;
+	ant_HalfWaveDipole.m_antName = "2-half-dipole";
+	ant_HalfWaveDipole.m_gain = 1.2589;
+	ant_HalfWaveDipole.m_freqMin = 100e6;
+	ant_HalfWaveDipole.m_freqMax = 100e9;
+	ant_HalfWaveDipole.m_polarization = Vector3D(0, 0, 1, true);
+	innerAntennas.push_back(ant_HalfWaveDipole);
+
+	Antenna ant_ThreeHalfWaveDipole;													//三倍半波偶极子天线
+	ant_ThreeHalfWaveDipole.m_antId = 3;
+	ant_ThreeHalfWaveDipole.m_typeId = 3;
+	ant_ThreeHalfWaveDipole.m_antName = "3-three-half-dipole";
+	ant_ThreeHalfWaveDipole.m_gain = 1.2589;
+	ant_ThreeHalfWaveDipole.m_freqMin = 100e6;
+	ant_ThreeHalfWaveDipole.m_freqMax = 100e9;
+	ant_ThreeHalfWaveDipole.m_polarization = Vector3D(0, 0, 1, true);
+	innerAntennas.push_back(ant_ThreeHalfWaveDipole);
+
+	Antenna ant_SingleWoundSpiral;														//单饶螺旋天线
+	ant_SingleWoundSpiral.m_antId = 4;
+	ant_SingleWoundSpiral.m_typeId = 4;
+	ant_SingleWoundSpiral.m_antName = "4-single-wound-helical";
+	ant_SingleWoundSpiral.m_gain = 1.2589;
+	ant_SingleWoundSpiral.m_freqMin = 100e6;
+	ant_SingleWoundSpiral.m_freqMax = 100e9;
+	ant_SingleWoundSpiral.m_polarization = Vector3D(0, 0, 1, true);
+	innerAntennas.push_back(ant_SingleWoundSpiral);
+}
+
 #endif

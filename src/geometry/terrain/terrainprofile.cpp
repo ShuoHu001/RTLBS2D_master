@@ -14,11 +14,11 @@ TerrainProfile::~TerrainProfile()
 {
 }
 
-void TerrainProfile::InitParameters(const std::vector<Point3D>& points, const std::vector<int>& matIds, const Point3D& txPosition, const Point3D& rxPosition, RtLbsType averRidgeGap)
+void TerrainProfile::InitParameters(const std::vector<Point3D>& points, const std::vector<Material*>& mats, const Point3D& txPosition, const Point3D& rxPosition, RtLbsType averRidgeGap)
 {
 	m_txPosition = txPosition;
 	m_rxPosition = rxPosition;
-	_init(points, matIds);
+	_init(points, mats);
 	_findRidges();
 }
 
@@ -101,7 +101,7 @@ void TerrainProfile::WriteProfileToFile(std::string filename) const
 	outFile.close();
 }
 
-void TerrainProfile::_init(const std::vector<Point3D>& points, const std::vector<int>& matIds)
+void TerrainProfile::_init(const std::vector<Point3D>& points, const std::vector<Material*>& mats)
 {
 	RtLbsType hs = m_txPosition.z;										/** @brief	发射点高度	*/
 	RtLbsType he = m_rxPosition.z;										/** @brief	接收点高度	*/
@@ -110,7 +110,7 @@ void TerrainProfile::_init(const std::vector<Point3D>& points, const std::vector
 	const Point3D& startPoint = points.front();
 	const Point3D& endPoint = points.back();
 	for (int i = 0; i < points.size(); ++i) {
-		TerrainProfilePoint* point = new TerrainProfilePoint(i, &points[i], &startPoint, matIds[i]);
+		TerrainProfilePoint* point = new TerrainProfilePoint(i, &points[i], &startPoint, mats[i]);
 		m_points[i] = point;
 	}
 

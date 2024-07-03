@@ -19,6 +19,7 @@
 #include "tree/terraindiffractionpath.h"
 #include "tree/pathnode3d.h"
 #include "tree/raypath3d.h"
+#include "material/material.h"
 
 #include "geometry/object2d/object2d.h"
 
@@ -52,7 +53,7 @@ class TerrainCell {
 public:
 	std::vector<TerrainSegment*> m_segments;		/** @brief	网格单元中包含的边 地址形式	*/
 	std::vector<TerrainFacet*> m_facets;			/** @brief	网格单元中包含的面元 地址形式	*/
-	int m_matId;							/** @brief	网格单元中的材质类型 地址形式	*/
+	Material* m_mat;								/** @brief	网格单元中的材质类型 地址形式	*/						
 	Point2D m_cornerPoint;							/** @brief	网格单元左下角点坐标	*/
 public:
 	TerrainCell();
@@ -97,7 +98,7 @@ public:
 	void write_PLY(std::string& filename);																																					//将面元数据写入到
 	bool GetIntersect(Ray3DLite* rayInit, Point3D* intersectPoint = nullptr) const;																											//射线与地形相交无需求解具体交点（混合模式）
 	bool IsBlock(const Point3D& ps, const Point3D& pe) const;																																//判定由起始点和终止点组成的路径是否被地形遮挡
-	int GetMaterialId(const Point3D& p) const;																																				//获取地形P点上的材质属性，仅存在地形栅格矩阵时可用
+	Material* GetMaterial(const Point3D& p) const;																																				//获取地形P点上的材质属性，仅存在地形栅格矩阵时可用
 	bool IsValidPoint(const Point3D& p) const;																																				//判定点在地形中是否有效
 	bool GetTerrainDiffractionPath(Point3D tx, Point3D rx, TerrainDiffractionPath*& outPath) const;																							//基于给定的收发点计算之间的绕射路径（若trx之间视距，则不给定绕射路径）
 	bool GetTerrainReflectionPaths(const Point3D& tx, const Point3D& rx, std::vector<RayPath3D*>& outPath) const;																			//基于地形计算出一次反射路径
@@ -108,16 +109,16 @@ public:
 
 private:
 	void _init();																																											/** @brief	初始化数据	*/
-	bool _initData(float* elevation, int* materialMatrix, int rows, int cols, RtLbsType rowGap, RtLbsType colGap, RtLbsType minValue, RtLbsType maxValue, RtLbsType ratio);					//初始化数据，高程矩阵
+	bool _initData(float* elevation, std::vector<Material*>& matMatrix, int rows, int cols, RtLbsType rowGap, RtLbsType colGap, RtLbsType minValue, RtLbsType maxValue, RtLbsType ratio);					//初始化数据，高程矩阵
 	bool _initData(const aiScene* scene, RtLbsType ratio, std::vector<Material*>& materials);																								//从obj文件中读取地形几何数据和材质属性数据
 	void _release();																																										/** @brief	释放类所占用的堆内存	*/
-	bool _transform(const SurfaceMesh& mesh, int matId = -1);																																//将surfacemesh转换为本地变量
+	bool _transform(const SurfaceMesh& mesh, Material* mat = nullptr);																																//将surfacemesh转换为本地变量
 	int _offset(int x, int y) const;																																						//根据输入的行列id确定在一维网格单元的索引值
 	void _offset_reverse(unsigned voxelId, int& x, int& y) const;																															//计算反向偏移,由体素ID转换为二维索引值
 	int _point2VoxelId(const Point2D& p, unsigned axis) const;																																//计算二维点在voxel中的坐标
 	int _point2VoxelId(const Point3D& p, unsigned axis) const;																																//计算三维点在voxel中的坐标
 	Point2D _voxelId2Point(int voxel[2]) const;																																				/** @brief	将voxelId转换为世界坐标	*/
-	void _build(int* matMatrix);																																							//构建Terrain cell模型(栅格模型版本)
+	void _build(std::vector<Material*>& matMatrix);																																							//构建Terrain cell模型(栅格模型版本)
 	void _build();																																											//构建Terrain cell模型(非孔洞或含孔洞版本)
 	std::vector<unsigned> _getGridCoordAlongSegment(TerrainSegment* segment);																												//获取segment上的网格编号
 	bool _getIntersect(Ray3DLite* ray, unsigned voxelId, Point3D* intersectPoint = nullptr) const;																							//射线与voxel求交， 栅格单元法专用
