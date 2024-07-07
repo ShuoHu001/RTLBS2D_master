@@ -20,6 +20,9 @@ void TreeNodeGenerator_AOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroo
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
 			lbsNodes[j] = new LBSTreeNode(*curPathNode, sensorData);
 		}
+		for (auto& node : nodes) {
+			delete node;
+		}
 
 		result.m_lbsGSResult[i].SetNodes(lbsNodes);
 	}
@@ -42,7 +45,9 @@ void TreeNodeGenerator_TDOA_CPUSingleThread(const std::vector<RayTreeNode*>& vro
 			const PathNode* curPathNode = nodes[j];
 			lbsNodes[j] = new LBSTreeNode(*curPathNode);
 		}
-
+		for (auto& node : nodes) {
+			delete node;
+		}
 		result.m_lbsGSResult[i].SetNodes(lbsNodes);
 	}
 }
@@ -55,7 +60,7 @@ void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroot
 	}
 
 	ThreadPool pool(threadNum);
-	std::vector<std::vector<PathNode*>> nodes;
+	std::vector<std::vector<PathNode*>> nodes(sensorNum);
 	for (int i = 0; i < sensorNum; ++i) {
 		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], nodes[i]);
 	}
@@ -72,6 +77,10 @@ void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroot
 			int sensorDataId = curPathNode->m_nextRay.m_sensorDataId;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
 			lbsNodes[j] = new LBSTreeNode(*curPathNode, sensorData);
+		}
+
+		for (auto& node : nodes[i]) {
+			delete node;
 		}
 
 		//添加根节点,每个数据都是一个节点
@@ -94,7 +103,7 @@ void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroo
 	}
 
 	ThreadPool pool(threadNum);
-	std::vector<std::vector<PathNode*>> nodes;
+	std::vector<std::vector<PathNode*>> nodes(sensorNum);
 	for (int i = 0; i < sensorNum; ++i) {
 		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], nodes[i]);
 	}
@@ -111,6 +120,10 @@ void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroo
 			int sensorDataId = curPathNode->m_nextRay.m_sensorDataId;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
 			lbsNodes[j] = new LBSTreeNode(*curPathNode, sensorData);
+		}
+
+		for (auto& node : nodes[i]) {
+			delete node;
 		}
 
 		//添加根节点,每个数据都是一个节点

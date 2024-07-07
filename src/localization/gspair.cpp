@@ -20,8 +20,8 @@ GSPair::GSPair(GeneralSource* gs1, GeneralSource* gs2)
 	: m_isValid(true)
 	, m_clusterId(-1)
 	, m_clusterSize(1)
-	, m_gs1(gs1)
-	, m_gs2(gs2)
+	, m_gs1(new GeneralSource(*gs1))
+	, m_gs2(new GeneralSource(*gs2))
 	, m_gsRef(nullptr)
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
@@ -117,20 +117,52 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 		return false;
 	}
 
-	//判定准则2- 在满足AOA规则的条件下，广义源所在传播节点与目标间的构成的末端路径是否被环境所遮挡
-	const Point2D& np1 = m_gs1->m_nodePosition;							/** @brief	广义源1所在节点坐标	*/
-	const Point2D& np2 = m_gs2->m_nodePosition;							/** @brief	广义源2所在节点坐标	*/
-
-	Segment2D segment1(m_targetSolution, np1);							/** @brief	组合测试线段1	*/
-	Segment2D segment2(m_targetSolution, np2);							/** @brief	组合测试线段2	*/
-	
-	if (scene->GetIntersect(segment1, nullptr)) {						//若线段1与环境相交，则表明解无效
+	//判定准则2-坐标是否特别处于墙体边缘，一般定义0.5m处为墙体边缘极限
+	if (scene->IsNearSegmentPoint(m_targetSolution, 0.5)) {
 		m_isValid = false;
 		return false;
 	}
-	if (scene->GetIntersect(segment2, nullptr)) {						//若线段2与环境相交，则表明解无效
-		m_isValid = false;
-		return false;
+
+	//判定准则3- 在满足AOA规则的条件下，广义源所在传播节点与目标间的构成的末端路径是否被环境所遮挡
+	const Point2D& np1 = m_gs1->m_position;							/** @brief	广义源1所在节点坐标	*/
+	const Point2D& np2 = m_gs2->m_position;							/** @brief	广义源2所在节点坐标	*/
+
+	Segment2D segment1(m_targetSolution, np1);							/** @brief	组合测试线段1	*/
+	if (m_gs1->m_type == NODE_REFL) {
+		Intersection2D testIntersect;
+		if (!scene->GetIntersect(segment1, &testIntersect)) {						//若线段1与环境不相交，则表明解无效
+			m_isValid = false;
+			return false;
+		}
+		if (testIntersect.m_segment->m_id != m_gs1->m_segment->m_id) {				//若交点线段与原始产生广义源的线段不一致，则解无效
+			m_isValid = false;
+			return false;
+		}
+	}
+	else if (m_gs1->m_type == NODE_ROOT || m_gs1->m_type == NODE_DIFF) {
+		if (scene->GetIntersect(segment1, nullptr)) {								//若根节点或绕射情况下线段1与环境相交，则表明解无效
+			m_isValid = false;
+			return false;
+		}
+	}
+	
+	Segment2D segment2(m_targetSolution, np2);							/** @brief	组合测试线段2	*/
+	if (m_gs2->m_type == NODE_REFL) {
+		Intersection2D testIntersect;
+		if (!scene->GetIntersect(segment2, &testIntersect)) {						//若线段1与环境不相交，则表明解无效
+			m_isValid = false;
+			return false;
+		}
+		if (testIntersect.m_segment->m_id != m_gs2->m_segment->m_id) {				//若交点线段与原始产生广义源的线段不一致，则解无效
+			m_isValid = false;
+			return false;
+		}
+	}
+	else if(m_gs2->m_type == NODE_ROOT || m_gs2->m_type == NODE_DIFF) {
+		if (scene->GetIntersect(segment2, nullptr)) {								//若根节点或绕射情况下线段1与环境相交，则表明解无效
+			m_isValid = false;
+			return false;
+		}
 	}
 
 	//运行到此处证明解为有效解，权重计数+1
@@ -266,13 +298,9 @@ void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max
 	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-4);													/** @brief	角度权重	*/
 	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-4);										/** @brief	功率差权重	*/
 	RtLbsType w_cluster = static_cast<RtLbsType>(m_clusterSize) / static_cast<RtLbsType>(max_clusterNum);		/** @brief	聚类权重	*/
-	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_powerWeight * w_powerDiff)  * m_clusterSize* m_clusterSize;						/** @brief	总权重	*/
-	if (m_gs1->m_weight < w_total) {
-		m_gs1->m_weight = w_total;
-	}
-	if (m_gs2->m_weight < w_total) {
-		m_gs2->m_weight = w_total;
-	}
+	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_powerWeight * w_powerDiff)  * m_clusterSize;						/** @brief	总权重	*/
+	m_gs1->m_weight = std::max(m_gs1->m_weight, w_total);
+	m_gs2->m_weight = std::max(m_gs2->m_weight, w_total);
 	m_weight = w_total;
 }
 

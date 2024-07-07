@@ -521,6 +521,16 @@ bool Scene::IsValidPoint(const Point2D& p) const
     return true;
 }
 
+bool Scene::IsNearSegmentPoint(const Point2D& p, RtLbsType threshold) const
+{
+    for (auto& curSeg : m_segmentBuf) {
+        if (curSeg->DistanceToPoint(p) <= threshold + EPSILON) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Scene::InitSceneTransmitters(const TransmitterCollectionConfig& config, AntennaLibrary* antLibrary)
 {
     int validTxNum = 0;                                                 /** @brief	有效的发射机数量	*/
@@ -577,6 +587,7 @@ bool Scene::InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrar
         }
         //将sensor中的数据拷贝至sensordatalibrary中，并修改对应数据ID和传感器ID
         m_sensorDataLibrary.AddNew(m_sensors[i]->m_sensorDataCollection);
+        m_sensorDataLibrary.AddSensor(m_sensors[i]);
 	}
 	if (validSensorNum == 0) {
 		LOG_WARNING << "Scene: Sensor num up to " << m_sensors.size() << ", valid num is " << validSensorNum << "." << ENDL;
@@ -605,6 +616,7 @@ bool Scene::GetGroundReflectPaths(const Point3D& ps, const Point3D& pe, std::vec
 		PathNode3D* sNode = new PathNode3D(ps, NODE_ROOT);                                                          /** @brief	构造路径起始节点	*/
 		PathNode3D* eNode = new PathNode3D(pe, NODE_STOP);                                                          /** @brief	构造路径终止节点	*/
         PathNode3D* rNode = new PathNode3D(reflPoint, NODE_REFL);                                                   /** @brief	构造路径反射节点	*/
+        rNode->m_mat = m_materialLibrary.GetDefaultMaterial();                                                      //使用默认材质为地面反射点赋值
         RayPath3D* newPath = new RayPath3D();
         newPath->Union(sNode);
         newPath->Union(rNode);

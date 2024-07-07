@@ -130,7 +130,7 @@ void PathInfo::CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaL
 	//赋值
 	m_freq = freq;
 	RtLbsType lamda = LIGHT_VELOCITY_AIR / freq;				//波长，单位m
-	const Antenna* omniAntenna = antLibrary->GetAntenna(0);			//获取全向天线
+	Antenna* omniAntenna = antLibrary->GetAntenna(0);			//获取全向天线
 	//1-计算电磁场
 	if (m_rayPathType != RAYPATH_TERRAIN_DIFFRACTION) {			//常规路径电磁计算方法
 		m_vectorEField = m_rayPath->CalculateStrengthField(power, freq, omniAntenna, sensor->m_antenna);
@@ -158,6 +158,7 @@ void PathInfo::CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaL
 	RtLbsType conterm = 20 * log10(LIGHT_VELOCITY_AIR / (freq / QUARTER_PI)) - 20 * log10(30);		//中间变量
 	m_power = 20 * log10(m_scalarEField) + conterm + 30 + gain;										//计算功率
 	m_magnitude.Init(pow(10, m_power / 10), m_phaseOffset);											//计算复数强度
+	delete omniAntenna;
 }
 
 void PathInfo::Convert2SensorData(SensorData& data) const

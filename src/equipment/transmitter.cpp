@@ -39,6 +39,7 @@ Transmitter::Transmitter(const Transmitter& tr)
 
 Transmitter::~Transmitter()
 {
+	delete m_antenna;
 }
 
 Transmitter& Transmitter::operator=(const Transmitter& tr)

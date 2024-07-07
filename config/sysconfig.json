@@ -38,7 +38,7 @@
 			"HasSimuError": true
 		},
 		"FrequencyConfig": {
-			"CenterFrequency": 10000000000.0,
+			"CenterFrequency": 1e9,
 			"BandWidth": 5000000.0,
 			"SubCarrierNum": 1
 		},
@@ -58,6 +58,7 @@
 			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
+			"OutputGSForCRLB": true,
 			"OutputSensorDataSparseFactor": 1.0,
 			"OutputLBSMethod": 0
 		}

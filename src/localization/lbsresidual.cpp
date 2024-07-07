@@ -146,6 +146,7 @@ RDOAWLSResidual::RDOAWLSResidual()
 	, m_xi(0.0)
 	, m_yi(0.0)
 	, m_powerDiff(0.0)
+	, m_weight(0.0)
 	, m_refSource(nullptr)
 	, m_dataSource(nullptr)
 {
@@ -157,6 +158,7 @@ RDOAWLSResidual::RDOAWLSResidual(GeneralSource* refSource, GeneralSource* dataSo
 	, m_xi(dataSource->m_position.x)
 	, m_yi(dataSource->m_position.y)
 	, m_powerDiff(refSource->m_sensorData.m_power - dataSource->m_sensorData.m_power)
+	, m_weight(dataSource->m_weight)
 	, m_refSource(refSource)
 	, m_dataSource(dataSource)
 {
@@ -168,6 +170,7 @@ RDOAWLSResidual::RDOAWLSResidual(const RDOAWLSResidual& residual)
 	, m_xi(residual.m_xi)
 	, m_yi(residual.m_yi)
 	, m_powerDiff(residual.m_powerDiff)
+	, m_weight(residual.m_weight)
 	, m_refSource(residual.m_refSource)
 	, m_dataSource(residual.m_dataSource)
 {
@@ -184,6 +187,7 @@ RDOAWLSResidual& RDOAWLSResidual::operator=(const RDOAWLSResidual& residual)
 	m_xi = residual.m_xi;
 	m_yi = residual.m_yi;
 	m_powerDiff = residual.m_powerDiff;
+	m_weight = residual.m_weight;
 	m_refSource = residual.m_refSource;
 	m_dataSource = residual.m_dataSource;
 	return *this;
@@ -196,13 +200,21 @@ void RDOAWLSResidual::Init(GeneralSource* refSource, GeneralSource* dataSource)
 	m_xi = dataSource->m_position.x;
 	m_yi = dataSource->m_position.y;
 	m_powerDiff = refSource->m_sensorData.m_power - dataSource->m_sensorData.m_power;
+	m_weight = dataSource->m_weight;
 	m_refSource = refSource;
 	m_dataSource = dataSource;
 }
 
 RtLbsType RDOAWLSResidual::GetResidual(RtLbsType* position) const
 {
-	return RtLbsType();
+	Point2D tp(position[0], position[1]);
+	RtLbsType powerDiff = m_refSource->CalculateSinglePathPower(tp) - m_dataSource->CalculateSinglePathPower(tp);
+	return (powerDiff - m_powerDiff) * m_weight;
+}
+
+void RDOAWLSResidual::SetWeight(RtLbsType weight)
+{
+	m_weight = weight;
 }
 
 

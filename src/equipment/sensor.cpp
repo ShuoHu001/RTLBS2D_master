@@ -42,6 +42,7 @@ Sensor::Sensor(const SensorConfig& config, AntennaLibrary* antLibrary)
 
 Sensor::~Sensor()
 {
+	delete m_antenna;
 }
 
 Sensor& Sensor::operator=(const Sensor& sensor)

@@ -124,7 +124,7 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 		everyTargetNodesNum[i] = validNodesNum;
 		if (validNodesNum != 0) {
 			dev_TargetNodeIds.resize(dev_TargetNodeIds.size() + validNodesNum);
-			thrust::copy(dev_Temp_TargetNodeIds.begin(), dev_Temp_TargetNodeIds.end(), dev_TargetNodeIds.end() - validNodesNum);
+			thrust::copy(dev_Temp_TargetNodeIds.begin(), dev_Temp_TargetNodeIds.begin() + validNodesNum, dev_TargetNodeIds.end() - validNodesNum);
 		}
 	}
 

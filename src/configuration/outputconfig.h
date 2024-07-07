@@ -22,6 +22,7 @@ const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD = "OutputSensorDataSP
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD = "OutputSensorDataMPSTSD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD = "OutputSensorDataSPMTMD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD = "OutputSensorDataMPMTMD";
+const std::string KEY_OUTPUTCONFIG_OUTPUTGSFORCRLB = "OutputGSForCRLB";
 const std::string KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD = "OutputLBSMethod";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR = "OutputSensorDataSparseFactor";
 
@@ -43,6 +44,7 @@ public:
 	bool m_outputSensorDataMPSTSD;						/** @brief	输出多站单源单数据定位模式传感器数据	*/
 	bool m_outputSensorDataSPMTMD;						/** @brief	输出单站多源多数据定位模式传感器数据	*/
 	bool m_outputSensorDataMPMTMD;						/** @brief	输出多站多源多数据定位模式传感器数据	*/
+	bool m_outputGSForCRLB;								/** @brief	输出广义源-计算CRLB	*/
 	LOCALIZATION_METHOD m_outputLBSMethod;				/** @brief	输出定位传感器数据时候的定位模式	*/
 	RtLbsType m_outputSensorDataSparseFactor;			/** @brief	输出传感器数据的稀疏程度，1为不稀疏，0为极度稀疏	*/
 

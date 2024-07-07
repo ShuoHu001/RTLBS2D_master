@@ -158,6 +158,21 @@ RayPath3D& RayPath3D::operator=(const RayPath3D& path)
 	return *this;
 }
 
+void RayPath3D::Init(const RayPath& path, RtLbsType height)
+{
+	m_nodes.resize(path.m_nodes.size());
+	for (int i = 0; i < m_nodes.size(); ++i) {
+		m_nodes[i] = new PathNode3D();
+		m_nodes[i]->ConvertBy(*path.m_nodes[i], height);
+		if (m_nodes[i]->m_type == NODE_TRANIN ||
+			m_nodes[i]->m_type == NODE_TRANOUT ||
+			m_nodes[i]->m_type == NODE_ETRANIN ||
+			m_nodes[i]->m_type == NODE_ETRANOUT) {												//若包含透射节点，则该路径为透射路径
+			m_containRefract = true;
+		}
+	}
+}
+
 void RayPath3D::ReverseRayPath()
 {
 	if (m_nodes.size() < 2) {
@@ -378,6 +393,12 @@ RtLbsType RayPath3D::GetAOA_Theta() const
 	return pathEnd.Elevation();
 }
 
+Point2D RayPath3D::GetGeneralSource2D() const
+{
+	Point2D gs = m_nodes[static_cast<int>(m_nodes.size()) - 2]->m_gs2D;
+	return gs;
+}
+
 void RayPath3D::DeepCopy(const RayPath3D* path)
 {
 	if (path == nullptr)
@@ -414,5 +435,20 @@ void RayPath3D::OutputRaypath(std::ofstream& stream) const
 		stream << p.x << " " << p.y << " " << p.z << " ";
 	}
 	stream << std::endl;
+}
+
+std::string RayPath3D::ToString() const
+{
+	std::stringstream ss;
+	ss << m_nodes.size() << ",";
+	for (auto& node : m_nodes) {
+		ss << node->ToString();
+	}
+	return ss.str();
+}
+
+size_t RayPath3D::GetHash() const
+{
+	return util::Hash64(ToString());
 }
 

@@ -526,3 +526,15 @@ void RaytracingResult::OutputAOD(std::ofstream& stream) const
 		}
 	}
 }
+
+void RaytracingResult::OutputGeneralSourceForCRLB(std::ofstream& stream) const
+{
+	for (int i = 0; i < static_cast<int>(m_commonPaths.size()); ++i) {
+		RayPath3D* curPath = m_commonPaths[i];
+		if (curPath->m_type == RAYPATH_TERRAIN_REFLECTION) {
+			continue;
+		}
+		Point2D curGS = curPath->GetGeneralSource2D();
+		stream << curGS.x << "\t" << curGS.y << "\t" << m_multipathInfo[i].m_aoAPhi << "\t" << m_multipathInfo[i].m_timeDelay << std::endl;
+	}
+}

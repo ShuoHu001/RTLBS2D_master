@@ -452,6 +452,12 @@
     <ClInclude Include="src\global\globalvariables.h">
       <Filter>global</Filter>
     </ClInclude>
+    <ClInclude Include="src\test\rtresultsimilarity.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensordatacluster.h">
+      <Filter>equipment</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -767,6 +773,12 @@
     </ClCompile>
     <ClCompile Include="src\global\globalvariables.cpp">
       <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\rtresultsimilarity.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensordatacluster.cpp">
+      <Filter>equipment</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

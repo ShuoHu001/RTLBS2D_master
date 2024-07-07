@@ -35,6 +35,7 @@ public:
 	RayPath3D(const RayPath3D& path);																				//赋值构造函数
 	~RayPath3D();																									//析构函数
 	RayPath3D& operator = (const RayPath3D& path);																	//赋值操作符
+	void Init(const RayPath& path, RtLbsType height);																//由二维路径初始化为三维路径
 	void ReverseRayPath();																							//将路径的头和尾互换，逆转路径
 	void ConvertByRayPath(const RayPath& path, const Point3D& tx, const Point3D& rx);								//将二维路径转换为三维路径
 	void Union(PathNode3D* node);																					//扩展路径节点
@@ -50,10 +51,13 @@ public:
 	RtLbsType GetAOD_Theta() const;																					//计算路径离开俯仰角
 	RtLbsType GetAOA_Phi() const;																					//计算路径到达付俯仰角
 	RtLbsType GetAOA_Theta() const;																					//计算路径到达俯仰角
+	Point2D GetGeneralSource2D() const;																				//获取路径末端的广义源
 	void DeepCopy(const RayPath3D* path);																				//深度复制
 	void DeepDestroy();																								//深度销毁
 	void Clear();
 	void OutputRaypath(std::ofstream& stream) const;																//输出多径至文件中
+	std::string ToString() const;																					//多径转换为字符串
+	size_t GetHash() const;																							//获取多径的Hash值
 };
 
 #endif

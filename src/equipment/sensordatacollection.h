@@ -5,6 +5,7 @@
 #include "utility/define.h"
 #include "utility/enum.h"
 #include "sensordata.h"
+#include "sensordatacluster.h"
 
 const std::string KEY_SENSORDATACOLLECTION = "SensorDataCollection";
 const std::string KEY_SENSORDATACOLLECTION_SENSORID = "SensorId";
@@ -20,6 +21,7 @@ public:
 	SensorDataCollection(const SensorDataCollection& collection);
 	~SensorDataCollection();
 	SensorDataCollection& operator = (const SensorDataCollection& collection);
+	void ReClusterByAOAError(RtLbsType phiError);										//按照角度误差进行聚类				
 	void SortByPower();																	//按照能量的大小进行排序
 	void CalculateTimeDiff();															//计算时延差值
 	std::vector<RtLbsType> GetPowerDiffMatrix() const;									//计算功率差矩阵

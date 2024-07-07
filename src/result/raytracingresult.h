@@ -69,6 +69,7 @@ public:
 	void OutputCIR(std::ofstream& stream) const;																							//输出CIR信息
 	void OutputAOA(std::ofstream& stream) const;																							//输出AOA信息
 	void OutputAOD(std::ofstream& stream) const;																							//输出AOD信息
+	void OutputGeneralSourceForCRLB(std::ofstream& stream) const;																			//输出广义源信息，为了计算CRLB
 };
 
 #endif

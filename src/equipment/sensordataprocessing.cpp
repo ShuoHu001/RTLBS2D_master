@@ -66,15 +66,15 @@ void CalculateSensorCollectionResidual_AOA_SingleData(std::vector<SensorDataColl
 
 }
 
-inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, RtLbsType& r_phi, RtLbsType& r_powerdiff, int nullDataNum)
+inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, const WeightFactor& w, RtLbsType& r_phi, RtLbsType& r_powerdiff, int nullDataNum)
 {
 	/** @brief	残差表达	*/
 	struct Residual {
 		RtLbsType r_phi;						/** @brief	角度残差	*/
 		RtLbsType r_powerDiff;					/** @brief	功率差残差	*/
 		RtLbsType r_norm;						/** @brief	归一化残差	*/
-		void CalNormResidual(RtLbsType max_r_phi, RtLbsType max_r_powerDiff) {			//计算归一化残差
-			r_norm = 0.5 * r_phi / max_r_phi + 0.5 * r_powerDiff / max_r_powerDiff;
+		void CalNormResidual(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, const WeightFactor& w) {			//计算归一化残差
+			r_norm = w.m_phiWeight * r_phi / max_r_phi + w.m_powerWeight * r_powerDiff / max_r_powerDiff;
 		}
 	};
 	//构建残差矩阵
@@ -109,7 +109,7 @@ inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1
 	//将矩阵进行归一化处理
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j) {
-			cost[i][j].CalNormResidual(max_r_phi, max_r_powerDiff);
+			cost[i][j].CalNormResidual(max_r_phi, max_r_powerDiff, w);
 			norm_cost[i][j] = cost[i][j].r_norm;
 		}
 	}
@@ -140,13 +140,13 @@ inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1
 	}
 }
 
-void CalculateSensorCollectionResidual_AOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_phi, RtLbsType& r_powerDiff, int& nullDataNum)
+void CalculateSensorCollectionResidual_AOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, const WeightFactor& w, RtLbsType& r_phi, RtLbsType& r_powerDiff, int& nullDataNum)
 {
 	for (int i = 0; i < static_cast<int>(c1.size()); ++i) {
 		RtLbsType cur_r_phi = 0.0;
 		RtLbsType cur_r_powerDiff = 0.0;
 		int cur_nullDataNum = 0;
-		CalculateSensorResidual_AOA_MultiData(c1[i], c2[i], cur_r_phi, cur_r_powerDiff, cur_nullDataNum);
+		CalculateSensorResidual_AOA_MultiData(c1[i], c2[i], w, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);
 		r_phi += cur_r_phi;
 		r_powerDiff += cur_r_powerDiff;
 		nullDataNum += cur_nullDataNum;

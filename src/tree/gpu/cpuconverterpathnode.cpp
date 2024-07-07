@@ -17,13 +17,18 @@ CPUConverterPathNode::CPUConverterPathNode(const PathNode& node, int fatherNodeI
 	, m_layerId(layerId)
 	, m_sensorId(sensorId)
 	, m_type(node.m_type)
-	, m_matId(node.m_mat->m_id)
 	, m_point(node.m_point)
 	, m_segmentId(-1)
 	, m_wedgeId(-1)
 	, m_generalSource(node.m_source)
 	, m_ft(node.m_ft)
 {
+	if (node.m_mat == nullptr) {
+		m_matId = -1;
+	}
+	else {
+		m_matId = node.m_mat->m_id;
+	}
 	if (node.m_segment != nullptr) {
 		m_segmentId = node.m_segment->m_id;
 	}

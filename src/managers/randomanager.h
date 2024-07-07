@@ -15,7 +15,7 @@ public:
 	int RandInt(int min_val, int max_val);
 	float RandFloat(float min_val, float max_val);
 	double RandDouble(double min_val, double max_val);
-	double NormDistributionDouble(RtLbsType mean, RtLbsType mu);
+	double NormDistributionDouble(RtLbsType mu, RtLbsType sigma);
 private:
 	friend class Singleton<RandoManager>;
 	std::mt19937 m_gen; //梅林旋转方法得到随机数

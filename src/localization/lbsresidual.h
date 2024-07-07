@@ -10,6 +10,26 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <ceres/ceres.h>
+#include <ceres/jet.h>
+#include <ceres/internal/jet_traits.h>
+
+template <typename T>
+struct is_jet : std::false_type {};
+
+template <typename T, int N>
+struct is_jet<ceres::Jet<T, N>> : std::true_type {};
+
+// 从 T 类型获取 double 类型的值
+template <typename T>
+double get_double_value(const T& value) {
+	if constexpr (is_jet<T>::value) {
+		return value.a;
+	}
+	else {
+		return static_cast<double>(value);
+	}
+}
+
 
 //AOA WLS 定位残差表达式
 class AOAWLSResidual {
@@ -82,6 +102,7 @@ private:
 	RtLbsType m_xi;						/** @brief	x坐标	*/
 	RtLbsType m_yi;						/** @brief	y坐标	*/
 	RtLbsType m_powerDiff;				/** @brief	测量到的功率差	*/
+	RtLbsType m_weight;					/** @brief	权重	*/
 	GeneralSource* m_refSource;			/** @brief	参考广义源	*/
 	GeneralSource* m_dataSource;		/** @brief	数据广义源	*/
 
@@ -94,6 +115,7 @@ public:
 	void Init(GeneralSource* refSource, GeneralSource* dataSource);
 
 	RtLbsType GetResidual(RtLbsType* position) const;
+	void SetWeight(RtLbsType weight);					//设置权重
 
 	template <typename T> bool operator ()(const T* const position, T* residual) const {
 		T p1_x = T(m_x1);							/** @brief	参考点P1 x坐标	*/
@@ -102,8 +124,14 @@ public:
 		T pi_y = T(m_yi);							/** @brief	数据点Pi y坐标	*/
 		T x = position[0];							/** @brief	预测点 x坐标	*/
 		T y = position[1];							/** @brief	预测点 y坐标	*/
-		RtLbsType powerDiff = m_refSource->CalculateExtraRDOALoss(position) - m_dataSource->CalculateExtraRDOALoss(position);
+		RtLbsType x_double = get_double_value(x);
+		RtLbsType y_double = get_double_value(y);
+		Point2D tp(x_double, y_double);
+		RtLbsType refPower = m_refSource->CalculateSinglePathPower(tp);
+		RtLbsType dataPower = m_dataSource->CalculateSinglePathPower(tp);
+		RtLbsType powerDiff = refPower - dataPower;
 		residual[0] = T(powerDiff) - m_powerDiff;
+		return true;
 	}
 };
 

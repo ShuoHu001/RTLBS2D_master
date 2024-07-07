@@ -33,6 +33,21 @@ WeightFactor& WeightFactor::operator=(const WeightFactor& factor)
 	return *this;
 }
 
+void WeightFactor::InitAOAWeight()
+{
+	RtLbsType tw = m_phiWeight + m_powerWeight;
+	m_phiWeight /= tw;
+	m_powerWeight /= tw;
+}
+
+void WeightFactor::InitAOATDOAWeight()
+{
+	RtLbsType tw = m_timeWeight + m_phiWeight + m_powerWeight;
+	m_timeWeight /= tw;
+	m_phiWeight /= tw;
+	m_powerWeight /= tw;
+}
+
 void WeightFactor::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
 {
 	writer.StartObject();

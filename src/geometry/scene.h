@@ -70,6 +70,7 @@ public:
 	RtLbsType _getPositionRefractN(Point2D& p);																				//根据输入的坐标，获取环境中某点位置处的透射系数
 	bool IsValidPoint(const Point3D& p) const;																				//检测三维坐标点是否有效
 	bool IsValidPoint(const Point2D& p) const;																				//检测二维坐标点是否有效
+	bool IsNearSegmentPoint(const Point2D& p, RtLbsType threshold) const;													//检测二维坐标点是否靠近墙体,阈值距离为threshold
 	bool InitSceneTransmitters(const TransmitterCollectionConfig& config, AntennaLibrary* antLibrary);						//初始化场景中的发射机
 	bool InitSceneReceivers(const std::vector<ReceiverUnitConfig>& configs, AntennaLibrary* antLibrary);					//初始化场景中的接收机
 	bool InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrary* antLibrary, bool hasSimuError);								//初始化场景中的传感器

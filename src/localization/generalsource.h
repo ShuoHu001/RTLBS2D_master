@@ -37,7 +37,7 @@ public:
 	GeneralSource(const GeneralSource& s);
 	~GeneralSource();
 	GeneralSource& operator = (const GeneralSource& s);
-	RtLbsType CalculateExtraRDOALoss(RtLbsType* position) const;																																	//计算额外损耗
+	RtLbsType CalculateSinglePathPower(const Point2D& p) const;			//计算从点到广义源根父节点所形成的路径功率，若形成不了路径，则返回-160功率值
 	bool CalTDOAParameters_SPSTMD(const Point2D& targetPoint, const Scene* scene, RtLbsType freq, RtLbsType& delay, RtLbsType& power) const;			//计算TDOA定位模式的参数值-单站定位模式
 	bool CalTDOAParameters_MPSTSD(const Point2D& targetPoint, const Scene* scene) const;																										//多站定位模式
 	bool IsValid() const;														//是否有效
@@ -46,7 +46,13 @@ public:
 	void Output2File(std::ofstream& stream) const;								//输出广义源至文件中
 	std::string ToString() const;												//输出为字符串
 	size_t GetHash() const;														//获取Hash值，唯一标识符
+
+private:
+	bool HasValidReverseRayPath(Point2D& p, RayPath3D& outPath) const;								//是否有有效的路径
 };
 
+inline bool ComparedByPower_GeneralSource(const GeneralSource* gs1, const GeneralSource* gs2) {
+	return gs1->m_sensorData.m_power > gs2->m_sensorData.m_power;
+}
 
 #endif

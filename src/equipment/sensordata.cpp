@@ -43,6 +43,21 @@ bool SensorData::operator<(const SensorData& data)
 	return m_power > data.m_power;
 }
 
+RtLbsType SensorData::DistanceAOA2D(const SensorData& data) const
+{
+	RtLbsType dPhi = abs(m_phi - data.m_phi);
+	if (dPhi > PI) {							//角度差值小于PI
+		dPhi = TWO_PI - dPhi;
+	}
+	return dPhi;
+}
+
+RtLbsType SensorData::DistanceDelay(const SensorData& data) const
+{
+	RtLbsType dDelay = abs(m_time - data.m_time);
+	return dDelay;
+}
+
 Vector2D SensorData::GetDirection() const
 {
 	//默认定义传感器接收到的方位角是与水平X轴方向的夹角

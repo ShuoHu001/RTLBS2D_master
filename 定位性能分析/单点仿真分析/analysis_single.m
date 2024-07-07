@@ -28,4 +28,3 @@ xlabel("Power Error(PE)/dB");
 ylabel("RMSE/m");
 legend(h,{'0.1° AOA Error','0.2°AOA Error','0.5°AOA Error','1.0°AOA Error','2.0°AOA Error','3.0°AOA Error','4.0°AOA Error','5.0°AOA Error','6.0°AOA Error'});
 set(gca,"fontname","times","fontsize",28,"fontweight","bold");
-

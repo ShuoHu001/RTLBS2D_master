@@ -1,8 +1,8 @@
 #include "antenna.h"
 
 Antenna::Antenna()
-	: m_typeId(0)
-	, m_antName("")
+	: m_antId(0)
+	, m_typeId(0)
 	, m_gain(0)
 	, m_freqMin(FLT_MAX)
 	, m_freqMax(-FLT_MAX)
@@ -10,7 +10,8 @@ Antenna::Antenna()
 }
 
 Antenna::Antenna(const Antenna& ant)
-	: m_typeId(ant.m_typeId)
+	: m_antId(ant.m_antId)
+	, m_typeId(ant.m_typeId)
 	, m_antName(ant.m_antName)
 	, m_gain(ant.m_gain)
 	, m_freqMin(ant.m_freqMin)

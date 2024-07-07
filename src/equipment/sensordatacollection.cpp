@@ -22,6 +22,15 @@ SensorDataCollection& SensorDataCollection::operator=(const SensorDataCollection
 	return *this;
 }
 
+void SensorDataCollection::ReClusterByAOAError(RtLbsType phiError)
+{
+	std::vector<SensorDataCluster> clusters = ClusterSensorDataByAOA2D(m_data, phiError);
+	m_data.clear();
+	for (auto& curCluster : clusters) {
+		m_data.push_back(curCluster.m_mergedData);
+	}
+}
+
 void SensorDataCollection::SortByPower()
 {
 	std::sort(m_data.begin(), m_data.end());

@@ -18,14 +18,14 @@ double RandoManager::RandDouble(double min_val, double max_val)
 	return dis(m_gen);
 }
 
-double RandoManager::NormDistributionDouble(RtLbsType mean, RtLbsType mu)
+double RandoManager::NormDistributionDouble(RtLbsType mu, RtLbsType sigma)
 {
-	if (mu == 0) {
-		return mean;
+	if (sigma == 0) {
+		return 0;
 	}
-	std::normal_distribution<double> dis(mean, mu);
+	std::normal_distribution<double> dis(mu, sigma);
 	RtLbsType reVal = dis(m_gen);
-	while (std::abs(reVal) > mu) {
+	while (std::abs(reVal) > sigma) {
 		reVal = dis(m_gen);
 	}
 	return reVal;

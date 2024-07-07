@@ -14,12 +14,13 @@ void TestAOALocalizationSingleStationInDifferentError()
 		}
 	};
 
-	std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
+	//std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
 	std::vector<RtLbsType> powerErrors = { 0,1,2,3,4,5,6,7,8,9,10 };
+	std::vector<RtLbsType> phiDegreeErrors = { 1.0 };
 
-	std::string positionName = "A";
-	int roundTime = 1000;
-	Point2D realPoint = { 121,74 };
+	std::string positionName = "C1";
+	int roundTime = 100;
+	Point2D realPoint = { 70,90 };
 
 	int totalround = static_cast<int>(phiDegreeErrors.size() * powerErrors.size() * roundTime);
 
@@ -49,6 +50,7 @@ void TestAOALocalizationSingleStationInDifferentError()
 				system->Render();
 				Point2D curTargetPoint = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA);
 				if (!system->m_scene->IsValidPoint(curTargetPoint)) {
+					delete system;
 					continue;
 				}
 				RtLbsType error = (realPoint - curTargetPoint).Length();
@@ -66,13 +68,13 @@ void TestAOALocalizationSingleStationInDifferentError()
 			errorMean /= roundTime;
 
 			//写入数据文件
-			std::stringstream ss;
+			/*std::stringstream ss;
 			ss << "定位性能分析/单点仿真分析/" << positionName << "_phiError_" << phiDegreeError << "_powerError_" << powerError << ".txt";
 			std::ofstream outFile(ss.str());
 			for (auto& data : datas) {
 				data.Write2File(outFile);
 			}
-			outFile.close();
+			outFile.close();*/
 			LOG_INFO << errorMean << std::endl;
 		}
 	}
@@ -196,4 +198,12 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 	outstream.close();
 
 	std::cout << "计算完成" << std::endl;
+}
+
+void ResearchMultipathSimilarityInLocalizationInDifferentPlaces()
+{
+	std::vector<RaytracingResult*> resultMatrix;										/** @brief	点位矩阵，用于研究不同区域的定位误差分布	*/
+	//执行面型仿真，得到面型仿真多径数据结果
+
+	//分析每个点之间的多径相似度
 }

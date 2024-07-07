@@ -11,5 +11,8 @@ void TestAOALocalizationSingleStationInDifferentError();
 
 void TestAOALocalizaitonSingleStationErrorInDifferentPlace();
 
+//研究平面上的定位误差分布情况
+void ResearchMultipathSimilarityInLocalizationInDifferentPlaces();
+
 
 #endif

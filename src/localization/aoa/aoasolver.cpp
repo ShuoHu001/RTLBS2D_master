@@ -85,13 +85,17 @@ Point2D AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& init
 	RtLbsType position[2] = { initPoint.x, initPoint.y };								//初始位置估计
 	RtLbsType prevPosition[2] = { 0,0 };							//前一个节点的位置估计
 
-	int dataNum = static_cast<int>(m_gsData.size());				//数据数量
-	std::vector<AOAWLSResidual> aoaResiduals(dataNum);				//设置aoa残差对象
-	for (int i = 0; i < dataNum; ++i) {
+	int aoaDataNum = static_cast<int>(m_gsData.size());				//数据数量
+	std::vector<AOAWLSResidual> aoaResiduals(aoaDataNum);				//设置aoa残差对象
+	for (int i = 0; i < aoaDataNum; ++i) {
 		aoaResiduals[i].Init(m_gsData[i]);
 	}
 
-
+	//int rdoaDataNum = aoaDataNum - 1;								//RDOA 残差数据量
+	//std::vector<RDOAWLSResidual> rdoaResiduals(rdoaDataNum);
+	//for (int i = 0; i < rdoaDataNum; ++i) {
+	//	rdoaResiduals[i].Init(m_gsData[0], m_gsData[i + 1]);
+	//}
 	for (int i = 0; i < iterNum; ++i) {
 
 		prevPosition[0] = position[0];								//进行前一次预测结果的赋值
@@ -102,10 +106,16 @@ Point2D AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& init
 
 
 		//制定数据集
-		for (int i = 0; i < dataNum; ++i) {
+
+		for (int i = 0; i < aoaDataNum; ++i) {
 			ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAWLSResidual, 1, 2>(new AOAWLSResidual(aoaResiduals[i]));				//定义损失函数
 			problem.AddResidualBlock(costFunction, nullptr, position);
 		}
+
+		//for (int i = 0; i < rdoaDataNum; ++i) {
+		//	ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<RDOAWLSResidual, 1, 2>(new RDOAWLSResidual(rdoaResiduals[i]));				//定义损失函数
+		//	problem.AddResidualBlock(costFunction, nullptr, position);
+		//}
 
 		//配置求解器
 		ceres::Solver::Options options;
@@ -128,12 +138,17 @@ Point2D AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& init
 		}
 
 		//权重更新
-		std::vector<RtLbsType> weights(dataNum);								//权重系数
-		for (int i = 0; i < dataNum; ++i) {
+		std::vector<RtLbsType> weights(aoaDataNum);								//权重系数
+		for (int i = 0; i < aoaDataNum; ++i) {
 			RtLbsType res = aoaResiduals[i].GetResidual(position);
 			weights[i] = aoaResiduals[i].GetWeight() / (res * res + 1e-6);								//权重
 			aoaResiduals[i].SetWeight(weights[i]);
 		}
+
+		//for (int i = 0; i < rdoaDataNum; ++i) {
+		//	RtLbsType res = rdoaResiduals[i].GetResidual(position);
+		//	rdoaResiduals[i].SetWeight(1.0 / (res * res + 1e-6));
+		//}
 
 	}
 	return Point2D(position[0], position[1]);
@@ -144,11 +159,17 @@ void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
 	RtLbsType position[2] = { 0,0 };								//初始位置估计
 	RtLbsType prevPosition[2] = { 0,0 };							//前一个节点的位置估计
 
-	int dataNum = static_cast<int>(m_gsData.size());				//数据数量
-	std::vector<AOAWLSResidual> aoaResiduals(dataNum);				//设置aoa残差对象
-	for (int i = 0; i < dataNum; ++i) {
+	int aoaDataNum = static_cast<int>(m_gsData.size());				//AOA 残差数据数量
+	std::vector<AOAWLSResidual> aoaResiduals(aoaDataNum);				//设置aoa残差对象
+	for (int i = 0; i < aoaDataNum; ++i) {
 		aoaResiduals[i].Init(m_gsData[i]);
-		aoaResiduals[i].SetWeight(1.0);								//设定初始权重为1
+		//aoaResiduals[i].SetWeight(1.0);								//设定初始权重为1
+	}
+
+	int rdoaDataNum = aoaDataNum - 1;								//RDOA 残差数据量
+	std::vector<RDOAWLSResidual> rdoaResiduals(rdoaDataNum);
+	for (int i = 0; i < rdoaDataNum; ++i) {
+		rdoaResiduals[i].Init(m_gsData[0], m_gsData[i + 1]);
 	}
 
 
@@ -161,8 +182,13 @@ void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
 		ceres::Problem problem;
 
 		//制定数据集
-		for (int i = 0; i < dataNum; ++i) {
+		for (int i = 0; i < aoaDataNum; ++i) {
 			ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAWLSResidual, 1, 2>(new AOAWLSResidual(aoaResiduals[i]));				//定义损失函数
+			problem.AddResidualBlock(costFunction, nullptr, position);
+		}
+
+		for (int i = 0; i < rdoaDataNum; ++i) {
+			ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<RDOAWLSResidual, 1, 2>(new RDOAWLSResidual(rdoaResiduals[i]));				//定义损失函数
 			problem.AddResidualBlock(costFunction, nullptr, position);
 		}
 
@@ -186,9 +212,13 @@ void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
 		}
 
 		//权重更新
-		for (int i = 0; i < dataNum; ++i) {
+		for (int i = 0; i < aoaDataNum; ++i) {
 			RtLbsType res = aoaResiduals[i].GetResidual(position);
 			aoaResiduals[i].SetWeight(1.0 / (res * res + 1e-6));
+		}
+		for (int i = 0; i < rdoaDataNum; ++i) {
+			RtLbsType res = rdoaResiduals[i].GetResidual(position);
+			rdoaResiduals[i].SetWeight(1.0 / (res * res + 1e-6));
 		}
 	}
 }

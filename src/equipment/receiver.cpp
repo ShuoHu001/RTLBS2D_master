@@ -45,6 +45,7 @@ Receiver::Receiver(const ReceiverUnitConfig& config, AntennaLibrary* antLibrary)
 
 Receiver::~Receiver()
 {
+	delete m_antenna;
 }
 
 

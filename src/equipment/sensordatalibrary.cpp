@@ -32,6 +32,11 @@ SensorDataLibrary& SensorDataLibrary::operator=(const SensorDataLibrary& library
 	return *this;
 }
 
+void SensorDataLibrary::AddSensor(Sensor* sensor)
+{
+	m_sensors.push_back(sensor);
+}
+
 void SensorDataLibrary::AddNew(SensorDataCollection& collection)
 {
 	int sensorNum = static_cast<int>(m_sensorDataCollection.size());
@@ -84,24 +89,17 @@ void SensorDataLibrary::GetAllSensorDataCollection(std::vector<SensorDataCollect
 	}
 }
 
-void SensorDataLibrary::GetAllSeneorDataCollectionWithAOAPhiError(std::vector<SensorDataCollection>& collections, RtLbsType phiErrorSTD, RtLbsType powerErrorSTD) const
+void SensorDataLibrary::GetAllSeneorDataCollectionWithAOAError(std::vector<SensorDataCollection>& collections) const
 {
 	if (collections.size() != m_sensorDataCollection.size()) {
 		collections.resize(m_sensorDataCollection.size());
 	}
 	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
 		collections[i] = *m_sensorDataCollection[i];
-	}
-	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
-		for (auto& curData : collections[i].m_data) {
-			RtLbsType phiError = NORMDOUBLE(0, phiErrorSTD);
-			RtLbsType powerError = NORMDOUBLE(0, powerErrorSTD);
-			curData.m_phi += phiError;
-			curData.m_power += powerError;
-			std::cout << phiError<<","<< powerError << std::endl;
-		}
+		collections[i].ReClusterByAOAError(m_sensors[i]->m_phiErrorSTD * 3.0);					//按照每个传感器的误差进行聚类，得到含误差情况下的传感器原始数据,这里扩大2.0倍是由于角度误差在±phiError区域内
 	}
 }
+
 
 void SensorDataLibrary::GetAllSensorData(std::vector<SensorData>& datas) const
 {

@@ -23,6 +23,8 @@ public:
 	WeightFactor(const WeightFactor& weight);
 	~WeightFactor();
 	WeightFactor& operator = (const WeightFactor& factor);
+	void InitAOAWeight();
+	void InitAOATDOAWeight();
 	void Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 	bool Deserialize(const rapidjson::Value& value);
 };

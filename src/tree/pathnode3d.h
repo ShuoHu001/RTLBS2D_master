@@ -22,6 +22,7 @@ public:
 	PATHNODETYPE m_type;																											/** @brief	节点类型	*/
 	Material* m_mat;																												/** @brief	节点所在材质	*/
 	Point3D m_point;																												/** @brief	节点坐标	*/
+	Point2D m_gs2D;																													/** @brief	末端广义源(二维)	*/
 	const Segment2D* m_primitive;																									/** @brief	节点所在面元的指针	*/
 	const Wedge2D* m_wedge;																											/** @brief	节点所在wedge的指针	*/
 	const TerrainFacet* m_terrainFacet;																								/** @brief	节点所在的地形面元的指针	*/
@@ -35,6 +36,7 @@ public:
 	~PathNode3D();																													//析构函数
 	void ConvertBy(const PathNode& node, RtLbsType h);																				//由PathNode转换为PathNode3D
 	void ConvertBy(const PathNodeGPU& node, RtLbsType h, const std::vector<Segment2D*>& segments, const std::vector<Wedge2D*>& wedges);			//由PathNodeGPU转换为PathNode3D
+	std::string ToString() const;																									//路径节点转换为字符串
 };
 
 #endif

@@ -25,6 +25,7 @@
     <RootNamespace>RayTracer2D</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>rtlbs2d-gpu</ProjectName>
+    <CudaToolkitCustomDir>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4</CudaToolkitCustomDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -59,7 +60,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.1.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.4.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -156,7 +157,8 @@
       <CompileOut>$(SolutionDir)$(Platform)\$(Configuration)\assest\%(Filename)%(Extension).obj</CompileOut>
     </CudaCompile>
     <CudaLink>
-      <UseHostLibraryDependencies>false</UseHostLibraryDependencies>
+      <UseHostLibraryDependencies>true</UseHostLibraryDependencies>
+      <UseHostLibraryDirectories>true</UseHostLibraryDirectories>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -210,6 +212,7 @@
     <ClCompile Include="src\equipment\receiver.cpp" />
     <ClCompile Include="src\equipment\sensor.cpp" />
     <ClCompile Include="src\equipment\sensordata.cpp" />
+    <ClCompile Include="src\equipment\sensordatacluster.cpp" />
     <ClCompile Include="src\equipment\sensordatacollection.cpp" />
     <ClCompile Include="src\equipment\sensordatalibrary.cpp" />
     <ClCompile Include="src\equipment\sensordataprocessing.cpp" />
@@ -233,6 +236,7 @@
     <CudaCompile Include="src\tree\gpu\treenodegpu.cpp" />
     <ClCompile Include="src\result\pathinfocluster.cpp" />
     <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.cpp" />
+    <ClCompile Include="src\test\rtresultsimilarity.cpp" />
     <ClCompile Include="src\test\testlbs.cpp" />
     <ClCompile Include="src\tree\lbstreenode.cpp" />
     <ClCompile Include="src\tree\terraindiffractionpath.cpp" />
@@ -328,6 +332,7 @@
     <ClInclude Include="src\configuration\sensor\sensorconfig.h" />
     <ClInclude Include="src\equipment\sensor.h" />
     <ClInclude Include="src\equipment\sensordata.h" />
+    <ClInclude Include="src\equipment\sensordatacluster.h" />
     <ClInclude Include="src\equipment\sensordatacollection.h" />
     <ClInclude Include="src\equipment\sensordatalibrary.h" />
     <ClInclude Include="src\equipment\sensordataprocessing.h" />
@@ -347,6 +352,7 @@
     <CudaCompile Include="src\tree\gpu\treenodegpu.h" />
     <ClInclude Include="src\result\pathinfocluster.h" />
     <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.h" />
+    <ClInclude Include="src\test\rtresultsimilarity.h" />
     <ClInclude Include="src\test\testlbs.h" />
     <ClInclude Include="src\tree\lbstreenode.h" />
     <ClInclude Include="src\utility\struct.h" />
@@ -461,6 +467,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.1.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.4.targets" />
   </ImportGroup>
 </Project>

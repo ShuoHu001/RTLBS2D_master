@@ -32,7 +32,7 @@ private:
 
 };
 
-void InitInternalAntennas(std::vector<Antenna>& innerAntennas) {
+inline void InitInternalAntennas(std::vector<Antenna>& innerAntennas) {
 	//目前内置的天线方向图主要分为两种类型，一种为全向型天线，另一种问半波偶极子类型的天线
 	Antenna ant_Omni;																	//全向天线
 	ant_Omni.m_antId = 0;

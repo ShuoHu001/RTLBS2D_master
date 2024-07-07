@@ -49,7 +49,7 @@ inline void delete_tree_iterative(RayTreeNode* root)
 	std::vector<RayTreeNode*> allNodes;						/** @brief	所有节点数据	*/
 	//将所有虚拟根节点添加到栈中
 	RayTreeNode* tempNode = root;							/** @brief	临时节点，用于进行迭代	*/
-
+	allNodes.push_back(root);
 	//确定虚拟根节点的数量
 	int vrootNum = 0;
 	tempNode = tempNode->m_pRight;							//过滤掉第一个无效root,只保留vroot

@@ -42,6 +42,7 @@ void RayTracing_CPUSingleThread(SYSTEM_MODE systemMode, const std::vector<std::v
 				curVRootNode = curVRootNode->m_pRight;														//进行下一个挂载点迭代
 				curNode = curNode->m_pRight;																//迭代下一个挂载位置
 			}
+			delete visualTempNode;
 		}
 	}
 	else if (systemMode == MODE_LBS) {		//定位模式中构建伴随的射线追踪树结构，用于权重计算
@@ -82,6 +83,7 @@ void RayTracing_CPUSingleThread(SYSTEM_MODE systemMode, const std::vector<std::v
 				curVRootNode = curVRootNode->m_pRight;														//进行下一个挂载点迭代
 				curNode = curNode->m_pRight;																//迭代下一个挂载位置
 			}
+			delete visualTempNode;
 		}
 	}
 	
@@ -129,6 +131,7 @@ void RayTracingLBS_CPUSingleThread(SYSTEM_MODE systemMode, const std::vector<std
 			curVRootNode = curVRootNode->m_pRight;														//进行下一个挂载点迭代
 			curNode = curNode->m_pRight;																//迭代下一个挂载位置
 		}
+		delete visualTempNode;
 	}
 }
 

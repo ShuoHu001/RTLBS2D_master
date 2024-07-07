@@ -22,6 +22,7 @@ PathNode3D::PathNode3D(const PathNode& node, RtLbsType h)
 	m_point.x = node.m_point.x;
 	m_point.y = node.m_point.y;
 	m_point.z = h;
+	m_gs2D = node.m_source;
 }
 
 PathNode3D::PathNode3D(const Point3D& point, PATHNODETYPE type, int depth)
@@ -81,6 +82,7 @@ void PathNode3D::ConvertBy(const PathNode& node, RtLbsType h)
 	m_wedge = node.m_wedge;
 	m_terrainFacet = nullptr;
 	m_point = Point3D(node.m_point.x, node.m_point.y, h);
+	m_gs2D = node.m_source;
 	return;
 }
 
@@ -101,4 +103,19 @@ void PathNode3D::ConvertBy(const PathNodeGPU& node, RtLbsType h, const std::vect
 	}
 	m_point = Point3D(node.m_inter.m_intersect.x, node.m_inter.m_intersect.y, h);
 	return;
+}
+
+std::string PathNode3D::ToString() const
+{
+	std::stringstream ss;
+	if (m_type == NODE_ROOT) {
+		ss << m_type << ",";
+	}
+	else if (m_type == NODE_REFL) {
+		ss << m_type << "," << m_primitive->m_id << ",";
+	}
+	else if (m_type == NODE_DIFF) {
+		ss << m_type << "," << m_wedge->m_globalId << ",";
+	}
+	return ss.str();
 }
