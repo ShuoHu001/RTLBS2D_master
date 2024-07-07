@@ -552,17 +552,14 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 			for (int j = 0; j < sensorNum; ++j) {
 				const Sensor* curSensor = scene->m_sensors[j];
 				curResult[j].CalculateBaseInfo(curSensor, freqs, antLibrary);						//执行电磁计算,LBS电磁计算
-				curResult[j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD * 2.0, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏，2.0倍数是±
+				curResult[j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏，2.0倍数是±
 				CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, weightFactor, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
-
+				if (cur_r_phi == 0.0) {
+					std::cout << "出问题了" << std::endl;
+				}
 				curCluster_min_r_phi = std::min(curCluster_min_r_phi, cur_r_phi);
 				curCluster_min_r_powerDiff = std::min(curCluster_min_r_powerDiff, cur_r_powerDiff);
 				curCluster_min_nullDataNum = std::min(curCluster_min_nullDataNum, cur_nullDataNum);
-			}
-			if ((curCluster.m_point - Point2D(74, 96)).Length() < 10.0) {
-				if (cur_r_phi > 3.0) {
-					std::cout << "find it" << std::endl;
-				}
 			}
 		}
 

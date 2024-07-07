@@ -66,6 +66,8 @@ GSPair::GSPair(const GSPair& pair)
 
 GSPair::~GSPair()
 {
+	delete m_gs1;
+	delete m_gs2;
 }
 
 GSPair& GSPair::operator=(const GSPair& pair)

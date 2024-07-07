@@ -97,12 +97,8 @@ inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1
 			RtLbsType cur_r_powerDiff = c1.m_data[i].m_power - c2.m_data[j].m_power;
 			cost[i][j].r_phi = cur_r_phi * cur_r_phi;
 			cost[i][j].r_powerDiff = cur_r_powerDiff * cur_r_powerDiff;
-			if (max_r_phi < cur_r_phi) {
-				max_r_phi = cur_r_phi;
-			}
-			if (max_r_powerDiff < cur_r_powerDiff) {
-				max_r_powerDiff = cur_r_powerDiff;
-			}
+			max_r_phi = std::max(max_r_phi, cost[i][j].r_phi);
+			max_r_powerDiff = std::max(max_r_powerDiff, cost[i][j].r_powerDiff);
 		}
 	}
 
