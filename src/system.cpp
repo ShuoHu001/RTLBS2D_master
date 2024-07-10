@@ -158,14 +158,13 @@ void System::RayTracing(const HARDWAREMODE hardwareMode)
 	if (hardwareMode == CPU_SINGLETHREAD) {
 		RayTracing_CPUSingleThread(m_sysMode, m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_rtTreeRoot);
 	}
-	else if (hardwareMode == CPU_MULTITHREAD) {
+	else if (hardwareMode == CPU_MULTITHREAD || hardwareMode == CPU_GPU_MULTITHREAD) {
 		uint16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
 		RayTracing_CPUMultiThread(m_sysMode, m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, threadNum, m_rtTreeRoot);
 	}
 	else if (hardwareMode == GPU_MULTITHREAD) {
 		m_scene->ConvertToGPUHostScene();																							//在使用GPU进行计算时需要将场景转换为GPU场景
 		RayTracing_GPUMultiThread(m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_rtGPUPathNodes);
-		
 	}
 	LOG_INFO << "raytracing: has already traced all the rays." << ENDL;
 }
@@ -221,6 +220,9 @@ void System::PathBuilder(const HARDWAREMODE mode)
 	}
 	else if (hardwareMode == GPU_MULTITHREAD) {
 		PathBuilder_GPUMultiThread(m_rtGPUPathNodes, m_scene, m_result);
+	}
+	else if (hardwareMode == CPU_GPU_MULTITHREAD) {
+		PathBuilder_CPUGPUMultiThread(m_rtTreeRoot, m_scene, splitRadius, m_result);
 	}
 	return;
 }

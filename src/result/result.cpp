@@ -544,23 +544,29 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 
 		for (auto& curResult : curCluster.m_rtResult) {																		//遍历簇中所有的解（位移导致的多解）
 
+
 			RtLbsType cur_r_phi = 0.0;																								/** @brief	当前的角度残差	*/
 			RtLbsType cur_r_powerDiff = 0.0;																						/** @brief	当前的功率差残差	*/
 			int cur_nullDataNum = 0;																								/** @brief	不满足条件的匹配数	*/
 			targetSensorDataCollection.clear();
 			targetSensorDataCollection.resize(sensorNum);
 			for (int j = 0; j < sensorNum; ++j) {
+				if (curResult[j].m_commonPaths.size() == 0) {
+					continue;
+				}
 				const Sensor* curSensor = scene->m_sensors[j];
 				curResult[j].CalculateBaseInfo(curSensor, freqs, antLibrary);						//执行电磁计算,LBS电磁计算
-				curResult[j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], curSensor->m_phiErrorSTD, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏，2.0倍数是±
+				curResult[j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], 0.0, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏，2.0倍数是±
 				CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, weightFactor, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
-				if (cur_r_phi == 0.0) {
-					std::cout << "出问题了" << std::endl;
-				}
 				curCluster_min_r_phi = std::min(curCluster_min_r_phi, cur_r_phi);
 				curCluster_min_r_powerDiff = std::min(curCluster_min_r_powerDiff, cur_r_powerDiff);
 				curCluster_min_nullDataNum = std::min(curCluster_min_nullDataNum, cur_nullDataNum);
 			}
+		}
+
+		if (curCluster_min_r_phi == FLT_MAX) {
+			curCluster.m_isValid = false;
+			continue;
 		}
 
 		curCluster.SetElementAOAResidual(curCluster_min_r_phi, curCluster_min_r_powerDiff, curCluster_min_nullDataNum);
@@ -611,7 +617,7 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 
 	//删除低于权重阈值的广义源
 	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
-		return s->m_weight < 0.6;
+		return s->m_weight < 0.8;
 		}), allGSCopy.end());
 
 	//单源定位中，root源的数据最大只保留一个

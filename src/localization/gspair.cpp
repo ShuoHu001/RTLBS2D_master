@@ -36,9 +36,9 @@ GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 	: m_isValid(true)
 	, m_clusterId(-1)
 	, m_clusterSize(1)
-	, m_gs1(gs1)
-	, m_gs2(gs2)
-	, m_gsRef(gsRef)
+	, m_gs1(new GeneralSource(*gs1))
+	, m_gs2(new GeneralSource(*gs2))
+	, m_gsRef(new GeneralSource(*gsRef))
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
 	, m_timeDiffResidual(0.0)
@@ -68,6 +68,9 @@ GSPair::~GSPair()
 {
 	delete m_gs1;
 	delete m_gs2;
+	if (m_gsRef != nullptr) {
+		delete m_gsRef;
+	}
 }
 
 GSPair& GSPair::operator=(const GSPair& pair)

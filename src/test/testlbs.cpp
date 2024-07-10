@@ -14,13 +14,12 @@ void TestAOALocalizationSingleStationInDifferentError()
 		}
 	};
 
-	//std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
+	std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
 	std::vector<RtLbsType> powerErrors = { 0,1,2,3,4,5,6,7,8,9,10 };
-	std::vector<RtLbsType> phiDegreeErrors = { 6.0 };
 
-	std::string positionName = "C1";
-	int roundTime = 100;
-	Point2D realPoint = { 70,90 };
+	std::string positionName = "A1";
+	int roundTime = 1000;
+	Point2D realPoint = { 76,56 };
 
 	int totalround = static_cast<int>(phiDegreeErrors.size() * powerErrors.size() * roundTime);
 
@@ -68,13 +67,13 @@ void TestAOALocalizationSingleStationInDifferentError()
 			errorMean /= roundTime;
 
 			//写入数据文件
-			/*std::stringstream ss;
+			std::stringstream ss;
 			ss << "定位性能分析/单点仿真分析/" << positionName << "_phiError_" << phiDegreeError << "_powerError_" << powerError << ".txt";
 			std::ofstream outFile(ss.str());
 			for (auto& data : datas) {
 				data.Write2File(outFile);
 			}
-			outFile.close();*/
+			outFile.close();
 			LOG_INFO << errorMean << std::endl;
 		}
 	}
@@ -202,8 +201,49 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 
 void ResearchMultipathSimilarityInLocalizationInDifferentPlaces()
 {
-	std::vector<RaytracingResult*> resultMatrix;										/** @brief	点位矩阵，用于研究不同区域的定位误差分布	*/
-	//执行面型仿真，得到面型仿真多径数据结果
+	//面型仿真模式
+	System* system = new System();
+	system->Setup(MODE_RT);
+	system->Render();
+	system->PostProcessing();
 
-	//分析每个点之间的多径相似度
+	int resultSize = system->m_result.m_raytracingResult.size();
+	std::vector<ReceiverInfo*> rxInfos(resultSize);
+
+	for (int i = 0; i < resultSize; ++i) {
+		rxInfos[i] = new ReceiverInfo(system->m_result.m_raytracingResult[i]);
+	}
+
+	//构造多径相似度矩阵
+	for (int i = 0; i < resultSize; ++i) {
+		ReceiverInfo* mainInfo = rxInfos[i];
+		if (!mainInfo->m_isValid) {
+			continue;
+		}
+		for (int j = 0; j < resultSize; ++j) {
+			if (i == j) {
+				continue;
+			}
+			ReceiverInfo* subInfo = rxInfos[j];
+			if (mainInfo->CanAddToSimilarities(rxInfos[j])) {
+				mainInfo->m_similarities.push_back(subInfo);
+			}
+		}
+		std::cout << i << std::endl;
+	}
+
+	//更新距离
+	for (int i = 0; i < resultSize; ++i) {
+		ReceiverInfo* curInfo = rxInfos[i];
+		curInfo->UpdateSimilaritiesDistance();
+	}
+
+	std::ofstream stream("定位性能分析/全域误差矩阵分析/errormatrix.txt");
+	for (auto& curInfo : rxInfos) {
+		curInfo->Write2File(stream);
+	}
+	//完成
+	std::cout << "finished" << std::endl;
+
+
 }

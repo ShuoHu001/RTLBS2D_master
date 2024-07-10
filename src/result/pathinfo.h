@@ -46,6 +46,7 @@ public:
 	void CalculateBaseInfo(RtLbsType freq, Transmitter* transmitter, Receiver* receiver);					//计算基本信息-射线追踪模式
 	void CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaLibrary* antLibrary, const Sensor* sensor);		//计算基本信息-定位模式中的伴随射线追踪
 	void Convert2SensorData(SensorData& data) const;				//转换为传感器数据
+	size_t GetHash() const;											//计算路径信息的hash值
 };
 
 //按照PathInfo中的能量的大小进行排序-逆方向排序

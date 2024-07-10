@@ -170,3 +170,8 @@ void PathInfo::Convert2SensorData(SensorData& data) const
 	data.m_timeDiff = 0.0;
 }
 
+size_t PathInfo::GetHash() const
+{
+	return m_rayPath->GetHash();
+}
+

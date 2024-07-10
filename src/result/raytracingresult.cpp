@@ -267,7 +267,7 @@ void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, 
 		}
 		else {
 			sparsedClusterNum = clusterNum;
-			LOG_WARNING << "RaytracingResult: generate sensor data size is " << sparsedClusterNum << " , may not satisfy localization condition." << ENDL;
+			//LOG_WARNING << "RaytracingResult: generate sensor data size is " << sparsedClusterNum << " , may not satisfy localization condition." << ENDL;
 		}
 		
 	}

@@ -19,7 +19,7 @@
 			"RaySplitFlag": true,
 			"RaySplitRadius": 1.0,
 			"SceneAccelType": 5,
-			"HardwareMode": 0,
+			"HardwareMode": 3,
 			"RayLaunchMode": 1,
 			"CPUThreadNum": 20
 		},
@@ -31,7 +31,7 @@
 			"RayLaunchHalfTheta": 0.1,
 			"GSPairClusterThreshold": 2.0,
 			"WeightFactor": {
-				"PhiWeight": 1.0,
+				"PhiWeight": 2.0,
 				"TimeWeight": 1.0,
 				"PowerWeight": 1.0
 			},

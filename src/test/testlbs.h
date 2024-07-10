@@ -5,6 +5,7 @@
 #include "utility/define.h"
 #include "utility/enum.h"
 #include "system.h"
+#include "rtresultsimilarity.h"
 
 
 void TestAOALocalizationSingleStationInDifferentError();

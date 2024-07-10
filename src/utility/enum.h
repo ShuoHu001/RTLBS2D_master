@@ -12,6 +12,7 @@ enum HARDWAREMODE {
 	CPU_SINGLETHREAD,			/** @brief	CPU单线程	*/
 	CPU_MULTITHREAD,			/** @brief	CPU多线程	*/
 	GPU_MULTITHREAD,			/** @brief	GPU多线程	*/
+	CPU_GPU_MULTITHREAD			/** @brief	CPU_GPU混合多线程	*/
 };
 
 /** @brief	对象种类	*/

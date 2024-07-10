@@ -185,10 +185,6 @@ bool Scene::LoadScene(const SimConfig& config)
     }
 
     
-    if (!InitSceneReceivers(config.m_receiverConfig.m_receiverconfigs, &m_antennaLibrary)) {        //初始化场景接收机
-		LOG_ERROR << "Scene: Receiver loading failed." << ENDL;
-		return false;
-    }
     if (config.m_systemMode == MODE_RT) {                                                           //射线追踪模式初始化发射机
 		if (!InitSceneTransmitters(config.m_transmitterConfig, &m_antennaLibrary)) {
 			LOG_ERROR << "Scene: Transmitter loading failed." << ENDL;
@@ -202,6 +198,10 @@ bool Scene::LoadScene(const SimConfig& config)
 			return false;
         }
     }
+	if (!InitSceneReceivers(config.m_receiverConfig.m_receiverconfigs, &m_antennaLibrary)) {        //初始化场景接收机
+		LOG_ERROR << "Scene: Receiver loading failed." << ENDL;
+		return false;
+	}
 
 	LOG_INFO << "Scene: configure scene success." << ENDL;
 	return true;
@@ -555,9 +555,13 @@ bool Scene::InitSceneReceivers(const std::vector<ReceiverUnitConfig>& configs, A
     int validRxNum = 0;                                                 /** @brief	有效的接收机数量	*/
     InitReceiver(configs, antLibrary, m_receivers);                     //初始化接收机
     for (int i = 0; i < m_receivers.size(); ++i) {
-        if (!IsValidPoint(m_receivers[i]->m_position) || _isRepeatToTransmitter(m_receivers[i]->m_position)) {      //不满足条件的发射机设定为无效
+        if (!IsValidPoint(m_receivers[i]->m_position)) {      //不满足条件的发射机设定为无效
             m_receivers[i]->m_isValid = false;
             continue;
+        }
+        if (_isRepeatToTransmitter(m_receivers[i]->m_position)) {           //若与发射点重复，则增加0.01作为位移量
+            m_receivers[i]->m_position.x += 0.01;
+            m_receivers[i]->m_position.y += 0.01;
         }
         validRxNum++;
     }
@@ -730,8 +734,10 @@ bool Scene::_bfIntersect(const Ray2D& r, Intersection2D* intersect) const
 bool Scene::_isRepeatToTransmitter(const Point3D& p) const
 {
 	for (int i = 0; i < m_transmitters.size(); ++i) {
-		if (m_transmitters[i]->m_position == p)
-			return true;
+        if (m_transmitters[i]->m_position.x == p.x &&
+            m_transmitters[i]->m_position.y == p.y) {
+            return true;
+        }	
 	}
 	return false;
 }

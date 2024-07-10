@@ -13,6 +13,7 @@
 #include "tree/raypath.h"
 #include "tree/raypath3d.h"
 #include "localization/gspaircluster.h"
+#include "result/result.h"
 
 __global__ void CheckTargetInsideKernel(CPUConverterPathNode* allNodes, int numNodes, Point2D* target, int* nodeIds);
 
@@ -21,5 +22,8 @@ __global__ void FindPathNodeKernel(CPUConverterPathNode* allNodes, int numNodes,
 
 //实时计算射线追踪路径信息（GPU多线程）- LBS方法用到
 void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRaidus, std::vector<GSPairCluster>& clusters);
+
+//实时计算射线追踪路径信息（GPU多线程-CPU单线程）-RT方法
+void PathBuilder_CPUGPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, Result& result);
 
 #endif
