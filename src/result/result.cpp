@@ -455,8 +455,8 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
 	#pragma omp parallel for num_threads(10)
-	for (size_t i = 0; i < sourceSize; ++i) {
-		for (size_t j = i + 1; j < sourceSize; ++j) {
+	for (int i = 0; i < sourceSize; ++i) {
+		for (int j = i + 1; j < sourceSize; ++j) {
 			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
 			if (!newPair->HasValidAOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
 				delete newPair;
@@ -580,7 +580,6 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 
 
 
-	#pragma omp parallel for num_threads(10)
 	for (auto curPair : gsPairs) {
 		curPair->m_phiResidual += curPair->m_nullDataNum * mean_r_phi;
 		curPair->m_powerDiffResidual += curPair->m_nullDataNum * mean_r_powerDiff;

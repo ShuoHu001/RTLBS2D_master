@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
 	//solver.SetGeneralSource(refSource, dataSource1, dataSource2);
 	//solver.Solving_LS(outPoint);
 
+
 	int mode = 4;									//0为射线追踪，2为定位精度测试，3为定位区域测试
 
 	if (mode == 0) {

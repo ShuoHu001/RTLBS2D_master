@@ -13,6 +13,7 @@ public:
 	Point2D m_point;							/** @brief	接收点坐标	*/
 	std::vector<PathInfo> m_multipathInfo;		/** @brief	当前点的多径信息，按照第一接收功率35dB后进行	*/
 	std::vector<ReceiverInfo*> m_similarities;	/** @brief	相似集合	*/
+	std::vector<std::pair<RtLbsType, RtLbsType>> m_phiDistanceInfo;			/** @brief	角度距离对，角度-距离	*/
 	RtLbsType m_maxDistance;					/** @brief	相似集合的最远距离	*/
 	RtLbsType m_meanDistance;					/** @brief	相似集合的平均距离	*/
 private:
@@ -25,6 +26,7 @@ public:
 	bool CanAddToSimilarities(ReceiverInfo* info);			//是否能够加入到相似度集合中
 	void Init(const RaytracingResult& rtResult);			//初始化
 	void UpdateSimilaritiesDistance();						//更新相似度距离
+	void GetDistanceByPhi(RtLbsType phi, RtLbsType& maxDistance, RtLbsType& meanDistance) const;			//基于AOA角度返回最大相似距离
 	void Write2File(std::ofstream& stream);					//写入至文件中
 };
 

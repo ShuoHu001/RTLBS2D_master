@@ -50,16 +50,24 @@ bool ReceiverInfo::CanAddToSimilarities(ReceiverInfo* info)
 		return false;
 	}
 	int similarNum = 0;
+	RtLbsType maxAOAOffset = 0.0;
 	for (auto& curPathInfo : info->m_multipathInfo) {
 		size_t hashcode = curPathInfo.GetHash();
-		if (pathInfoMap.find(hashcode) == pathInfoMap.end()) {
+		auto pos = pathInfoMap.find(hashcode);
+		if (pos == pathInfoMap.end()) {
 			continue;
 		}
+		auto& mainPathInfo = pos->second;
+		RtLbsType curAOAPhiOffset = std::abs(mainPathInfo->m_aoAPhi - curPathInfo.m_aoAPhi);
+		maxAOAOffset = std::max(maxAOAOffset, curAOAPhiOffset);									//计算最大角度偏移量
 		similarNum++;
 	}
 	if (similarNum != static_cast<int>(m_multipathInfo.size())) {			//未达到相同多径信息数，返回false
 		return false;
 	}
+	RtLbsType curDistance = (m_point - info->m_point).Length();
+	auto p = std::make_pair(maxAOAOffset, curDistance);
+	m_phiDistanceInfo.push_back(p);
 	return true;
 }
 
@@ -90,13 +98,30 @@ void ReceiverInfo::Init(const RaytracingResult& rtResult)
 
 void ReceiverInfo::UpdateSimilaritiesDistance()
 {
-	int similarityNum = m_similarities.size();
+	int similarityNum = m_phiDistanceInfo.size();
 	for (int i = 0; i < similarityNum; ++i) {
-		RtLbsType curDistance = (m_point - m_similarities[i]->m_point).Length();
-		m_maxDistance = std::max(m_maxDistance, curDistance);
-		m_meanDistance += curDistance;
+		m_maxDistance = std::max(m_maxDistance, m_phiDistanceInfo[i].second);
+		m_meanDistance += m_phiDistanceInfo[i].second;
+	}
+	if (similarityNum == 0) {
+		return;
 	}
 	m_meanDistance /= similarityNum;
+}
+
+void ReceiverInfo::GetDistanceByPhi(RtLbsType phi, RtLbsType& maxDistance, RtLbsType& meanDistance) const
+{
+	int validNum = 0;
+	for (auto& p : m_phiDistanceInfo) {
+		if (p.first <= phi) {
+			maxDistance = std::max(maxDistance, p.second);
+			meanDistance += p.second;
+			validNum++;
+		}
+	}
+	if (validNum != 0) {
+		meanDistance /= validNum;
+	}
 }
 
 void ReceiverInfo::Write2File(std::ofstream& stream)

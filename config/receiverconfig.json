@@ -44,8 +44,8 @@
 			"Velocities": [0.0, 0.0, 0.0]
 		},
 		"PlaneConfig": {
-			"XInterval": 0.5,
-			"YInterval": 0.5,
+			"XInterval": 5.0,
+			"YInterval": 5.0,
 			"XMin": 15.0,
 			"XMax": 135.0,
 			"YMin": 15.0,

@@ -156,9 +156,8 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 	SensorCollectionConfig curSensorConfig;
 	curSensorConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 	std::string sensorDataFileName;
-	
-	#pragma omp parallel for num_threads(10)
 	int round = 0;
+
 	for (auto& data : datas) {
 		std::cout << round++ << std::endl;
 		if (!data->isValid) {
@@ -215,6 +214,7 @@ void ResearchMultipathSimilarityInLocalizationInDifferentPlaces()
 	}
 
 	//构造多径相似度矩阵
+
 	for (int i = 0; i < resultSize; ++i) {
 		ReceiverInfo* mainInfo = rxInfos[i];
 		if (!mainInfo->m_isValid) {
@@ -241,6 +241,21 @@ void ResearchMultipathSimilarityInLocalizationInDifferentPlaces()
 	std::ofstream stream("定位性能分析/全域误差矩阵分析/errormatrix.txt");
 	for (auto& curInfo : rxInfos) {
 		curInfo->Write2File(stream);
+	}
+	stream.close();
+
+	//分别计算不同结果的多径所带来的角度偏差，统计不同角度偏差对应的位置距离
+	std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
+	for (auto& curPhiError : phiDegreeErrors) {
+		std::ofstream newStream("定位性能分析/全域误差矩阵分析/" + std::to_string(curPhiError) + "_errormatrix.txt");
+		for (auto& curInfo : rxInfos) {
+			if (!curInfo->m_isValid) { continue; }
+			RtLbsType curMaxDistance = 0.0;
+			RtLbsType curMeanDistance = 0.0;
+			curInfo->GetDistanceByPhi(curPhiError * ONE_DEGEREE, curMaxDistance, curMeanDistance);
+			newStream << curInfo->m_point.x << "\t" << curInfo->m_point.y << "\t" << curMaxDistance << "\t" << curMeanDistance << std::endl;
+		}
+		newStream.close();
 	}
 	//完成
 	std::cout << "finished" << std::endl;

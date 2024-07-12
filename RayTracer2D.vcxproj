@@ -171,6 +171,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4996;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
