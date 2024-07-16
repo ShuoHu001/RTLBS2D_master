@@ -84,7 +84,6 @@ inline void EraseRepeatGeneralSources(std::vector<GeneralSource*>& sources)
 	//1-采用hash映射过滤掉反射中冗余的广义源
 	/---------------------------------------------------------------------------------------------------------------*/
 	std::unordered_map<size_t, GeneralSource*> sourceMap;			/** @brief	hash映射源图	*/
-	#pragma omp parallel for num_threads(10)
 	for (auto it = sources.begin(); it != sources.end(); ++it) {
 		GeneralSource*& curSource = *it;
 		size_t hashCode = curSource->GetHash();

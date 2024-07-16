@@ -104,8 +104,7 @@ typedef double RtLbsType;
 
 
 //diffraction control
-#define DIFF_RAYNUM static_cast<unsigned>(10000)  //绕射数量
-#define DIFF_DELTARAYNUM static_cast<unsigned>(500) //绕射射线数量浮动最大值
+#define DIFF_DELTARAYNUM static_cast<unsigned>(50) //绕射射线数量浮动最大值
 
 //ray-split control
 #define RAYSPLITSTATE false      //射线分裂开关

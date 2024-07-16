@@ -9,6 +9,7 @@
 #include "physical/limitinfo.h"
 
 const std::string KEY_RAYTRACINGCONFIG_RAYNUM = "RayNum";
+const std::string KET_RAYTRACINGCONFIG_DIFFRACTRAYNUM = "DiffractRayNum";
 const std::string KEY_RAYTRACINGCONFIG_LIMITINFO = "LimitInfo";
 const std::string KEY_RAYTRACINGCONFIG_RAYSPLITFLAG = "RaySplitFlag";
 const std::string KEY_RAYTRACINGCONFIG_RAYSPLITRAIDUS = "RaySplitRadius";
@@ -20,6 +21,7 @@ const std::string KEY_RAYTRACINGCONFIG_CPUTHREADNUM = "CPUThreadNum";
 class RaytrcingConfig: public Serializable {
 public:
 	uint64_t m_rayNum;					/** @brief	初始的总射线数量	*/
+	int m_diffractRayNum;				/** @brief	绕射射线数量	*/
 	LimitInfo m_limitInfo;				/** @brief	限制信息	*/
 	bool m_raySplitFlag;				/** @brief	射线分裂标志	*/
 	RtLbsType m_raySplitRadius;			/** @brief	射线分裂半径	*/

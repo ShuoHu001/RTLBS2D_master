@@ -9,7 +9,7 @@ bool GenerateDiffractRays(const Ray2D& incident_ray, Wedge2D* wedge, std::vector
 	if (incident_ray.m_fRefractiveIndex == wedge->m_face1->m_refractN) {	//若入射射线折射率和棱劈折射率相同，根据规则，不会产生绕射路径
 		return false;
 	}
-	unsigned raynum = 4 + /*RANDINT(0, DIFF_DELTARAYNUM)*/ + 2;  //这里多加两根射线为的是弥补两根边缘张角为0的射线
+	unsigned raynum = _global_diffractRayNum + RANDINT(0, DIFF_DELTARAYNUM) + 2;  //这里多加两根射线为的是弥补两根边缘张角为0的射线
 	double orientation = 1.0;  /** @brief	旋转方向 1:逆时针 -1:顺时针，默认逆时针	*/
 	double external_angle = wedge->m_theta;
 	(*rays).resize(raynum);

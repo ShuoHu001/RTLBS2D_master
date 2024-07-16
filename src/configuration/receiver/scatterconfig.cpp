@@ -39,25 +39,22 @@ void ScatterConfig::CalculateRxPosition(std::vector<ReceiverUnitConfig>& configs
 		std::string line;
 		while (getline(inFile, line)) {
 			// 解析每行数据
-			std::istringstream iss(line);
-			float x, y, z, v;
-			if (!(iss >> x >> y >> z >> v)) {
-				// 解析失败，记录错误并跳过该行
-				LOG_ERROR << "Failed to parse line: " << line << ENDL;
-				continue;
+			std::vector<std::string> cols;
+			boost::split(cols, line, boost::is_any_of(" \t,"));
+			if (cols.size() == 4) {
+				float x = boost::lexical_cast<float>(cols[0]);
+				float y = boost::lexical_cast<float>(cols[1]);
+				float z = boost::lexical_cast<float>(cols[2]);
+				float v = boost::lexical_cast<float>(cols[3]);
+				// 添加到离散点数组中
+				Point3D p(x, y, z);
+				ReceiverUnitConfig rxUnitConfig;
+				rxUnitConfig.m_position = p;
+				rxUnitConfig.m_velocity = v;
+				configs.push_back(rxUnitConfig);
 			}
-
-			// 添加到离散点数组中
-			Point3D p(x, y, z);
-			configs.push_back(p);
 		}
 		return;
-	}
-	//若离散点中包含数据，则直接将数据赋值
-	configs.resize(m_positions.size());
-	for (int i = 0; i < m_positions.size(); ++i) {
-		configs[i].m_position = m_positions[i];
-		configs[i].m_velocity = m_velocities[i];
 	}
 }
 

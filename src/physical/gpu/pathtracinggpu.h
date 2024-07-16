@@ -28,6 +28,7 @@
 #include "physical/limitinfo.h"
 
 #include "utility/gpuutil.h"
+#include "global/globalvariables.h"
 
 
 class RayPathGPU;

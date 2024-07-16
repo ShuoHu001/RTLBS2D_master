@@ -78,6 +78,7 @@ bool System::Setup(SYSTEM_MODE mode)
 	m_simConfig.m_systemMode = mode;
 
 	_global_freqConfig = m_simConfig.m_frequencyConfig;				//全局频率变量赋值
+	_global_diffractRayNum = m_simConfig.m_raytracingConfig.m_diffractRayNum;		//全局绕射数量赋值
 
 	//2-初始化场景
 	if (!m_scene->LoadScene(m_simConfig))

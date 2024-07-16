@@ -9,6 +9,7 @@ __constant__ uint16_t D_CONST_LIM_TRAN; /** @brief	设备端全局--透射限制数	*/
 __constant__ uint16_t D_CONST_LIM_DIFF; /** @brief	设备端全局--绕射限制数	*/
 __constant__ uint16_t D_CONST_LIM_SCAT; /** @brief	设备端全局--散射限制数	*/
 __constant__ RtLbsType D_CONST_RAYSPLITRADIUS;	/** @brief	设备端全局--射线分裂半径	*/
+__constant__ int _D_CONST_DIFFTACTRAYNUM;		/** @brief	设备端全局--绕射射线数量	*/
 
 
 __device__ int G_DIFFID = 0; /** @brief	用于绕射点寻找的原子锁操作索引	*/
@@ -268,7 +269,7 @@ __global__ void generateNewDifftactRayKernel(Intersection2DGPU* intersects, size
 				return;
 			
 			int interId = intersectIdx + prevInterSize;
-			GenerateDiffractRaysGPU(intersect, ray, wedge, interId, &newRays[intersectIdx * DIFF_RAYNUM], DIFF_RAYNUM);//当且仅当在满足限制数条件下才可进行产生新射线
+			GenerateDiffractRaysGPU(intersect, ray, wedge, interId, &newRays[intersectIdx * _D_CONST_DIFFTACTRAYNUM], _D_CONST_DIFFTACTRAYNUM);//当且仅当在满足限制数条件下才可进行产生新射线
 		}
 	}
 }
@@ -289,7 +290,7 @@ __global__ void generateNewDifftactRayWithNodeKernel(Intersection2DGPU* intersec
 				return;
 
 			int interId = intersectIdx + prevInterSize;
-			GenerateDiffractRaysGPU(intersect, ray, wedge, interId, &newRays[intersectIdx * DIFF_RAYNUM], &newNodes[intersectIdx * DIFF_RAYNUM], DIFF_RAYNUM, layer);//当且仅当在满足限制数条件下才可进行产生新射线
+			GenerateDiffractRaysGPU(intersect, ray, wedge, interId, &newRays[intersectIdx * _D_CONST_DIFFTACTRAYNUM], &newNodes[intersectIdx * _D_CONST_DIFFTACTRAYNUM], _D_CONST_DIFFTACTRAYNUM, layer);//当且仅当在满足限制数条件下才可进行产生新射线
 		}
 	}
 }
@@ -394,6 +395,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 	cudaMemcpyToSymbol(D_CONST_LIM_DIFF, &limitInfo.m_limitDiffract, sizeof(uint16_t));
 	cudaMemcpyToSymbol(D_CONST_LIM_SCAT, &limitInfo.m_limitScatter, sizeof(uint16_t));
 	cudaMemcpyToSymbol(D_CONST_RAYSPLITRADIUS, &raySplitRadius, sizeof(RtLbsType));
+	cudaMemcpyToSymbol(_D_CONST_DIFFTACTRAYNUM, &_global_diffractRayNum, sizeof(int));
 
 
 
@@ -568,7 +570,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 		size_t numValidDiffRay = 0;
 		size_t numEvaluateReflRay = newInterReflSize;								/** @brief	预估反射射线数量	*/
 		size_t numEvaluateTranRay = newInterReflSize;								/** @brief	预估透射射线数量	*/
-		size_t numEvaluateDiffRay = numInterDiff * DIFF_RAYNUM;							/** @brief	预估绕射射线数量	*/
+		size_t numEvaluateDiffRay = numInterDiff * _global_diffractRayNum;							/** @brief	预估绕射射线数量	*/
 
 		size_t evaluateRayNum = numEvaluateReflRay * static_cast<int>(stateHasRefl) +		/** @brief	预估射线总数	*/
 							 numEvaluateTranRay * static_cast<int>(stateHasTran) +
@@ -606,7 +608,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 		}
 
 		if (stateHasDiff && numInterDiff != 0) {//产生绕射路径
-			int numBlocks7 = (numInterDiff * DIFF_RAYNUM * threadsPerBlock - 1) / threadsPerBlock;
+			int numBlocks7 = (numInterDiff * _global_diffractRayNum * threadsPerBlock - 1) / threadsPerBlock;
 			generateNewDifftactRayKernel CUDA_KERNEL(numBlocks7, threadsPerBlock)(thrust::raw_pointer_cast(dev_interReflSeries.data() + oldInterSize + newInterReflSize), newInterDiffSize, oldInterSize + newInterReflSize,
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay + numValidTranRay), wedges);
 			cudaerr = cudaDeviceSynchronize();
@@ -700,6 +702,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 	cudaMemcpyToSymbol(D_CONST_LIM_DIFF, &limitInfo.m_limitDiffract, sizeof(uint16_t));
 	cudaMemcpyToSymbol(D_CONST_LIM_SCAT, &limitInfo.m_limitScatter, sizeof(uint16_t));
 	cudaMemcpyToSymbol(D_CONST_RAYSPLITRADIUS, &raySplitRadius, sizeof(RtLbsType));
+	cudaMemcpyToSymbol(_D_CONST_DIFFTACTRAYNUM, &_global_diffractRayNum, sizeof(int));
 
 
 
@@ -843,7 +846,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 		size_t numValidDiffRay = 0;
 		size_t numEvaluateReflRay = newInterReflSize;								/** @brief	预估反射射线数量	*/
 		size_t numEvaluateTranRay = newInterReflSize;								/** @brief	预估透射射线数量	*/
-		size_t numEvaluateDiffRay = numInterDiff * DIFF_RAYNUM;							/** @brief	预估绕射射线数量	*/
+		size_t numEvaluateDiffRay = numInterDiff * _global_diffractRayNum;							/** @brief	预估绕射射线数量	*/
 
 		size_t evaluateRayNum = numEvaluateReflRay * static_cast<int>(stateHasRefl) +		/** @brief	预估射线总数	*/
 			numEvaluateTranRay * static_cast<int>(stateHasTran) +
@@ -886,7 +889,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 		}
 
 		if (stateHasDiff && numInterDiff != 0) {//产生绕射路径
-			size_t numBlocks7 = (numInterDiff * DIFF_RAYNUM * threadsPerBlock - 1) / threadsPerBlock;
+			size_t numBlocks7 = (numInterDiff * _global_diffractRayNum * threadsPerBlock - 1) / threadsPerBlock;
 			generateNewDifftactRayWithNodeKernel CUDA_KERNEL(numBlocks7, threadsPerBlock)(thrust::raw_pointer_cast(dev_interReflSeries.data() + oldInterSize + newInterReflSize), newInterDiffSize, oldInterSize + newInterReflSize,
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay + numValidTranRay), thrust::raw_pointer_cast(dev_treeNodes.data() + oldInterSize + numValidReflRay + numValidTranRay), wedges, layer);
 			cudaerr = cudaDeviceSynchronize();

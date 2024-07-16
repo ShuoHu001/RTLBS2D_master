@@ -9,11 +9,12 @@
 		"SensorConfigFile": "config/SPSTMD_sensorconfig.json",
 		"RaytracingConfig": {
 			"RayNum": 10000,
+			"DiffractRayNum": 1000,
 			"LimitInfo": {
 				"LimitTotal": 10,
 				"LimitReflect": 3,
 				"LimitTransmit": 0,
-				"LimitDiffract": 0,
+				"LimitDiffract": 2,
 				"LimitScatter": 0
 			},
 			"RaySplitFlag": true,
@@ -38,7 +39,7 @@
 			"HasSimuError": true
 		},
 		"FrequencyConfig": {
-			"CenterFrequency": 1e9,
+			"CenterFrequency": 3e9,
 			"BandWidth": 5000000.0,
 			"SubCarrierNum": 1
 		},
@@ -48,17 +49,17 @@
 			"OutputPower": true,
 			"OutputLoss": false,
 			"OutputMagnitude": false,
-			"OutputMultipath": true,
-			"OutputPDP": true,
+			"OutputMultipath": false,
+			"OutputPDP": false,
 			"OutputCFR": false,
 			"OutputCIR": false,
 			"OutputAOA": false,
 			"OutputAOD": false,
-			"OutputSensorDataSPSTMD": true,
+			"OutputSensorDataSPSTMD": false,
 			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
-			"OutputGSForCRLB": true,
+			"OutputGSForCRLB": false,
 			"OutputSensorDataSparseFactor": 1.0,
 			"OutputLBSMethod": 0
 		}

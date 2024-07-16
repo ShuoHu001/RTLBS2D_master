@@ -7,6 +7,7 @@
 #include "geometry/vector2d.h"
 #include "geometry/segment2d.h"
 #include "managers/randomanager.h"
+#include "global/globalvariables.h"
 
 
 bool GenerateDiffractRays(const Ray2D& incident_ray, Wedge2D* wedge, std::vector<Ray2D>* rays);

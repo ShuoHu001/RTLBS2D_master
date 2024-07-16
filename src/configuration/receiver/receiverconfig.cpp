@@ -74,6 +74,9 @@ void ReceiverConfig::CalculateRxPositions()
 		}
 	}
 	for (auto& unitConfig : m_receiverconfigs) {
+		unitConfig.m_antId = m_antId;
+		unitConfig.m_antName = m_antName;
+		unitConfig.m_attachGain = m_attachGain;
 		unitConfig.m_powerShreshold = m_powerThreshold;
 		unitConfig.m_angularThreshold = m_angularThreshold;
 		unitConfig.m_delayThreshold = m_delayThreshold;
