@@ -22,6 +22,46 @@ SensorDataCollection& SensorDataCollection::operator=(const SensorDataCollection
 	return *this;
 }
 
+RtLbsType SensorDataCollection::CalculateRMSAngularSpread() const
+{
+	if (m_data.size() == 1) {
+		return m_data[0].m_phi;
+	}
+	RtLbsType meanAoA = CalculateMeanArrivedAngle();
+	
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+
+	for (auto& data : m_data) {
+		conTemp1 += data.m_powerLin * (data.m_phi - meanAoA) * (data.m_phi - meanAoA);
+		conTemp2 += data.m_powerLin;
+	}
+
+	RtLbsType rmsAoA = sqrt(conTemp1 / conTemp2);
+
+	return rmsAoA;
+}
+
+RtLbsType SensorDataCollection::CalculateRMSDelaySpread() const
+{
+	if (m_data.size() == 1) {
+		return m_data[0].m_phi;
+	}
+	RtLbsType meanDelay = CalculateMeanArrivedDelay();
+
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+
+	for (auto& data : m_data) {
+		conTemp1 += data.m_powerLin * (data.m_time - meanDelay) * (data.m_time - meanDelay);
+		conTemp2 += data.m_powerLin;
+	}
+
+	RtLbsType rmsDelay = sqrt(conTemp1 / conTemp2);
+
+	return rmsDelay;
+}
+
 void SensorDataCollection::ReClusterByAOAError(RtLbsType phiError)
 {
 	std::vector<SensorDataCluster> clusters = ClusterSensorDataByAOA2D(m_data, phiError);
@@ -160,4 +200,26 @@ bool SensorDataCollection::Deserialize(const rapidjson::Value& value)
 	//对sensorDataCollection中的data数据按照能量大小进行排序,从大到小
 	SortByPower();
 	return true;
+}
+
+RtLbsType SensorDataCollection::CalculateMeanArrivedAngle() const
+{
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+	for (auto& data : m_data) {
+		conTemp1 += data.m_powerLin * data.m_phi;
+		conTemp2 += data.m_powerLin;
+	}
+	return conTemp1 / conTemp2;
+}
+
+RtLbsType SensorDataCollection::CalculateMeanArrivedDelay() const
+{
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+	for (auto& data : m_data) {
+		conTemp1 += data.m_powerLin * data.m_time;
+		conTemp2 += data.m_powerLin;
+	}
+	return conTemp1 / conTemp2;
 }

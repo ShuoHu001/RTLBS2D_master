@@ -31,8 +31,10 @@ RayPath::RayPath(const RayPath& path)
 RayPath::~RayPath()
 {
 	for (auto& curNode : m_nodes) {
-		delete curNode;
-		curNode = nullptr;
+		if (curNode != nullptr) {
+			delete curNode;
+			curNode = nullptr;
+		}
 	}
 }
 

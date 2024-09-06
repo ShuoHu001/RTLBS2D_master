@@ -218,7 +218,7 @@ void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig)
 	
 }
 
-Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor)
+Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
 {
 	//0-计算基本信息-计算广义源的位置 
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -303,7 +303,7 @@ Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const 
 
 	//对初步过滤后的gspair进行聚类
 	int max_cluster_num = 0;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, max_cluster_num);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, extendAroundPointState, max_cluster_num);
 
 
 	//2-2  按照物理约束条件计算权重并删除不满足权重阈值的广义源
@@ -359,7 +359,7 @@ Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const 
 			curCluster_min_nullDataNum = std::min(curCluster_min_nullDataNum, cur_nullDataNum);
 		}
 
-		curCluster.SetElementAOAResidual(curCluster_min_r_phi, curCluster_min_r_powerDiff, curCluster_min_nullDataNum);
+		curCluster.SetElementAOAResidual(curCluster_min_r_phi, curCluster_min_r_powerDiff,1.0, curCluster_min_nullDataNum);
 
 		mean_r_phi += curCluster_min_r_phi;
 		mean_r_powerDiff += curCluster_min_r_powerDiff;
@@ -425,7 +425,7 @@ Point2D Result::CalculateResult_LBS_AOA_MPSTSD(HARDWAREMODE hardwareMode, const 
 	return LocalizationSolver(initPoint, m_allGeneralSource);
 }
 
-Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor)
+Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
 {
 	//0-计算基本信息-计算广义源的位置 
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -454,7 +454,6 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 	
 
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
-	#pragma omp parallel for num_threads(10)
 	for (int i = 0; i < sourceSize; ++i) {
 		for (int j = i + 1; j < sourceSize; ++j) {
 			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
@@ -480,7 +479,8 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 
 	//2-2 解集初步聚类
 	int max_cluster_num0 = 0;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, max_cluster_num0);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, extendAroundPointState, max_cluster_num0);
+	
 
 	int clusterNum = static_cast<int>(gsPairClusters.size());																	//簇数量
 
@@ -507,6 +507,7 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 	//2-2  按照物理约束条件计算权重并删除不满足权重阈值的广义源
 	// 采用射线追踪算法计算重新计算广义源与广义源之间可能的结果值，若该值不满足相似度阈值，则舍弃
 
+	
 
 	std::vector<RtLbsType> freqs = _global_freqConfig.GetFrequencyInformation();
 	const MaterialLibrary* matLibrary = &scene->m_materialLibrary;
@@ -514,7 +515,7 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 	int sensorNum = static_cast<int>(scene->m_sensors.size());																	/** @brief	传感器数量	*/
 	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
 	std::vector<SensorDataCollection> originalSensorDataCollection(sensorNum);													/** @brief	原始的传感器数据	*/
-	scene->m_sensorDataLibrary.GetAllSeneorDataCollectionWithAOAError(originalSensorDataCollection);										//获取原始传感器数据
+	scene->m_sensorDataLibrary.GetAllSeneorDataCollectionWithAOAError(originalSensorDataCollection);							//获取原始传感器数据
 	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
 	//为了同级比较残差，这里将原始数据按照功率的大小进行排序
 	RtLbsType max_r_phi = 0.0;																									//角度最大残差
@@ -536,18 +537,29 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 		DirectlySetResultPath_GPUMultiThread(vroots, scene, splitRadius, gsPairClusters);
 	}
 
-	for (auto& curCluster : gsPairClusters) {																				//遍历所有簇
 
+
+
+	for (auto& curCluster : gsPairClusters) {																				//遍历所有簇
+		RtLbsType curCluster_min_r_angularSpread = FLT_MAX;
 		RtLbsType curCluster_min_r_phi = FLT_MAX;
 		RtLbsType curCluster_min_r_powerDiff = FLT_MAX;
 		int curCluster_min_nullDataNum = INT_MAX;
+		RtLbsType curCluster_min_r_weight = FLT_MAX;
 
-		for (auto& curResult : curCluster.m_rtResult) {																		//遍历簇中所有的解（位移导致的多解）
+		std::vector<RtLbsType> curCluster_r_angularSpreads;																			/** @brief	当前的角度残差	*/
+		std::vector<RtLbsType> curCluster_r_phis;																					/** @brief	当前的功率差残差	*/
+		std::vector<RtLbsType> curCluster_r_powerDiffs;																				/** @brief	当前的角度扩展	*/
+		std::vector<int> curCluster_nullDataNums;																					/** @brief	不满足条件的匹配数	*/
+		std::vector<RtLbsType> curCluster_r_weights;																					/** @brief	当前簇的残差权重	*/
 
+		for (auto& curResult : curCluster.m_rtResult) {																				//遍历簇中所有的解（位移导致的多解）
+			RtLbsType cur_r_phi = 0.0;
+			RtLbsType cur_r_powerDiff = 0.0;
+			RtLbsType cur_r_angularSpread = 0.0;
+			int cur_nullDataNum = 0;
+			RtLbsType cur_r_weight = 0.0;
 
-			RtLbsType cur_r_phi = 0.0;																								/** @brief	当前的角度残差	*/
-			RtLbsType cur_r_powerDiff = 0.0;																						/** @brief	当前的功率差残差	*/
-			int cur_nullDataNum = 0;																								/** @brief	不满足条件的匹配数	*/
 			targetSensorDataCollection.clear();
 			targetSensorDataCollection.resize(sensorNum);
 			for (int j = 0; j < sensorNum; ++j) {
@@ -557,23 +569,72 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 				const Sensor* curSensor = scene->m_sensors[j];
 				curResult[j].CalculateBaseInfo(curSensor, freqs, antLibrary);						//执行电磁计算,LBS电磁计算
 				curResult[j].GetAllSensorData_AOA2D(targetSensorDataCollection[j], 0.0, 1.0);			//收集实时计算的传感器结果,由于是仿真,因此不进行稀疏，2.0倍数是±
-				CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, weightFactor, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);		//计算残差二范数和
-				curCluster_min_r_phi = std::min(curCluster_min_r_phi, cur_r_phi);
-				curCluster_min_r_powerDiff = std::min(curCluster_min_r_powerDiff, cur_r_powerDiff);
-				curCluster_min_nullDataNum = std::min(curCluster_min_nullDataNum, cur_nullDataNum);
+				CalculateSensorCollectionResidual_AOA_MultiData(originalSensorDataCollection, targetSensorDataCollection, weightFactor, cur_r_phi, cur_r_powerDiff, cur_r_angularSpread, cur_nullDataNum);		//计算残差二范数和
+
+				cur_r_weight = (weightFactor.m_powerWeight * cur_r_phi + weightFactor.m_phiWeight * cur_r_powerDiff)/(weightFactor.m_powerWeight + weightFactor.m_phiWeight);
+
+				curCluster_r_angularSpreads.push_back(cur_r_angularSpread);
+				curCluster_r_phis.push_back(cur_r_phi);
+				curCluster_r_powerDiffs.push_back(cur_r_powerDiff);
+				curCluster_r_weights.push_back(cur_r_weight);
+				curCluster_nullDataNums.push_back(cur_nullDataNum);
+
+				//计算完成后需要删除当前cluster中的多径
+				curResult[j].ReleaseAllRayPath();
 			}
 		}
 
-		if (curCluster_min_r_phi == FLT_MAX) {
+		if (curCluster_r_weights.size() == 0) {
 			curCluster.m_isValid = false;
 			continue;
 		}
 
-		curCluster.SetElementAOAResidual(curCluster_min_r_phi, curCluster_min_r_powerDiff, curCluster_min_nullDataNum);
+		int minDataId = 0;
+		if (curCluster.m_aroundPoints.size() != 1) {									//当且仅当周围扩展点数量大于1时触发
+			for (int i = 0; i < static_cast<int>(curCluster_r_weights.size()); ++i) {
+				if ((curCluster_min_r_weight > curCluster_r_weights[i]) && curCluster_nullDataNums[i] <= curCluster_nullDataNums[0]) {		//在寻找最小值的过程中需要保证空数据数量小于第一值
+					curCluster_min_r_weight = curCluster_r_weights[i];
+					minDataId = i;
+				}
+			}
+
+			RtLbsType curCluster_min_r_weight_rectify = FLT_MAX;
+			if (minDataId < (curCluster.m_nearExtendNum + 1) && curCluster_nullDataNums[0] != 0) {												//修正存在差额数据导致的“最优权重”过低
+				for (int i = 0; i < static_cast<int>(curCluster_r_weights.size()); ++i) {
+					if (curCluster_min_r_weight_rectify > curCluster_r_weights[i] && curCluster_nullDataNums[i] == 0) {
+						curCluster_min_r_weight_rectify = curCluster_r_weights[i];
+						curCluster_min_r_weight = curCluster_r_weights[i];
+						minDataId = i;
+					}
+				}
+			}
+
+			if (minDataId != 0 && minDataId > (curCluster.m_nearExtendNum + 1) && curCluster.m_deviateDistance > 5.0 && curCluster_min_r_weight / curCluster_r_weights[0] < 0.5) {					//额外追加大于5m条件,由于远距离扩展导致的误差低事件
+				curCluster.m_isDeviateSolution = true;
+			}
+		}
+		
+
+
+		curCluster_min_r_angularSpread = curCluster_r_angularSpreads[minDataId];
+		curCluster_min_r_phi = curCluster_r_phis[minDataId];
+		curCluster_min_r_powerDiff = curCluster_r_powerDiffs[minDataId];
+		curCluster_min_nullDataNum = curCluster_nullDataNums[minDataId];
+
+		//修正由于角度偏移引起过0和过2pi引起的误差
+		for (int i = 1; i < curCluster.m_nearExtendNum; ++i) {
+			if (curCluster_min_r_angularSpread > curCluster_r_angularSpreads[i]) {
+				curCluster_min_r_angularSpread = curCluster_r_angularSpreads[i];
+			}
+		}
+
+		curCluster.SetElementAOAResidual(curCluster_min_r_phi, curCluster_min_r_powerDiff, curCluster_min_r_angularSpread, curCluster_min_nullDataNum);
+		curCluster.m_angularSpreadResidual = curCluster_min_r_angularSpread;
 		mean_r_phi += curCluster_min_r_phi;
 		mean_r_powerDiff += curCluster_min_r_powerDiff;
 	}
 
+	
 
 	mean_r_phi /= clusterNum;
 	mean_r_powerDiff /= clusterNum;
@@ -596,19 +657,17 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 		}
 	}
 
+
 	//删除重复的广义源
 	EraseRepeatGeneralSources(allGSCopy);			//删除重复的广义源
 
-	//计算所有广义源中权重最大的数值，进行权重归一化
-	RtLbsType max_weight = 0.0;
-	for (auto it = allGSCopy.begin(); it != allGSCopy.end(); ++it) {
-		GeneralSource* curSource = *it;
-		if (max_weight < curSource->m_weight) {
-			max_weight = curSource->m_weight;
-		}
-	}
 
-	//广义源权重归一化, 并删除未达到阈值权重的广义源
+	//将cluster按照权重进行排序
+	std::sort(gsPairClusters.begin(), gsPairClusters.end(), ComparedByClusterWeight);
+
+
+	//计算所有广义源中权重最大的数值，进行权重归一化
+	RtLbsType max_weight = gsPairClusters.front().m_weight;
 	for (auto it = allGSCopy.begin(); it != allGSCopy.end(); ++it) {
 		GeneralSource*& curSource = *it;
 		curSource->NormalizedWeight(max_weight);
@@ -616,7 +675,7 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 
 	//删除低于权重阈值的广义源
 	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
-		return s->m_weight < 0.8;
+		return s->m_weight < 0.9;
 		}), allGSCopy.end());
 
 	//单源定位中，root源的数据最大只保留一个
@@ -646,16 +705,16 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 		}
 	}
 
-	
-
-	//将广义源按照接收功率的大小进行排序
-	std::sort(allGSCopy.begin(), allGSCopy.end(), ComparedByPower_GeneralSource);
 
 	Point2D targetPoint;
 	targetPoint = LocalizationSolver(initPoint, allGSCopy);
 
+	if ((initPoint - targetPoint).Length() > 100) {				//若偏移程度过大，则恢复原始点（解无效）
+		targetPoint = initPoint;
+	}
 	gsPairClusters.clear();
 	std::vector<GSPairCluster>().swap(gsPairClusters);
+
 
 	for (auto& pair : gsPairs) {
 		delete pair;
@@ -675,7 +734,7 @@ Point2D Result::CalculateResult_LBS_AOA_SPSTMD(HARDWAREMODE hardwareMode, const 
 	return targetPoint;
 }
 
-void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& w)
+void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& w)
 {
 	//0-计算基本信息-计算广义源的位置
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -706,7 +765,7 @@ void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const st
 	std::vector<GSPairCluster> gsPairClusters;
 
 	for (auto& refSource : refSources) {
-		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_MPSTSD(refSource, dataSources, scene, gsPairClusterThreshold, _global_freqConfig.m_centerFrequency);
+		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_MPSTSD(refSource, dataSources, scene, gsPairClusterThreshold, extendAroundPointState, _global_freqConfig.m_centerFrequency);
 		if (newCluster.m_pairs.size() != 0) {
 			gsPairClusters.push_back(newCluster);
 		}
@@ -799,7 +858,7 @@ void Result::CalculateResult_LBS_TDOA_MPSTSD(HARDWAREMODE hardwareMode, const st
 
 }
 
-void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, const WeightFactor& weightFactor)
+void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const std::vector<RayTreeNode*>& vroots, const Scene* scene, RtLbsType splitRadius, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
 {
 	//0-计算基本信息-计算广义源的位置 
 	for (auto it = m_lbsGSResult.begin(); it != m_lbsGSResult.end(); ++it) {
@@ -827,7 +886,7 @@ void Result::CalculateResult_LBS_TDOA_SPSTMD(HARDWAREMODE hardwareMode, const st
 	std::vector<GSPairCluster> clusters;
 	for (auto& refSource : refSources) {
 		refSource->m_sensorData = sensorDatas.front();						//参考源接收数据赋值
-		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_SPSTMD(refSource, m_allGeneralSource, sensorDatas, scene, gsPairClusterThreshold, _global_freqConfig.m_centerFrequency);
+		GSPairCluster newCluster = CalMaxTDOASolutionGSPairCluster_SPSTMD(refSource, m_allGeneralSource, sensorDatas, scene, gsPairClusterThreshold, extendAroundPointState, _global_freqConfig.m_centerFrequency);
 		if (newCluster.m_pairs.size() != 0) {
 			clusters.push_back(newCluster);
 		}

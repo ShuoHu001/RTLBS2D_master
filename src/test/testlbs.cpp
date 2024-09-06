@@ -14,12 +14,14 @@ void TestAOALocalizationSingleStationInDifferentError()
 		}
 	};
 
-	std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
-	std::vector<RtLbsType> powerErrors = { 0,1,2,3,4,5,6,7,8,9,10 };
+	//std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
+	//std::vector<RtLbsType> powerErrors = { 0,1,2,3,4,5,6,7,8,9,10 };
+	std::vector<RtLbsType> phiDegreeErrors = { 1.0 };
+	std::vector<RtLbsType> powerErrors = { 5 };
 
-	std::string positionName = "A1";
-	int roundTime = 1000;
-	Point2D realPoint = { 76,56 };
+	std::string positionName = "T3";
+	int roundTime = 100;
+	Point2D realPoint = { 26.21,137.33 };
 
 	int totalround = static_cast<int>(phiDegreeErrors.size() * powerErrors.size() * roundTime);
 
@@ -99,12 +101,12 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 
 	//生成定位坐标集
 	std::vector<LBSData*> datas;
-	RtLbsType xmin = 28;
+	RtLbsType xmin = 15;
 	RtLbsType xmax = 135;
-	RtLbsType ymin = 28;
-	RtLbsType ymax = 82;
-	RtLbsType gap = 2;
-	for (RtLbsType y = ymin; y < ymax; y+=gap) {
+	RtLbsType ymin = 15;
+	RtLbsType ymax = 95;
+	RtLbsType gap = 1;
+	for (RtLbsType y = ymin; y < ymax; y += gap) {
 		for (RtLbsType x = xmin; x < xmax; x += gap) {
 			LBSData* lbsData = new LBSData(Point2D(x, y));
 			datas.push_back(lbsData);
@@ -112,7 +114,7 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 	}
 	
 	System* rtSystem = new System();
-	rtSystem->Setup(MODE_RT);
+	rtSystem->Setup(MODE_RT);												//需要保证发射天线数量较少
 	TransmitterCollectionConfig txCollectionConfig = rtSystem->m_simConfig.m_transmitterConfig;
 	TransmitterConfig curTxConfig = txCollectionConfig.m_transmitterConfigs[0];
 	txCollectionConfig.m_transmitterConfigs.clear();
@@ -129,17 +131,27 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 		data->sensorDataId = validSensorDataId++;
 	}
 	delete rtSystem;
-	txCollectionConfig.Write2Json("config/transmitterconfig.json");		//生成定位数据
 
 
 	//------------------------------------------传感器数据生成----------------------------------------------------------------------------------------
+	//修改为循环模式
+
 	if (!isAlreadyGenerateSensorData) {
-		rtSystem = new System();
-		rtSystem->Setup(MODE_RT);
-		rtSystem->Render();
-		rtSystem->PostProcessing();
-		rtSystem->OutputResults();
-		delete rtSystem;
+		for (int i = 0; i < txCollectionConfig.m_transmitterConfigs.size(); ++i) {
+			TransmitterCollectionConfig newTxConfig;
+			newTxConfig.m_transmitterConfigs.push_back(txCollectionConfig.m_transmitterConfigs[i]);
+			newTxConfig.Write2Json("config/transmitterconfig.json");
+			rtSystem = new System();
+			rtSystem->Setup(MODE_RT);
+			rtSystem->Render();
+			rtSystem->PostProcessing();
+			rtSystem->OutputResults();
+			delete rtSystem;
+			//重命名文件名称
+			std::string newFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(i+1) + "_SPSTMD.json";
+			rename("results/rt/sensor data/SPSTMD/tx0_SPSTMD.json", newFileName.c_str());
+		}
+
 	}
 	//-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -149,7 +161,7 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 	curSimConfig.SetSeneorConfigFile("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 	curSimConfig.Writer2Json("config/sysconfig.json");
 
-	RtLbsType phiDegreeError = 8.0;
+	RtLbsType phiDegreeError = 6.0;
 	RtLbsType phiError = phiDegreeError * ONE_DEGEREE;
 	RtLbsType powerError = 0.0;
 	//循环计算定位误差
@@ -157,17 +169,19 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 	curSensorConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 	std::string sensorDataFileName;
 	int round = 0;
+	std::cout << "ok" << std::endl;
 
 	for (auto& data : datas) {
 		std::cout << round++ << std::endl;
+		
 		if (!data->isValid) {
 			continue;
 		}
-		//if (data->truePosition.x != 28 || data->truePosition.y != 78) {
-		//	continue;
-		//}
-		sensorDataFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(data->sensorDataId) + "_SPSTMD.json";
+		sensorDataFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(data->sensorDataId+1) + "_SPSTMD.json";
 		curSensorConfig.m_sensorConfigs[0].m_sensorDataFileName = sensorDataFileName;
+		curSensorConfig.m_sensorConfigs[0].m_phiDegreeErrorSTD = phiDegreeError;
+		curSensorConfig.m_sensorConfigs[0].m_phiErrorSTD = phiError;
+		curSensorConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
 		curSensorConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 		System* lbsSystem = new System();
 		
@@ -177,8 +191,6 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 			delete lbsSystem;
 			continue;
 		}
-		lbsSystem->m_scene->m_sensors[0]->m_phiErrorSTD = phiError;
-		lbsSystem->m_scene->m_sensors[0]->m_powerErrorSTD = powerError;
 		lbsSystem->Render();
 		Point2D targetPosition;
 		targetPosition = lbsSystem->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA);
@@ -186,9 +198,8 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 		data->targetPosition = targetPosition;
 		data->error = (targetPosition - data->truePosition).Length();
 	}
-
 	//将数据写入至文件中
-	std::string outputFileName = "定位性能分析/全域仿真分析/phiError_" + std::to_string(phiDegreeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+	std::string outputFileName = "定位性能分析/全域仿真分析/phiError_" + std::to_string(phiDegreeError) + "_powerError_" + std::to_string(powerError) + "原始.txt";
 	std::ofstream outstream(outputFileName);
 	for (auto& data : datas) {
 		data->Write2File(outstream);
@@ -249,16 +260,17 @@ void ResearchMultipathSimilarityInLocalizationInDifferentPlaces()
 	for (auto& curPhiError : phiDegreeErrors) {
 		std::ofstream newStream("定位性能分析/全域误差矩阵分析/" + std::to_string(curPhiError) + "_errormatrix.txt");
 		for (auto& curInfo : rxInfos) {
-			if (!curInfo->m_isValid) { continue; }
+			if (!curInfo->m_isValid) { 
+				newStream << curInfo->m_point.x << "\t" << curInfo->m_point.y << "\t" << 0.0 << std::endl;
+				continue;
+			}
 			RtLbsType curMaxDistance = 0.0;
 			RtLbsType curMeanDistance = 0.0;
 			curInfo->GetDistanceByPhi(curPhiError * ONE_DEGEREE, curMaxDistance, curMeanDistance);
-			newStream << curInfo->m_point.x << "\t" << curInfo->m_point.y << "\t" << curMaxDistance << "\t" << curMeanDistance << std::endl;
+			newStream << curInfo->m_point.x << "\t" << curInfo->m_point.y << "\t" << curMaxDistance << std::endl;
 		}
 		newStream.close();
 	}
 	//完成
 	std::cout << "finished" << std::endl;
-
-
 }

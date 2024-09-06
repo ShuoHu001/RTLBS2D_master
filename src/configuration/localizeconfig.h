@@ -14,6 +14,8 @@ const std::string KEY_LOCALIZATIONCONFIG_THREADNUM = "ThreadNum";
 const std::string KEY_LOCALIZATIONCONFIG_RAYLAUNCHHALFTHETA = "RayLaunchHalfTheta";
 const std::string KEY_LOCALIZATIONCONFIG_GSPAIRCLUSTERTHRESHOLD = "GSPairClusterThreshold";
 const std::string KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR = "WeightFactor";
+const std::string KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE = "ExtendAroundPointState";
+const std::string KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME = "ShiftErrorMatrixFile";
 const std::string KEY_LOCALIZATIONCONFIG_HASSIMUERROR = "HasSimuError";
 
 class LocalizeConfig:public Serializable {
@@ -25,6 +27,8 @@ public:
 	RtLbsType m_rayLaunchHalfTheta;				/** @brief	射线发射半张角 单位°	*/
 	RtLbsType m_gsPairClusterThreshold;			/** @brief	广义源对聚类门限，单位m	*/
 	WeightFactor m_weightFactor;				/** @brief	权重因子	*/
+	bool m_extendAroundPointState;				/** @brief	定位过程中扩展周边点状态	*/
+	std::string m_shiftErrorMatrixFileName;		/** @brief	位移矩阵名称	*/
 	bool m_hasSimuError;						/** @brief	是否含有仿真误差	*/
 	 
 public:

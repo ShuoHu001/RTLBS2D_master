@@ -96,7 +96,8 @@ void SensorDataLibrary::GetAllSeneorDataCollectionWithAOAError(std::vector<Senso
 	}
 	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
 		collections[i] = *m_sensorDataCollection[i];
-		collections[i].ReClusterByAOAError(0.0);					//按照每个传感器的误差进行聚类，得到含误差情况下的传感器原始数据,这里扩大2.0倍是由于角度误差在±phiError区域内
+		RtLbsType sensorPhiError = m_sensors[collections[i].m_sensorId]->m_phiErrorSTD;
+		collections[i].ReClusterByAOAError(sensorPhiError);					
 	}
 }
 

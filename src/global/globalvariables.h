@@ -5,6 +5,7 @@
 #include "utility/define.h"
 #include "math/complex.h"
 #include "configuration/frequencyconfig.h"
+#include "general/elevationmatrix.h"
 
 class Antenna;
 
@@ -13,5 +14,6 @@ extern std::vector<Complex> _global_tranFunctionData;									/** @brief	È«¾Ö±äÁ
 extern std::vector<Antenna> _global_innerAntennas;										/** @brief	È«¾Ö±äÁ¿_¼ÆËãÊ±ĞèÒªµÄÄÚÖÃÌìÏß·½ÏòÍ¼	*/
 extern FrequencyConfig _global_freqConfig;												/** @brief	È«¾Ö±äÁ¿_¼ÆËãÊ±ĞèÒªµÄÆµÂÊ²ÎÊı	*/
 extern int _global_diffractRayNum;														/** @brief	È«¾Ö±äÁ¿_¼ÆËãÈÆÉäÊ±ÀëÉ¢µÄÊıÁ¿	*/
+extern ElevationMatrix _global_lbsShiftErrorMatrix;										/** @brief	È«¾Ö±äÁ¿_¶¨Î»·şÎñÌá¸ß¶¨Î»¾«¶ÈµÄÎ»ÒÆ±ä»¯Îó²î¾ØÕó	*/
 
 #endif

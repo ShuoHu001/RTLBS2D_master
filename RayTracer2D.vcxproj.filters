@@ -112,6 +112,9 @@
     <Filter Include="global">
       <UniqueIdentifier>{bed90781-dda5-4f46-9b78-94bd26c28fe2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="general">
+      <UniqueIdentifier>{2ae4c8d5-751c-4bc3-a5fe-c0784741309b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rtlbs.h" />
@@ -458,6 +461,9 @@
     <ClInclude Include="src\equipment\sensordatacluster.h">
       <Filter>equipment</Filter>
     </ClInclude>
+    <ClInclude Include="src\general\elevationmatrix.h">
+      <Filter>general</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -779,6 +785,9 @@
     </ClCompile>
     <ClCompile Include="src\equipment\sensordatacluster.cpp">
       <Filter>equipment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\general\elevationmatrix.cpp">
+      <Filter>general</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

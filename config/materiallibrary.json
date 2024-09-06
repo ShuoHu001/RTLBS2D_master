@@ -1,153 +1,131 @@
 {
-  "MaterialLibraryConfig": {
-    "Materials": [
-      {
-        "Id": 0,
-        "Name": "Aluminum",
-        "Permittivity": 7.6,
-        "Conductivity": 3.5e7,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 1,
-        "Name": "Steel",
-        "Permittivity": 1.00,
-        "Conductivity": 1.0e7,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 2,
-        "Name": "Iron",
-        "Permittivity": 1.00,
-        "Conductivity": 1.0e7,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 3,
-        "Name": "Copper",
-        "Permittivity": 1.00,
-        "Conductivity": 5.76e7,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 4,
-        "Name": "Glass",
-        "Permittivity": 6.27,
-        "Conductivity": 0.0098275831,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 5,
-        "Name": "Plastic",
-        "Permittivity": 3.5,
-        "Conductivity": 1e-14,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 6,
-        "Name": "Brick",
-        "Permittivity": 3.91,
-        "Conductivity": 0.0238,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 7,
-        "Name": "Asphalt",
-        "Permittivity": 2.83,
-        "Conductivity": 1e-12,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 8,
-        "Name": "Concrete",
-        "Permittivity": 5.31,
-        "Conductivity": 0.057134889,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 9,
-        "Name": "Composite board",
-        "Permittivity": 3.00,
-        "Conductivity": 100.0,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 10,
-        "Name": "Green plants",
-        "Permittivity": 6.1,
-        "Conductivity": 0.4479,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 11,
-        "Name": "Rubber",
-        "Permittivity": 7.0,
-        "Conductivity": 1e-10,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 12,
-        "Name": "General stone",
-        "Permittivity": 7.0,
-        "Conductivity": 0.00022,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 13,
-        "Name": "Marble",
-        "Permittivity": 7.074,
-        "Conductivity": 0.0055,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 14,
-        "Name": "Soundproof screen",
-        "Permittivity": 6.5,
-        "Conductivity": 1e-12,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 15,
-        "Name": "Board",
-        "Permittivity": 1.99,
-        "Conductivity": 0.0098796552,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 16,
-        "Name": "Cardboard/Fibreboard",
-        "Permittivity": 2.58,
-        "Conductivity": 0.063983284,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 17,
-        "Name": "Medium dry ground",
-        "Permittivity": 13.995495,
-        "Conductivity": 0.10832955,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 18,
-        "Name": "Very dry ground",
-        "Permittivity": 3.00,
-        "Conductivity": 0.00015,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 19,
-        "Name": "Wet ground",
-        "Permittivity": 30.0,
-        "Conductivity": 0.15,
-        "PenetrationLoss": 1.0
-      },
-      {
-        "Id": 20,
-        "Name": "Wood plastic floor",
-        "Permittivity": 3.66,
-        "Conductivity": 0.0044,
-        "PenetrationLoss": 1.0
-      }
-    ]
-  }
+	"MaterialLibraryConfig": {
+		"Materials": [{
+				"Id": 0,
+				"Name": "Aluminum",
+				"Permittivity": 7.6,
+				"Conductivity": 35000000.0,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 1,
+				"Name": "Steel",
+				"Permittivity": 1.0,
+				"Conductivity": 10000000.0,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 2,
+				"Name": "Iron",
+				"Permittivity": 1.0,
+				"Conductivity": 10000000.0,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 3,
+				"Name": "Copper",
+				"Permittivity": 1.0,
+				"Conductivity": 57600000.0,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 4,
+				"Name": "Glass",
+				"Permittivity": 6.27,
+				"Conductivity": 0.0098275831,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 5,
+				"Name": "Plastic",
+				"Permittivity": 3.5,
+				"Conductivity": 1e-14,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 6,
+				"Name": "Brick",
+				"Permittivity": 3.91,
+				"Conductivity": 0.0238,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 7,
+				"Name": "Asphalt",
+				"Permittivity": 2.83,
+				"Conductivity": 1e-12,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 8,
+				"Name": "Concrete",
+				"Permittivity": 5.31,
+				"Conductivity": 0.057134889,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 9,
+				"Name": "Composite board",
+				"Permittivity": 3.0,
+				"Conductivity": 100.0,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 10,
+				"Name": "Green plants",
+				"Permittivity": 6.1,
+				"Conductivity": 0.4479,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 11,
+				"Name": "Rubber",
+				"Permittivity": 7.0,
+				"Conductivity": 1e-10,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 12,
+				"Name": "General stone",
+				"Permittivity": 7.0,
+				"Conductivity": 0.00022,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 13,
+				"Name": "Marble",
+				"Permittivity": 7.074,
+				"Conductivity": 0.0055,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 14,
+				"Name": "Soundproof screen",
+				"Permittivity": 6.5,
+				"Conductivity": 1e-12,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 15,
+				"Name": "Board",
+				"Permittivity": 1.99,
+				"Conductivity": 0.0098796552,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 16,
+				"Name": "Cardboard/Fibreboard",
+				"Permittivity": 2.58,
+				"Conductivity": 0.063983284,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 17,
+				"Name": "Medium dry ground",
+				"Permittivity": 13.995495,
+				"Conductivity": 0.10832955,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 18,
+				"Name": "Very dry ground",
+				"Permittivity": 3.0,
+				"Conductivity": 0.00015,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 19,
+				"Name": "Wet ground",
+				"Permittivity": 30.0,
+				"Conductivity": 0.15,
+				"PenetrationLoss": 1.0
+			}, {
+				"Id": 20,
+				"Name": "Wood plastic floor",
+				"Permittivity": 3.66,
+				"Conductivity": 0.0044,
+				"PenetrationLoss": 1.0
+			}]
+	}
 }

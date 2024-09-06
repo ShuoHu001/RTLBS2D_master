@@ -5,42 +5,15 @@
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 28.0,
-					"y": 33.0,
-					"z": 2.0
+					"x": 19.149999618530273,
+					"y": 102.47000122070313,
+					"z": 1.850000023841858
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
-				"ThetaDegreeErrorSTD": 0.0,
-				"TimeErrorSTD": 0.0,
-				"SensorDataFileName": ""
-			}, {
-				"Id": 1,
-				"AntId": 0,
-				"AntName": "0-Omni",
-				"Position": {
-					"x": 28.0,
-					"y": 82.0,
-					"z": 2.0
-				},
-				"InsertLoss": 0.0,
-				"AttachGain": 0.0,
-				"ThetaDegreeErrorSTD": 0.0,
-				"TimeErrorSTD": 0.0,
-				"SensorDataFileName": ""
-			}, {
-				"Id": 2,
-				"AntId": 0,
-				"AntName": "0-Omni",
-				"Position": {
-					"x": 130.0,
-					"y": 82.0,
-					"z": 2.0
-				},
-				"InsertLoss": 0.0,
-				"AttachGain": 0.0,
-				"ThetaDegreeErrorSTD": 0.0,
-				"TimeErrorSTD": 0.0,
+				"PhiDegreeErrorSTD": 1.0,
+				"TimeErrorSTD": 5.0,
+				"PowerErrorSTD": 3.0,
 				"SensorDataFileName": ""
 			}]
 	}

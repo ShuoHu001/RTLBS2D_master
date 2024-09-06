@@ -1,9 +1,16 @@
 #include "gspaircluster.h"
 
+
 GSPairCluster::GSPairCluster()
     : m_isValid(true)
+    , m_isDeviateSolution(false)
+    , m_nearExtendNum(0)
+    , m_farExtendNum(0)
+    , m_deviateDistance(0.5)
     , m_residualFactor(1.0)
     , m_residual(0.0)
+    , m_angularSpreadResidual(0.0)
+    , m_delaySpreadRedisual(0.0)
     , m_phiResidual(0.0)
     , m_timeResidual(0.0)
     , m_timeDiffResidual(0.0)
@@ -15,12 +22,18 @@ GSPairCluster::GSPairCluster()
 
 GSPairCluster::GSPairCluster(const GSPairCluster& cluster)
     : m_isValid(cluster.m_isValid)
+    , m_isDeviateSolution(cluster.m_isDeviateSolution)
+    , m_deviateDistance(cluster.m_deviateDistance)
+    , m_nearExtendNum(cluster.m_nearExtendNum)
+    , m_farExtendNum(cluster.m_farExtendNum)
     , m_pairs(cluster.m_pairs)
     , m_point(cluster.m_point)
     , m_aroundPoints(cluster.m_aroundPoints)
     , m_residualFactor(cluster.m_residualFactor)
     , m_residual(cluster.m_residual)
     , m_rtResult(cluster.m_rtResult)
+    , m_angularSpreadResidual(cluster.m_angularSpreadResidual)
+    , m_delaySpreadRedisual(cluster.m_delaySpreadRedisual)
     , m_phiResidual(cluster.m_phiResidual)
     , m_timeResidual(cluster.m_timeResidual)
     , m_timeDiffResidual(cluster.m_timeDiffResidual)
@@ -45,12 +58,18 @@ GSPairCluster::~GSPairCluster()
 GSPairCluster GSPairCluster::operator=(const GSPairCluster& cluster)
 {
     m_isValid = cluster.m_isValid;
+    m_isDeviateSolution = cluster.m_isDeviateSolution;
+    m_nearExtendNum = cluster.m_nearExtendNum;
+    m_farExtendNum = cluster.m_farExtendNum;
+    m_deviateDistance = cluster.m_deviateDistance;
     m_pairs = cluster.m_pairs;
     m_point = cluster.m_point;
     m_aroundPoints = cluster.m_aroundPoints;
     m_residualFactor = cluster.m_residualFactor;
     m_residual = cluster.m_residual;
     m_rtResult = cluster.m_rtResult;
+    m_angularSpreadResidual = cluster.m_angularSpreadResidual;
+    m_delaySpreadRedisual = cluster.m_delaySpreadRedisual;
     m_phiResidual = cluster.m_phiResidual;
     m_timeResidual = cluster.m_timeResidual;
     m_timeDiffResidual = cluster.m_timeDiffResidual;
@@ -58,6 +77,13 @@ GSPairCluster GSPairCluster::operator=(const GSPairCluster& cluster)
     m_nullDataNum = cluster.m_nullDataNum;
     m_weight = cluster.m_weight;
     return *this;
+}
+
+void GSPairCluster::UpdateGSPairBelongingCluster()
+{
+    for (auto& curPair : m_pairs) {
+        curPair->m_belongingPairCluster = this;
+    }
 }
 
 RtLbsType GSPairCluster::CalTDOAResidualFactor()
@@ -82,28 +108,79 @@ RtLbsType GSPairCluster::CalTDOAResidualFactor()
     return m_residualFactor;
 }
 
-void GSPairCluster::ExtendNearPoint(bool expandFlag, const Scene* scene)
+void GSPairCluster::ExtendAroundPoint(bool expandFlag, const Scene* scene)
 {
     if (expandFlag == true) {
-		m_aroundPoints.reserve(5);
-		RtLbsType offset = 0.5;                                 /** @brief	位移0.5m	*/
+		
+        RtLbsType offset = _global_lbsShiftErrorMatrix.GetValue(m_point);                   //按照位移矩阵扩展坐标
+        m_deviateDistance = offset;
+
+		Point2D NorthPoint = m_point + Point2D(0, offset);                          /** @brief	北点	*/
+		Point2D SouthPoint = m_point + Point2D(0, -offset);                         /** @brief	南点	*/
+		Point2D WestPoint = m_point + Point2D(-offset, 0);                          /** @brief	西点	*/
+		Point2D EastPoint = m_point + Point2D(offset, 0);                           /** @brief	东点	*/
+
+		RtLbsType offset1 = 0.5;                                                    /** @brief	倾斜处偏移量,提供微量偏移	*/
+		Point2D NorthWestPoint = m_point + Point2D(-offset1, offset1);              /** @brief	西北点	*/
+		Point2D NorthEastPoint = m_point + Point2D(offset1, offset1);               /** @brief	东北点	*/
+		Point2D SouthWestPoint = m_point + Point2D(-offset1, -offset1);             /** @brief	西南点	*/
+		Point2D SouthEastPoint = m_point + Point2D(offset1, -offset1);              /** @brief	东南点	*/
+
         m_aroundPoints.push_back(m_point);
-        Point2D upPoint = m_point + Point2D(0, offset);
-        Point2D downPoint = m_point + Point2D(0, -offset);
-        Point2D leftPoint = m_point + Point2D(-offset, 0);
-        Point2D rightPoint = m_point + Point2D(offset, 0);
-        if (scene->IsValidPoint(upPoint)) {
-            m_aroundPoints.push_back(upPoint);
+
+        if (offset == 0.0) {
+			if (scene->IsValidPoint(NorthWestPoint)) {
+				m_aroundPoints.push_back(NorthWestPoint);
+                m_nearExtendNum++;
+			}
+			if (scene->IsValidPoint(NorthEastPoint)) {
+				m_aroundPoints.push_back(NorthEastPoint);
+                m_nearExtendNum++;
+			}
+			if (scene->IsValidPoint(SouthWestPoint)) {
+				m_aroundPoints.push_back(SouthWestPoint);
+                m_nearExtendNum++;
+			}
+			if (scene->IsValidPoint(SouthEastPoint)) {
+				m_aroundPoints.push_back(SouthEastPoint);
+                m_nearExtendNum++;
+			}
+			m_rtResult.resize(m_aroundPoints.size(), std::vector<RaytracingResult>());
+            return;
         }
-        if (scene->IsValidPoint(downPoint)) {
-            m_aroundPoints.push_back(downPoint);
-        }
-        if (scene->IsValidPoint(leftPoint)) {
-            m_aroundPoints.push_back(leftPoint);
-        }
-        if (scene->IsValidPoint(rightPoint)) {
-            m_aroundPoints.push_back(rightPoint);
-        }
+
+		if (scene->IsValidPoint(NorthWestPoint)) {
+			m_aroundPoints.push_back(NorthWestPoint);
+            m_nearExtendNum++;
+		}
+		if (scene->IsValidPoint(NorthEastPoint)) {
+			m_aroundPoints.push_back(NorthEastPoint);
+            m_nearExtendNum++;
+		}
+		if (scene->IsValidPoint(SouthWestPoint)) {
+			m_aroundPoints.push_back(SouthWestPoint);
+            m_nearExtendNum++;
+		}
+		if (scene->IsValidPoint(SouthEastPoint)) {
+			m_aroundPoints.push_back(SouthEastPoint);
+            m_nearExtendNum++;
+		}
+		if (scene->IsValidPoint(NorthPoint)) {
+			m_aroundPoints.push_back(NorthPoint);
+			m_farExtendNum++;
+		}
+		if (scene->IsValidPoint(SouthPoint)) {
+			m_aroundPoints.push_back(SouthPoint);
+			m_farExtendNum++;
+		}
+		if (scene->IsValidPoint(WestPoint)) {
+			m_aroundPoints.push_back(WestPoint);
+			m_farExtendNum++;
+		}
+		if (scene->IsValidPoint(EastPoint)) {
+			m_aroundPoints.push_back(EastPoint);
+			m_farExtendNum++;
+		}
         m_rtResult.resize(m_aroundPoints.size(), std::vector<RaytracingResult>());
     }
     else {
@@ -156,7 +233,7 @@ void GSPairCluster::SetElementClusterId(int Id)
     }
 }
 
-void GSPairCluster::SetElementAOAResidual(RtLbsType r_phi, RtLbsType r_powerDiff, int nullDataNum)
+void GSPairCluster::SetElementAOAResidual(RtLbsType r_phi, RtLbsType r_powerDiff, RtLbsType r_angularSpreadResidual, int nullDataNum)
 {
     m_phiResidual = r_phi;
     m_powerDiffResidual = r_powerDiff;
@@ -164,6 +241,7 @@ void GSPairCluster::SetElementAOAResidual(RtLbsType r_phi, RtLbsType r_powerDiff
     for (auto pair : m_pairs) {
         pair->m_phiResidual = r_phi;
         pair->m_powerDiffResidual = r_powerDiff;
+        pair->m_angularSpreadResidual = r_angularSpreadResidual;
         pair->m_nullDataNum = nullDataNum;
         pair->m_clusterSize = static_cast<int>(m_pairs.size());
     }

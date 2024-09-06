@@ -1,6 +1,7 @@
-open("building.fig");
-hold on;
-data=load("phiError_8.000000_powerError_0.000000.txt");
+% open("building.fig");
+% hold on;
+figure();
+data=load("phiError_0.100000_powerError_0.000000修正.txt");
 gap = data(2,2)-data(1,2);
 xmin= min(data(:,2))-0.23*gap;
 xmax = max(data(:,2))-0.23*gap;
@@ -39,12 +40,13 @@ for i=1:xi
     end
 end
 z=2*ones(size(x));
-surf(x',y',z',c);
+surf(x',y',z',c,EdgeColor="none");
 colormap("jet");
 h=colorbar();
 clim([eMin,eMax]);
 set(get(h,'Title'),'string','Localization Error(m)','FontSize',20,'FontName','Times');%设置colorbar的上方文字说明
 title("8.0° AoA Error & 0 dB Power Error");
 set(gca,"FontSize",28,"FontWeight","bold");
+view(2);
 
 

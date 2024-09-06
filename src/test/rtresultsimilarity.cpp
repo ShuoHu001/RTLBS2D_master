@@ -12,11 +12,11 @@ ReceiverInfo::ReceiverInfo(const RaytracingResult& rtResult)
 	, m_maxDistance(0.0)
 	, m_meanDistance(0.0)
 {
+	m_point = rtResult.m_receiver->GetPosition2D();
 	if (rtResult.m_multipathInfo.size() == 0) {
 		m_isValid = false;
 		return;
 	}
-	m_point = rtResult.m_receiver->GetPosition2D();
 	std::vector<PathInfo> infos = rtResult.m_multipathInfo;
 	std::sort(infos.begin(), infos.end(), ComparedByPower_PathInfo);			//按照功率大小进行排序
 	RtLbsType maxPower = infos.front().m_power;
@@ -126,5 +126,5 @@ void ReceiverInfo::GetDistanceByPhi(RtLbsType phi, RtLbsType& maxDistance, RtLbs
 
 void ReceiverInfo::Write2File(std::ofstream& stream)
 {
-	stream << m_point.x << "\t" << m_point.y << "\t" << m_maxDistance << "\t" << m_meanDistance << "\t" << m_similarities.size() << std::endl;
+	stream << m_point.x << "\t" << m_point.y << "\t" << m_meanDistance << std::endl;
 }

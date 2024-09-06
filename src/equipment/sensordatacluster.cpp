@@ -48,6 +48,8 @@ void SensorDataCluster::CalMergedDataByAOA()
 
 	m_mergedData.m_power = 10 * log10(sumPowerWeight);									//转换合成功率
 
+	m_mergedData.m_powerLin = sumPowerWeight;
+
 	RtLbsType aoaPhi = 0.0;
 	RtLbsType aoaTheta = 0.0;
 	for (int i = 0; i < static_cast<int>(m_datas.size()); ++i) {

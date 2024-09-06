@@ -220,6 +220,7 @@
     <ClCompile Include="src\equipment\transmitter.cpp" />
     <CudaCompile Include="src\utility\gpuutil.cpp" />
     <CudaCompile Include="src\physical\limitinfo.cpp" />
+    <ClCompile Include="src\general\elevationmatrix.cpp" />
     <ClCompile Include="src\global\globalvariables.cpp" />
     <ClCompile Include="src\localization\aoa\aoasolver.cpp" />
     <ClCompile Include="src\localization\generalsource.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="src\equipment\sensordatacollection.h" />
     <ClInclude Include="src\equipment\sensordatalibrary.h" />
     <ClInclude Include="src\equipment\sensordataprocessing.h" />
+    <ClInclude Include="src\general\elevationmatrix.h" />
     <ClInclude Include="src\global\globalvariables.h" />
     <ClInclude Include="src\localization\aoa\aoasolver.h" />
     <ClInclude Include="src\localization\generalsource.h" />

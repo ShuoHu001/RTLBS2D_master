@@ -164,6 +164,7 @@ void PathInfo::CalculateBaseInfo(RtLbsType power, RtLbsType freq, const AntennaL
 void PathInfo::Convert2SensorData(SensorData& data) const
 {
 	data.m_power = m_power;
+	data.m_powerLin = std::pow(10.0, m_power / 10.0);
 	data.m_phi = m_aoAPhi;
 	data.m_phiDegree = m_aoAPhi / PI * 180;
 	data.m_time = m_timeDelay;

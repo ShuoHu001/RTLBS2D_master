@@ -577,7 +577,7 @@ bool Scene::InitSceneSensors(const SensorCollectionConfig& config, AntennaLibrar
 {
 	int validSensorNum = 0;                                                 /** @brief	有效的传感器数量	*/
     int sensorDataId = 0;                                                   /** @brief	传感器数据ID	*/
-    InitSensors(config, antLibrary, m_sensors);                             //初始化拆传感器
+    InitSensors(config, antLibrary, m_sensors);                             //初始化传感器
 	for (int i = 0; i < m_sensors.size(); ++i) {
 		if (!IsValidPoint(m_sensors[i]->m_position)) {
             m_sensors[i]->m_isValid = false;                                //不满足条件的传感器设置为无效

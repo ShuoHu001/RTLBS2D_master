@@ -49,6 +49,7 @@ public:
 
 	void SetRayPath(std::vector<RayPath3D*>& paths);		//设置路径信息 常规路径
 	void SetRayPath(TerrainDiffractionPath* path);			//设置路径信息 地形绕射
+	void ReleaseAllRayPath();								//释放所包含的路径信息
 	void CalculateBaseInfo(std::vector<RtLbsType>& freqs);								//计算基本信息-射线追踪模式
 	
 	void CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary);		//计算基本信息-定位模式中的伴随射线追踪

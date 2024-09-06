@@ -13,6 +13,7 @@ void PathBuilder_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const 
 			continue;
 		}
 		for (size_t j = 0; j < rxNum; ++j) {
+			std::cout << j << std::endl;
 			const Receiver* curReceiver = scene->m_receivers[j];			/** @brief	当前遍历到的接收机	*/
 			if (!curReceiver->m_isValid) {									//跳过无效的接收机
 				continue;
@@ -98,7 +99,8 @@ void PathBuilder_CPUMultiThread(const std::vector<RayTreeNode*>& vroots, const S
 			if (pool.getTaskCount() == 0) {
 				break;
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 每100毫秒检查一次
+			std::this_thread::sleep_for(std::chrono::milliseconds(10000)); // 每100毫秒检查一次
+			std::cout << pool.getTaskCount() << std::endl;
 		}
 
 		//-----------------------------------------------------------------常规路径转换并判定是否有效-----------------------------------------------------------

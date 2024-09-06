@@ -1,4 +1,5 @@
 #include "gspair.h"
+#include "gspaircluster.h"
 
 GSPair::GSPair()
 	: m_isValid(true)
@@ -7,10 +8,13 @@ GSPair::GSPair()
 	, m_gs1(nullptr)
 	, m_gs2(nullptr)
 	, m_gsRef(nullptr)
+	, m_belongingPairCluster(nullptr)
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
 	, m_timeDiffResidual(0.0)
 	, m_powerDiffResidual(0.0)
+	, m_angularSpreadResidual(0.0)
+	, m_delaySpreadResidual(0.0)
 	, m_weight(0.0)
 	, m_nullDataNum(0)
 {
@@ -23,10 +27,13 @@ GSPair::GSPair(GeneralSource* gs1, GeneralSource* gs2)
 	, m_gs1(new GeneralSource(*gs1))
 	, m_gs2(new GeneralSource(*gs2))
 	, m_gsRef(nullptr)
+	, m_belongingPairCluster(nullptr)
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
 	, m_timeDiffResidual(0.0)
 	, m_powerDiffResidual(0.0)
+	, m_angularSpreadResidual(0.0)
+	, m_delaySpreadResidual(0.0)
 	, m_weight(0.0)
 	, m_nullDataNum(0)
 {
@@ -39,10 +46,13 @@ GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 	, m_gs1(new GeneralSource(*gs1))
 	, m_gs2(new GeneralSource(*gs2))
 	, m_gsRef(new GeneralSource(*gsRef))
+	, m_belongingPairCluster(nullptr)
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
 	, m_timeDiffResidual(0.0)
 	, m_powerDiffResidual(0.0)
+	, m_angularSpreadResidual(0.0)
+	, m_delaySpreadResidual(0.0)
 	, m_weight(0.0)
 	 ,m_nullDataNum(0)
 {
@@ -55,10 +65,13 @@ GSPair::GSPair(const GSPair& pair)
 	, m_gs1(pair.m_gs1)
 	, m_gs2(pair.m_gs2)
 	, m_gsRef(pair.m_gsRef)
+	, m_belongingPairCluster(pair.m_belongingPairCluster)
 	, m_phiResidual(pair.m_phiResidual)
 	, m_timeResidual(pair.m_timeResidual)
 	, m_timeDiffResidual(pair.m_timeDiffResidual)
 	, m_powerDiffResidual(pair.m_powerDiffResidual)
+	, m_angularSpreadResidual(pair.m_angularSpreadResidual)
+	, m_delaySpreadResidual(pair.m_delaySpreadResidual)
 	, m_weight(pair.m_weight)
 	, m_nullDataNum(pair.m_nullDataNum)
 {
@@ -81,10 +94,13 @@ GSPair& GSPair::operator=(const GSPair& pair)
 	m_gs1=pair.m_gs1;
 	m_gs2=pair.m_gs2;
 	m_gsRef = pair.m_gsRef;
+	m_belongingPairCluster = pair.m_belongingPairCluster;
 	m_phiResidual = pair.m_phiResidual;
 	m_timeResidual = pair.m_timeResidual;
 	m_timeDiffResidual = pair.m_timeDiffResidual;
 	m_powerDiffResidual = pair.m_powerDiffResidual;
+	m_angularSpreadResidual = pair.m_angularSpreadResidual;
+	m_delaySpreadResidual = pair.m_delaySpreadResidual;
 	m_weight = pair.m_weight;
 	m_nullDataNum = pair.m_nullDataNum;
 	return *this;
@@ -115,15 +131,28 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 		}
 	}
 
-
 	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
 	if (!scene->IsValidPoint(m_targetSolution)) {
-		m_isValid = false;
-		return false;
+		//上下扩展一定距离，判定是否与环境相交
+		std::vector<Point2D> extendTargetSolution(4);
+		extendTargetSolution[0] = m_targetSolution + Point2D(0, 0.1);
+		extendTargetSolution[1] = m_targetSolution + Point2D(0, -0.1);
+		extendTargetSolution[2] = m_targetSolution + Point2D(0.1, 0);
+		extendTargetSolution[3] = m_targetSolution + Point2D(-0.1, 0);
+		bool hasValidSolution = true;
+		for (auto& curSolution : extendTargetSolution) {
+			if (!scene->IsValidPoint(curSolution)) {
+				hasValidSolution = false;
+			}
+		}
+		if (!hasValidSolution) {
+			m_isValid = false;
+			return false;
+		}
 	}
 
 	//判定准则2-坐标是否特别处于墙体边缘，一般定义0.5m处为墙体边缘极限
-	if (scene->IsNearSegmentPoint(m_targetSolution, 0.5)) {
+	if (scene->IsNearSegmentPoint(m_targetSolution, 0.1)) {
 		m_isValid = false;
 		return false;
 	}
@@ -300,13 +329,19 @@ void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max
 {
 	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
 	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
-	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-4);													/** @brief	角度权重	*/
-	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-4);										/** @brief	功率差权重	*/
+	if (r_normalized_phi < 1e-4) { r_normalized_phi = 1e-4; }
+	if (r_normalized_powerDiff < 1e-4) { r_normalized_powerDiff = 1e-4; }
+	RtLbsType w_phi = 1.0 / r_normalized_phi;													/** @brief	角度权重	*/
+	RtLbsType w_powerDiff = 1.0 / r_normalized_powerDiff;										/** @brief	功率差权重	*/
 	RtLbsType w_cluster = static_cast<RtLbsType>(m_clusterSize) / static_cast<RtLbsType>(max_clusterNum);		/** @brief	聚类权重	*/
-	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_powerWeight * w_powerDiff)  * m_clusterSize;						/** @brief	总权重	*/
+	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_powerWeight * w_powerDiff) * m_clusterSize / (m_angularSpreadResidual + 0.01);						/** @brief	总权重	*/
+	if (m_belongingPairCluster->m_isDeviateSolution) {																				//若pair所属父cluster为偏离簇，则权重置零
+		w_total = 0.0;	
+	}
 	m_gs1->m_weight = std::max(m_gs1->m_weight, w_total);
 	m_gs2->m_weight = std::max(m_gs2->m_weight, w_total);
 	m_weight = w_total;
+	m_belongingPairCluster->m_weight = m_weight;												//赋值所属父簇权重
 }
 
 void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)

@@ -103,6 +103,22 @@ void RaytracingResult::SetRayPath(TerrainDiffractionPath* path)
 	m_terrainDiffPath = path;
 }
 
+void RaytracingResult::ReleaseAllRayPath()
+{
+	for (auto& path : m_commonPaths) {
+		if (path != nullptr) {
+			delete path;
+			path = nullptr;
+		}
+	}
+
+	if (m_terrainDiffPath != nullptr) {
+		delete m_terrainDiffPath;
+		m_terrainDiffPath = nullptr;
+	}
+
+}
+
 void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 {
 	//内存分配
@@ -275,7 +291,7 @@ void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, 
 	RtLbsType powerDiff = 40;
 	RtLbsType maxPower = clusters[0].m_mergedInfo.m_power;
 	for (int i = 0; i < sparsedClusterNum; ++i) {
-		if (i != 0 && (maxPower - clusters[i].m_mergedInfo.m_power) > powerDiff) {			//去除大于45dB功率差的多径，无法检测到
+		if (i != 0 && (maxPower - clusters[i].m_mergedInfo.m_power) > powerDiff) {			//去除大于40dB功率差的多径，无法检测到
 			continue;
 		}
 		SensorData curSensorData;

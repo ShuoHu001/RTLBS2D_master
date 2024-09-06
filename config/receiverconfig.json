@@ -1,10 +1,10 @@
 {
 	"ReceiverConfig": {
-		"PredictionMode": 2,
+		"PredictionMode": 3,
 		"SingleConfig": {
 			"Position": {
-				"x": 19.0,
-				"y": -118.0,
+				"x": 45.0,
+				"y": 21.0,
 				"z": 2.0
 			},
 			"Velocity": 0.0
@@ -27,13 +27,13 @@
 				}]
 		},
 		"ScatterConfig": {
-			"FileName": "config/testpoint_3000.txt",
+			"FileName": "config/testpoint_5900.txt",
 			"Positions": [],
 			"Velocities": []
 		},
 		"PlaneConfig": {
-			"XInterval": 5.0,
-			"YInterval": 5.0,
+			"XInterval": 1.0,
+			"YInterval": 1.0,
 			"XMin": 15.0,
 			"XMax": 135.0,
 			"YMin": 15.0,

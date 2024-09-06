@@ -23,6 +23,7 @@ public:
 	RtLbsType m_timeDiff;					/** @brief	传感器接收到的时间差，单位 ns	*/
 	RtLbsType m_phi;						/** @brief	传感器接收到的方位角,单位 弧度	*/
 	RtLbsType m_power;						/** @brief	传感器接收到的功率，单位 dBm	*/
+	RtLbsType m_powerLin;					/** @brief	传感器接收到的线性功率，单位dBm	*/
 	RtLbsType m_phiDegree;					/** @brief	传感器接收到的方位角 单位 °	*/
 
 public:

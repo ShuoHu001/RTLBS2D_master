@@ -7,6 +7,7 @@ LocalizeConfig::LocalizeConfig()
 	, m_threadNum(4)
 	, m_rayLaunchHalfTheta(0.01)
 	, m_gsPairClusterThreshold(1.0)
+	, m_extendAroundPointState(true)
 	, m_hasSimuError(true)
 {
 }
@@ -19,6 +20,8 @@ LocalizeConfig::LocalizeConfig(const LocalizeConfig& config)
 	, m_rayLaunchHalfTheta(config.m_rayLaunchHalfTheta)
 	, m_gsPairClusterThreshold(config.m_gsPairClusterThreshold)
 	, m_weightFactor(config.m_weightFactor)
+	, m_extendAroundPointState(config.m_extendAroundPointState)
+	, m_shiftErrorMatrixFileName(config.m_shiftErrorMatrixFileName)
 	, m_hasSimuError(config.m_hasSimuError)
 {
 }
@@ -36,6 +39,8 @@ LocalizeConfig& LocalizeConfig::operator=(const LocalizeConfig& config)
 	m_rayLaunchHalfTheta = config.m_rayLaunchHalfTheta;
 	m_gsPairClusterThreshold = config.m_gsPairClusterThreshold;
 	m_weightFactor = config.m_weightFactor;
+	m_extendAroundPointState = config.m_extendAroundPointState;
+	m_shiftErrorMatrixFileName = config.m_shiftErrorMatrixFileName;
 	m_hasSimuError = config.m_hasSimuError;
 	return *this;
 }
@@ -50,6 +55,8 @@ void LocalizeConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 	writer.Key(KEY_LOCALIZATIONCONFIG_RAYLAUNCHHALFTHETA.c_str());							writer.Double(m_rayLaunchHalfTheta);
 	writer.Key(KEY_LOCALIZATIONCONFIG_GSPAIRCLUSTERTHRESHOLD.c_str());						writer.Double(m_gsPairClusterThreshold);
 	writer.Key(KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str());								m_weightFactor.Serialize(writer);
+	writer.Key(KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str());						writer.Bool(m_extendAroundPointState);
+	writer.Key(KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME.c_str());					writer.String(m_shiftErrorMatrixFileName.c_str());
 	writer.Key(KEY_LOCALIZATIONCONFIG_HASSIMUERROR.c_str());								writer.Bool(m_hasSimuError);
 	writer.EndObject();
 }
@@ -89,6 +96,14 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "LocalizeConfig: missing " << KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str() << ENDL;
 		return false;
 	}
+	if (!value.HasMember(KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str())) {
+		LOG_ERROR << "LocalizeConfig: missing " << KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME.c_str())) {
+		LOG_ERROR << "LocalizeConfig: missing " << KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME.c_str() << ENDL;
+		return false;
+	}
 	if (!value.HasMember(KEY_LOCALIZATIONCONFIG_HASSIMUERROR.c_str())) {
 		LOG_ERROR << "LocalizeConfig: missing " << KEY_LOCALIZATIONCONFIG_HASSIMUERROR.c_str() << ENDL;
 		return false;
@@ -102,6 +117,8 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& rayLaunchHalfThetaValue = value[KEY_LOCALIZATIONCONFIG_RAYLAUNCHHALFTHETA.c_str()];
 	const rapidjson::Value& gsPairClusterThresholdValue = value[KEY_LOCALIZATIONCONFIG_GSPAIRCLUSTERTHRESHOLD.c_str()];
 	const rapidjson::Value& weightFactorValue = value[KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str()];
+	const rapidjson::Value& extendAroundPointState = value[KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str()];
+	const rapidjson::Value& shiftErrorMatrixFileNameValue = value[KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME.c_str()];
 	const rapidjson::Value& hasSimuErrorValue = value[KEY_LOCALIZATIONCONFIG_HASSIMUERROR.c_str()];
 
 	if (!lbsModeValue.IsInt()) {
@@ -132,6 +149,14 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "LocalizeConfig: " << KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
+	if (!extendAroundPointState.IsBool()) {
+		LOG_ERROR << "LocalizeConfig: " << KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!shiftErrorMatrixFileNameValue.IsString()) {
+		LOG_ERROR << "LocalizeConfig: " << KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
 	if (!hasSimuErrorValue.IsBool()) {
 		LOG_ERROR << "LocalizeConfig: " << KEY_LOCALIZATIONCONFIG_HASSIMUERROR.c_str() << ", wrong value format." << ENDL;
 		return false;
@@ -140,6 +165,8 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 	m_threadNum = static_cast<uint16_t>(threadNumValue.GetUint());
 	m_rayLaunchHalfTheta = rayLaunchHalfThetaValue.GetDouble();
 	m_gsPairClusterThreshold = gsPairClusterThresholdValue.GetDouble();
+	m_extendAroundPointState = extendAroundPointState.GetBool();
+	m_shiftErrorMatrixFileName = shiftErrorMatrixFileNameValue.GetString();
 	m_hasSimuError = hasSimuErrorValue.GetBool();
 
 	if (!DeserializeEnum(m_lbsMode, lbsModeValue)) {

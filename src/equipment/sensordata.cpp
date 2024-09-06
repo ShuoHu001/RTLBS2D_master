@@ -8,6 +8,7 @@ SensorData::SensorData()
 	, m_phiDegree(0.0)
 	, m_phi(0.0)
 	, m_power(0.0)
+	, m_powerLin(0.0)
 {
 }
 
@@ -19,6 +20,7 @@ SensorData::SensorData(const SensorData& data)
 	, m_phiDegree(data.m_phiDegree)
 	, m_phi(data.m_phi)
 	, m_power(data.m_power)
+	, m_powerLin(data.m_powerLin)
 {
 }
 
@@ -35,6 +37,7 @@ SensorData SensorData::operator=(const SensorData& data)
 	m_phiDegree = data.m_phiDegree;
 	m_phi = data.m_phi;
 	m_power = data.m_power;
+	m_powerLin = data.m_powerLin;
 	return *this;
 }
 
@@ -76,6 +79,16 @@ void SensorData::AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeError
 	m_phi += phiError;
 	m_power += powerError;
 	m_phiDegree += phiError / ONE_DEGEREE;
+	//修正负值角度
+	if (m_phi < 0) {
+		m_phi += TWO_PI;
+		m_phiDegree += 360;
+	}
+	//修正超值角度
+	if (m_phi > TWO_PI) {
+		m_phi -= TWO_PI;
+		m_phiDegree -= 360;
+	}
 }
 
 
@@ -141,6 +154,7 @@ bool SensorData::Deserialize(const rapidjson::Value& value)
 	m_phiDegree = phiDegreeValue.GetDouble();
 	m_power = powerValue.GetDouble();
 
+	m_powerLin = std::pow(10.0, m_power / 10.0);
 	m_phi = (m_phiDegree / 180.0) * PI;
 
 	return true;

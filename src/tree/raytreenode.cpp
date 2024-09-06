@@ -76,10 +76,8 @@ bool RayTreeNode::IsCaptureByPoint(const Point2D& p, RtLbsType splitRadius, RayT
 	return true;
 }
 
-void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
+void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>* outNodes)
 {
-
-	//先产生所有路径，再由路径中添加节点
 
 	struct StackItem {
 		RayTreeNode* node;									/** @brief	当前节点	*/
@@ -123,12 +121,12 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
 			curNode->m_data->m_type == NODE_ETRANIN) { //无效节点：停止节点、透射入节点、经验透射入节点均为无效节点(对于求解广义源来说是无效的),不纳入节点
 		}
 		else {
-			outNodes.push_back(new PathNode(*curNode->m_data));
-			outNodes.back()->m_fatherNodeId = curFatherNodeId;		//修改新入数组元素的父节点ID
+			outNodes->push_back(new PathNode(*curNode->m_data));
+			outNodes->back()->m_fatherNodeId = curFatherNodeId;		//修改新入数组元素的父节点ID
 		}
 		if (curNode->m_pLeft) {
 			RayTreeNode* child = curNode->m_pLeft;
-			int curNodeId = static_cast<int>(outNodes.size()) - 1;			/** @brief	当前入数组节点的ID	*/
+			int curNodeId = static_cast<int>(outNodes->size()) - 1;			/** @brief	当前入数组节点的ID	*/
 			while (child) {
 				if (!child->m_isValid) {					//禁止无效节点入栈
 					child = child->m_pRight;

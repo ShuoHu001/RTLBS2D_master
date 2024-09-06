@@ -12,7 +12,7 @@ void TreeNodeGenerator_AOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroo
 		}
 
 		std::vector<PathNode*> nodes;
-		GenerateAllTreeNode(vroots[i], nodes);
+		GenerateAllTreeNode(vroots[i], &nodes);
 		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
 		for (int j = 0; j < nodes.size(); ++j) {
 			const PathNode* curPathNode = nodes[j];
@@ -39,7 +39,7 @@ void TreeNodeGenerator_TDOA_CPUSingleThread(const std::vector<RayTreeNode*>& vro
 		}
 
 		std::vector<PathNode*> nodes;
-		GenerateAllTreeNode(vroots[i], nodes);
+		GenerateAllTreeNode(vroots[i], &nodes);
 		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
 		for (int j = 0; j < nodes.size(); ++j) {
 			const PathNode* curPathNode = nodes[j];
@@ -62,7 +62,7 @@ void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroot
 	ThreadPool pool(threadNum);
 	std::vector<std::vector<PathNode*>> nodes(sensorNum);
 	for (int i = 0; i < sensorNum; ++i) {
-		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], nodes[i]);
+		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], &nodes[i]);
 	}
 	while (true) {
 		if (pool.getTaskCount() == 0) {
@@ -72,7 +72,7 @@ void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroot
 	}
 	for (int i = 0; i < sensorNum; ++i) {
 		std::vector<LBSTreeNode*> lbsNodes(nodes[i].size());
-		for (int j = 0; j < nodes.size(); ++j) {
+		for (int j = 0; j < nodes[i].size(); ++j) {
 			const PathNode* curPathNode = nodes[i][j];
 			int sensorDataId = curPathNode->m_nextRay.m_sensorDataId;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
@@ -105,7 +105,7 @@ void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroo
 	ThreadPool pool(threadNum);
 	std::vector<std::vector<PathNode*>> nodes(sensorNum);
 	for (int i = 0; i < sensorNum; ++i) {
-		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], nodes[i]);
+		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], &nodes[i]);
 	}
 	while (true) {
 		if (pool.getTaskCount() == 0) {
@@ -115,7 +115,7 @@ void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroo
 	}
 	for (int i = 0; i < sensorNum; ++i) {
 		std::vector<LBSTreeNode*> lbsNodes(nodes[i].size());
-		for (int j = 0; j < nodes.size(); ++j) {
+		for (int j = 0; j < nodes[i].size(); ++j) {
 			const PathNode* curPathNode = nodes[i][j];
 			int sensorDataId = curPathNode->m_nextRay.m_sensorDataId;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);

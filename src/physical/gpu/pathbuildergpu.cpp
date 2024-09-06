@@ -58,9 +58,8 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 
 	//合并cluster中所有的坐标点数量
 	std::vector<Point2D> targetPoints;
-	targetPoints.reserve(5 * clusters.size());
 	for (auto& cluster : clusters) {
-		for (auto& point : cluster.m_aroundPoints) {
+		for (auto point : cluster.m_aroundPoints) {
 			targetPoints.push_back(point);
 		}
 	}
@@ -73,6 +72,7 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 			targetRtResults.push_back(&results);
 		}
 	}
+
 
 
 	int num_Nodes = static_cast<int>(host_AllPathNodes.size());											/** @brief	节点数量	*/
@@ -128,6 +128,15 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 		}
 	}
 
+	if (dev_TargetNodeIds.size() == 0) {										//若无路径信息，则删除在GPU中的数据
+		//删除在GPU中的数据
+		dev_AllPathNodes.swap(dev_AllPathNodes);
+		dev_TargetPositions.swap(dev_TargetPositions);
+		dev_Temp_TargetNodeIds.swap(dev_Temp_TargetNodeIds);
+		dev_TargetNodeIds.swap(dev_TargetNodeIds);
+		dev_TargetPathNodeIds.swap(dev_TargetPathNodeIds);
+		return;
+	}
 	std::vector<int> host_TargetNodeIds(dev_TargetNodeIds.size());
 	thrust::copy(dev_TargetNodeIds.begin(), dev_TargetNodeIds.end(), host_TargetNodeIds.begin());
 
@@ -204,7 +213,7 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 				}
 			}
 
-			//删除无效的路径
+			//保留有效的路径
 			std::vector<RayPath3D*> validPath;																	/** @brief	有效路径	*/
 			for (auto it = commonPath3D.begin(); it != commonPath3D.end(); ++it) {
 				RayPath3D* curPath = *it;
@@ -218,14 +227,15 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 			}
 			(*targetRtResults[pId])[i].SetRayPath(validPath);
 
-
 			//处理地形绕射路径
 			TerrainDiffractionPath* terrainDifftactionPath = nullptr;
 			if (scene->GetGroundDiffractionPath(targetPoint3D, curSensor->m_position, terrainDifftactionPath)) {
-				if (scene->IsValidRayPath(terrainDifftactionPath))
+				if (scene->IsValidRayPath(terrainDifftactionPath)) {
 					(*targetRtResults[pId])[i].SetRayPath(terrainDifftactionPath);												//设定地形绕射路径
-				else																							//若地形绕射路径无效，则进行删除
+				}
+				else {																							//若地形绕射路径无效，则进行删除
 					delete terrainDifftactionPath;
+				}
 			}
 
 			//删除缓存
@@ -249,7 +259,7 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 		pId++;
 	}
 
-
+	return;
 
 	targetRtResults.clear();
 	std::vector <std::vector<RaytracingResult>*>().swap(targetRtResults);
@@ -355,6 +365,15 @@ void PathBuilder_CPUGPUMultiThread(const std::vector<RayTreeNode*>& vroots, cons
 		}
 	}
 
+	if (dev_TargetNodeIds.size() == 0) {									//若无数据，则直接返回
+		//删除在GPU中的数据
+		dev_AllPathNodes.swap(dev_AllPathNodes);
+		dev_TargetPositions.swap(dev_TargetPositions);
+		dev_Temp_TargetNodeIds.swap(dev_Temp_TargetNodeIds);
+		dev_TargetNodeIds.swap(dev_TargetNodeIds);
+		dev_TargetPathNodeIds.swap(dev_TargetPathNodeIds);
+		return;
+	}
 	std::vector<int> host_TargetNodeIds(dev_TargetNodeIds.size());
 	thrust::copy(dev_TargetNodeIds.begin(), dev_TargetNodeIds.end(), host_TargetNodeIds.begin());
 
@@ -380,6 +399,8 @@ void PathBuilder_CPUGPUMultiThread(const std::vector<RayTreeNode*>& vroots, cons
 	dev_Temp_TargetNodeIds.swap(dev_Temp_TargetNodeIds);
 	dev_TargetNodeIds.swap(dev_TargetNodeIds);
 	dev_TargetPathNodeIds.swap(dev_TargetPathNodeIds);
+
+
 
 	//分析数据拓扑关系
 	int nId = 0;																						/** @brief	初始的节点ID	*/

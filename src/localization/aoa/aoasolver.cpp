@@ -141,7 +141,7 @@ Point2D AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& init
 		std::vector<RtLbsType> weights(aoaDataNum);								//权重系数
 		for (int i = 0; i < aoaDataNum; ++i) {
 			RtLbsType res = aoaResiduals[i].GetResidual(position);
-			weights[i] = aoaResiduals[i].GetWeight() / (res * res + 1e-6);								//权重
+			weights[i] = aoaResiduals[i].GetWeight() / (abs(res) + 1e-6);								//权重
 			aoaResiduals[i].SetWeight(weights[i]);
 		}
 

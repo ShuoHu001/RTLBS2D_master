@@ -10,6 +10,8 @@
 #include "generalsource.h"
 #include "localization/tdoa/tdoasolver.h"
 
+class GSPairCluster;
+
 class GSPair {
 public:
 	bool m_isValid;
@@ -18,11 +20,14 @@ public:
 	GeneralSource* m_gs1;
 	GeneralSource* m_gs2;
 	GeneralSource* m_gsRef;
+	GSPairCluster* m_belongingPairCluster;			/** @brief	所属的广义源集合	*/
 	Point2D m_targetSolution;
 	RtLbsType m_phiResidual;
 	RtLbsType m_timeResidual;
 	RtLbsType m_timeDiffResidual;
 	RtLbsType m_powerDiffResidual;
+	RtLbsType m_angularSpreadResidual;			/** @brief	角度扩展残差	*/
+	RtLbsType m_delaySpreadResidual;			/** @brief	延迟扩展残差	*/
 	RtLbsType m_weight;							/** @brief	权重	，综合性的权重*/
 	int m_nullDataNum;							/** @brief	空数据数量，多数据定位时不满足的数据数量	*/
 

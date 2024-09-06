@@ -66,7 +66,7 @@ void CalculateSensorCollectionResidual_AOA_SingleData(std::vector<SensorDataColl
 
 }
 
-inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, const WeightFactor& w, RtLbsType& r_phi, RtLbsType& r_powerdiff, int nullDataNum)
+void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, const WeightFactor& w, RtLbsType& r_phi, RtLbsType& r_powerdiff, RtLbsType& r_angularSpread, int& nullDataNum)
 {
 	/** @brief	残差表达	*/
 	struct Residual {
@@ -92,11 +92,11 @@ inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1
 
 			RtLbsType cur_r_phi = std::abs(c1.m_data[i].m_phi - c2.m_data[j].m_phi);
 			if (cur_r_phi > PI) {			//保证残差在0-PI内(最小残差准则)
-				cur_r_phi -= PI;
+				cur_r_phi = TWO_PI - cur_r_phi;
 			}
-			RtLbsType cur_r_powerDiff = c1.m_data[i].m_power - c2.m_data[j].m_power;
-			cost[i][j].r_phi = cur_r_phi * cur_r_phi;
-			cost[i][j].r_powerDiff = cur_r_powerDiff * cur_r_powerDiff;
+			RtLbsType cur_r_powerDiff = abs(c1.m_data[i].m_power - c2.m_data[j].m_power);
+			cost[i][j].r_phi = cur_r_phi;
+			cost[i][j].r_powerDiff = cur_r_powerDiff;
 			max_r_phi = std::max(max_r_phi, cost[i][j].r_phi);
 			max_r_powerDiff = std::max(max_r_powerDiff, cost[i][j].r_powerDiff);
 		}
@@ -134,18 +134,66 @@ inline void CalculateSensorResidual_AOA_MultiData(const SensorDataCollection& c1
 		r_phi += cost[ni][mi].r_phi;
 		r_powerdiff += cost[ni][mi].r_powerDiff;
 	}
+
+	////计算相对角度扩展
+
+	//RtLbsType conTemp1 = 0.0;
+	//RtLbsType conTemp2 = 0.0;
+	//for (auto assign : assigns) {
+	//	int& ni = assign.first;
+	//	int& mi = assign.second;
+	//	if (mi >= m) { continue; }
+	//	RtLbsType powerDiffLin = std::pow(10.0, cost[ni][mi].r_powerDiff / 10.0);
+	//	conTemp1 += powerDiffLin * cost[ni][mi].r_phi;
+	//	conTemp2 += powerDiffLin;
+	//}
+	//RtLbsType meanAoA = conTemp1 / conTemp2;
+
+	//conTemp1 = 0.0;
+	//for (auto assign : assigns) {
+	//	int& ni = assign.first;
+	//	int& mi = assign.second;
+	//	if (mi >= m) { continue; }
+	//	RtLbsType powerDiffLin = std::pow(10.0, cost[ni][mi].r_powerDiff / 10.0);
+	//	conTemp1 += powerDiffLin * (cost[ni][mi].r_phi - meanAoA) * (cost[ni][mi].r_phi - meanAoA);
+	//}
+	//r_angularSpread = sqrt(conTemp1 / conTemp2);
+
+	//计算角度扩展残差
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+	for (auto& assign : assigns) {
+		int mi = assign.second;
+		if (mi >= m) { continue; }
+		conTemp1 += c2.m_data[mi].m_powerLin * c2.m_data[mi].m_phi;
+		conTemp2 += c2.m_data[mi].m_powerLin;
+	}
+	RtLbsType meanAoA = conTemp1 / conTemp2;
+
+	conTemp1 = 0.0;
+	for (auto& assign : assigns) {
+		int mi = assign.second;
+		if (mi >= m) { continue; }
+		conTemp1 += c2.m_data[mi].m_powerLin * (c2.m_data[mi].m_phi - meanAoA) * (c2.m_data[mi].m_phi - meanAoA);
+	}
+
+	RtLbsType angularSpread2 = sqrt(conTemp1 / conTemp2);
+	RtLbsType angularSpread1 = c1.CalculateRMSAngularSpread();
+	r_angularSpread = abs(angularSpread1 - angularSpread2);
 }
 
-void CalculateSensorCollectionResidual_AOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, const WeightFactor& w, RtLbsType& r_phi, RtLbsType& r_powerDiff, int& nullDataNum)
+void CalculateSensorCollectionResidual_AOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, const WeightFactor& w, RtLbsType& r_phi, RtLbsType& r_powerDiff, RtLbsType& r_angularSpread, int& nullDataNum)
 {
 	for (int i = 0; i < static_cast<int>(c1.size()); ++i) {
 		RtLbsType cur_r_phi = 0.0;
 		RtLbsType cur_r_powerDiff = 0.0;
+		RtLbsType cur_r_angularSpread = 0.0;
 		int cur_nullDataNum = 0;
-		CalculateSensorResidual_AOA_MultiData(c1[i], c2[i], w, cur_r_phi, cur_r_powerDiff, cur_nullDataNum);
+		CalculateSensorResidual_AOA_MultiData(c1[i], c2[i], w, cur_r_phi, cur_r_powerDiff, cur_r_angularSpread, cur_nullDataNum);
 		r_phi += cur_r_phi;
 		r_powerDiff += cur_r_powerDiff;
 		nullDataNum += cur_nullDataNum;
+		r_angularSpread += cur_r_angularSpread;
 	}
 }
 
