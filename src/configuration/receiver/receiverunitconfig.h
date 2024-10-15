@@ -5,8 +5,7 @@
 #include "utility/enum.h"
 #include "utility/serializable.h"
 #include "utility/define.h"
-#include "geometry/point3d.h"
-#include "antenna/antenna.h"
+#include "math/point3d.h"
 
 const std::string KEY_RECEIVERUNITCONFIG_ANTID = "AntID";
 const std::string KEY_RECEIVERUNITCONFIG_ANTNAME = "AntName";

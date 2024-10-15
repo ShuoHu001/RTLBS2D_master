@@ -10,6 +10,7 @@ OutputConfig::OutputConfig()
 	, m_outputCIR(false)
 	, m_outputAOA(false)
 	, m_outputAOD(false)
+	, m_outputSpreadInfo(false)
 	, m_outputSensorDataSPSTMD(false)
 	, m_outputSensorDataMPSTSD(false)
 	, m_outputSensorDataSPMTMD(false)
@@ -32,6 +33,7 @@ OutputConfig::OutputConfig(const OutputConfig& config)
 	, m_outputCIR(config.m_outputCIR)
 	, m_outputAOA(config.m_outputAOA)
 	, m_outputAOD(config.m_outputAOD)
+	, m_outputSpreadInfo(config.m_outputSpreadInfo)
 	, m_outputSensorDataSPSTMD(config.m_outputSensorDataSPSTMD)
 	, m_outputSensorDataMPSTSD(config.m_outputSensorDataMPSTSD)
 	, m_outputSensorDataSPMTMD(config.m_outputSensorDataSPMTMD)
@@ -59,6 +61,7 @@ OutputConfig& OutputConfig::operator=(const OutputConfig& config)
 	m_outputCIR=config.m_outputCIR;
 	m_outputAOA=config.m_outputAOA;
 	m_outputAOD=config.m_outputAOD;
+	m_outputSpreadInfo = config.m_outputSpreadInfo;
 	m_outputSensorDataSPSTMD=config.m_outputSensorDataSPSTMD;
 	m_outputSensorDataMPSTSD=config.m_outputSensorDataMPSTSD;
 	m_outputSensorDataSPMTMD=config.m_outputSensorDataSPMTMD;
@@ -101,6 +104,7 @@ void OutputConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTCIR.c_str());											writer.Bool(m_outputCIR);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTAOA.c_str());											writer.Bool(m_outputAOA);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTAOD.c_str());											writer.Bool(m_outputAOD);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSPREADINFO.c_str());									writer.Bool(m_outputSpreadInfo);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD.c_str());							writer.Bool(m_outputSensorDataSPSTMD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD.c_str());							writer.Bool(m_outputSensorDataMPSTSD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str());							writer.Bool(m_outputSensorDataSPMTMD);
@@ -162,6 +166,10 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTAOD.c_str() << ENDL;
 		return false;
 	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTSPREADINFO.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSPREADINFO.c_str() << ENDL;
+		return false;
+	}
 	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD.c_str())) {
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD.c_str() << ENDL;
 		return false;
@@ -202,6 +210,7 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& outputCIRValue = value[KEY_OUTPUTCONFIG_OUTPUTCIR.c_str()];
 	const rapidjson::Value& outputAOAValue = value[KEY_OUTPUTCONFIG_OUTPUTAOA.c_str()];
 	const rapidjson::Value& outputAODValue = value[KEY_OUTPUTCONFIG_OUTPUTAOD.c_str()];
+	const rapidjson::Value& outputSpreadInfoValue = value[KEY_OUTPUTCONFIG_OUTPUTSPREADINFO.c_str()];
 	const rapidjson::Value& outputSensorDataSPSTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD.c_str()];
 	const rapidjson::Value& outputSensorDataMPSTSDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD.c_str()];
 	const rapidjson::Value& outputSensorDataSPMTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str()];
@@ -254,6 +263,10 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTAOD.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
+	if (!outputSpreadInfoValue.IsBool()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSPREADINFO.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
 	if (!outputSensorDataSPSTMDValue.IsBool()) {
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD.c_str() << ", wrong value format." << ENDL;
 		return false;
@@ -294,6 +307,7 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	m_outputCIR = outputCIRValue.GetBool();
 	m_outputAOA = outputAOAValue.GetBool();
 	m_outputAOD = outputAODValue.GetBool();
+	m_outputSpreadInfo = outputSpreadInfoValue.GetBool();
 	m_outputSensorDataSPSTMD = outputSensorDataSPSTMDValue.GetBool();
 	m_outputSensorDataMPSTSD = outputSensorDataMPSTSDValue.GetBool();
 	m_outputSensorDataSPMTMD = outputSensorDataSPMTMDValue.GetBool();

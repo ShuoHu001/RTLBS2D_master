@@ -1,7 +1,6 @@
 #include "rtlbs.h"
 #include "managers/logmanager.h"
 #include "system.h"
-#include "localization/tdoa/tdoasolver.h"
 #include "managers/randomanager.h"
 #include "test/testlbs.h"
 //#include <glog/export.h>
@@ -16,9 +15,6 @@
 int main(int argc, char** argv) {
 	LOG_INFO << "TDOA 算法调试验证" << ENDL;
 	google::InitGoogleLogging(argv[0]);
-
-
-
 	int mode = 0;									//0为射线追踪，2为定位精度测试，3为定位区域测试
 
 	if (mode == 0) {
@@ -50,6 +46,7 @@ int main(int argc, char** argv) {
 			auto start = std::chrono::system_clock::now();
 
 			system->PostProcessing();
+			Point2D targetPosition = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA);
 
 			auto end = std::chrono::system_clock::now();
 

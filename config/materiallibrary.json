@@ -1,6 +1,6 @@
 {
 	"MaterialLibraryConfig": {
-		"Materials": [{
+		"MaterialConfigs": [{
 				"Id": 0,
 				"Name": "Aluminum",
 				"Permittivity": 7.6,

@@ -4,7 +4,7 @@
 #include "rtlbs.h"
 #include "utility/define.h"
 #include "utility/serializable.h"
-#include "geometry/point3d.h"
+#include "math/point3d.h"
 #include "receiverunitconfig.h"
 
 const std::string KEY_SOLIDCONFIG_XMIN = "XMin";

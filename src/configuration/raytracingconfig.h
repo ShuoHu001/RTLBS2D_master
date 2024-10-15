@@ -6,7 +6,7 @@
 #include "managers/logmanager.h"
 #include "utility/serializable.h"
 #include "utility/enum.h"
-#include "physical/limitinfo.h"
+#include "radiowave/propagation/limitinfo.h"
 
 const std::string KEY_RAYTRACINGCONFIG_RAYNUM = "RayNum";
 const std::string KET_RAYTRACINGCONFIG_DIFFRACTRAYNUM = "DiffractRayNum";

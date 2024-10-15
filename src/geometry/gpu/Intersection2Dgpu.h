@@ -2,7 +2,7 @@
 #define RTLBS_INTERSECTION2DGPU
 #include "utility/enum.h"
 #include "segment2dgpu.h"
-#include "physical/propagationproperty.h"
+#include "configuration/radiowave/propagation/propagationproperty.h"
 
 class Point2D;
 class Ray2DGPU;

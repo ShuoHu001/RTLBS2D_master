@@ -2,7 +2,7 @@
 #define RTLBS_SINGLECONFIG
 
 #include "rtlbs.h"
-#include "geometry/point3d.h"
+#include "math/point3d.h"
 #include "utility/serializable.h"
 #include "receiverunitconfig.h"
 

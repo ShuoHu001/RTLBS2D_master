@@ -108,11 +108,11 @@ RtLbsType GSPairCluster::CalTDOAResidualFactor()
     return m_residualFactor;
 }
 
-void GSPairCluster::ExtendAroundPoint(bool expandFlag, const Scene* scene)
+void GSPairCluster::ExtendAroundPoint(bool expandFlag, const ElevationMatrix& lbsShiftErrorMatrix, const Scene* scene)
 {
     if (expandFlag == true) {
 		
-        RtLbsType offset = _global_lbsShiftErrorMatrix.GetValue(m_point);                   //按照位移矩阵扩展坐标
+        RtLbsType offset = lbsShiftErrorMatrix.GetValue(m_point);                   //按照位移矩阵扩展坐标
         m_deviateDistance = offset;
 
 		Point2D NorthPoint = m_point + Point2D(0, offset);                          /** @brief	北点	*/

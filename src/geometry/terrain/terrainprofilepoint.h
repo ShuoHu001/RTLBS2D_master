@@ -3,8 +3,8 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "geometry/point3d.h"
-#include "geometry/point2d.h"
+#include "math/point3d.h"
+#include "math/point2d.h"
 #include "material/material.h"
 
 //地形坐标点对象

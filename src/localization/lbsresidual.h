@@ -95,45 +95,6 @@ public:
 
 };
 
-class RDOAWLSResidual {
-private:
-	RtLbsType m_x1;						/** @brief	参考x坐标	*/
-	RtLbsType m_y1;						/** @brief	参考y坐标	*/
-	RtLbsType m_xi;						/** @brief	x坐标	*/
-	RtLbsType m_yi;						/** @brief	y坐标	*/
-	RtLbsType m_powerDiff;				/** @brief	测量到的功率差	*/
-	RtLbsType m_weight;					/** @brief	权重	*/
-	GeneralSource* m_refSource;			/** @brief	参考广义源	*/
-	GeneralSource* m_dataSource;		/** @brief	数据广义源	*/
-
-public:
-	RDOAWLSResidual();
-	RDOAWLSResidual(GeneralSource* refSource, GeneralSource* dataSource);
-	RDOAWLSResidual(const RDOAWLSResidual& residual);
-	~RDOAWLSResidual();
-	RDOAWLSResidual& operator = (const RDOAWLSResidual& residual);
-	void Init(GeneralSource* refSource, GeneralSource* dataSource);
-
-	RtLbsType GetResidual(RtLbsType* position) const;
-	void SetWeight(RtLbsType weight);					//设置权重
-
-	template <typename T> bool operator ()(const T* const position, T* residual) const {
-		T p1_x = T(m_x1);							/** @brief	参考点P1 x坐标	*/
-		T p1_y = T(m_y1);							/** @brief	参考点P1 y坐标	*/
-		T pi_x = T(m_xi);							/** @brief	数据点Pi x坐标	*/
-		T pi_y = T(m_yi);							/** @brief	数据点Pi y坐标	*/
-		T x = position[0];							/** @brief	预测点 x坐标	*/
-		T y = position[1];							/** @brief	预测点 y坐标	*/
-		RtLbsType x_double = get_double_value(x);
-		RtLbsType y_double = get_double_value(y);
-		Point2D tp(x_double, y_double);
-		RtLbsType refPower = m_refSource->CalculateSinglePathPower(tp);
-		RtLbsType dataPower = m_dataSource->CalculateSinglePathPower(tp);
-		RtLbsType powerDiff = refPower - dataPower;
-		residual[0] = T(powerDiff) - m_powerDiff;
-		return true;
-	}
-};
 
 
 //TDOA LS 定位残差表达式
@@ -189,6 +150,8 @@ public:
 	TDOAWLSResidual& operator = (const TDOAWLSResidual& residual);
 	void Init(const GeneralSource* refSource, const GeneralSource* dataSource);
 	RtLbsType GetResidual(RtLbsType* position) const;
+	void SetWeight(RtLbsType weight);
+	RtLbsType GetWeight() const;
 
 	template <typename T> bool operator ()(const T* const position, T* residual) const {
 		T p1_x = T(m_x1);							/** @brief	参考点P1 x坐标	*/
@@ -203,6 +166,67 @@ public:
 		return true;
 	}
 
+};
+
+
+
+//AOA-TOA LS定位残差表达式
+class TOAResidual {
+private:
+	RtLbsType m_x;						/** @brief	x 坐标	*/
+	RtLbsType m_y;						/** @brief	y 坐标	*/
+	RtLbsType m_time;					/** @brief	测量到的时间	*/
+
+public:
+	TOAResidual();
+	TOAResidual(RtLbsType x, RtLbsType y, RtLbsType delay);
+	TOAResidual(const GeneralSource* source);
+	~TOAResidual();
+	TOAResidual& operator = (const TOAResidual& r);
+
+	void Init(const GeneralSource* source);
+	RtLbsType GetTOAResidual(RtLbsType* position) const;
+
+	//广义残差表达式，适用于ceres优化库
+	template <typename T> bool operator() (const T* const position, T* residual) const {
+		T dx = position[0] - T(m_x);
+		T dy = position[1] - T(m_y);
+		T distance = sqrt(dx * dx + dy * dy);
+		T calTime = distance / T(LIGHT_VELOCITY_AIR);  //单位ns
+		residual[0] = calTime - m_time;
+		return true;
+	}
+};
+
+
+//AOA-TOA WLS 定位残差表达式
+class TOAWLSResidual {
+private:
+	RtLbsType m_x;						/** @brief	x 坐标	*/
+	RtLbsType m_y;						/** @brief	y 坐标	*/
+	RtLbsType m_time;					/** @brief	测量到的时间	*/
+	RtLbsType m_weight;					/** @brief	残差权重	*/
+
+public:
+	TOAWLSResidual();
+	TOAWLSResidual(RtLbsType x, RtLbsType y, RtLbsType delay, RtLbsType weight);
+	TOAWLSResidual(const GeneralSource* source);
+	~TOAWLSResidual();
+	TOAWLSResidual& operator = (const TOAWLSResidual& r);
+
+	void Init(const GeneralSource* source);
+	RtLbsType GetResidual(RtLbsType* position) const;
+	RtLbsType GetWeight() const;								//获得权重
+	void SetWeight(RtLbsType weight);							//设置权重
+	//广义残差表达式，适用于ceres优化库
+	template <typename T> bool operator() (const T* const position, T* residual) const {
+		T dx = position[0] - T(m_x);
+		T dy = position[1] - T(m_y);
+		T distance = sqrt(dx * dx + dy * dy);
+		T calTime = distance / T(LIGHT_VELOCITY_AIR);  //单位ns
+		residual[0] = calTime - m_time;
+		return true;
+	}
 };
 
 

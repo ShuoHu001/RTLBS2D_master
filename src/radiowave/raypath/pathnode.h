@@ -1,0 +1,49 @@
+#ifndef RTLBS_PATHNODE
+#define RTLBS_PATHNODE
+
+
+#include "rtlbs.h"
+#include "utility/define.h"
+#include "utility/enum.h"
+#include "geometry/Intersection2D.h"
+#include "configuration/radiowave/propagation/limitinfo.h"
+#include "material/material.h"
+#include "material/materiallibrary.h"
+
+class Point2D;
+class Segment2D;
+class PathNode3D;
+class CPUConverterPathNode;
+
+class PathNode {
+
+public:
+	LimitInfo m_limitInfo;												/** @brief	节点限制信息	*/
+	PATHNODETYPE m_type;												/** @brief	节点类型	*/
+	Point2D m_point;													/** @brief	节点坐标	*/
+	Material* m_mat;													/** @brief	节点材质	*/
+	Segment2D* m_segment;												/** @brief	节点所在面元的指针	*/
+	Wedge2D* m_wedge;													/** @brief	节点所在wedge的指针	*/
+	Ray2D m_prevRay;													/** @brief	节点之前的射线(引用变量)	*/
+	Ray2D m_nextRay;													/** @brief	节点之后的射线(引用变量)	*/
+	Point2D m_source;													/** @brief	广义源点的坐标	*/
+	RtLbsType m_ft;														/** @brief	当前节点距离root源的距离	*/  
+	int m_fatherNodeId;													/** @brief	父节点ID，定位模式中需要用到，用于追根溯源组成路径	*/
+
+public:
+	PathNode();//统一跟正，所有的pathnode存储为前一个节点的ray				
+	PathNode(const Point2D& point, PATHNODETYPE type);																							//LBS中计算单路径功率时进行初始化节点
+	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point);																		//根节点的初始化
+	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, const Ray2D& prevRay);												//视距节点的初始化/终止节点的初始化
+	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Segment2D* primitive, const Ray2D& prevRay);							//反射终止节点的初始化
+	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Segment2D* primitive, const Ray2D& prevRay, const Ray2D& nextRay);	//反射节点的初始化
+	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Wedge2D* wedge, const Ray2D& prevRay, const Ray2D& nextRay);			//绕射节点的初始化
+	PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point, Wedge2D* wedge, const Ray2D& prevRay);								//绕射终止节点的初始化
+	PathNode(const PathNode& pathnode);         //复制节点
+	~PathNode() {};
+	PathNode& operator = (const PathNode& node);//赋值运算符重载
+	bool IsContainPointByAngle(Point2D p); //当前节点是否在角度域内捕获某个坐标
+	void ConvertFrom(const CPUConverterPathNode& node, const std::vector<Segment2D*>& segments, const std::vector<Wedge2D*>& wedges);
+};
+
+#endif

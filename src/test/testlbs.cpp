@@ -14,14 +14,14 @@ void TestAOALocalizationSingleStationInDifferentError()
 		}
 	};
 
-	//std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
-	//std::vector<RtLbsType> powerErrors = { 0,1,2,3,4,5,6,7,8,9,10 };
-	std::vector<RtLbsType> phiDegreeErrors = { 1.0 };
-	std::vector<RtLbsType> powerErrors = { 5 };
+	std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
+	std::vector<RtLbsType> powerErrors = { 0,1,2,3,4,5,6,7,8,9,10 };
+	//std::vector<RtLbsType> phiDegreeErrors = { 4.0 };
+	//std::vector<RtLbsType> powerErrors = { 0 };
 
-	std::string positionName = "T3";
-	int roundTime = 100;
-	Point2D realPoint = { 26.21,137.33 };
+	std::string positionName = "C";
+	int roundTime = 1000;
+	Point2D realPoint = { 70,90 };
 
 	int totalround = static_cast<int>(phiDegreeErrors.size() * powerErrors.size() * roundTime);
 
@@ -34,10 +34,10 @@ void TestAOALocalizationSingleStationInDifferentError()
 
 			//读取传感器信息，写入对应的误差数据
 			SensorCollectionConfig curSensorCollectionConfig;
-			curSensorCollectionConfig.Init("config/SPSTMD_sensorconfig.json");
+			curSensorCollectionConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 			curSensorCollectionConfig.m_sensorConfigs[0].m_phiDegreeErrorSTD = phiDegreeError;
 			curSensorCollectionConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
-			curSensorCollectionConfig.Write2Json("config/SPSTMD_sensorconfig.json");
+			curSensorCollectionConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 			System* system;
 			for (int i = 0; i < roundTime; ++i) {
 				std::cout << roundi++ / static_cast<RtLbsType>(totalround) * 100 << std::endl;			//汇报进度

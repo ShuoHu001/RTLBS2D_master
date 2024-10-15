@@ -8,26 +8,26 @@
 		"ReceiverConfigFile": "config/receiverconfig.json",
 		"SensorConfigFile": "results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json",
 		"RaytracingConfig": {
-			"RayNum": 1000000,
+			"RayNum": 10000,
 			"DiffractRayNum": 1000,
 			"LimitInfo": {
 				"LimitTotal": 10,
-				"LimitReflect": 3,
+				"LimitReflect": 6,
 				"LimitTransmit": 0,
-				"LimitDiffract": 1,
+				"LimitDiffract": 0,
 				"LimitScatter": 0
 			},
 			"RaySplitFlag": true,
 			"RaySplitRadius": 1.0,
 			"SceneAccelType": 5,
-			"HardwareMode": 2,
+			"HardwareMode": 0,
 			"RayLaunchMode": 1,
 			"CPUThreadNum": 20
 		},
 		"LocalizationConfig": {
 			"LBSMode": 0,
 			"LBSMethod": 0,
-			"HardWareMode": 1,
+			"HardWareMode": 2,
 			"ThreadNum": 20,
 			"RayLaunchHalfTheta": 0.1,
 			"GSPairClusterThreshold": 2.0,
@@ -36,8 +36,8 @@
 				"TimeWeight": 1.0,
 				"PowerWeight": 2.0
 			},
-			"ExtendAroundPointState": false,
-			"ShiftErrorMatrixFile": "config/0.100000_errormatrix.txt",
+			"ExtendAroundPointState": true,
+			"ShiftErrorMatrixFile": "config/4.000000_errormatrix.txt",
 			"HasSimuError": true
 		},
 		"FrequencyConfig": {
@@ -51,17 +51,18 @@
 			"OutputPower": true,
 			"OutputLoss": false,
 			"OutputMagnitude": false,
-			"OutputMultipath": false,
+			"OutputMultipath": true,
 			"OutputPDP": false,
 			"OutputCFR": false,
 			"OutputCIR": false,
 			"OutputAOA": false,
 			"OutputAOD": false,
-			"OutputSensorDataSPSTMD": false,
+			"OutputSpreadProfile":true,
+			"OutputSensorDataSPSTMD": true,
 			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
-			"OutputGSForCRLB": false,
+			"OutputGSForCRLB": true,
 			"OutputSensorDataSparseFactor": 1.0,
 			"OutputLBSMethod": 0
 		}

@@ -1,6 +1,6 @@
 {
 	"ReceiverConfig": {
-		"PredictionMode": 3,
+		"PredictionMode": 0,
 		"SingleConfig": {
 			"Position": {
 				"x": 45.0,

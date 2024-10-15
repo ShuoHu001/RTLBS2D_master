@@ -1,5 +1,5 @@
 #include "terrain.h"
-#include "tree/raypath3d.h"
+
 
 
 TerrainCell::TerrainCell()
@@ -319,7 +319,7 @@ RtLbsType Terrain::GetObjectFoundationHeight(const Object2D* object) const
 	RtLbsType foundationHeight = FLT_MAX;
 	for (int i = 0; i > object->m_segments.size(); ++i) {
 		const Point2D& edgePoint = object->m_segments[i]->m_ps;
-		TerrainFacet* facet = _getTerrainFacetViaPoint(edgePoint);
+		TerrainFacet* facet = GetTerrainFacetViaPoint(edgePoint);
 		if (facet == nullptr) {
 			continue;
 		}
@@ -332,6 +332,91 @@ RtLbsType Terrain::GetObjectFoundationHeight(const Object2D* object) const
 	
 	return foundationHeight;
 
+}
+
+bool Terrain::GetTerrainProfileFacets(const Point3D& txPosition, const Point3D& rxPosition, std::vector<TerrainFacet*>& outFacets) const
+{
+	TerrainFacet* txFacet = GetTerrainFacetViaPoint(txPosition);
+	TerrainFacet* rxFacet = GetTerrainFacetViaPoint(rxPosition);
+	if (txFacet == rxFacet) {																				//若收发点坐标在同一个面元上，则直接定义该面元，并返回真
+		outFacets.resize(1);
+		outFacets[0] = txFacet;
+		return true;
+	}
+
+	Point3D txOnFacet = txFacet->GetPointOnPlane(txPosition);												//发射机在面元上的坐标 
+	Point3D rxOnFacet = rxFacet->GetPointOnPlane(rxPosition);												//接收机在面元上的坐标
+
+	//-----------------------------------基于半边方法确定射线所经历过的地形表面起伏信息-----------------------------------------------------------
+
+	Vector3D rt = rxPosition - txPosition;
+	Vector3D rt_dir = Normalize(rt);																		//构建基础三维射线
+	Ray3DLite* ray3d = new Ray3DLite();
+	ray3d->m_ori = txPosition;
+	ray3d->m_dir = rt_dir;
+
+	Ray2D* ray2d = new Ray2D();																				//构建基础二维射线
+	ray2d->m_Ori.x = ray3d->m_ori.x;
+	ray2d->m_Ori.y = ray3d->m_ori.y;
+	ray2d->m_Dir.x = ray3d->m_dir.x;
+	ray2d->m_Dir.y = ray3d->m_dir.y;
+	ray2d->m_Dir.Normalize();																				//赋值后需要归一化数值
+
+	TerrainFacet* curFacet = txFacet;																		/** @brief	当前运算到的面元	*/
+	TerrainSegment* curSegment = nullptr;																	/** @brief	当前运算到的线段	*/
+	TerrainSegment* prevSegment = nullptr;																	/** @brief	上一个运算到的线段	*/
+	RtLbsType t_cur;																						/** @brief	当前射线与线段相交的距离二维	*/
+	RtLbsType h_cur;																						/** @brief	当前射线与线段相交的交点高度（用于比较是否与射线相交）	*/
+	RtLbsType t_max = rt.LengthXY();
+	outFacets.push_back(curFacet);																			//将当前的地形面元纳入输出面元集合中
+
+	while (true) {																							//面元迭代器
+		prevSegment = curSegment;																			//线段迭代器
+		curSegment = curFacet->GetIntersectSegment(ray2d, prevSegment, &t_cur, &h_cur);						//求解射线与面元内部的相交线段
+		if (curSegment == nullptr)																			//迭代到无法解决的误差问题，终止路径循迹
+			break;
+		curFacet = curSegment->GetAdjacentFacet(curFacet);													//计算下一个面元
+		outFacets.push_back(curFacet);																		//纳入面元
+		if (curFacet == rxFacet || t_cur >= t_max)															//遍历到相等面元或距离超过最大距离限制则进行break
+			break;
+	}
+	if (outFacets.size() != 0)
+		return false;
+	return true;
+}
+
+TerrainFacet* Terrain::GetTerrainFacetViaPoint(const Point2D& point) const
+{
+	//1-计算点在哪个栅格内
+	int gridId[2];
+	for (unsigned i = 0; i < 2; ++i) {
+		gridId[i] = _point2VoxelId(point, i);
+	}
+	int voxelId = _offset(gridId[0], gridId[1]);
+	//2-计算栅格内面元是否包含对应坐标点
+	TerrainCell* cell = m_gridCells[voxelId];
+	for (TerrainFacet* facet : cell->m_facets) {
+		if (facet->CheckInside(point))
+			return facet;
+	}
+	return nullptr; //若检查到面元不包含任何面元，则返回nullptr
+}
+
+TerrainFacet* Terrain::GetTerrainFacetViaPoint(const Point3D& point) const
+{
+	//1-计算点在哪个栅格内
+	int gridId[2];
+	for (unsigned i = 0; i < 2; ++i) {
+		gridId[i] = _point2VoxelId(point, i);
+	}
+	int voxelId = _offset(gridId[0], gridId[1]);
+	//2-计算栅格内面元是否包含对应坐标点
+	TerrainCell* cell = m_gridCells[voxelId];
+	for (TerrainFacet* facet : cell->m_facets) {
+		if (facet->CheckInside(point))
+			return facet;
+	}
+	return nullptr; //若检查到面元不包含任何面元，则返回nullptr
 }
 
 bool Terrain::_simplify(double ratio)
@@ -485,7 +570,7 @@ bool Terrain::GetIntersect(Ray3DLite* rayInit, Point3D* intersectPoint) const
 		TerrainSegment* prevSegment = nullptr;													/** @brief	上一个运算到的线段	*/
 		RtLbsType t_cur;																		/** @brief	当前射线与线段相交的距离二维	*/
 		RtLbsType h_cur;																		/** @brief	当前射线与线段相交的交点高度（用于比较是否与射线相交）	*/
-		curFacet = _getTerrainFacetViaPoint(ray2d->m_Ori);										//初始化面元
+		curFacet = GetTerrainFacetViaPoint(ray2d->m_Ori);										//初始化面元
 		if (ray2d->m_Dir.x == 0.0 && ray2d->m_Dir.y == 0.0) {
 			delete ray2d;
 			return curFacet->GetIntersect(rayInit);
@@ -614,119 +699,10 @@ bool Terrain::IsValidPoint(const Point3D& p) const
 	if (!m_bbox3d.IsContainPoint(p))
 		return false;
 	//求解点所在的三角形面元
-	TerrainFacet* facet = _getTerrainFacetViaPoint(p);
+	TerrainFacet* facet = GetTerrainFacetViaPoint(p);
 	if (!facet)
 		return false;
 	if (facet->GetVerticleDistanceToPoint(p) < 0)
-		return false;
-	return true;
-}
-
-bool Terrain::GetTerrainDiffractionPath(Point3D tx, Point3D rx, TerrainDiffractionPath*& outPath) const
-{
-	//修正1-无论是否被遮挡，均返回地面投影路径
-
-	TerrainFacet* txFacet = _getTerrainFacetViaPoint(tx);
-	TerrainFacet* rxFacet = _getTerrainFacetViaPoint(rx);
-	if (txFacet == rxFacet)//0-确定收发坐标点所在的面元，若相同，则返回false
-		return false;
-
-	std::vector<Point3D> routeAboveRay;//高于射线高度的路径点集合
-	std::vector<Point3D> route;		//收发机间的地形点集合
-	//求解发射点在对应面元上的投影坐标
-	Point3D txOnFacet = txFacet->GetPointOnPlane(tx); //发射机在面元上的坐标   
-	Point3D rxOnFacet = rxFacet->GetPointOnPlane(rx); //接收机在面元上的坐标
-	route.push_back(txOnFacet); //先将发射坐标点纳入路径中
-	//基于半边搜索方法确定射线所经过的地形表面起伏信息
-	//构建基础三维射线
-	Vector3D rt = rx - tx;
-	Vector3D rt_dir = Normalize(rt);
-	Ray3DLite* ray3d = new Ray3DLite();
-	ray3d->m_ori = tx;
-	ray3d->m_dir = rt_dir;
-	//构建基础二维射线
-	Ray2D* ray2d = new Ray2D();
-	ray2d->m_Ori.x = ray3d->m_ori.x;
-	ray2d->m_Ori.y = ray3d->m_ori.y;
-	ray2d->m_Dir.x = ray3d->m_dir.x;
-	ray2d->m_Dir.y = ray3d->m_dir.y;
-	ray2d->m_Dir.Normalize(); //赋值后需要归一化数值
-
-	TerrainFacet* curFacet = txFacet; /** @brief	当前运算到的面元	*/
-	TerrainSegment* curSegment = nullptr; /** @brief	当前运算到的线段	*/
-	TerrainSegment* prevSegment = nullptr; /** @brief	上一个运算到的线段	*/
-	RtLbsType t_cur; /** @brief	当前射线与线段相交的距离二维	*/
-	RtLbsType h_cur; /** @brief	当前射线与线段相交的交点高度（用于比较是否与射线相交）	*/
-	RtLbsType t_max = rt.LengthXY();
-	bool hasIntersect = false; //射线被环境遮挡状态
-	while (true) { //遍历到相等的位置
-		prevSegment = curSegment;
-		curSegment = curFacet->GetIntersectSegment(ray2d, prevSegment, &t_cur, &h_cur);//求解射线与面元内部的相交线段
-		if (curSegment == nullptr)	//迭代到无法解决的误差问题，终止路径循迹
-			break;
-		RtLbsType rayHeight = ray3d->GetRayHeight(t_cur);
-		//计算二维射线与线段的交点并根据h_cur转换为三维交点
-		Point2D pInTerrain2D = (*ray2d)(t_cur);
-		Point3D pInTerrain3D(pInTerrain2D.x, pInTerrain2D.y, h_cur);
-		route.push_back(pInTerrain3D);
-		if (rayHeight <= h_cur) {//将路径添加至高于接收天线的路径中
-			routeAboveRay.push_back(pInTerrain3D);
-		}
-		if (rayHeight <= h_cur || (rayHeight - h_cur) <= 1) { //射线和线段的高度差在1m以内，采用射线与三角面元求交模式求解精确解
-			if (curFacet->GetIntersect(ray3d))//计算射线与当前面元的相交结果
-				hasIntersect = true; //与环境相交
-		}
-		curFacet = curSegment->GetAdjacentFacet(curFacet); //计算下一个面元
-		if (curFacet == rxFacet || t_cur >= t_max) //遍历到相等面元或距离超过最大距离限制则进行break
-			break;
-	}
-	route.push_back(rxOnFacet); //添加接收机表面路径
-
-	TerrainProfile* profile = new TerrainProfile();
-	//获得路径上每个节点的电磁材质信息
-	std::vector<Material*> mats(route.size());															/** @brief	地形点材质数组	*/
-	for (int i = 0; i < route.size(); ++i)
-		mats[i] = GetMaterial(route[i]);														//获得路径上每个点的材质ID
-	profile->InitParameters(route, mats, tx, rx, m_averageRidgeGap);
-	profile->GetDiffractPathOverRidges(outPath);	//由profile生成绕射路径
-	if (outPath != nullptr) {								//当且仅当outPath不为nullptr时使用
-		outPath->m_terrainDiffractionMode = m_propagationProperty.m_terrainDiffractionMode;			//地形绕射计算模式判别
-	}
-	//profile.WriteRidgesToFile("ridges.txt");		//将profile中的峰峦写入到文件中-调试用
-	profile->WriteProfileToFile("profile.txt");		//将profile中的地形剖面写入到文件中-调试用
-	delete profile;
-	delete ray2d;
-	delete ray3d;
-
-	return true;
-}
-
-bool Terrain::GetTerrainReflectionPaths(const Point3D& tx, const Point3D& rx, std::vector<RayPath3D*>& outPath) const
-{
-	std::vector<TerrainFacet*> attachGroundFacets;																	/** @brief	贴近地表的面元集合	*/
-	if (!_getTerrainProfileFacets(tx, rx, attachGroundFacets))														//若产生不了地表面元集合，则返回false
-		return false;
-
-	std::vector<Point3D> intersectPoints;																			/** @brief	有效的交点，即地面反射点	*/
-	//遍历地表面元集合，计算镜像点并求解射线与面元的交点
-	for (auto it = attachGroundFacets.begin(); it != attachGroundFacets.end(); ++it) {
-		const TerrainFacet* curFacet = *it;
-		Point3D mirrorPoint = curFacet->GetMirrorPoint(tx);															/** @brief	求解关于tx的镜像点	*/
-		Ray3DLite ray3d(mirrorPoint, rx);																			/** @brief	构造基础三维射线	*/
-		Point3D intersectPoint;																						/** @brief	射线与面元的交点	*/
-		if (curFacet->GetIntersect(&ray3d, &intersectPoint)) {														//当前面元与地形有交点，则表明反射存在
-			RayPath3D* newRayPath = new RayPath3D();																/** @brief	新路径	*/
-			PathNode3D* txNode = new PathNode3D(tx, NODE_ROOT);														/** @brief	构造发射节点	*/
-			PathNode3D* reflNode = new PathNode3D(intersectPoint, NODE_REFL, curFacet);								/** @brief	构造中间反射节点	*/
-			PathNode3D * rxNode = new PathNode3D(rx, NODE_STOP);													/** @brief	构造接收节点	*/
-			newRayPath->Union(txNode);
-			newRayPath->Union(reflNode);
-			newRayPath->Union(rxNode);
-			newRayPath->m_type = RAYPATH_TERRAIN_REFLECTION;
-			outPath.push_back(newRayPath);
-		}
-	}
-	if (outPath.size() == 0)																						//若out的路径数量为0, 则返回false, 寻找地形反射路径无效
 		return false;
 	return true;
 }
@@ -1237,7 +1213,7 @@ bool Terrain::_getIntersect(Ray3DLite* ray3d, Ray2D* ray2d, RtLbsType t, unsigne
 	else {
 		//求解起点所在的面元
 		Point2D targetPoint = ray2d->GetRayCoordinate(t);						/** @brief	获取迭代长度t处的射线上的坐标	*/
-		TerrainFacet* curFacet = _getTerrainFacetViaPoint(targetPoint);		/** @brief	获取目标坐标上的面元	*/
+		TerrainFacet* curFacet = GetTerrainFacetViaPoint(targetPoint);		/** @brief	获取目标坐标上的面元	*/
 		if (curFacet == nullptr) {					//若面元为空，则求解射线与边界面元的求交情况
 			//计算射线与cell中的边界面元相交情况，然后使用半边迭代方法继续求解
 			TerrainFacet* nextFacet = nullptr;
@@ -1279,88 +1255,5 @@ bool Terrain::_getIntersect(Ray3DLite* ray3d, Ray2D* ray2d, RtLbsType t, unsigne
 
 }
 
-TerrainFacet* Terrain::_getTerrainFacetViaPoint(const Point2D& point) const
-{
-	//1-计算点在哪个栅格内
-	int gridId[2];
-	for (unsigned i = 0; i < 2; ++i) {
-		gridId[i] = _point2VoxelId(point, i);
-	}
-	int voxelId = _offset(gridId[0], gridId[1]);
-	//2-计算栅格内面元是否包含对应坐标点
-	TerrainCell* cell = m_gridCells[voxelId];
-	for (TerrainFacet* facet : cell->m_facets) {
-		if (facet->CheckInside(point))
-			return facet;
-	}
-	return nullptr; //若检查到面元不包含任何面元，则返回nullptr
-}
 
-TerrainFacet* Terrain::_getTerrainFacetViaPoint(const Point3D& point) const
-{
-	//1-计算点在哪个栅格内
-	int gridId[2];
-	for (unsigned i = 0; i < 2; ++i) {
-		gridId[i] = _point2VoxelId(point, i);
-	}
-	int voxelId = _offset(gridId[0], gridId[1]);
-	//2-计算栅格内面元是否包含对应坐标点
-	TerrainCell* cell = m_gridCells[voxelId];
-	for (TerrainFacet* facet : cell->m_facets) {
-		if (facet->CheckInside(point))
-			return facet;
-	}
-	return nullptr; //若检查到面元不包含任何面元，则返回nullptr
-}
-
-bool Terrain::_getTerrainProfileFacets(const Point3D& txPosition, const Point3D& rxPosition, std::vector<TerrainFacet*>& outFacets) const
-{
-	TerrainFacet* txFacet = _getTerrainFacetViaPoint(txPosition);
-	TerrainFacet* rxFacet = _getTerrainFacetViaPoint(rxPosition);
-	if (txFacet == rxFacet) {																				//若收发点坐标在同一个面元上，则直接定义该面元，并返回真
-		outFacets.resize(1);
-		outFacets[0] = txFacet;
-		return true;
-	}
-
-	Point3D txOnFacet = txFacet->GetPointOnPlane(txPosition);												//发射机在面元上的坐标 
-	Point3D rxOnFacet = rxFacet->GetPointOnPlane(rxPosition);												//接收机在面元上的坐标
-
-	//-----------------------------------基于半边方法确定射线所经历过的地形表面起伏信息-----------------------------------------------------------
-	
-	Vector3D rt = rxPosition - txPosition;
-	Vector3D rt_dir = Normalize(rt);																		//构建基础三维射线
-	Ray3DLite* ray3d = new Ray3DLite();
-	ray3d->m_ori = txPosition;
-	ray3d->m_dir = rt_dir;
-
-	Ray2D* ray2d = new Ray2D();																				//构建基础二维射线
-	ray2d->m_Ori.x = ray3d->m_ori.x;
-	ray2d->m_Ori.y = ray3d->m_ori.y;
-	ray2d->m_Dir.x = ray3d->m_dir.x;
-	ray2d->m_Dir.y = ray3d->m_dir.y;
-	ray2d->m_Dir.Normalize();																				//赋值后需要归一化数值
-
-	TerrainFacet* curFacet = txFacet;																		/** @brief	当前运算到的面元	*/
-	TerrainSegment* curSegment = nullptr;																	/** @brief	当前运算到的线段	*/
-	TerrainSegment* prevSegment = nullptr;																	/** @brief	上一个运算到的线段	*/
-	RtLbsType t_cur;																						/** @brief	当前射线与线段相交的距离二维	*/
-	RtLbsType h_cur;																						/** @brief	当前射线与线段相交的交点高度（用于比较是否与射线相交）	*/
-	RtLbsType t_max = rt.LengthXY();
-	outFacets.push_back(curFacet);																			//将当前的地形面元纳入输出面元集合中
-
-	while (true) {																							//面元迭代器
-		prevSegment = curSegment;																			//线段迭代器
-		curSegment = curFacet->GetIntersectSegment(ray2d, prevSegment, &t_cur, &h_cur);						//求解射线与面元内部的相交线段
-		if (curSegment == nullptr)																			//迭代到无法解决的误差问题，终止路径循迹
-			break;
-		curFacet = curSegment->GetAdjacentFacet(curFacet);													//计算下一个面元
-		outFacets.push_back(curFacet);																		//纳入面元
-		if (curFacet == rxFacet || t_cur >= t_max)															//遍历到相等面元或距离超过最大距离限制则进行break
-			break;
-	}
-	if (outFacets.size() != 0)
-		return false;
-	return true;
-}
 

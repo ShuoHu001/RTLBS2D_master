@@ -3,7 +3,8 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "geometry/vector3d.h"
+#include "vector3d.h"
+
 class Polarization3D;
 
 class Complex {

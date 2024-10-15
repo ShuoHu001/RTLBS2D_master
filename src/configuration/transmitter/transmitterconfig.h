@@ -1,9 +1,9 @@
 #ifndef RTLBS_TRANSMITTERCONFIG
 #define RTLBS_TRANSMITTERCONFIG
 
-#include "antenna/antenna.h"
+#include "equipment/antenna/antenna.h"
 #include "utility/enum.h"
-#include "geometry/point3d.h"
+#include "math/point3d.h"
 #include "utility/serializable.h"
 #include "utility/define.h"
 

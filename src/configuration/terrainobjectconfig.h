@@ -3,10 +3,10 @@
 
 #include "utility/serializable.h"
 #include "utility/enum.h"
-#include "geometry/vector3d.h"
-#include "geometry/point3d.h"
-#include "geometry/euler.h"
-#include "physical/propagationproperty.h"
+#include "math/vector3d.h"
+#include "math/point3d.h"
+#include "math/euler.h"
+#include "radiowave/propagation/propagationproperty.h"
 
 const std::string KEY_TERRAINOBJECTCONFIG_FILENAME = "FileName";
 const std::string KEY_TERRAINOBJECTCONFIG_WINDINGORDER = "WindingOrder";

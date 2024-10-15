@@ -1,7 +1,7 @@
 #ifndef RTLBS_PLANECONFIG
 #define RTLBS_PLANECONFIG
 
-#include "geometry/point3d.h"
+#include "math/point3d.h"
 #include "utility/serializable.h"
 #include "utility/define.h"
 #include "receiverunitconfig.h"

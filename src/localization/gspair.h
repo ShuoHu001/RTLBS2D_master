@@ -4,9 +4,9 @@
 #include "rtlbs.h"
 #include "utility/define.h"
 #include "utility/enum.h"
-#include "geometry/point2d.h"
+#include "math/point2d.h"
 #include "geometry/bbox2d.h"
-#include "geometry/scene.h"
+#include "scene/scene.h"
 #include "generalsource.h"
 #include "localization/tdoa/tdoasolver.h"
 
@@ -42,7 +42,7 @@ public:
 	void NormalizedWeight(RtLbsType max_weight);																				//计算归一化权重
 	bool HasValidAOASolution(const Scene* scene);																				//验证解的有效性，仅在几何上进行验证
 	bool HasValidTOASolution(const Scene* scene);
-	bool HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq);									//验证TDOA算法的有效性 单源多数据定位
+	bool HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunctionData);									//验证TDOA算法的有效性 单源多数据定位
 	bool HasValidTDOASolution_MPSTSD(const Scene* scene);																							//验证TDOA算法的有效性 多源单数据定位
 	void CalculateSinglePairResidual();																												//计算单个pair组合的残差
 	void CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum);										//计算部分归一化权重值并更新广义源权重-AOA型

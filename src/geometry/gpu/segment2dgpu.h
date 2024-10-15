@@ -2,7 +2,7 @@
 #define RTLBS_SEGMENT2DGPU
 #include "utility/define.h"
 #include "bbox2dgpu.h"
-#include "physical/propagationproperty.h"
+#include "configuration/radiowave/propagation/propagationproperty.h"
 
 class Intersection2DGPU;//预先定义，防止相互包含
 class Ray2DGPU;

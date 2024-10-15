@@ -4,7 +4,7 @@
 #include "bbox2d.h"
 #include "material/material.h"
 #include "utility/enum.h"
-#include "physical/propagationproperty.h"
+#include "configuration/radiowave/propagation/propagationproperty.h"
 
 
 class Intersection2D;

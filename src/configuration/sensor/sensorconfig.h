@@ -6,8 +6,8 @@
 #include "utility/enum.h"
 #include "utility/serializable.h"
 #include "managers/logmanager.h"
-#include "geometry/point2d.h"
-#include "geometry/point3d.h"
+#include "math/point2d.h"
+#include "math/point3d.h"
 
 const std::string KEY_SENSORCONFIG_ID = "Id";
 const std::string KEY_SENSORCONFIG_ANTID = "AntId";

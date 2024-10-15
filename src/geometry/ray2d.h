@@ -9,8 +9,8 @@
 #ifndef RTLBS_RAY2D
 #define RTLBS_RAY2D
 
-#include "vector2d.h"
-#include "point2d.h"
+#include "math/vector2d.h"
+#include "math/point2d.h"
 #include "wedge2d.h"
 #include "utility/define.h"
 #include "geometry/gpu/ray2dgpu.h"

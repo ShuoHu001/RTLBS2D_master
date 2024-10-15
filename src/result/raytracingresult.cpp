@@ -7,6 +7,8 @@ RaytracingResult::RaytracingResult()
 	, m_transmitter(nullptr)
 	, m_receiver(nullptr)
 	, m_terrainDiffPath(nullptr)
+	, m_rmsDelaySpread(0.0)
+	, m_rmsAngularSpread(0.0)
 {
 }
 
@@ -27,6 +29,8 @@ RaytracingResult::RaytracingResult(const RaytracingResult& result)
 	, m_loss(result.m_loss)
 	, m_magnitudesCFR(result.m_magnitudesCFR)
 	, m_magnitudesCIR(result.m_magnitudesCIR)
+	, m_rmsDelaySpread(result.m_rmsDelaySpread)
+	, m_rmsAngularSpread(result.m_rmsAngularSpread)
 {
 }
 
@@ -119,7 +123,7 @@ void RaytracingResult::ReleaseAllRayPath()
 
 }
 
-void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
+void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const std::vector<Complex>& tranFunctionData)
 {
 	//内存分配
 	int pathNum = 0;															/** @brief	总路径数量	*/
@@ -146,13 +150,17 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 	for (int i = 0; i < m_freqs.size(); ++i) {
 		for (int j = 0; j < m_commonPaths.size(); ++j) {						//设置常规多径
 			m_multipathInfo[infoId].SetRayPath(m_commonPaths[j]);
-			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], m_transmitter, m_receiver);
+			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], tranFunctionData, m_transmitter, m_receiver);
 		}
 		if (m_terrainDiffPath != nullptr) {
 			m_multipathInfo[infoId].SetRayPath(m_terrainDiffPath);
-			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], m_transmitter, m_receiver);
+			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], tranFunctionData, m_transmitter, m_receiver);
 		}
 	}
+
+	//按照功率大小对info进行排序
+	std::sort(m_multipathInfo.begin(), m_multipathInfo.end(), ComparedByPower_PathInfo);
+
 	//计算合成场强与功率
 	RtLbsType powerdBm = 10 * log10(m_transmitter->m_power * 1000);
 	infoId = 0;
@@ -191,6 +199,12 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 		}
 	}
 
+	//计算时延扩展
+	m_rmsDelaySpread = CalculateRMSDelaySpread();
+
+	//计算角度扩展
+	m_rmsAngularSpread = CalculateRMSAngularSpread();
+
 	//将CFR进行逆傅里叶逆变换得到CIR
 	fftw_complex* in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_freqNum);
 	fftw_complex* ifftOut = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_freqNum);
@@ -210,7 +224,7 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 
 }
 
-void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary)
+void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const std::vector<Complex>& tranFunctionData, const AntennaLibrary* antLibrary)
 {
 	//内存分配
 	int pathNum = 0;															/** @brief	总路径数量	*/
@@ -236,11 +250,11 @@ void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbs
 	for (int i = 0; i < m_freqs.size(); ++i) {
 		for (int j = 0; j < m_commonPaths.size(); ++j) {						//设置常规多径
 			m_multipathInfo[infoId].SetRayPath(m_commonPaths[j]);
-			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, sensor);
+			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], tranFunctionData, antLibrary, sensor);
 		}
 		if (m_terrainDiffPath != nullptr) {
 			m_multipathInfo[infoId].SetRayPath(m_terrainDiffPath);
-			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, sensor);
+			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], tranFunctionData, antLibrary, sensor);
 		}
 	}
 
@@ -262,6 +276,12 @@ void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbs
 		m_vectorPower[i] = 20 * log10(m_totalVectorEField[i].MValue()) + conterm + 30 + gain;					//计算矢量合成功率
 		m_scalarPower[i] = 20 * log10(m_totalScalarEField[i]) + conterm + 30 + gain;							//计算标量合成功率
 	}
+
+	//计算时延扩展
+	m_rmsDelaySpread = CalculateRMSDelaySpread();
+
+	//计算角度扩展
+	m_rmsAngularSpread = CalculateRMSAngularSpread();
 }
 
 void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
@@ -543,6 +563,16 @@ void RaytracingResult::OutputAOD(std::ofstream& stream) const
 	}
 }
 
+void RaytracingResult::OutputSpreadProfile(std::ofstream& stream) const
+{
+	for (int i = 0; i < m_freqNum; ++i) {
+		stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t' << m_freqs[i] << '\t';
+		stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+		stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+		stream << m_rmsDelaySpread << "\t" << m_rmsAngularSpread << std::endl;
+	}
+}
+
 void RaytracingResult::OutputGeneralSourceForCRLB(std::ofstream& stream) const
 {
 	for (int i = 0; i < static_cast<int>(m_commonPaths.size()); ++i) {
@@ -553,4 +583,71 @@ void RaytracingResult::OutputGeneralSourceForCRLB(std::ofstream& stream) const
 		Point2D curGS = curPath->GetGeneralSource2D();
 		stream << curGS.x << "\t" << curGS.y << "\t" << m_multipathInfo[i].m_aoAPhi << "\t" << m_multipathInfo[i].m_timeDelay << std::endl;
 	}
+}
+
+RtLbsType RaytracingResult::CalculateMeanArrivedDelay() const
+{
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * pathInfo.m_timeDelay;
+		conTemp2 += pathInfo.m_powerLin;
+	}
+	return conTemp1 / conTemp2;
+}
+
+RtLbsType RaytracingResult::CalculateMeanArrivedAngle() const
+{
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * pathInfo.m_aoAPhi;
+		conTemp2 += pathInfo.m_powerLin;
+	}
+	return conTemp1 / conTemp2;
+}
+
+RtLbsType RaytracingResult::CalculateRMSDelaySpread() const
+{
+	if (m_multipathInfo.empty()) {
+		return 0.0;
+	}
+	if (m_multipathInfo.size() == 1) {
+		return m_multipathInfo[0].m_timeDelay;
+	}
+
+	RtLbsType meanDelay = CalculateMeanArrivedDelay();
+
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * (pathInfo.m_timeDelay - meanDelay) * (pathInfo.m_timeDelay - meanDelay);
+		conTemp2 += pathInfo.m_powerLin;
+	}
+	RtLbsType rmsDelay = sqrt(conTemp1 / conTemp2);
+	return rmsDelay;
+}
+
+RtLbsType RaytracingResult::CalculateRMSAngularSpread() const
+{
+	if (m_multipathInfo.empty()) {
+		return 0.0;
+	}
+	if (m_multipathInfo.size() == 1) {
+		return m_multipathInfo[0].m_aoAPhi;
+	}
+
+	RtLbsType meanAoA = CalculateMeanArrivedAngle();
+
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * (pathInfo.m_aoAPhi - meanAoA) * (pathInfo.m_aoAPhi - meanAoA);
+		conTemp2 += pathInfo.m_powerLin;
+	}
+
+	RtLbsType rmsAoA = sqrt(conTemp1 / conTemp2);
+	return rmsAoA;
 }

@@ -4,9 +4,9 @@
 #include "rtlbs.h"
 #include "utility/define.h"
 #include "result/raytracingresult.h"
-#include "geometry/scene.h"
-#include "global/globalvariables.h"
+#include "scene/scene.h"
 #include "gspair.h"
+#include "general/elevationmatrix.h"
 
 class GSPairCluster {
 public:
@@ -36,7 +36,7 @@ public:
 	~GSPairCluster();
 	GSPairCluster operator = (const GSPairCluster& cluster);
 	void UpdateGSPairBelongingCluster();																				//更新gspair的cluster
-	void ExtendAroundPoint(bool expandFlag, const Scene* scene);													//扩展近邻点，true表示进行扩展，false表示不进行扩展，只保留一个
+	void ExtendAroundPoint(bool expandFlag, const ElevationMatrix& lbsShiftErrorMatrix, const Scene* scene);													//扩展近邻点，true表示进行扩展，false表示不进行扩展，只保留一个
 	RtLbsType CalTDOAResidualFactor();																					//计算残差因子
 	void CalTDOAResidual(RtLbsType maxResidualFactor);																	//计算残差
 	bool CanAddToClusterByDistance(GSPair* pair, RtLbsType threshold);
@@ -69,7 +69,7 @@ inline bool ComparedByClusterResidual(const GSPairCluster& cluster1, const GSPai
 }
 
 //按照距离进行聚类
-inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& pairs, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, int& maxCluterNum) {
+inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& pairs, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, const ElevationMatrix& lbsShiftErrorMatrix, int& maxCluterNum) {
 	std::vector<GSPairCluster> clusters;
 	for (auto& curPair : pairs) {
 		bool addFlag = false;
@@ -103,7 +103,7 @@ inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& 
 
 	//扩展周边点数据&更新父cluster
 	for (auto& cluster : clusters) {
-		cluster.ExtendAroundPoint(extendAroundPointState, scene);
+		cluster.ExtendAroundPoint(extendAroundPointState, lbsShiftErrorMatrix, scene);
 		cluster.UpdateGSPairBelongingCluster();
 	}
 
@@ -111,7 +111,7 @@ inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& 
 }
 
 //计算给定参考广义源下的聚类pair值最优的簇
-inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const std::vector<SensorData>& sensorDatas, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, RtLbsType freq) {
+inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const std::vector<SensorData>& sensorDatas, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType freq, const std::vector<Complex>& tranFunctionData) {
 	std::vector<GeneralSource*> sourceCopy;
 	for (auto& source : sources) {
 		if (source != refSource) {
@@ -154,7 +154,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSo
 				continue;
 			}
 			GSPair* pair = new GSPair(refSource, newSources[i], newSources[j]);
-			if (!pair->HasValidTDOASolution_SPSTMD(scene, freq)) {
+			if (!pair->HasValidTDOASolution_SPSTMD(scene, freq, tranFunctionData)) {
 				delete pair;
 				continue;
 			}
@@ -184,7 +184,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSo
 
 	//对解进行初步聚类，得到聚类解
 	int max_cluster_num = 1;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, max_cluster_num);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, lbsShiftErrorMatrix, max_cluster_num);
 
 	RtLbsType max_rFactor = 0.0;											/** @brief	最大残差因子	*/
 	for (auto& curCluster : gsPairClusters) {								//求解残差因子，给出最大的残差因子
@@ -204,7 +204,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSo
 }
 
 
-inline GSPairCluster CalMaxTDOASolutionGSPairCluster_MPSTSD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, RtLbsType freq) {
+inline GSPairCluster CalMaxTDOASolutionGSPairCluster_MPSTSD(GeneralSource* refSource, const std::vector<GeneralSource*>& sources, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType freq) {
 	std::vector<GeneralSource*> newSources;
 	for (auto& source : sources) {
 		if (source != refSource) {
@@ -245,7 +245,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_MPSTSD(GeneralSource* refSo
 
 	//对解进行初步聚类，得到聚类解
 	int max_cluster_num = 1;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, max_cluster_num);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, lbsShiftErrorMatrix, max_cluster_num);
 
 	//排除大部分数据后，再通过射线追踪求解点到两个传感器之间的功率
 	return gsPairClusters.front();

@@ -10,8 +10,8 @@
 #define RTLBS_RAY2DGPU
 
 #include "rtlbs.h"
-#include "geometry/vector2d.h"
-#include "geometry/point2d.h"
+#include "math/vector2d.h"
+#include "math/point2d.h"
 #include "utility/define.h"
 
 
@@ -49,7 +49,6 @@ public:
 	HOST_DEVICE_FUNC Ray2DGPU& operator = (const Ray2DGPU& ray);
 	HOST_DEVICE_FUNC Point2D operator () (RtLbsType t) const;
 	HOST_DEVICE_FUNC RtLbsType GetRayRadis(RtLbsType t) const;
-	HOST_DEVICE_FUNC bool IsCaptureByWedgePoint(Point2D p, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments) const;
 	HOST_DEVICE_FUNC Point2D GetVisualSource() const;  //计算当前射线的广义源坐标
 	HOST_DEVICE_FUNC RtLbsType GetSquaredDistanceToPoint(const Point2D& p) const;
 };

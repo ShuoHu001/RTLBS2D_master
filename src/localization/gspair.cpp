@@ -211,7 +211,7 @@ bool GSPair::HasValidTOASolution(const Scene* scene)
 	return false;
 }
 
-bool GSPair::HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq)
+bool GSPair::HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunctionData)
 {
 	if (!_calTDOASolution()) {
 		m_isValid = false;
@@ -237,19 +237,19 @@ bool GSPair::HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq)
 
 	RtLbsType delay_refSource = 0.0;
 	RtLbsType power_refSource = 0.0;
-	if (!m_gsRef->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, delay_refSource, power_refSource)) {
+	if (!m_gsRef->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunctionData, delay_refSource, power_refSource)) {
 		return false;
 	}
 
 	RtLbsType delay_source1 = 0.0;
 	RtLbsType power_source1 = 0.0;
-	if (!m_gs1->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, delay_source1, power_source1)) {
+	if (!m_gs1->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunctionData, delay_source1, power_source1)) {
 		return false;
 	}
 
 	RtLbsType delay_source2 = 0.0;
 	RtLbsType power_source2 = 0.0;
-	if (!m_gs2->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, delay_source2, power_source2)) {
+	if (!m_gs2->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunctionData, delay_source2, power_source2)) {
 		return false;
 	}
 	

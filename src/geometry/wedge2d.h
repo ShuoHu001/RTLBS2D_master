@@ -3,8 +3,8 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "point2d.h"
-#include "vector3d.h"
+#include "math/point2d.h"
+#include "math/vector3d.h"
 #include "gpu/wedge2dgpu.h"
 
 class Segment2D;

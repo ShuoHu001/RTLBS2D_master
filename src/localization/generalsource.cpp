@@ -55,7 +55,7 @@ GeneralSource& GeneralSource::operator=(const GeneralSource& s)
 	return *this;
 }
 
-RtLbsType GeneralSource::CalculateSinglePathPower(const Point2D& p) const
+RtLbsType GeneralSource::CalculateSinglePathPower(const Point2D& p, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData) const
 {
 	//构造路径
 	std::vector<Point2D> positions(5);
@@ -77,15 +77,15 @@ RtLbsType GeneralSource::CalculateSinglePathPower(const Point2D& p) const
 	//计算场功率
 	RtLbsType receivedPower = -160;											//默认最低阈值为-160dBm
 	if (newPath.m_isValid) {
-		RtLbsType centerFrequency = _global_freqConfig.m_centerFrequency;	//获取中心频率
-		const Antenna& omniAntenna = _global_innerAntennas[0];				//获取默认全向天线
-		receivedPower = newPath.CalculatePowerInLBSSystem(centerFrequency, &omniAntenna);
+		RtLbsType centerFrequency = freqConfig.m_centerFrequency;	//获取中心频率
+		Antenna* omniAntenna = new Antenna(0);						//获取默认全向天线
+		receivedPower = CalculatePowerInLBSSystem(&newPath, centerFrequency, tranFunctionData, omniAntenna);
 	}
 	//返回场功率
 	return receivedPower;
 }
 
-bool GeneralSource::CalTDOAParameters_SPSTMD(const Point2D& targetPoint, const Scene* scene, RtLbsType freq, RtLbsType& delay, RtLbsType& power) const
+bool GeneralSource::CalTDOAParameters_SPSTMD(const Point2D& targetPoint, const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunctionData, RtLbsType& delay, RtLbsType& power) const
 {
 	//根据Target计算路径,若在计算过程中路径不存在（反向射线追踪路径错误）
 	std::vector<PathNode*> pathNodes;										/** @brief	构成路径的节点	*/
@@ -141,7 +141,7 @@ bool GeneralSource::CalTDOAParameters_SPSTMD(const Point2D& targetPoint, const S
 	RayPath path2D(pathNodes, false);
 	RayPath3D path3D(path2D, 2.0);
 	Antenna* omniAntenna = scene->m_antennaLibrary.GetAntenna(0);					//获取全向天线
-	power = path3D.CalculatePowerInLBSSystem(freq, omniAntenna);
+	power = CalculatePowerInLBSSystem(&path3D, freq, tranFunctionData, omniAntenna);
 	delay = path3D.GetPropagationTime();
 	delete omniAntenna;
 	return true;

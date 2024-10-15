@@ -179,6 +179,51 @@ HOST_DEVICE_FUNC void SignedDistanceFieldGPU::GetIntersect(const Ray2DGPU& ray, 
 	return;
 }
 
+HOST_DEVICE_FUNC bool SignedDistanceFieldGPU::IsRayCaptureByWedgePoint(const Ray2DGPU& ray, Point2D& p, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments) const
+{
+	//计算广义源位置
+	RtLbsType t = ray.m_fMax - ray.m_fMin;//与广义源的距离
+	Point2D vSource = ray.m_Ori + ray.m_Dir * -t;
+	Vector2D op = (p - vSource).Normalize();
+	double op_costheta = op * ray.m_Dir;
+	if (op_costheta < ray.m_costheta)//op 张角大于射线张角，未被射线管捕捉
+		return false;
+	Ray2DGPU newRay(ray);
+	newRay.m_Ori = vSource;
+	newRay.m_Dir = op;
+	//下面分为广义源和非广义源进行讨论：广义源无需修正路径节点，非广义源需要修正路径节点
+
+	if (ray.m_nodeType == NODE_ROOT || ray.m_nodeType == NODE_DIFF) {//广义源情形判定
+		Intersection2DGPU inter1;
+		sdf->GetIntersect(newRay, &inter1, segments);
+		if (!inter1.m_isValid)//不相交
+			return false;
+		if (inter1.m_intersect != p)
+			return false;
+		//*intersect = inter1;
+		return true;
+	}
+
+	//非广义源情况
+	Intersection2DGPU inter1;
+	const Segment2DGPU& segment = segments[ray.m_primitiveId];
+	if (!segment.GetIntersect(newRay, &inter1))
+		return false;
+	Vector2D ip = (p - inter1.m_intersect).Normalize();
+	if (op * ip < 0)//p 点在面元后方
+		return false;
+	newRay.m_Ori = inter1.m_intersect;
+	Intersection2DGPU inter2;
+	sdf->GetIntersect(newRay, &inter2, segments);
+	if (!inter2.m_isValid)
+		return false;
+	if (inter2.m_intersect != p)
+		return false;
+	//*intersect = inter2;
+	return true;
+	//这里由于GPU的性能限制，不进行重复绕射判定
+}
+
 void SignedDistanceFieldGPU::AllocateOnDevice()
 {
 	cudaError_t cudaStatus;

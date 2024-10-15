@@ -39,6 +39,16 @@ Material::Material(const Material& mat)
 {
 }
 
+Material::Material(const MaterialConfig& config)
+{
+	m_id = config.m_id;
+	m_name = config.m_name;
+	m_permittivity = config.m_permittivity;
+	m_conductivity = config.m_conductivity;
+	m_penetrationLoss = config.m_penetrationLoss;
+	m_refractiveN = sqrt(m_permittivity * m_conductivity);
+}
+
 Material::~Material()
 {
 }
@@ -78,81 +88,5 @@ Complex Material::GetComplexForm(RtLbsType freq) const
 RtLbsType Material::GetRefractiveN() const
 {
 	return m_refractiveN;
-}
-
-void Material::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
-{
-	writer.StartObject();
-	writer.Key(KEY_MATERIAL_ID.c_str()); writer.Int(m_id);
-	writer.Key(KEY_MATERIAL_NAME.c_str()); writer.String(m_name.c_str());
-	writer.Key(KEY_MATERIAL_PERMITTIVITY.c_str()); writer.Double(m_permittivity);
-	writer.Key(KEY_MATERIAL_CONDUCTIVITY.c_str()); writer.Double(m_conductivity);
-	writer.Key(KEY_MATERIAL_PENETRATIONLOSS.c_str()); writer.Double(m_penetrationLoss);
-	writer.EndObject();
-}
-
-bool Material::Deserialize(const rapidjson::Value& value)
-{
-	if (!value.IsObject()) {
-		LOG_ERROR << "MaterialConfig: not a json object." << ENDL;
-		return false;
-	}
-
-	if (!value.HasMember(KEY_MATERIAL_ID.c_str())) {
-		LOG_ERROR << "MaterialConfig: missing " << KEY_MATERIAL_ID.c_str() << ENDL;
-		return false;
-	}
-	if (!value.HasMember(KEY_MATERIAL_NAME.c_str())) {
-		LOG_ERROR << "MaterialConfig: missing " << KEY_MATERIAL_NAME.c_str() << ENDL;
-		return false;
-	}
-	if (!value.HasMember(KEY_MATERIAL_PERMITTIVITY.c_str())) {
-		LOG_ERROR << "MaterialConfig: missing " << KEY_MATERIAL_PERMITTIVITY.c_str() << ENDL;
-		return false;
-	}
-	if (!value.HasMember(KEY_MATERIAL_CONDUCTIVITY.c_str())) {
-		LOG_ERROR << "MaterialConfig: missing " << KEY_MATERIAL_CONDUCTIVITY.c_str() << ENDL;
-		return false;
-	}
-	if (!value.HasMember(KEY_MATERIAL_PENETRATIONLOSS.c_str())) {
-		LOG_ERROR << "MaterialConfig: missing " << KEY_MATERIAL_PENETRATIONLOSS.c_str() << ENDL;
-		return false;
-	}
-
-	const rapidjson::Value& idValue = value[KEY_MATERIAL_ID.c_str()];
-	const rapidjson::Value& nameValue = value[KEY_MATERIAL_NAME.c_str()];
-	const rapidjson::Value& permittivityValue = value[KEY_MATERIAL_PERMITTIVITY.c_str()];
-	const rapidjson::Value& conductivityValue = value[KEY_MATERIAL_CONDUCTIVITY.c_str()];
-	const rapidjson::Value& penetrationLossValue = value[KEY_MATERIAL_PENETRATIONLOSS.c_str()];
-
-	if (!idValue.IsInt()) {
-		LOG_ERROR << "MaterialConfig: " << KEY_MATERIAL_ID.c_str() << ", wrong value format." << ENDL;
-		return false;
-	}
-	if (!nameValue.IsString()) {
-		LOG_ERROR << "MaterialConfig: " << KEY_MATERIAL_NAME.c_str() << ", wrong value format." << ENDL;
-		return false;
-	}
-	if (!permittivityValue.IsDouble()) {
-		LOG_ERROR << "MaterialConfig: " << KEY_MATERIAL_PERMITTIVITY.c_str() << ", wrong value format." << ENDL;
-		return false;
-	}
-	if (!conductivityValue.IsDouble()) {
-		LOG_ERROR << "MaterialConfig: " << KEY_MATERIAL_CONDUCTIVITY.c_str() << ", wrong value format." << ENDL;
-		return false;
-	}
-	if (!penetrationLossValue.IsDouble()) {
-		LOG_ERROR << "MaterialConfig: " << KEY_MATERIAL_PENETRATIONLOSS.c_str() << ", wrong value format." << ENDL;
-		return false;
-	}
-
-	m_id = idValue.GetInt();
-	m_name = nameValue.GetString();
-	m_permittivity = permittivityValue.GetDouble();
-	m_conductivity = conductivityValue.GetDouble();
-	m_penetrationLoss = penetrationLossValue.GetDouble();
-	m_refractiveN = sqrt(m_permittivity * m_conductivity);
-
-	return true;
 }
 
