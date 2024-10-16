@@ -18,6 +18,7 @@ public:
 	RayTreeNode();
 	RayTreeNode(PathNode*& data);
 	~RayTreeNode();
+	bool IsValidLeafNode() const;											//是否是有效的叶子节点,此叶子节点不是树的叶子节点，而是真正的叶子节点的前一节点
 	void SetGeneralFatherNode(RayTreeNode* prevNode);						//设置广义父节点
 	bool IsCaptureByPoint(const Point2D& p, RtLbsType splitRadius, RayTreeNode* prev_treenode); //是否被当前节点捕获
 };

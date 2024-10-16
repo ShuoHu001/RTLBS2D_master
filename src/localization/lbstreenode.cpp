@@ -97,6 +97,14 @@ void LBSTreeNode::GetGeneralSource_AOA(GeneralSource* source) const
 	source->m_originPathNode = m_originPathNode;
 }
 
+void LBSTreeNode::GetGeneralSource_TOA(GeneralSource* source) const
+{
+	if (source == nullptr) {
+		source = new GeneralSource();
+	}
+
+}
+
 void LBSTreeNode::GetGeneralSource_TDOA(GeneralSource* source) const
 {
 	if (source == nullptr) {

@@ -22,8 +22,9 @@ public:
 	Point2D m_Ori;												/** @brief	射线其实坐标	*/
 	Vector2D m_Dir;												/** @brief	射线的方向	*/
 	RtLbsType m_fRefractiveIndex;								/** @brief	当前射线所在物体空间的折射率	*/
-	RtLbsType m_fMax;											/** @brief	射线的传播距离 最小距离	*/
-	RtLbsType m_fMin;											/** @brief	射线的传播距离 最大距离	*/
+	RtLbsType m_tMax;											/** @brief	射线的传播距离 最小距离	*/
+	RtLbsType m_tMin;											/** @brief	射线的传播距离 最大距离	*/
+	RtLbsType m_tLimit;											/** @brief	射线的传播距离 TOA定位情况下允许传播的最大距离	*/
 	double m_theta;												/** @brief	射线发射时的半张角	*/
 	double m_costheta;											/** @brief	射线发射时的半张角的余弦值	*/
 	bool m_bsplit;												/** @brief	射线是否分裂的标志	*/

@@ -323,7 +323,7 @@ bool Scene::GetRayTubeWedges(const Ray2D& r, RayTreeNode* treenode, Intersection
     
     
     //求解Vsource 广义源
-    RtLbsType t = r.m_fMax - r.m_fMin;//与广义源的距离
+    RtLbsType t = r.m_tMax - r.m_tMin;//与广义源的距离
     Point2D vSource = GetRayCoordinate(r, -t);
     std::vector<Wedge2D*> temp_wedges;
     

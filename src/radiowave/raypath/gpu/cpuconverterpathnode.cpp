@@ -80,7 +80,7 @@ bool CPUConverterPathNode::IsCapturedByPoint(const Point2D& p, RtLbsType splitRa
 	}
 	Vector2D op = p - fatherNode->m_generalSource;								/** @brief	广义源到当前节点的向量	*/
 	RtLbsType t_op = op.Length();												/** @brief	当前节点距离广义源节点的距离	*/
-	RtLbsType t = t_op + m_prevRay.m_fMin;										/** @brief	当前节点到根节点的距离	*/
+	RtLbsType t = t_op + m_prevRay.m_tMin;										/** @brief	当前节点到根节点的距离	*/
 
 	RtLbsType tmin = fatherNode->m_ft;											/** @brief	节点中最小值	*/
 	RtLbsType tmax = m_ft + splitRadius;										/** @brief	节点中最大值	*/

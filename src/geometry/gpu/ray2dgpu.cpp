@@ -6,8 +6,9 @@
 
 HOST_DEVICE_FUNC Ray2DGPU::Ray2DGPU()
 	: m_isValid(false)
-	, m_fMax(-FLT_MAX)
-	, m_fMin(FLT_MAX)
+	, m_tMax(-FLT_MAX)
+	, m_tMin(FLT_MAX)
+	, m_tLimit(FLT_MAX)
 	, m_theta(0.0)
 	, m_costheta(0.0)
 	, m_nodeType(NODE_INIT)
@@ -29,8 +30,9 @@ HOST_DEVICE_FUNC Ray2DGPU::Ray2DGPU(const Ray2DGPU& other)
 	m_isValid = other.m_isValid;
 	m_Ori = other.m_Ori;
 	m_Dir = other.m_Dir;
-	m_fMax = other.m_fMax;
-	m_fMin = other.m_fMin;
+	m_tMax = other.m_tMax;
+	m_tMin = other.m_tMin;
+	m_tLimit = other.m_tLimit;
 	m_theta = other.m_theta;
 	m_costheta = other.m_costheta;
 	m_nodeType = other.m_nodeType;
@@ -51,8 +53,9 @@ HOST_DEVICE_FUNC Ray2DGPU& Ray2DGPU::operator=(const Ray2DGPU& ray)
 	m_isValid = ray.m_isValid;
 	m_Ori = ray.m_Ori;
 	m_Dir = ray.m_Dir;
-	m_fMax = ray.m_fMax;
-	m_fMin = ray.m_fMin;
+	m_tMax = ray.m_tMax;
+	m_tMin = ray.m_tMin;
+	m_tLimit = ray.m_tLimit;
 	m_theta = ray.m_theta;
 	m_costheta = ray.m_costheta;
 	m_nodeType = ray.m_nodeType;
@@ -77,7 +80,7 @@ HOST_DEVICE_FUNC Point2D Ray2DGPU::operator()(RtLbsType t) const
 HOST_DEVICE_FUNC RtLbsType Ray2DGPU::GetRayRadis(RtLbsType t) const
 {
 	//根据theta角和t值确定在t处的半径
-	RtLbsType t_total = t + m_fMax - m_fMin;//修正-计算从广义源发出的射线半径角度
+	RtLbsType t_total = t + m_tMax - m_tMin;//修正-计算从广义源发出的射线半径角度
 	RtLbsType r = t_total * static_cast<RtLbsType>(sin(m_theta) / m_costheta);
 	return r;
 }
@@ -85,7 +88,7 @@ HOST_DEVICE_FUNC RtLbsType Ray2DGPU::GetRayRadis(RtLbsType t) const
 
 HOST_DEVICE_FUNC Point2D Ray2DGPU::GetVisualSource() const
 {
-	RtLbsType tRef = m_fMax - m_fMin;//当前节点到广义源的距离
+	RtLbsType tRef = m_tMax - m_tMin;//当前节点到广义源的距离
 	return (*this)(-tRef);
 }
 

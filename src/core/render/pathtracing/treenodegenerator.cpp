@@ -131,6 +131,72 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<PathNode*>* outNodes)
 
 }
 
+void GenerateAllLeafTreeNode(RayTreeNode* root, std::vector<PathNode*>* outNodes)
+{
+	struct StackItem {
+		RayTreeNode* node;									/** @brief	当前节点	*/
+		int fatherNodeId;									/** @brief	父节点在数组中的ID	*/
+	};
+	std::stack<StackItem> stack;
+	if (root == nullptr)
+		return;
+	//将所有虚拟根节点添加到栈中
+
+	RayTreeNode* tempNode = root;							/** @brief	临时节点，用于进行迭代	*/
+
+	//确定虚拟根节点的数量
+	int vrootNum = 0;
+	tempNode = tempNode->m_pRight;							//过滤掉第一个无效root,只保留vroot
+	while (tempNode != nullptr) {
+		tempNode = tempNode->m_pRight;
+		vrootNum++;
+	}
+	tempNode = root->m_pRight;
+	for (int i = 0; i < vrootNum; ++i) {
+		if (!tempNode->m_isValid) {							//禁止无效节点入栈
+			tempNode = tempNode->m_pRight;
+			continue;
+		}
+		stack.push({ tempNode, -1 });						//根节点的父节点ID为-1
+		tempNode = tempNode->m_pRight;
+	}
+
+	while (!stack.empty()) {
+		StackItem curItem = stack.top();
+		stack.pop();
+
+		RayTreeNode* curNode = curItem.node;				/** @brief	当前节点	*/
+		int curFatherNodeId = curItem.fatherNodeId;			/** @brief	当前节点的父节点ID	*/
+
+		if (!curNode->m_isValid ||
+			curNode->m_data->m_type == NODE_LOS ||
+			curNode->m_data->m_type == NODE_STOP ||
+			curNode->m_data->m_type == NODE_TRANIN ||
+			curNode->m_data->m_type == NODE_ETRANIN) { //无效节点：停止节点、透射入节点、经验透射入节点均为无效节点(对于求解广义源来说是无效的),不纳入节点
+		}
+		else {
+			if (curNode->IsValidLeafNode()) {				//判断是否是有效叶子节点
+				outNodes->push_back(new PathNode(*curNode->m_data));
+				outNodes->back()->m_fatherNodeId = curFatherNodeId;		//修改新入数组元素的父节点ID
+			}
+			
+		}
+		if (curNode->m_pLeft) {
+			RayTreeNode* child = curNode->m_pLeft;
+			int curNodeId = static_cast<int>(outNodes->size()) - 1;			/** @brief	当前入数组节点的ID	*/
+			while (child) {
+				if (!child->m_isValid) {					//禁止无效节点入栈
+					child = child->m_pRight;
+					continue;
+				}
+				stack.push({ child, curNodeId });
+				child = child->m_pRight;
+			}
+		}
+	}
+}
+
+
 void GenerateMultiPath(RayTreeNode* root, std::vector<RayPath*>& outPaths)
 {
 	struct StackItem {

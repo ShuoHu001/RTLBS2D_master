@@ -49,8 +49,8 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_fatherNodeId(-1)
 {
 	
-	m_ft = prevRay.m_fMax + (point - prevRay.m_Ori).Length();//到root源的距离
-    RtLbsType t_relative = prevRay.m_fMax - prevRay.m_fMin;
+	m_ft = prevRay.m_tMax + (point - prevRay.m_Ori).Length();//到root源的距离
+    RtLbsType t_relative = prevRay.m_tMax - prevRay.m_tMin;
 	m_source = GetRayCoordinate(prevRay, -t_relative);
 }
 
@@ -64,8 +64,8 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_prevRay(prevRay)
     , m_fatherNodeId(-1)
 {
-	m_ft = prevRay.m_fMax + (point - prevRay.m_Ori).Length();//到root源的距离
-	RtLbsType t_relative = prevRay.m_fMax - prevRay.m_fMin;
+	m_ft = prevRay.m_tMax + (point - prevRay.m_Ori).Length();//到root源的距离
+	RtLbsType t_relative = prevRay.m_tMax - prevRay.m_tMin;
 	m_source = GetRayCoordinate(prevRay, -t_relative);
 }
 
@@ -80,8 +80,8 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_nextRay(nextRay)
     , m_fatherNodeId(-1)
 {
-	m_ft = nextRay.m_fMax;//到root源的距离
-	RtLbsType t_relative = nextRay.m_fMax - nextRay.m_fMin;//相对于上一个广义源的距离
+	m_ft = nextRay.m_tMax;//到root源的距离
+	RtLbsType t_relative = nextRay.m_tMax - nextRay.m_tMin;//相对于上一个广义源的距离
 	m_source = GetRayCoordinate(nextRay, -t_relative);//倒推出广义源的位置
 }
 
@@ -96,7 +96,7 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_nextRay(nextRay)
     , m_fatherNodeId(-1)
 {
-	m_ft = nextRay.m_fMin;//到root源的距离
+	m_ft = nextRay.m_tMin;//到root源的距离
 	m_source = wedge->m_point;
 }
 
@@ -112,8 +112,8 @@ PathNode::PathNode(const LimitInfo& limitInfo, PATHNODETYPE type, Point2D point,
     , m_prevRay(prevRay)
     , m_fatherNodeId(-1)
 {
-	m_ft = prevRay.m_fMax + (point - prevRay.m_Ori).Length();//到root源的距离
-	RtLbsType t_relative = prevRay.m_fMax - prevRay.m_fMin;
+	m_ft = prevRay.m_tMax + (point - prevRay.m_Ori).Length();//到root源的距离
+	RtLbsType t_relative = prevRay.m_tMax - prevRay.m_tMin;
 	m_source = GetRayCoordinate(prevRay, -t_relative);
 }
 

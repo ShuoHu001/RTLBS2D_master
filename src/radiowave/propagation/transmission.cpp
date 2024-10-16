@@ -5,12 +5,16 @@ bool GenerateTransmitRay(const Ray2D& incident_ray, const Intersection2D& inter,
 	type = NODE_TRANIN;				//默认为透射入状态
 	if (!inter.m_propagationProperty.m_hasTransmission)			//若面元无透射属性，则返回false
 		return false;
+	if ((incident_ray.m_tMax + inter.m_ft) > incident_ray.m_tLimit) {		//超过最远距离限制，不产生透射
+		return false;
+	}
 	if (inter.m_segment->m_refractN == inter.m_segment->m_refractNOut) {//介质为“空气”介质，不改变传播方向
 		ray->m_Dir = incident_ray.m_Dir;
 		ray->m_Ori = inter.m_intersect;
 		ray->m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;
-		ray->m_fMin = incident_ray.m_fMin;
-		ray->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+		ray->m_tMin = incident_ray.m_tMin;
+		ray->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
+		ray->m_tLimit = incident_ray.m_tLimit;
 		ray->m_theta = incident_ray.m_theta;
 		ray->m_costheta = incident_ray.m_costheta;
 		ray->m_bsplit = incident_ray.m_bsplit;
@@ -47,8 +51,9 @@ bool GenerateTransmitRay(const Ray2D& incident_ray, const Intersection2D& inter,
 		LOG_ERROR << "计算到临界角，请检查错误" << CRASH;
 	ray->m_Ori = inter.m_intersect;
 	ray->m_fRefractiveIndex = n2; /** @brief	进入到"出射介质体中"	*/
-	ray->m_fMin = incident_ray.m_fMin;
-	ray->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	ray->m_tMin = incident_ray.m_tMin;
+	ray->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
+	ray->m_tLimit = incident_ray.m_tLimit;
 	ray->m_theta = incident_ray.m_theta;
 	ray->m_costheta = incident_ray.m_costheta;
 	ray->m_bsplit = incident_ray.m_bsplit; 
@@ -62,6 +67,9 @@ bool GenerateEmpiricalTransmitRay(const Ray2D& incident_ray, const Intersection2
 	type = NODE_ETRANIN;													//默认为经验透射入节点
 	if (!inter.m_propagationProperty.m_hasEmpiricalTransmission)			//交点不具备经验穿透属性，直接返回
 		return false;
+	if ((incident_ray.m_tMax + inter.m_ft) > incident_ray.m_tLimit) {		//超过最远距离限制，不产生透射
+		return false;
+	}
 	const Vector2D& inDir = incident_ray.m_Dir;								/** @brief	入射方向	*/
 	const Vector2D& nDir = inter.m_segment->m_normal;						/** @brief	面元法线方向	*/
 	if (inDir * nDir > 0) {													//点乘大于0，表明从介质中传出，为经验透射出节点
@@ -70,8 +78,9 @@ bool GenerateEmpiricalTransmitRay(const Ray2D& incident_ray, const Intersection2
 	ray->m_Dir = incident_ray.m_Dir;
 	ray->m_Ori = inter.m_intersect;
 	ray->m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;
-	ray->m_fMin = incident_ray.m_fMin;
-	ray->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	ray->m_tMin = incident_ray.m_tMin;
+	ray->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
+	ray->m_tLimit = incident_ray.m_tLimit;
 	ray->m_theta = incident_ray.m_theta;
 	ray->m_costheta = incident_ray.m_costheta;
 	ray->m_bsplit = incident_ray.m_bsplit;

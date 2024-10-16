@@ -13,8 +13,8 @@ HOST_DEVICE_FUNC bool GenerateTransmitRayGPU(const Intersection2DGPU& inter, int
 		*newRay = incident_ray;
 		newRay->m_isValid = true;
 		newRay->m_Ori = inter.m_intersect;
-		newRay->m_fMin = incident_ray.m_fMin;
-		newRay->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+		newRay->m_tMin = incident_ray.m_tMin;
+		newRay->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 		newRay->m_primitiveId = inter.m_segmentId;
 		newRay->m_nodeType = tranType;
 		newRay->m_prevInterId = prevInterId;
@@ -52,8 +52,8 @@ HOST_DEVICE_FUNC bool GenerateTransmitRayGPU(const Intersection2DGPU& inter, int
 	newRay->m_limTran = incident_ray.m_limTran - 1;
 	newRay->m_Ori = inter.m_intersect;
 	newRay->m_fRefractiveIndex = n2; /** @brief	进入到"出射介质体中"	*/
-	newRay->m_fMin = incident_ray.m_fMin;
-	newRay->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	newRay->m_tMin = incident_ray.m_tMin;
+	newRay->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 	newRay->m_bsplit = false; //透射射线不具备分裂属性
 	newRay->m_primitiveId = inter.m_segmentId;
 	newRay->m_nodeType = tranType;
@@ -74,8 +74,8 @@ HOST_DEVICE_FUNC bool GenerateEmpiricalTransmitRayGPU(const Intersection2DGPU& i
 	*newRay = incident_ray;
 	newRay->m_isValid = true;
 	newRay->m_Ori = inter.m_intersect;
-	newRay->m_fMin = incident_ray.m_fMin;
-	newRay->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	newRay->m_tMin = incident_ray.m_tMin;
+	newRay->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 	newRay->m_primitiveId = inter.m_segmentId;
 	newRay->m_nodeType = tranType;
 	newRay->m_prevInterId = prevInterId;
@@ -99,8 +99,8 @@ HOST_DEVICE_FUNC bool GenerateTransmitRayGPU(const Intersection2DGPU& inter, int
 		*newRay = incident_ray;
 		newRay->m_isValid = true;
 		newRay->m_Ori = inter.m_intersect;
-		newRay->m_fMin = incident_ray.m_fMin;
-		newRay->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+		newRay->m_tMin = incident_ray.m_tMin;
+		newRay->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 		newRay->m_primitiveId = inter.m_segmentId;
 		newRay->m_nodeType = tranType;
 		newRay->m_prevInterId = prevInterId;
@@ -141,8 +141,8 @@ HOST_DEVICE_FUNC bool GenerateTransmitRayGPU(const Intersection2DGPU& inter, int
 	newRay->m_limTran = incident_ray.m_limTran - 1;
 	newRay->m_Ori = inter.m_intersect;
 	newRay->m_fRefractiveIndex = n2; /** @brief	进入到"出射介质体中"	*/
-	newRay->m_fMin = incident_ray.m_fMin;
-	newRay->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	newRay->m_tMin = incident_ray.m_tMin;
+	newRay->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 	newRay->m_bsplit = incident_ray.m_bsplit; 
 	newRay->m_primitiveId = inter.m_segmentId;
 	newRay->m_nodeType = tranType;
@@ -152,7 +152,7 @@ HOST_DEVICE_FUNC bool GenerateTransmitRayGPU(const Intersection2DGPU& inter, int
 	node->m_isValid = true;
 	node->m_type = tranType;
 	node->m_depth = layer;
-	node->m_t = newRay->m_fMax;
+	node->m_t = newRay->m_tMax;
 	node->m_point = inter.m_intersect;
 	node->m_segmentId = inter.m_segmentId;
 	node->m_wedgeId = inter.m_wedgeId;
@@ -174,8 +174,8 @@ HOST_DEVICE_FUNC bool GenerateEmpiricalTransmitRayGPU(const Intersection2DGPU& i
 	*newRay = incident_ray;
 	newRay->m_isValid = true;
 	newRay->m_Ori = inter.m_intersect;
-	newRay->m_fMin = incident_ray.m_fMin;
-	newRay->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	newRay->m_tMin = incident_ray.m_tMin;
+	newRay->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 	newRay->m_bsplit = incident_ray.m_bsplit;
 	newRay->m_primitiveId = inter.m_segmentId;
 	newRay->m_nodeType = tranType;
@@ -185,7 +185,7 @@ HOST_DEVICE_FUNC bool GenerateEmpiricalTransmitRayGPU(const Intersection2DGPU& i
 	node->m_isValid = true;
 	node->m_type = tranType;
 	node->m_depth = layer;
-	node->m_t = newRay->m_fMax;
+	node->m_t = newRay->m_tMax;
 	node->m_point = inter.m_intersect;
 	node->m_segmentId = inter.m_segmentId;
 	node->m_wedgeId = inter.m_wedgeId;

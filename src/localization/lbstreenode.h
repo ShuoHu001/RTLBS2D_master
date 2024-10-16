@@ -36,7 +36,8 @@ public:
 	LBSTreeNode& operator = (const LBSTreeNode& node);
 
 	void GetGeneralSource_AOA(GeneralSource* source) const;														//获取广义源-AOA型方法，包含： AOA、AOA-TDOA
-	void GetGeneralSource_TDOA(GeneralSource* source) const;						//获取广义源-TDOA型方法，包含：TDOA
+	void GetGeneralSource_TOA(GeneralSource* source) const;														//获取广义源-TOA方法, 包含TOA
+	void GetGeneralSource_TDOA(GeneralSource* source) const;													//获取广义源-TDOA型方法，包含：TDOA
 };
 
 #endif

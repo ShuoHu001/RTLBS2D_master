@@ -947,7 +947,7 @@ bool PathTraceGPULite(RayPathGPU& inpath, const Segment2DGPU* segments)
 	const PathNodeGPU* secondNode = *prev(nodes.end());//由于需要倒序，这里的第二个节点为倒数第二个节点
 	const Ray2DGPU& initRay = secondNode->m_inter.m_ray;
 	//求解到目标点的射线半径r
-	RtLbsType t = backNode->m_inter.m_ray.m_fMax - backNode->m_inter.m_ray.m_fMin + (backNode->m_inter.m_intersect - backNode->m_inter.m_ray.m_Ori).Length();
+	RtLbsType t = backNode->m_inter.m_ray.m_tMax - backNode->m_inter.m_ray.m_tMin + (backNode->m_inter.m_intersect - backNode->m_inter.m_ray.m_Ori).Length();
 	RtLbsType r = initRay.GetRayRadis(t);
 	int splitNum = static_cast<int>(ceil(r / TRAN_EPSILON));
 	double theta = initRay.m_theta * 2.0;

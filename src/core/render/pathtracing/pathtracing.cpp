@@ -1120,7 +1120,7 @@ bool PathTraceLite(RayPath*& inpath) {
 	PathNode* backNode = nodes.back();
 	PathNode* secondNode = nodes[1];
 	const Ray2D& init_ray = secondNode->m_prevRay;
-	RtLbsType t = backNode->m_prevRay.m_fMax - backNode->m_prevRay.m_fMin + (backNode->m_point - backNode->m_prevRay.m_Ori).Length();//传播长度
+	RtLbsType t = backNode->m_prevRay.m_tMax - backNode->m_prevRay.m_tMin + (backNode->m_point - backNode->m_prevRay.m_Ori).Length();//传播长度
 	RtLbsType r = init_ray.GetRayRadius(t);
 	int splitNum = static_cast<int>(ceil(r / TRAN_EPSILON));
 	double theta = init_ray.m_theta * 2.0;

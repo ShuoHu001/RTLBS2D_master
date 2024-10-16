@@ -18,6 +18,7 @@ public:
 	void Init(const std::vector<Sensor*>& sensors);
 };
 
+//AOA方法遍历射线结构树节点————CPU单核 适用于AOA、AOA-TDOA算法
 inline void TreeNodeGenerator_AOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, LBSInfoCluster& infoCluster)
 {
 	size_t sensorNum = scene->m_sensors.size();
@@ -44,6 +45,7 @@ inline void TreeNodeGenerator_AOA_CPUSingleThread(const std::vector<RayTreeNode*
 	}
 }
 
+//TDOA方法遍历射线结构树节点————CPU单核 适用于TDOA算法
 inline void TreeNodeGenerator_TDOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, LBSInfoCluster& infoCluster)
 {
 	size_t sensorNum = scene->m_sensors.size();
@@ -67,6 +69,33 @@ inline void TreeNodeGenerator_TDOA_CPUSingleThread(const std::vector<RayTreeNode
 	}
 }
 
+//TOA方法遍历射线结构树节点————CPU单核 适用于TOA、AOA-TOA算法
+inline void TreeNodeGenerator_TOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, LBSInfoCluster& infoCluster) {
+	size_t sensorNum = scene->m_sensors.size();
+	for (size_t i = 0; i < sensorNum; ++i) {
+		const Sensor* curSensor = scene->m_sensors[i];
+		if (!curSensor->m_isValid) {								//跳过无效传感器
+			continue;
+		}
+
+		std::vector<PathNode*> nodes;
+		GenerateAllLeafTreeNode(vroots[i], &nodes);					//TOA算法只需要获取所有有效叶子节点即可
+		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
+		for (int j = 0; j < nodes.size(); ++j) {
+			const PathNode* curPathNode = nodes[j];
+			int sensorDataId = curPathNode->m_nextRay.m_sensorDataId;
+			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
+			lbsNodes[j] = new LBSTreeNode(*curPathNode, sensorData);
+		}
+		for (auto& node : nodes) {
+			delete node;
+		}
+
+		infoCluster.m_infos[i]->SetNodes(lbsNodes);
+	}
+}
+
+//AOA方法遍历射线结构树节点————CPU多核
 inline void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, int16_t threadNum, LBSInfoCluster& infoCluster)
 {
 	size_t sensorNum = scene->m_sensors.size();
@@ -110,6 +139,8 @@ inline void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>
 	}
 }
 
+
+//TDOA方法遍历射线结构树节点————CPU多核
 inline void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, int16_t threadNum, LBSInfoCluster& infoCluster)
 {
 	size_t sensorNum = scene->m_sensors.size();
@@ -153,6 +184,7 @@ inline void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*
 	}
 }
 
+//产生GPU方法节点信息
 inline void TreeNodeGenerator_GPUMultiThread(const std::vector<std::vector<TreeNodeGPU*>>& gpuTreeNodes, const Scene* scene, LBSInfoCluster& infoCluster)//未完成修改
 {
 	for (int i = 0; i < gpuTreeNodes.size(); ++i) {

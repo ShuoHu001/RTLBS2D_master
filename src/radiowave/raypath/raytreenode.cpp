@@ -27,6 +27,17 @@ RayTreeNode::~RayTreeNode()
 	}
 }
 
+bool RayTreeNode::IsValidLeafNode() const
+{
+	if (m_pLeft == nullptr) {		//若该节点无子节点，则为真正叶子节点，该节点无效
+		return false;
+	}
+	if (m_pLeft->m_pLeft != nullptr) { //若该节点
+		return false;
+	}
+	return true;
+}
+
 void RayTreeNode::SetGeneralFatherNode(RayTreeNode* prevNode)
 {
 	if (m_data->m_type == NODE_ROOT || m_data->m_type == NODE_DIFF) {		//若分裂节点本身为根节点，则认定其本身为广义父节点
@@ -50,7 +61,7 @@ bool RayTreeNode::IsCaptureByPoint(const Point2D& p, RtLbsType splitRadius, RayT
 
 	Vector2D op = p - prev_node->m_source ;   //广义源到当前节点的向量，这里必须用前一个节点的坐标值 
 	RtLbsType t_op = op.Length();				//当前节点距离广义源的距离
-	RtLbsType t = t_op + cur_node->m_prevRay.m_fMin;//修正为root源的距离  p到广义源距离+广义源所在节点出射射线的最小距离值
+	RtLbsType t = t_op + cur_node->m_prevRay.m_tMin;//修正为root源的距离  p到广义源距离+广义源所在节点出射射线的最小距离值
 	RtLbsType tmin = prev_node->m_ft;//距离最小值
 	RtLbsType tmax = cur_node->m_ft + splitRadius;//距离最大值 增加修正splitRadius(近似)
 

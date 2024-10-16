@@ -2,19 +2,23 @@
 
 
 bool GenerateReflectRay(const Ray2D& incident_ray, const Intersection2D& inter, Ray2D* ray) {
-	if (inter.m_segment->m_refractN == inter.m_segment->m_refractNOut)//面元折射率与外界折射率相同，无反射
+	if (inter.m_segment->m_refractN == inter.m_segment->m_refractNOut)			//面元折射率与外界折射率相同，无反射
 		return false;
-	if (!inter.m_propagationProperty.m_hasRelfection)			//若面元不具有反射属性，则返回false
+	if (!inter.m_propagationProperty.m_hasRelfection)							//若面元不具有反射属性，则返回false
 		return false;
 	if (incident_ray.m_fRefractiveIndex == inter.m_segment->m_refractN) {		//若射线n值和面元n值相同，不产生介质内的反射路径
+		return false;
+	}
+	if ((incident_ray.m_tMax + inter.m_ft) > incident_ray.m_tLimit) {			//传播距离大于最远距离限制，不再进行反射传播
 		return false;
 	}
 	//根据入射射线求解反射射线向量
 	ray->m_Dir = incident_ray.m_Dir - 2 * (incident_ray.m_Dir * inter.m_segment->m_normal) * inter.m_segment->m_normal;
 	ray->m_Ori = inter.m_intersect;
 	ray->m_fRefractiveIndex = incident_ray.m_fRefractiveIndex; //反射过程中折射率介质不变
-	ray->m_fMin = incident_ray.m_fMin;
-	ray->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	ray->m_tMin = incident_ray.m_tMin;
+	ray->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
+	ray->m_tLimit = incident_ray.m_tLimit;
 	ray->m_theta = incident_ray.m_theta;
 	ray->m_costheta = incident_ray.m_costheta;
 	ray->m_bsplit = incident_ray.m_bsplit;

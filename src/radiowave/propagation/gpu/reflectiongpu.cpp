@@ -18,8 +18,8 @@ HOST_DEVICE_FUNC bool GenerateReflectRayGPU(const Intersection2DGPU& inter, int 
 	ray->m_Dir = incident_ray.m_Dir - 2 * (incident_ray.m_Dir * segment.m_normal) * segment.m_normal;
 	ray->m_Ori = inter.m_intersect;
 	ray->m_fRefractiveIndex = incident_ray.m_fRefractiveIndex; //反射过程中折射率介质不变
-	ray->m_fMin = incident_ray.m_fMin;
-	ray->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	ray->m_tMin = incident_ray.m_tMin;
+	ray->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 	ray->m_theta = incident_ray.m_theta;
 	ray->m_costheta = incident_ray.m_costheta;
 	ray->m_bsplit = incident_ray.m_bsplit;
@@ -51,8 +51,8 @@ HOST_DEVICE_FUNC bool GenerateReflectRayGPU(const Intersection2DGPU& inter, int 
 	ray->m_Dir = incident_ray.m_Dir - 2 * (incident_ray.m_Dir * segment.m_normal) * segment.m_normal;
 	ray->m_Ori = inter.m_intersect;
 	ray->m_fRefractiveIndex = incident_ray.m_fRefractiveIndex; //反射过程中折射率介质不变
-	ray->m_fMin = incident_ray.m_fMin;
-	ray->m_fMax = incident_ray.m_fMax + inter.m_ft;//叠加传播距离
+	ray->m_tMin = incident_ray.m_tMin;
+	ray->m_tMax = incident_ray.m_tMax + inter.m_ft;//叠加传播距离
 	ray->m_theta = incident_ray.m_theta;
 	ray->m_costheta = incident_ray.m_costheta;
 	ray->m_bsplit = incident_ray.m_bsplit;
@@ -64,7 +64,7 @@ HOST_DEVICE_FUNC bool GenerateReflectRayGPU(const Intersection2DGPU& inter, int 
 	treenode->m_isValid = true;
 	treenode->m_type = NODE_REFL;
 	treenode->m_depth = layer;
-	treenode->m_t = ray->m_fMax;
+	treenode->m_t = ray->m_tMax;
 	treenode->m_point = inter.m_intersect;
 	treenode->m_segmentId = inter.m_segmentId;
 	treenode->m_wedgeId = inter.m_wedgeId;

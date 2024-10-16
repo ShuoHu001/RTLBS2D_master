@@ -182,7 +182,7 @@ HOST_DEVICE_FUNC void SignedDistanceFieldGPU::GetIntersect(const Ray2DGPU& ray, 
 HOST_DEVICE_FUNC bool SignedDistanceFieldGPU::IsRayCaptureByWedgePoint(const Ray2DGPU& ray, Point2D& p, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments) const
 {
 	//计算广义源位置
-	RtLbsType t = ray.m_fMax - ray.m_fMin;//与广义源的距离
+	RtLbsType t = ray.m_tMax - ray.m_tMin;//与广义源的距离
 	Point2D vSource = ray.m_Ori + ray.m_Dir * -t;
 	Vector2D op = (p - vSource).Normalize();
 	double op_costheta = op * ray.m_Dir;

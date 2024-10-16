@@ -20,7 +20,7 @@ HOST_DEVICE_FUNC bool GenerateDiffractRaysGPU(const Intersection2DGPU& inter, Ra
 		external_angle = TWO_PI - external_angle;
 		orientation *= -1.0;//切换旋转方向
 	}
-	RtLbsType new_m_ft = incident_ray.m_fMax + (wedge->m_edge - incident_ray.m_Ori).Length();//更新绕射射线距离源的距离
+	RtLbsType new_m_ft = incident_ray.m_tMax + (wedge->m_edge - incident_ray.m_Ori).Length();//更新绕射射线距离源的距离
 	double delta_theta = external_angle / (raynum - 2);
 	double half_theta = delta_theta / 2.0;
 	double cos_halftheta = cos(half_theta);
@@ -32,8 +32,8 @@ HOST_DEVICE_FUNC bool GenerateDiffractRaysGPU(const Intersection2DGPU& inter, Ra
 	newRay.m_limTran = incident_ray.m_limTran;
 	newRay.m_limScat = incident_ray.m_limScat;
 	newRay.m_Ori = wedge->m_edge;
-	newRay.m_fMin = new_m_ft;
-	newRay.m_fMax = new_m_ft;
+	newRay.m_tMin = new_m_ft;
+	newRay.m_tMax = new_m_ft;
 	newRay.m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;//绕射过程中射线上的折射率不变
 	newRay.m_nodeType = NODE_DIFF;
 	newRay.m_theta = half_theta;
@@ -89,7 +89,7 @@ HOST_DEVICE_FUNC bool GenerateDiffractRaysGPU(const Intersection2DGPU& inter, Ra
 		external_angle = TWO_PI - external_angle;
 		orientation *= -1.0;//切换旋转方向
 	}
-	RtLbsType new_m_ft = incident_ray.m_fMax + (wedge->m_edge - incident_ray.m_Ori).Length();//更新绕射射线距离源的距离
+	RtLbsType new_m_ft = incident_ray.m_tMax + (wedge->m_edge - incident_ray.m_Ori).Length();//更新绕射射线距离源的距离
 	double delta_theta = external_angle / (raynum - 2);
 	double half_theta = delta_theta / 2.0;
 	double cos_halftheta = cos(half_theta);
@@ -101,8 +101,8 @@ HOST_DEVICE_FUNC bool GenerateDiffractRaysGPU(const Intersection2DGPU& inter, Ra
 	newRay.m_limTran = incident_ray.m_limTran;
 	newRay.m_limScat = incident_ray.m_limScat;
 	newRay.m_Ori = wedge->m_edge;
-	newRay.m_fMin = new_m_ft;
-	newRay.m_fMax = new_m_ft;
+	newRay.m_tMin = new_m_ft;
+	newRay.m_tMax = new_m_ft;
 	newRay.m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;//绕射过程中射线上的折射率不变
 	newRay.m_nodeType = NODE_DIFF;
 	newRay.m_theta = half_theta;

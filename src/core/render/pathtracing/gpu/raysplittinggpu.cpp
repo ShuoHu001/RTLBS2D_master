@@ -52,7 +52,7 @@ HOST_DEVICE_FUNC void GenerateSplittingRayGPU(Ray2DGPU& initRay, int splitNum, R
 
 
 
-	RtLbsType t = initRay.m_fMax - initRay.m_fMin;
+	RtLbsType t = initRay.m_tMax - initRay.m_tMin;
 	Point2D vSource = initRay(-t);//计算广义源的位置
 	Intersection2DGPU intersect;
 	Ray2DGPU tempRay2(initRay);

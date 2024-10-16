@@ -9,6 +9,11 @@ bool GenerateDiffractRays(const Ray2D& incident_ray, int diffractRayNum, Wedge2D
 	if (incident_ray.m_fRefractiveIndex == wedge->m_face1->m_refractN) {	//若入射射线折射率和棱劈折射率相同，根据规则，不会产生绕射路径
 		return false;
 	}
+
+	RtLbsType tNew = (wedge->m_point - incident_ray.m_Ori).Length();		/** @brief	新传播段距离	*/
+	if ((incident_ray.m_tMax + tNew) > incident_ray.m_tLimit) {				//超过最远距离限制，不产生透射
+		return false;
+	}
 	unsigned raynum = diffractRayNum + RANDINT(0, DIFF_DELTARAYNUM) + 2;  //这里多加两根射线为的是弥补两根边缘张角为0的射线
 	double orientation = 1.0;  /** @brief	旋转方向 1:逆时针 -1:顺时针，默认逆时针	*/
 	double external_angle = wedge->m_theta;
@@ -24,14 +29,15 @@ bool GenerateDiffractRays(const Ray2D& incident_ray, int diffractRayNum, Wedge2D
 		external_angle = TWO_PI - external_angle;
 		orientation *= -1.0;//切换旋转方向
 	}
-	RtLbsType new_m_ft = incident_ray.m_fMax + (wedge->m_point - incident_ray.m_Ori).Length();//更新绕射射线距离源的距离
+	RtLbsType new_m_ft = incident_ray.m_tMax + tNew;//更新绕射射线距离源的距离
 	double delta_theta = external_angle / (raynum - 2);
 	double half_theta = delta_theta / 2.0;
 	double cos_halftheta = cos(half_theta);
 	(*rays)[0].m_Ori = wedge->m_point;//第一个角度方向,墙体方向1
 	(*rays)[0].m_Dir = wedge->m_dir1;
-	(*rays)[0].m_fMin = new_m_ft;
-	(*rays)[0].m_fMax = new_m_ft;
+	(*rays)[0].m_tMin = new_m_ft;
+	(*rays)[0].m_tMax = new_m_ft;
+	(*rays)[0].m_tLimit = incident_ray.m_tLimit;
 	(*rays)[0].m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;//绕射过程中射线上的折射率不变
 	(*rays)[0].m_theta = 0.0;
 	(*rays)[0].m_costheta = 1.0;//设置射线半角
@@ -42,8 +48,9 @@ bool GenerateDiffractRays(const Ray2D& incident_ray, int diffractRayNum, Wedge2D
 
 	(*rays)[1].m_Ori = wedge->m_point;  //弥补第一条射线的half_theta空白
 	(*rays)[1].m_Dir = oa.Rotate(orientation * half_theta);//加上旋转方向
-	(*rays)[1].m_fMin = new_m_ft;
-	(*rays)[1].m_fMax = new_m_ft;
+	(*rays)[1].m_tMin = new_m_ft;
+	(*rays)[1].m_tMax = new_m_ft;
+	(*rays)[1].m_tLimit = incident_ray.m_tLimit;
 	(*rays)[1].m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;//绕射过程中射线上的折射率不变
 	(*rays)[1].m_theta = half_theta;
 	(*rays)[1].m_costheta = cos_halftheta;//设置射线半角
@@ -55,8 +62,9 @@ bool GenerateDiffractRays(const Ray2D& incident_ray, int diffractRayNum, Wedge2D
 	for (unsigned i = 2; i < raynum - 1; i++) {//中间角度方向
 		(*rays)[i].m_Ori = wedge->m_point;
 		(*rays)[i].m_Dir = oa.Rotate(orientation * delta_theta);//每次旋转一定角度，离散化
-		(*rays)[i].m_fMin = new_m_ft;
-		(*rays)[i].m_fMax = new_m_ft;
+		(*rays)[i].m_tMin = new_m_ft;
+		(*rays)[i].m_tMax = new_m_ft;
+		(*rays)[i].m_tLimit = incident_ray.m_tLimit;
 		(*rays)[i].m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;
 		(*rays)[i].m_theta = half_theta;
 		(*rays)[i].m_costheta = cos_halftheta;
@@ -68,8 +76,9 @@ bool GenerateDiffractRays(const Ray2D& incident_ray, int diffractRayNum, Wedge2D
 
 	(*rays)[raynum - 1].m_Ori = wedge->m_point;//最后一个方向,墙体方向2
 	(*rays)[raynum - 1].m_Dir = wedge->m_dir2;
-	(*rays)[raynum - 1].m_fMin = new_m_ft;
-	(*rays)[raynum - 1].m_fMax = new_m_ft;
+	(*rays)[raynum - 1].m_tMin = new_m_ft;
+	(*rays)[raynum - 1].m_tMax = new_m_ft;
+	(*rays)[raynum - 1].m_tLimit = incident_ray.m_tLimit;
 	(*rays)[raynum - 1].m_fRefractiveIndex = incident_ray.m_fRefractiveIndex;
 	(*rays)[raynum - 1].m_theta = 0.0;
 	(*rays)[raynum - 1].m_costheta = 1.0;
