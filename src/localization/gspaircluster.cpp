@@ -14,6 +14,7 @@ GSPairCluster::GSPairCluster()
     , m_phiResidual(0.0)
     , m_timeResidual(0.0)
     , m_timeDiffResidual(0.0)
+    , m_powerResidual(0.0)
     , m_powerDiffResidual(0.0)
     , m_nullDataNum(0)
     , m_weight(0.0)
@@ -37,6 +38,7 @@ GSPairCluster::GSPairCluster(const GSPairCluster& cluster)
     , m_phiResidual(cluster.m_phiResidual)
     , m_timeResidual(cluster.m_timeResidual)
     , m_timeDiffResidual(cluster.m_timeDiffResidual)
+    , m_powerResidual(cluster.m_powerResidual)
     , m_powerDiffResidual(cluster.m_powerDiffResidual)
     , m_nullDataNum(cluster.m_nullDataNum)
     , m_weight(cluster.m_weight)
@@ -73,6 +75,7 @@ GSPairCluster GSPairCluster::operator=(const GSPairCluster& cluster)
     m_phiResidual = cluster.m_phiResidual;
     m_timeResidual = cluster.m_timeResidual;
     m_timeDiffResidual = cluster.m_timeDiffResidual;
+    m_powerResidual = cluster.m_powerResidual;
     m_powerDiffResidual = cluster.m_powerDiffResidual;
     m_nullDataNum = cluster.m_nullDataNum;
     m_weight = cluster.m_weight;
@@ -247,6 +250,19 @@ void GSPairCluster::SetElementAOAResidual(RtLbsType r_phi, RtLbsType r_powerDiff
     }
 }
 
+void GSPairCluster::SetElementTOAResidual(RtLbsType r_time, RtLbsType r_power, int nullDataNum)
+{
+	m_timeResidual = r_time;
+	m_powerResidual = r_power;
+	m_nullDataNum = nullDataNum;
+	for (auto pair : m_pairs) {
+		pair->m_timeResidual = r_time;
+		pair->m_powerResidual = r_power;
+		pair->m_nullDataNum = nullDataNum;
+		pair->m_clusterSize = static_cast<int>(m_pairs.size());
+	}
+}
+
 void GSPairCluster::SetElementTDOAResidual(RtLbsType r_timeDiff, RtLbsType r_powerDiff, int nullDataNum)
 {
     m_timeDiffResidual = r_timeDiff;
@@ -272,6 +288,21 @@ void GSPairCluster::SetElementAOATDOAResidual(RtLbsType r_phi, RtLbsType r_timeD
 		pair->m_powerDiffResidual = r_powerDiff;
         pair->m_nullDataNum = nullDataNum;
         pair->m_clusterSize = static_cast<int>(m_pairs.size());
+	}
+}
+
+void GSPairCluster::SetElementAOATOAResidual(RtLbsType r_phi, RtLbsType r_time, RtLbsType r_power, int nullDataNum)
+{
+	m_phiResidual = r_phi;
+	m_timeResidual = r_time;
+	m_powerResidual = r_power;
+	m_nullDataNum = nullDataNum;
+	for (auto pair : m_pairs) {
+		pair->m_phiResidual = r_phi;
+		pair->m_timeResidual = r_time;
+		pair->m_powerResidual = r_power;
+		pair->m_nullDataNum = nullDataNum;
+		pair->m_clusterSize = static_cast<int>(m_pairs.size());
 	}
 }
 
@@ -360,4 +391,11 @@ void GSPairCluster::GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sourc
 
 
 
+}
+
+void GSPairCluster::CalculateRefSourceCount() const
+{
+    for (auto& curPair : m_pairs) {
+        curPair->m_gsRef->m_wCount += 1;
+    }
 }

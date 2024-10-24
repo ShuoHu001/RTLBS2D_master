@@ -18,6 +18,8 @@ class LBSTreeNode {
 public:
 	PATHNODETYPE m_type;											/** @brief	节点类型	*/
 	uint16_t m_depth;												/** @brief	节点所在的深度	*/
+	RtLbsType m_tMin;												/** @brief	最小传播距离	*/
+	RtLbsType m_tMax;												/** @brief	最大传播距离	*/
 	Point2D m_position;												/** @brief	节点所在坐标	*/
 	Point2D m_sourcePosition;										/** @brief	广义源点所在的坐标	*/
 	Vector2D m_rayDir;												/** @brief	节点引出射线的方向向量	*/
@@ -31,12 +33,14 @@ public:
 	LBSTreeNode(const LBSTreeNode& node);
 	LBSTreeNode(const PathNode& node, SensorData* sensorData);													//由路径节点进行初始化，含AOA型的定位算法
 	LBSTreeNode(const PathNode& node);																			//由路径节点进行初始化，只适合TDOA的定位算法
+	LBSTreeNode(const PathNode& curNode, const PathNode& nextNode);												//由路径节点进行初始化。只适合TOA单站定位算法
 	LBSTreeNode(const TreeNodeGPU& node, Segment2D* segment, Wedge2D* wedge, SensorData* sensorData);			//由GPU树节点进行初始化-弃用
 	~LBSTreeNode();
 	LBSTreeNode& operator = (const LBSTreeNode& node);
 
 	void GetGeneralSource_AOA(GeneralSource* source) const;														//获取广义源-AOA型方法，包含： AOA、AOA-TDOA
 	void GetGeneralSource_TOA(GeneralSource* source) const;														//获取广义源-TOA方法, 包含TOA
+	void GetGeneralSource_TOA(GeneralSource* source, SensorData& sensorData);									//获取广义源-TOA方法，TOA单源多数据定位
 	void GetGeneralSource_TDOA(GeneralSource* source) const;													//获取广义源-TDOA型方法，包含：TDOA
 };
 

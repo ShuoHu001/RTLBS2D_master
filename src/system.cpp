@@ -134,14 +134,15 @@ void System::RayLaunch(const RAYLAUNCHMODE& mode, uint64_t rayNum)
 		}
 	}
 	else if (m_sysMode == MODE_LBS) {
-		LOCALIZATION_METHOD localizeMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
+		LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
+		LOCALIZATION_MODE lbsMode = m_simConfig.m_lbsConfig.m_lbsMode;
 		RtLbsType rayLaunchTheta = m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta * ONE_DEGEREE * 1.1;			/** @brief	射线发射角度值,扩大1.1倍	*/
 		int sensorNum = static_cast<int>(m_scene->m_sensors.size());
 		for (int i = 0; i < sensorNum; ++i) {
 			const Sensor* curSensor = m_scene->m_sensors[i];
 			const Point2D& sPosition = curSensor->GetPosition2D();
 			RayLaunch_Uniform(rayNum, sPosition, m_rtInitRays[i]);							//增加项-在定位模式中增加从传感器中的射线追踪模块
-			RayLaunch_BySensor(localizeMethod, rayNum, curSensor, rayLaunchTheta, m_lbsInitRays[i]);
+			RayLaunch_BySensor(lbsMethod, lbsMode, rayNum, curSensor, rayLaunchTheta, m_lbsInitRays[i]);
 		}
 	}
 	return;
@@ -229,7 +230,8 @@ void System::PathBuilder(const HARDWAREMODE mode)
 
 void System::TreeNodeGenerator(const HARDWAREMODE hardwareNode)
 {
-	const LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
+	const LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;				/** @brief	定位方法	*/
+	const LOCALIZATION_MODE lbsMode = m_simConfig.m_lbsConfig.m_lbsMode;					/** @brief	定位模式	*/
 	int16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
 	if (lbsMethod == LBS_METHOD_RT_AOA || lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
 		TreeNodeGenerator_AOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
@@ -241,6 +243,20 @@ void System::TreeNodeGenerator(const HARDWAREMODE hardwareNode)
 		else {
 			TreeNodeGenerator_TDOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
 		}
+	}
+	else if (lbsMethod == LBS_METHOD_RT_TOA) {
+		if (lbsMode == LBS_MODE_MPSTSD) {													//多站单数据定位，每站时延只有一个
+			TreeNodeGenerator_AOATOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
+		}
+		else if (lbsMode == LBS_MODE_SPSTMD) {												//单站多数据定位，每站时延有多个
+			TreeNodeGenerator_TOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
+		}
+	}
+	else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
+		TreeNodeGenerator_AOATOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
+	}
+	else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+		TreeNodeGenerator_AOATDOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
 	}
 	
 }
@@ -283,6 +299,18 @@ Point2D System::TargetLocalization(LOCALIZATION_MODE lbsMode, LOCALIZATION_METHO
 		else if (lbsMethod == LBS_METHOD_RT_TDOA) {
 			targetPosition = LBS_TDOA_LOCATOR_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, lbsMethod, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
 		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
+			weightFactor.InitAOATOAweight();
+			targetPosition = LBS_AOA_TOA_Locator_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_TOA) {
+			weightFactor.InitTOAWeight();
+			targetPosition = LBS_TOA_Locator_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+			weightFactor.InitAOATDOAWeight();
+			targetPosition = LBS_AOA_TDOA_Locator_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
 
 	}
 	else if (lbsMode == LBS_MODE_SPSTMD) {
@@ -292,6 +320,18 @@ Point2D System::TargetLocalization(LOCALIZATION_MODE lbsMode, LOCALIZATION_METHO
 		}
 		else if (lbsMethod == LBS_METHOD_RT_TDOA) {
 			targetPosition = LBS_TDOA_LOCATOR_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, lbsMethod, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
+			weightFactor.InitAOATOAweight();
+			targetPosition = LBS_AOA_TOA_Locator_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_TOA) {
+			weightFactor.InitTOAWeight();
+			targetPosition = LBS_TOA_Locator_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+			weightFactor.InitAOATDOAWeight();
+			targetPosition = LBS_AOA_TDOA_Locator_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
 		}
 	}
 	return targetPosition;

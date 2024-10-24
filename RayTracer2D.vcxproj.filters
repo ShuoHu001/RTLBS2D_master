@@ -548,6 +548,12 @@
     <ClInclude Include="src\localization\aoa_tdoa\aoa_tdoa_locator.h">
       <Filter>localization\aoa_tdoa</Filter>
     </ClInclude>
+    <ClInclude Include="src\localization\toa\toa_locator.h">
+      <Filter>localization\toa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\toa\toa_solver.h">
+      <Filter>localization\toa</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -914,6 +920,12 @@
     </ClCompile>
     <ClCompile Include="src\localization\aoa_tdoa\aoa_tdoa_locator.cpp">
       <Filter>localization\aoa_tdoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\toa\toa_locator.cpp">
+      <Filter>localization\toa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\toa\toa_solver.cpp">
+      <Filter>localization\toa</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

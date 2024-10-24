@@ -44,10 +44,10 @@ void SensorDataLibrary::AddNew(SensorDataCollection& collection)
 	collection.m_sensorId = sensorNum;														//在入库的同时修改原始数据的ID
 	SensorDataCollection* newDataCollection = new SensorDataCollection(collection);
 	m_sensorDataCollection.push_back(newDataCollection);
-	for (int i = 0; i < collection.m_data.size(); ++i) {
-		collection.m_data[i].m_id = dataNum++;												//修正传感器数据ID
-		collection.m_data[i].m_sensorId = sensorNum;										//修正传感器数据所属传感器ID
-		SensorData* newData = new SensorData(collection.m_data[i]);
+	for (int i = 0; i < collection.m_datas.size(); ++i) {
+		collection.m_datas[i].m_id = dataNum++;												//修正传感器数据ID
+		collection.m_datas[i].m_sensorId = sensorNum;										//修正传感器数据所属传感器ID
+		SensorData* newData = new SensorData(collection.m_datas[i]);
 		m_sensorDatas.push_back(newData);
 	}
 }
@@ -89,7 +89,7 @@ void SensorDataLibrary::GetAllSensorDataCollection(std::vector<SensorDataCollect
 	}
 }
 
-void SensorDataLibrary::GetAllSeneorDataCollectionWithAOAError(std::vector<SensorDataCollection>& collections) const
+void SensorDataLibrary::GetAllSensorDataCollectionWithAOAError(std::vector<SensorDataCollection>& collections) const
 {
 	if (collections.size() != m_sensorDataCollection.size()) {
 		collections.resize(m_sensorDataCollection.size());
@@ -98,6 +98,18 @@ void SensorDataLibrary::GetAllSeneorDataCollectionWithAOAError(std::vector<Senso
 		collections[i] = *m_sensorDataCollection[i];
 		RtLbsType sensorPhiError = m_sensors[collections[i].m_sensorId]->m_phiErrorSTD;
 		collections[i].ReClusterByAOAError(sensorPhiError);					
+	}
+}
+
+void SensorDataLibrary::GetAllSensorDataCollectionWithTOAError(std::vector<SensorDataCollection>& collections) const
+{
+	if (collections.size() != m_sensorDataCollection.size()) {
+		collections.resize(m_sensorDataCollection.size());
+	}
+	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
+		collections[i] = *m_sensorDataCollection[i];
+		RtLbsType sensorTimeError = m_sensors[collections[i].m_sensorId]->m_phiErrorSTD;
+		collections[i].ReClusterByTOAError(sensorTimeError);
 	}
 }
 

@@ -274,7 +274,7 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	int clusterNum = static_cast<int>(gsPairClusters.size());																	//簇数量
 
 	int max_cluster_num = 0;
-	//提取广义源非重复元素
+	//提取广义源非重复元素,用于角度平均
 	allGSCopy.clear();
 	for (auto& cluster : gsPairClusters) {
 		cluster.GetNonRepeatGeneralSource(allGSCopy);
@@ -304,7 +304,7 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	int sensorNum = static_cast<int>(scene->m_sensors.size());																	/** @brief	传感器数量	*/
 	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
 	std::vector<SensorDataCollection> originalSensorDataCollection(sensorNum);													/** @brief	原始的传感器数据	*/
-	scene->m_sensorDataLibrary.GetAllSeneorDataCollectionWithAOAError(originalSensorDataCollection);							//获取原始传感器数据
+	scene->m_sensorDataLibrary.GetAllSensorDataCollectionWithAOAError(originalSensorDataCollection);							//获取原始传感器数据
 	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
 	//为了同级比较残差，这里将原始数据按照功率的大小进行排序
 	RtLbsType max_r_phi = 0.0;																									//角度最大残差

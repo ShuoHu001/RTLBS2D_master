@@ -25,6 +25,7 @@ public:
 	AOATDOASolver& operator = (const AOATDOASolver& solver);
 	void SetGeneralSource(GeneralSource* refSource, const std::vector<GeneralSource*>& gsData);
 	void SetGeneralSource(GeneralSource* refSource, GeneralSource* gs1, GeneralSource* gs2);
+	RtLbsType Solving_LS(Point2D& outP);																	//LS方法求解方程
 	Point2D Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& initPoint);
 };
 

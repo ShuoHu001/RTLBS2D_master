@@ -44,12 +44,12 @@ void RayLaunch_Uniform(const uint64_t& rayNum, const Point2D& position, std::vec
 	return;
 }
 
-void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const Sensor* sensor, RtLbsType rayLaunchTheta, std::vector<Ray2D>& outRays)
+void RayLaunch_BySensor(LOCALIZATION_METHOD lbsMethod, LOCALIZATION_MODE lbsMode, uint64_t rayNum, const Sensor* sensor, RtLbsType rayLaunchTheta, std::vector<Ray2D>& outRays)
 {
-	int sDataSize = static_cast<int>(sensor->m_sensorDataCollection.m_data.size());
+	int sDataSize = static_cast<int>(sensor->m_sensorDataCollection.m_datas.size());
 	const Point2D& sPosition = sensor->GetPosition2D();										/** @brief	传感器坐标	*/
 	//根据定位模式的不同，进行不同的发射操作
-	if (localizeMode == LBS_METHOD_RT_AOA || localizeMode == LBS_METHOD_RT_AOA_TDOA) {		//包含测向角度的定位，可按照角度进行特定发射
+	if (lbsMethod == LBS_METHOD_RT_AOA || lbsMethod == LBS_METHOD_RT_AOA_TDOA) {		//包含测向角度的定位，可按照角度进行特定发射
 		int singleDirectionRayNum = 1;														/** @brief	每个方向的射线数量,默认为1	*/
 		double thetaofSingleDirection = sensor->m_phiErrorSTD;								/** @brief	每个方向的张角	*/
 		if (sensor->m_phiErrorSTD != 0) {
@@ -60,7 +60,7 @@ void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const
 		double rayHalfTheta = rayLaunchTheta / 2.0;											/** @brief	射线半张角	*/
 
 		for (int i = 0; i < sDataSize; ++i) {
-			const SensorData& curSensorData = sensor->m_sensorDataCollection.m_data[i];
+			const SensorData& curSensorData = sensor->m_sensorDataCollection.m_datas[i];
 			Vector2D initRayDir = curSensorData.GetDirection();
 			initRayDir.Rotate(-1 * thetaofSingleDirection / 2.0 - rayHalfTheta);
 			for (int j = 0; j < singleDirectionRayNum; ++j) {
@@ -74,30 +74,52 @@ void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const
 			}
 		}
 	}
-	else if (localizeMode == LBS_METHOD_RT_TOA) {
-		//算法为TOA算法时，每个站点数据相同
-		outRays.resize(rayNum);															//射线数量确定
-		Vector2D initDir(1.0, 0.0, true);												/** @brief	初始射线角度	*/
-		double rayTheta = TWO_PI / rayNum;												/** @brief	射线张角	*/
-		double rayHalfTheta = 0.5 * rayTheta;											/** @brief	射线半张角	*/
-		double rayHalfCosTheta = cos(rayHalfTheta);										/** @brief	射线半张角余弦	*/
-		const SensorData& curSensorData = sensor->m_sensorDataCollection.m_data[0];
-		for (uint64_t i = 0; i < rayNum; ++i) {
-			outRays[i].m_theta = rayHalfTheta;
-			outRays[i].m_costheta = rayHalfCosTheta;
-			outRays[i].m_Ori = sPosition;
-			if (i == 0) {
-				outRays[i].m_Dir = initDir;
+	else if (lbsMethod == LBS_METHOD_RT_TOA) {
+		if (lbsMode == LBS_MODE_MPSTSD) {				//算法为TOA算法时，每个站点数据相同
+			outRays.resize(rayNum);															//射线数量确定
+			Vector2D initDir(1.0, 0.0, true);												/** @brief	初始射线角度	*/
+			double rayTheta = TWO_PI / rayNum;												/** @brief	射线张角	*/
+			double rayHalfTheta = 0.5 * rayTheta;											/** @brief	射线半张角	*/
+			double rayHalfCosTheta = cos(rayHalfTheta);										/** @brief	射线半张角余弦	*/
+			const SensorData& curSensorData = sensor->m_sensorDataCollection.m_datas[0];
+			for (uint64_t i = 0; i < rayNum; ++i) {
+				outRays[i].m_theta = rayHalfTheta;
+				outRays[i].m_costheta = rayHalfCosTheta;
+				outRays[i].m_Ori = sPosition;
+				if (i == 0) {
+					outRays[i].m_Dir = initDir;
+				}
+				else {																		// 旋转theta
+					outRays[i].m_Dir = initDir.Rotate(rayTheta);
+				}
+				outRays[i].m_tLimit = curSensorData.m_time * LIGHT_VELOCITY_AIR;
+				outRays[i].m_sensorDataId = curSensorData.m_id;								//进行传感器数据ID的赋值
 			}
-			else {																		// 旋转theta
-				outRays[i].m_Dir = initDir.Rotate(rayTheta);
+		}
+		else if (lbsMode == LBS_MODE_SPSTMD) {			//算法为TOA算法时，单站同时拥有多个数据
+			outRays.resize(rayNum);															//射线数量确定
+			Vector2D initDir(1.0, 0.0, true);												/** @brief	初始射线角度	*/
+			double rayTheta = TWO_PI / rayNum;												/** @brief	射线张角	*/
+			double rayHalfTheta = 0.5 * rayTheta;											/** @brief	射线半张角	*/
+			double rayHalfCosTheta = cos(rayHalfTheta);										/** @brief	射线半张角余弦	*/
+			RtLbsType max_propagation_time = sensor->m_sensorDataCollection.GetMaxPropagationTime();
+			for (uint64_t i = 0; i < rayNum; ++i) {
+				outRays[i].m_theta = rayHalfTheta;
+				outRays[i].m_costheta = rayHalfCosTheta;
+				outRays[i].m_Ori = sPosition;
+				if (i == 0) {
+					outRays[i].m_Dir = initDir;
+				}
+				else {																		// 旋转theta
+					outRays[i].m_Dir = initDir.Rotate(rayTheta);
+				}
+				outRays[i].m_tLimit = max_propagation_time * LIGHT_VELOCITY_AIR;
+				outRays[i].m_sensorDataId = -2;												//设定数据为-2，代表数据需要进行扩展，即每个广义源都要扩展所有的数据
 			}
-			outRays[i].m_tLimit = curSensorData.m_time * LIGHT_VELOCITY_AIR;
-			outRays[i].m_sensorDataId = curSensorData.m_id;								//进行传感器数据ID的赋值
 		}
 		return;
 	}
-	else if (localizeMode == LBS_METHOD_RT_AOA_TOA) {
+	else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
 		int singleDirectionRayNum = 1;														/** @brief	每个方向的射线数量,默认为1	*/
 		double thetaofSingleDirection = sensor->m_phiErrorSTD;								/** @brief	每个方向的张角	*/
 		if (sensor->m_phiErrorSTD != 0) {
@@ -108,7 +130,7 @@ void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const
 		double rayHalfTheta = rayLaunchTheta / 2.0;											/** @brief	射线半张角	*/
 
 		for (int i = 0; i < sDataSize; ++i) {
-			const SensorData& curSensorData = sensor->m_sensorDataCollection.m_data[i];
+			const SensorData& curSensorData = sensor->m_sensorDataCollection.m_datas[i];
 			Vector2D initRayDir = curSensorData.GetDirection();
 			initRayDir.Rotate(-1 * thetaofSingleDirection / 2.0 - rayHalfTheta);
 			for (int j = 0; j < singleDirectionRayNum; ++j) {
@@ -123,7 +145,7 @@ void RayLaunch_BySensor(LOCALIZATION_METHOD localizeMode, uint64_t rayNum, const
 			}
 		}
 	}
-	else if (localizeMode == LBS_METHOD_RT_TDOA) {										   
+	else if (lbsMethod == LBS_METHOD_RT_TDOA) {										   
 		outRays.resize(rayNum);															//射线数量确定
 		Vector2D initDir(1.0, 0.0, true);												/** @brief	初始射线角度	*/
 		double rayTheta = TWO_PI / rayNum;												/** @brief	射线张角	*/

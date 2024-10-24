@@ -171,18 +171,18 @@ public:
 
 
 //AOA-TOA LS定位残差表达式
-class TOAResidual {
+class TOALSResidual {
 private:
 	RtLbsType m_x;						/** @brief	x 坐标	*/
 	RtLbsType m_y;						/** @brief	y 坐标	*/
 	RtLbsType m_time;					/** @brief	测量到的时间	*/
 
 public:
-	TOAResidual();
-	TOAResidual(RtLbsType x, RtLbsType y, RtLbsType delay);
-	TOAResidual(const GeneralSource* source);
-	~TOAResidual();
-	TOAResidual& operator = (const TOAResidual& r);
+	TOALSResidual();
+	TOALSResidual(RtLbsType x, RtLbsType y, RtLbsType delay);
+	TOALSResidual(const GeneralSource* source);
+	~TOALSResidual();
+	TOALSResidual& operator = (const TOALSResidual& r);
 
 	void Init(const GeneralSource* source);
 	RtLbsType GetTOAResidual(RtLbsType* position) const;
@@ -193,7 +193,7 @@ public:
 		T dy = position[1] - T(m_y);
 		T distance = sqrt(dx * dx + dy * dy);
 		T calTime = distance / T(LIGHT_VELOCITY_AIR);  //单位ns
-		residual[0] = calTime - m_time;
+		residual[0] = (calTime - m_time)*1e9;
 		return true;
 	}
 };
@@ -211,9 +211,9 @@ public:
 	TOAWLSResidual();
 	TOAWLSResidual(RtLbsType x, RtLbsType y, RtLbsType delay, RtLbsType weight);
 	TOAWLSResidual(const GeneralSource* source);
+	TOAWLSResidual(const TOAWLSResidual& r);
 	~TOAWLSResidual();
 	TOAWLSResidual& operator = (const TOAWLSResidual& r);
-
 	void Init(const GeneralSource* source);
 	RtLbsType GetResidual(RtLbsType* position) const;
 	RtLbsType GetWeight() const;								//获得权重
@@ -224,7 +224,7 @@ public:
 		T dy = position[1] - T(m_y);
 		T distance = sqrt(dx * dx + dy * dy);
 		T calTime = distance / T(LIGHT_VELOCITY_AIR);  //单位ns
-		residual[0] = calTime - m_time;
+		residual[0] = (calTime - m_time)*1e9;
 		return true;
 	}
 };

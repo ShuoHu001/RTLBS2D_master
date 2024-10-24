@@ -25,6 +25,9 @@
 #include "localization/lbsinfocluster.h"
 #include "localization/aoa/aoa_locator.h"
 #include "localization/tdoa/tdoa_locator.h"
+#include "localization/aoa_toa/aoa_toa_locator.h"
+#include "localization/toa/toa_locator.h"
+#include "localization/aoa_tdoa/aoa_tdoa_locator.h"
 #include "general/elevationmatrix.h"
 
 

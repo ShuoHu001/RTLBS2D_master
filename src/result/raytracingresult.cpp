@@ -316,17 +316,17 @@ void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, 
 		}
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
-		collection.m_data.push_back(curSensorData);
+		collection.m_datas.push_back(curSensorData);
 	}
-	if (collection.m_data.size() < 2 && clusters.size() > 1) {														//保证数据量至少有2个
-		while (collection.m_data.size() < 2) {
-			for (int i = static_cast<int>(collection.m_data.size()); i < sparsedClusterNum; ++i) {
+	if (collection.m_datas.size() < 2 && clusters.size() > 1) {														//保证数据量至少有2个
+		while (collection.m_datas.size() < 2) {
+			for (int i = static_cast<int>(collection.m_datas.size()); i < sparsedClusterNum; ++i) {
 				SensorData curSensorData;
 				clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
 				if (curSensorData.m_power < -120) {
 					break;
 				}
-				collection.m_data.push_back(curSensorData);
+				collection.m_datas.push_back(curSensorData);
 				break;
 			}
 			break;
@@ -349,7 +349,7 @@ void RaytracingResult::GetMaxPowerSensorData_AOA2D(SensorDataCollection& collect
 	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
 	
 	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
-	collection.m_data.push_back(maxPowerSensorData);
+	collection.m_datas.push_back(maxPowerSensorData);
 }
 
 void RaytracingResult::GetAllSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
@@ -379,7 +379,7 @@ void RaytracingResult::GetAllSensorData_AOA3D(SensorDataCollection& collection, 
 	for (int i = 0; i < sparsedClusterNum; ++i) {
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
-		collection.m_data.push_back(curSensorData);
+		collection.m_datas.push_back(curSensorData);
 	}
 }
 
@@ -397,7 +397,7 @@ void RaytracingResult::GetMaxPowerSensorData_AOA3D(SensorDataCollection& collect
 	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
 
 	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
-	collection.m_data.push_back(maxPowerSensorData);
+	collection.m_datas.push_back(maxPowerSensorData);
 }
 
 void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
@@ -406,9 +406,9 @@ void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, 
 		return;
 	}
 	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
-	//将pathCopy按照角度进行聚类
+	//将pathCopy按照时间进行聚类
 	std::vector<PathInfoCluster> clusters = ClusterPathInfoByDelay(pathInfoCopy, threshold);
-	//按照功率大小对类进行从大到小排序
+	//按照时间大小对类进行从大到小排序
 	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
 
 	int clusterNum = static_cast<int>(clusters.size());															//簇数量
@@ -431,7 +431,7 @@ void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, 
 		}
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
-		collection.m_data.push_back(curSensorData);
+		collection.m_datas.push_back(curSensorData);
 	}
 }
 
@@ -449,7 +449,7 @@ void RaytracingResult::GetMaxPowerSensorData_Delay(SensorDataCollection& collect
 	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
 
 	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
-	collection.m_data.push_back(maxPowerSensorData);
+	collection.m_datas.push_back(maxPowerSensorData);
 }
 
 void RaytracingResult::OutputVectorEField(std::ofstream& stream) const

@@ -45,15 +45,6 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 			m_nodes[i]->GetGeneralSource_AOA(newSource);
 			m_sources[i] = newSource;
 		}
-		//更新source的父节点
-		for (auto& curSource : m_sources) {
-			int fatherSourceId = curSource->m_originPathNode.m_fatherNodeId;
-			GeneralSource* fatherSource = nullptr;
-			if (fatherSourceId != -1) {
-				fatherSource = m_sources[fatherSourceId];
-			}
-			curSource->m_fatherSource = fatherSource;
-		}
 	}
 	else if (lbsMethod == LBS_METHOD_RT_TDOA) {																	//纯TDOA方法
 		m_sources.resize(m_nodes.size());
@@ -62,22 +53,56 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 			m_nodes[i]->GetGeneralSource_TDOA(newSource);
 			m_sources[i] = newSource;
 		}
-		//更新source的父节点
-		for (auto& curSource : m_sources) {
-			int fatherSourceId = curSource->m_originPathNode.m_fatherNodeId;
-			GeneralSource* fatherSource = nullptr;
-			if (fatherSourceId != -1) {
-				fatherSource = m_sources[fatherSourceId];
-			}
-			curSource->m_fatherSource = fatherSource;
+		EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
+	}
+	else if (lbsMethod == LBS_METHOD_RT_TOA) {
+		m_sources.resize(m_nodes.size());
+		for (int i = 0; i < m_nodes.size(); ++i) {
+			GeneralSource* newSource = new GeneralSource();
+			m_nodes[i]->GetGeneralSource_TOA(newSource);
+			m_sources[i] = newSource;
 		}
 		EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
 	}
 	else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
-
+		m_sources.resize(m_nodes.size());
+		for (int i = 0; i < m_nodes.size(); ++i) {
+			GeneralSource* newSource = new GeneralSource();
+			m_nodes[i]->GetGeneralSource_AOA(newSource);
+			m_sources[i] = newSource;
+		}
+	}
+	else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+		m_sources.resize(m_nodes.size());
+		for (int i = 0; i < m_nodes.size(); ++i) {
+			GeneralSource* newSource = new GeneralSource();
+			m_nodes[i]->GetGeneralSource_AOA(newSource);
+			m_sources[i] = newSource;
+		}
 	}
 
 
+}
+
+void LBSInfo::CalculateBaseInfo(std::vector<SensorData>& sensorDatas)
+{
+	for (auto& curData : sensorDatas) {
+		std::vector<GeneralSource*> tempSources;			/** @brief	存储临时的广义源	*/
+		tempSources.reserve(m_nodes.size());
+		RtLbsType propagation_t = curData.m_time * LIGHT_VELOCITY_AIR;
+		for (int i = 0; i < m_nodes.size(); ++i) {
+			if (propagation_t >= m_nodes[i]->m_tMin && propagation_t <= m_nodes[i]->m_tMax) {			//当且仅当测量到传播距离大于节点本身的距离时广义源才有效
+				GeneralSource* newSource = new GeneralSource();
+				m_nodes[i]->GetGeneralSource_TOA(newSource, curData);
+				tempSources.push_back(newSource);
+			}
+		}
+		EraseRepeatGeneralSources(tempSources);																	//消除掉重复的广义源
+		//将tempSource拷贝至m_source中
+		int oldSize = m_sources.size();
+		m_sources.resize(oldSize + tempSources.size());
+		std::copy(tempSources.begin(), tempSources.end(), m_sources.begin() + oldSize);
+	}
 }
 
 inline void EraseRepeatGeneralSources(std::vector<GeneralSource*>& sources)

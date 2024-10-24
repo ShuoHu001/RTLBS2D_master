@@ -14,7 +14,7 @@ const std::string KEY_SENSORDATACOLLECTION_SENSORDATAS = "SensorDatas";
 class SensorDataCollection {
 public:
 	int m_sensorId;
-	std::vector<SensorData> m_data;
+	std::vector<SensorData> m_datas;
 
 public:
 	SensorDataCollection();
@@ -23,9 +23,11 @@ public:
 	SensorDataCollection& operator = (const SensorDataCollection& collection);
 	RtLbsType CalculateRMSAngularSpread() const;										//计算RMS角度扩展
 	RtLbsType CalculateRMSDelaySpread() const;											//计算RMS时延扩展
-	void ReClusterByAOAError(RtLbsType phiError);										//按照角度误差进行聚类				
+	void ReClusterByAOAError(RtLbsType phiError);										//按照角度误差进行聚类	
+	void ReClusterByTOAError(RtLbsType timeError);										//按照时间误差进行聚类
 	void SortByPower();																	//按照能量的大小进行排序
 	void CalculateTimeDiff();															//计算时延差值
+	RtLbsType GetMaxPropagationTime() const;											//获取最大传播时延值
 	std::vector<RtLbsType> GetPowerDiffMatrix() const;									//计算功率差矩阵
 	void AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeErrorSigma, RtLbsType powerErrorSigma);			//增加仿真误差
 	bool Init(const std::string& filename);

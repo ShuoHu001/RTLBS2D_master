@@ -30,6 +30,15 @@ bool SensorDataCluster::CanAddToClusterByAOA2D(const SensorData& data, RtLbsType
 	return addFlag;
 }
 
+bool SensorDataCluster::CanAddToClusterByTime(const SensorData& data, RtLbsType threshold) const
+{
+	bool addFlag = false;
+	if (m_mergedData.DistanceTime(data) > threshold) {
+		addFlag = false;
+	}
+	return addFlag;
+}
+
 void SensorDataCluster::CalMergedDataByAOA()
 {
 	//计算功率权重系数(可同时进行功率合成)
@@ -62,7 +71,7 @@ void SensorDataCluster::CalMergedDataByAOA()
 	m_mergedData.m_time = m_datas.front().m_time;
 }
 
-void SensorDataCluster::CalMergedDataByDelay()
+void SensorDataCluster::CalMergedDataByTime()
 {
 	//计算功率权重-可同时计算合成功率
 	std::sort(m_datas.begin(), m_datas.end());				//按照功率大小进行排序

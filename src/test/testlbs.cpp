@@ -186,7 +186,7 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 		System* lbsSystem = new System();
 		
 		lbsSystem->Setup(MODE_LBS);
-		if (lbsSystem->m_scene->m_sensors[0]->m_sensorDataCollection.m_data.size() < 2) {						//数据不合理，只有一条多径，错误
+		if (lbsSystem->m_scene->m_sensors[0]->m_sensorDataCollection.m_datas.size() < 2) {						//数据不合理，只有一条多径，错误
 			data->isValid = false;
 			delete lbsSystem;
 			continue;

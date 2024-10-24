@@ -29,7 +29,7 @@ inline void TreeNodeGenerator_AOA_CPUSingleThread(const std::vector<RayTreeNode*
 		}
 
 		std::vector<PathNode*> nodes;
-		GenerateAllTreeNode(vroots[i], &nodes);
+		GenerateAllPathNode(vroots[i], nodes);
 		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
 		for (int j = 0; j < nodes.size(); ++j) {
 			const PathNode* curPathNode = nodes[j];
@@ -56,7 +56,7 @@ inline void TreeNodeGenerator_TDOA_CPUSingleThread(const std::vector<RayTreeNode
 		}
 
 		std::vector<PathNode*> nodes;
-		GenerateAllTreeNode(vroots[i], &nodes);
+		GenerateAllPathNode(vroots[i], nodes);
 		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
 		for (int j = 0; j < nodes.size(); ++j) {
 			const PathNode* curPathNode = nodes[j];
@@ -69,8 +69,28 @@ inline void TreeNodeGenerator_TDOA_CPUSingleThread(const std::vector<RayTreeNode
 	}
 }
 
-//TOA方法遍历射线结构树节点————CPU单核 适用于TOA、AOA-TOA算法
+//TOA方法遍历射线结构树节点————CPU单核 适用于TOA方法(单站多数据)
 inline void TreeNodeGenerator_TOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, LBSInfoCluster& infoCluster) {
+	size_t sensorNum = scene->m_sensors.size();
+	for (size_t i = 0; i < sensorNum; ++i) {
+		const Sensor* curSensor = scene->m_sensors[i];
+		if (!curSensor->m_isValid) {								//跳过无效传感器
+			continue;
+		}
+		std::vector<RayTreeNode*> treeNodes;
+		GenerateAllTreeNode(vroots[i], treeNodes);					
+		std::vector<LBSTreeNode*> lbsNodes(treeNodes.size());
+		for (int j = 0; j < treeNodes.size(); ++j) {
+			const RayTreeNode* curTreeNode = treeNodes[j];					/** @brief	当前节点	*/
+			const RayTreeNode* nextTreeNode = curTreeNode->m_pLeft;			/** @brief	下一节点	*/
+			lbsNodes[j] = new LBSTreeNode(*curTreeNode->m_data, *nextTreeNode->m_data);
+		}
+		infoCluster.m_infos[i]->SetNodes(lbsNodes);
+	}
+}
+
+//AOATOA方法遍历射线结构树节点————CPU单核 适用于TOA、AOA-TOA算法
+inline void TreeNodeGenerator_AOATOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, LBSInfoCluster& infoCluster) {
 	size_t sensorNum = scene->m_sensors.size();
 	for (size_t i = 0; i < sensorNum; ++i) {
 		const Sensor* curSensor = scene->m_sensors[i];
@@ -79,7 +99,32 @@ inline void TreeNodeGenerator_TOA_CPUSingleThread(const std::vector<RayTreeNode*
 		}
 
 		std::vector<PathNode*> nodes;
-		GenerateAllLeafTreeNode(vroots[i], &nodes);					//TOA算法只需要获取所有有效叶子节点即可
+		GenerateAllLeafTreeNode(vroots[i], nodes);					//TOA算法只需要获取所有有效叶子节点即可
+		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
+		for (int j = 0; j < nodes.size(); ++j) {
+			const PathNode* curPathNode = nodes[j];
+			int sensorDataId = curPathNode->m_nextRay.m_sensorDataId;
+			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
+			lbsNodes[j] = new LBSTreeNode(*curPathNode, sensorData);
+		}
+		for (auto& node : nodes) {
+			delete node;
+		}
+
+		infoCluster.m_infos[i]->SetNodes(lbsNodes);
+	}
+}
+
+inline void TreeNodeGenerator_AOATDOA_CPUSingleThread(const std::vector<RayTreeNode*>& vroots, const Scene* scene, LBSInfoCluster& infoCluster) {
+	size_t sensorNum = scene->m_sensors.size();
+	for (size_t i = 0; i < sensorNum; ++i) {
+		const Sensor* curSensor = scene->m_sensors[i];
+		if (!curSensor->m_isValid) {								//跳过无效传感器
+			continue;
+		}
+
+		std::vector<PathNode*> nodes;
+		GenerateAllPathNode(vroots[i], nodes);
 		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
 		for (int j = 0; j < nodes.size(); ++j) {
 			const PathNode* curPathNode = nodes[j];
@@ -106,7 +151,7 @@ inline void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>
 	ThreadPool pool(threadNum);
 	std::vector<std::vector<PathNode*>> nodes(sensorNum);
 	for (int i = 0; i < sensorNum; ++i) {
-		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], &nodes[i]);
+		auto future = pool.enqueue(GenerateAllPathNode, vroots[i], nodes[i]);
 	}
 	while (true) {
 		if (pool.getTaskCount() == 0) {
@@ -128,7 +173,7 @@ inline void TreeNodeGenerator_AOA_CPUMultiThread(const std::vector<RayTreeNode*>
 		}
 
 		//添加根节点,每个数据都是一个节点
-		std::vector<SensorData>& sensorDatas = scene->m_sensors[i]->m_sensorDataCollection.m_data;
+		std::vector<SensorData>& sensorDatas = scene->m_sensors[i]->m_sensorDataCollection.m_datas;
 		for (auto it = sensorDatas.begin(); it != sensorDatas.end(); ++it) {
 			int sensorDataId = (*it).m_id;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
@@ -151,7 +196,7 @@ inline void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*
 	ThreadPool pool(threadNum);
 	std::vector<std::vector<PathNode*>> nodes(sensorNum);
 	for (int i = 0; i < sensorNum; ++i) {
-		auto future = pool.enqueue(GenerateAllTreeNode, vroots[i], &nodes[i]);
+		auto future = pool.enqueue(GenerateAllPathNode, vroots[i], nodes[i]);
 	}
 	while (true) {
 		if (pool.getTaskCount() == 0) {
@@ -173,7 +218,7 @@ inline void TreeNodeGenerator_TDOA_CPUMultiThread(const std::vector<RayTreeNode*
 		}
 
 		//添加根节点,每个数据都是一个节点
-		std::vector<SensorData>& sensorDatas = scene->m_sensors[i]->m_sensorDataCollection.m_data;
+		std::vector<SensorData>& sensorDatas = scene->m_sensors[i]->m_sensorDataCollection.m_datas;
 		for (auto it = sensorDatas.begin(); it != sensorDatas.end(); ++it) {
 			int sensorDataId = (*it).m_id;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);

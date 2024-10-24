@@ -11,10 +11,10 @@
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
-				"PhiDegreeErrorSTD": 1.0,
+				"PhiDegreeErrorSTD": 6.0,
 				"TimeErrorSTD": 5.0,
 				"PowerErrorSTD": 3.0,
-				"SensorDataFileName": ""
+				"SensorDataFileName": "results/rt/sensor data/SPSTMD/tx0_SPSTMD.json"
 			}]
 	}
 }

@@ -261,6 +261,8 @@
     <ClCompile Include="src\localization\tdoa\tdoasolver.cpp" />
     <CudaCompile Include="src\math\point2d.cpp" />
     <ClCompile Include="src\localization\tdoa\tdoa_locator.cpp" />
+    <ClCompile Include="src\localization\toa\toa_locator.cpp" />
+    <ClCompile Include="src\localization\toa\toa_solver.cpp" />
     <ClCompile Include="src\math\euler.cpp" />
     <ClCompile Include="src\math\point3d.cpp" />
     <ClCompile Include="src\math\polarization2d.cpp" />
@@ -401,6 +403,8 @@
     <ClInclude Include="src\localization\tdoa\tdoasolver.h" />
     <CudaCompile Include="src\math\point2d.h" />
     <ClInclude Include="src\localization\tdoa\tdoa_locator.h" />
+    <ClInclude Include="src\localization\toa\toa_locator.h" />
+    <ClInclude Include="src\localization\toa\toa_solver.h" />
     <ClInclude Include="src\math\euler.h" />
     <ClInclude Include="src\math\point3d.h" />
     <ClInclude Include="src\math\polarization2d.h" />

@@ -40,6 +40,21 @@ void WeightFactor::InitAOAWeight()
 	m_powerWeight /= tw;
 }
 
+void WeightFactor::InitTOAWeight()
+{
+	RtLbsType tw = m_timeWeight + m_powerWeight;
+	m_timeWeight /= tw;
+	m_powerWeight /= tw;
+}
+
+void WeightFactor::InitAOATOAweight()
+{
+	RtLbsType tw = m_phiWeight + m_timeWeight + m_powerWeight;
+	m_phiWeight /= tw;
+	m_timeWeight /= tw;
+	m_powerWeight /= tw;
+}
+
 void WeightFactor::InitAOATDOAWeight()
 {
 	RtLbsType tw = m_timeWeight + m_phiWeight + m_powerWeight;

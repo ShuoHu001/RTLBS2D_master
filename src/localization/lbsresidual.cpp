@@ -291,32 +291,32 @@ RtLbsType TDOAWLSResidual::GetWeight() const
 	return m_weight;
 }
 
-TOAResidual::TOAResidual()
+TOALSResidual::TOALSResidual()
 	: m_x(0.0)
 	, m_y(0.0)
 	, m_time(0.0)
 {
 }
 
-TOAResidual::TOAResidual(RtLbsType x, RtLbsType y, RtLbsType delay)
+TOALSResidual::TOALSResidual(RtLbsType x, RtLbsType y, RtLbsType delay)
 	: m_x(x)
 	, m_y(y)
 	, m_time(delay)
 {
 }
 
-TOAResidual::TOAResidual(const GeneralSource* source)
+TOALSResidual::TOALSResidual(const GeneralSource* source)
 	: m_x(source->m_position.x)
 	, m_y(source->m_position.y)
 	, m_time(source->m_sensorData.m_time)
 {
 }
 
-TOAResidual::~TOAResidual()
+TOALSResidual::~TOALSResidual()
 {
 }
 
-TOAResidual& TOAResidual::operator=(const TOAResidual& r)
+TOALSResidual& TOALSResidual::operator=(const TOALSResidual& r)
 {
 	m_x = r.m_x;
 	m_y = r.m_y;
@@ -324,20 +324,20 @@ TOAResidual& TOAResidual::operator=(const TOAResidual& r)
 	return *this;
 }
 
-void TOAResidual::Init(const GeneralSource* source)
+void TOALSResidual::Init(const GeneralSource* source)
 {
 	m_x = source->m_position.x;
 	m_y = source->m_position.y;
 	m_time = source->m_sensorData.m_time;
 }
 
-RtLbsType TOAResidual::GetTOAResidual(RtLbsType* position) const
+RtLbsType TOALSResidual::GetTOAResidual(RtLbsType* position) const
 {
 	RtLbsType dx = position[0] - m_x;
 	RtLbsType dy = position[1] - m_y;
 	RtLbsType distance = sqrt(dx * dx + dy * dy);
 	RtLbsType calDelay = distance / LIGHT_VELOCITY_AIR;
-	return calDelay - m_time;
+	return (calDelay - m_time)*1e9;
 }
 
 TOAWLSResidual::TOAWLSResidual()
@@ -361,6 +361,14 @@ TOAWLSResidual::TOAWLSResidual(const GeneralSource* source)
 	, m_y(source->m_position.y)
 	, m_time(source->m_sensorData.m_time)
 	, m_weight(source->m_weight)
+{
+}
+
+TOAWLSResidual::TOAWLSResidual(const TOAWLSResidual& r)
+	: m_x(r.m_x)
+	, m_y(r.m_y)
+	, m_time(r.m_time)
+	, m_weight(r.m_weight)
 {
 }
 
@@ -392,7 +400,7 @@ RtLbsType TOAWLSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType dy = position[1] - m_y;
 	RtLbsType distance = sqrt(dx * dx + dy * dy);
 	RtLbsType calDelay = distance / LIGHT_VELOCITY_AIR;
-	return m_weight * (calDelay - m_time);
+	return m_weight * (calDelay - m_time)*1e9;
 }
 
 RtLbsType TOAWLSResidual::GetWeight() const

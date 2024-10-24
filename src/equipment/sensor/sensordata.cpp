@@ -55,7 +55,7 @@ RtLbsType SensorData::DistanceAOA2D(const SensorData& data) const
 	return dPhi;
 }
 
-RtLbsType SensorData::DistanceDelay(const SensorData& data) const
+RtLbsType SensorData::DistanceTime(const SensorData& data) const
 {
 	RtLbsType dDelay = abs(m_time - data.m_time);
 	return dDelay;
@@ -72,7 +72,7 @@ Vector2D SensorData::GetDirection() const
 void SensorData::AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeErrorSigma, RtLbsType powerErrorSigma)
 {
 	RtLbsType phiError = NORMDOUBLE(0, phiErrorSigma);
-	RtLbsType timeError = NORMDOUBLE(0, timeErrorSigma);
+	RtLbsType timeError = NORMDOUBLE(0, timeErrorSigma*1e-9);
 	RtLbsType powerError = NORMDOUBLE(0, powerErrorSigma);
 	m_time += timeError;
 	m_timeDiff += timeError;

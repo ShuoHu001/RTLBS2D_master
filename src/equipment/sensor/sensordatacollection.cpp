@@ -7,7 +7,7 @@ SensorDataCollection::SensorDataCollection()
 
 SensorDataCollection::SensorDataCollection(const SensorDataCollection& collection)
 	: m_sensorId(collection.m_sensorId)
-	, m_data(collection.m_data)
+	, m_datas(collection.m_datas)
 {
 }
 
@@ -18,21 +18,21 @@ SensorDataCollection::~SensorDataCollection()
 SensorDataCollection& SensorDataCollection::operator=(const SensorDataCollection& collection)
 {
 	m_sensorId = collection.m_sensorId;
-	m_data = collection.m_data;
+	m_datas = collection.m_datas;
 	return *this;
 }
 
 RtLbsType SensorDataCollection::CalculateRMSAngularSpread() const
 {
-	if (m_data.size() == 1) {
-		return m_data[0].m_phi;
+	if (m_datas.size() == 1) {
+		return m_datas[0].m_phi;
 	}
 	RtLbsType meanAoA = CalculateMeanArrivedAngle();
 	
 	RtLbsType conTemp1 = 0.0;
 	RtLbsType conTemp2 = 0.0;
 
-	for (auto& data : m_data) {
+	for (auto& data : m_datas) {
 		conTemp1 += data.m_powerLin * (data.m_phi - meanAoA) * (data.m_phi - meanAoA);
 		conTemp2 += data.m_powerLin;
 	}
@@ -44,15 +44,15 @@ RtLbsType SensorDataCollection::CalculateRMSAngularSpread() const
 
 RtLbsType SensorDataCollection::CalculateRMSDelaySpread() const
 {
-	if (m_data.size() == 1) {
-		return m_data[0].m_phi;
+	if (m_datas.size() == 1) {
+		return m_datas[0].m_phi;
 	}
 	RtLbsType meanDelay = CalculateMeanArrivedDelay();
 
 	RtLbsType conTemp1 = 0.0;
 	RtLbsType conTemp2 = 0.0;
 
-	for (auto& data : m_data) {
+	for (auto& data : m_datas) {
 		conTemp1 += data.m_powerLin * (data.m_time - meanDelay) * (data.m_time - meanDelay);
 		conTemp2 += data.m_powerLin;
 	}
@@ -64,42 +64,62 @@ RtLbsType SensorDataCollection::CalculateRMSDelaySpread() const
 
 void SensorDataCollection::ReClusterByAOAError(RtLbsType phiError)
 {
-	std::vector<SensorDataCluster> clusters = ClusterSensorDataByAOA2D(m_data, phiError);
-	m_data.clear();
+	std::vector<SensorDataCluster> clusters = ClusterSensorDataByAOA2D(m_datas, phiError);
+	m_datas.clear();
 	for (auto& curCluster : clusters) {
-		m_data.push_back(curCluster.m_mergedData);
+		m_datas.push_back(curCluster.m_mergedData);
+	}
+}
+
+void SensorDataCollection::ReClusterByTOAError(RtLbsType timeError)
+{
+	std::vector<SensorDataCluster> clusters = ClusterSensorDataByTime(m_datas, timeError);
+	m_datas.clear();
+	for (auto& curCluster : clusters) {
+		m_datas.push_back(curCluster.m_mergedData);
 	}
 }
 
 void SensorDataCollection::SortByPower()
 {
-	std::sort(m_data.begin(), m_data.end());
+	std::sort(m_datas.begin(), m_datas.end());
 }
 
 void SensorDataCollection::CalculateTimeDiff()
 {
-	if (m_data.empty()) {
+	if (m_datas.empty()) {
 		return;
 	}
-	RtLbsType firstTimeDelay = m_data.front().m_time;
-	for (auto it = std::next(m_data.begin()); it != m_data.end(); ++it) {
+	RtLbsType firstTimeDelay = m_datas.front().m_time;
+	for (auto it = std::next(m_datas.begin()); it != m_datas.end(); ++it) {
 		SensorData& curData = *it;
 		curData.m_timeDiff = curData.m_time - firstTimeDelay;
 	}
 }
 
+RtLbsType SensorDataCollection::GetMaxPropagationTime() const
+{
+	RtLbsType max_propagation_t = -1;
+	for (auto& data : m_datas) {
+		if (max_propagation_t < data.m_time) {
+			max_propagation_t = data.m_time;
+		}
+	}
+	return max_propagation_t;
+}
+
 std::vector<RtLbsType> SensorDataCollection::GetPowerDiffMatrix() const
 {
-	std::vector<RtLbsType> powerDiff(m_data.size() - 1);
-	for (int i = 1; i < static_cast<int>(m_data.size()); ++i) {
-		powerDiff[i - 1] = m_data[i].m_power - m_data[0].m_power;
+	std::vector<RtLbsType> powerDiff(m_datas.size() - 1);
+	for (int i = 1; i < static_cast<int>(m_datas.size()); ++i) {
+		powerDiff[i - 1] = m_datas[i].m_power - m_datas[0].m_power;
 	}
 	return powerDiff;
 }
 
 void SensorDataCollection::AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeErrorSigma, RtLbsType powerErrorSigma)
 {
-	for (auto& data : m_data) {
+	for (auto& data : m_datas) {
 		data.AddSimulationError(phiErrorSigma, timeErrorSigma, powerErrorSigma);
 	}
 }
@@ -158,7 +178,7 @@ void SensorDataCollection::Serialize(rapidjson::PrettyWriter<rapidjson::StringBu
 {
 	writer.StartObject();
 	writer.Key(KEY_SENSORDATACOLLECTION_SENSORID.c_str());										writer.Int(m_sensorId);
-	writer.Key(KEY_SENSORDATACOLLECTION_SENSORDATAS.c_str());									SerializeArray(m_data, writer);
+	writer.Key(KEY_SENSORDATACOLLECTION_SENSORDATAS.c_str());									SerializeArray(m_datas, writer);
 	writer.EndObject();
 }
 
@@ -192,7 +212,7 @@ bool SensorDataCollection::Deserialize(const rapidjson::Value& value)
 
 	m_sensorId = sensorIdValue.GetInt();
 
-	if (!DeserializeArray(m_data, sensorDataValue)) {
+	if (!DeserializeArray(m_datas, sensorDataValue)) {
 		LOG_ERROR << "SensorDataCollection: " << KEY_SENSORDATACOLLECTION_SENSORDATAS.c_str() << ", deserialize failed." << ENDL;
 		return false;
 	}
@@ -206,7 +226,7 @@ RtLbsType SensorDataCollection::CalculateMeanArrivedAngle() const
 {
 	RtLbsType conTemp1 = 0.0;
 	RtLbsType conTemp2 = 0.0;
-	for (auto& data : m_data) {
+	for (auto& data : m_datas) {
 		conTemp1 += data.m_powerLin * data.m_phi;
 		conTemp2 += data.m_powerLin;
 	}
@@ -217,7 +237,7 @@ RtLbsType SensorDataCollection::CalculateMeanArrivedDelay() const
 {
 	RtLbsType conTemp1 = 0.0;
 	RtLbsType conTemp2 = 0.0;
-	for (auto& data : m_data) {
+	for (auto& data : m_datas) {
 		conTemp1 += data.m_powerLin * data.m_time;
 		conTemp2 += data.m_powerLin;
 	}

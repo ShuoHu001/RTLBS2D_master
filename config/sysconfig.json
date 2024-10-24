@@ -12,7 +12,7 @@
 			"DiffractRayNum": 1000,
 			"LimitInfo": {
 				"LimitTotal": 10,
-				"LimitReflect": 6,
+				"LimitReflect": 4,
 				"LimitTransmit": 0,
 				"LimitDiffract": 0,
 				"LimitScatter": 0
@@ -26,15 +26,15 @@
 		},
 		"LocalizationConfig": {
 			"LBSMode": 0,
-			"LBSMethod": 0,
+			"LBSMethod": 4,
 			"HardWareMode": 2,
 			"ThreadNum": 20,
 			"RayLaunchHalfTheta": 0.1,
 			"GSPairClusterThreshold": 2.0,
 			"WeightFactor": {
-				"PhiWeight": 1.0,
-				"TimeWeight": 1.0,
-				"PowerWeight": 2.0
+				"PhiWeight": 2.0,
+				"TimeWeight": 400.0,
+				"PowerWeight": 400.0
 			},
 			"ExtendAroundPointState": true,
 			"ShiftErrorMatrixFile": "config/4.000000_errormatrix.txt",

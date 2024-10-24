@@ -147,9 +147,9 @@ void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig, con
 
 		//计算时延差值
 		for (unsigned i = 0; i < m_txNum; ++i) {
-			RtLbsType firstTimeDelay = m_sensorDataMPSTSD[i * m_rxNum].m_data[0].m_time;
+			RtLbsType firstTimeDelay = m_sensorDataMPSTSD[i * m_rxNum].m_datas[0].m_time;
 			for (unsigned j = 1; j < m_rxNum; ++j) {
-				m_sensorDataMPSTSD[i * m_rxNum + j].m_data[0].m_timeDiff = m_sensorDataMPSTSD[i * m_rxNum + j].m_data[0].m_time - firstTimeDelay;
+				m_sensorDataMPSTSD[i * m_rxNum + j].m_datas[0].m_timeDiff = m_sensorDataMPSTSD[i * m_rxNum + j].m_datas[0].m_time - firstTimeDelay;
 			}
 		}
 	}
@@ -160,8 +160,8 @@ void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig, con
 		for (unsigned i = 0; i < m_txNum; ++i) {
 			SensorDataCollection curCollection;
 			m_raytracingResult[i].GetAllSensorData_AOA2D(curCollection, threshold, sensorDataSparseFactor);
-			for (auto it = curCollection.m_data.begin(); it != curCollection.m_data.end(); ++it) {
-				m_sensorDataSPMTMD[0].m_data.push_back(*it);
+			for (auto it = curCollection.m_datas.begin(); it != curCollection.m_datas.end(); ++it) {
+				m_sensorDataSPMTMD[0].m_datas.push_back(*it);
 			}
 		}
 		m_sensorDataSPMTMD[0].m_sensorId = 0;
@@ -174,8 +174,8 @@ void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig, con
 				RtLbsType threshold = m_raytracingResult[dataId].m_receiver->m_angularThreshold;
 				SensorDataCollection curCollection;
 				m_raytracingResult[dataId].GetAllSensorData_AOA2D(curCollection, threshold, sensorDataSparseFactor);
-				for (auto it = curCollection.m_data.begin(); it != curCollection.m_data.end(); ++it) {
-					m_sensorDataMPMTMD[j].m_data.push_back(*it);
+				for (auto it = curCollection.m_datas.begin(); it != curCollection.m_datas.end(); ++it) {
+					m_sensorDataMPMTMD[j].m_datas.push_back(*it);
 				}
 			}
 			m_sensorDataMPMTMD[j].m_sensorId = j;				//计算传感器ID

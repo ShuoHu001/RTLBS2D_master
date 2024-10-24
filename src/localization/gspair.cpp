@@ -12,6 +12,7 @@ GSPair::GSPair()
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
 	, m_timeDiffResidual(0.0)
+	, m_powerResidual(0.0)
 	, m_powerDiffResidual(0.0)
 	, m_angularSpreadResidual(0.0)
 	, m_delaySpreadResidual(0.0)
@@ -31,6 +32,7 @@ GSPair::GSPair(GeneralSource* gs1, GeneralSource* gs2)
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
 	, m_timeDiffResidual(0.0)
+	, m_powerResidual(0.0)
 	, m_powerDiffResidual(0.0)
 	, m_angularSpreadResidual(0.0)
 	, m_delaySpreadResidual(0.0)
@@ -50,6 +52,7 @@ GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
 	, m_timeDiffResidual(0.0)
+	, m_powerResidual(0.0)
 	, m_powerDiffResidual(0.0)
 	, m_angularSpreadResidual(0.0)
 	, m_delaySpreadResidual(0.0)
@@ -69,6 +72,7 @@ GSPair::GSPair(const GSPair& pair)
 	, m_phiResidual(pair.m_phiResidual)
 	, m_timeResidual(pair.m_timeResidual)
 	, m_timeDiffResidual(pair.m_timeDiffResidual)
+	, m_powerResidual(pair.m_powerResidual)
 	, m_powerDiffResidual(pair.m_powerDiffResidual)
 	, m_angularSpreadResidual(pair.m_angularSpreadResidual)
 	, m_delaySpreadResidual(pair.m_delaySpreadResidual)
@@ -81,9 +85,7 @@ GSPair::~GSPair()
 {
 	delete m_gs1;
 	delete m_gs2;
-	if (m_gsRef != nullptr) {
-		delete m_gsRef;
-	}
+	delete m_gsRef;
 }
 
 GSPair& GSPair::operator=(const GSPair& pair)
@@ -98,6 +100,7 @@ GSPair& GSPair::operator=(const GSPair& pair)
 	m_phiResidual = pair.m_phiResidual;
 	m_timeResidual = pair.m_timeResidual;
 	m_timeDiffResidual = pair.m_timeDiffResidual;
+	m_powerResidual = pair.m_powerResidual;
 	m_powerDiffResidual = pair.m_powerDiffResidual;
 	m_angularSpreadResidual = pair.m_angularSpreadResidual;
 	m_delaySpreadResidual = pair.m_delaySpreadResidual;
@@ -109,6 +112,32 @@ GSPair& GSPair::operator=(const GSPair& pair)
 RtLbsType GSPair::DistanceTo(const GSPair& pair)
 {
 	return (m_targetSolution - pair.m_targetSolution).Length();
+}
+
+void GSPair::UpdateResidual_AOA(RtLbsType mean_r_phi, RtLbsType mean_r_powerDiff)
+{
+	m_phiResidual += m_nullDataNum * mean_r_phi;
+	m_powerDiffResidual += m_nullDataNum * mean_r_powerDiff;
+}
+
+void GSPair::UpdateResidual_TOA(RtLbsType mean_r_time, RtLbsType mean_r_power)
+{
+	m_timeResidual += m_nullDataNum * mean_r_time;
+	m_powerResidual += m_nullDataNum * mean_r_power;
+}
+
+void GSPair::UpdateResidual_AOATOA(RtLbsType mean_r_phi, RtLbsType mean_r_time, RtLbsType mean_r_power)
+{
+	m_phiResidual += m_nullDataNum * mean_r_phi;
+	m_timeResidual += m_nullDataNum * mean_r_time;
+	m_powerResidual += m_nullDataNum * mean_r_power;
+}
+
+void GSPair::UpdateResidual_AOATDOA(RtLbsType mean_r_phi, RtLbsType mean_r_timeDiff, RtLbsType mean_r_powerDiff)
+{
+	m_phiResidual += m_nullDataNum * mean_r_phi;
+	m_timeDiffResidual += m_nullDataNum * mean_r_timeDiff;
+	m_powerDiffResidual += m_nullDataNum * mean_r_powerDiff;
 }
 
 void GSPair::NormalizedWeight(RtLbsType max_weight)
@@ -123,6 +152,331 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 		return false;
 	}
 
+	if (!_judgementRules(scene)) {
+		return false;
+	}
+
+	//运行到此处证明解为有效解，权重计数+1
+	m_gs1->m_wCount += 1;
+	m_gs2->m_wCount += 1;
+
+	return true;
+}
+
+bool GSPair::HasValidTOASolution(const Scene* scene)
+{
+	//先判定两个广义源是否来自于一个传感器数据
+	if (m_gs1->m_sensorData.m_id == m_gs2->m_sensorData.m_id) {				//若两个广义源的数据相同，则为无效广义源
+		m_isValid = false;
+		return false;
+	}
+	if (!_calTOASolution()) {
+		m_isValid = false;
+		return false;
+	}
+
+	if (!_judgementRules(scene)) {
+		return false;
+	}
+
+	//运行到此处证明解为有效解，权重计数+1
+	m_gs1->m_wCount += 1;
+	m_gs2->m_wCount += 1;
+
+	return true;
+}
+
+bool GSPair::HasValidAOATOASolution(const Scene* scene)
+{
+	//先判定两个广义源是否来自于一个传感器数据
+	if (m_gs1->m_sensorData.m_id == m_gs2->m_sensorData.m_id) {				//若两个广义源的数据相同，则为无效广义源
+		m_isValid = false;
+		return false;
+	}
+	if (!_calAOATOASolution()) {			//若传感器有解，才进行下一步
+		m_isValid = false;
+		return false;
+	}
+
+	if (!_judgementRules(scene)) {
+		return false;
+	}
+
+	//运行到此处证明解为有效解，权重计数+1
+	m_gs1->m_wCount += 1;
+	m_gs2->m_wCount += 1;
+
+	return true;
+
+}
+
+bool GSPair::HasValidAOATDOASolution(const Scene* scene)
+{
+	//先判定两个广义源是否来自于一个传感器数据
+	if (m_gs1->m_sensorData.m_id == m_gs2->m_sensorData.m_id) {				//若两个广义源的数据相同，则为无效广义源
+		m_isValid = false;
+		return false;
+	}
+
+	if (!_calAOATDOASolution()) {			//若传感器有解，才进行下一步
+		m_isValid = false;
+		return false;
+	}
+
+	if (!_judgementRules(scene)) {
+		return false;
+	}
+
+	//运行到此处证明解为有效解，权重计数+1
+	m_gs1->m_wCount += 1;
+	m_gs2->m_wCount += 1;
+
+	return true;
+}
+
+bool GSPair::HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunctionData)
+{
+	if (!_calTDOASolution()) {
+		m_isValid = false;
+		return false;
+	}
+
+	//判定准测0-解是否和传感器位置重复
+	for (auto curSensor : scene->m_sensors) {
+		Point2D curSensorPoint = curSensor->GetPosition2D();
+		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
+			return false;
+		}
+	}
+
+
+	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
+	if (!scene->IsValidPoint(m_targetSolution)) {
+		m_isValid = false;
+		return false;
+	}
+
+	//判定准则2- 按照反向射线追踪计算模式，计算从源到各个广义源之间的路径是否真实存在
+
+	
+	
+	
+
+	//运行到此处证明解为有效解，权重计数+1
+	m_gs1->m_wCount += 1;
+	m_gs2->m_wCount += 1;
+	return true;
+}
+
+bool GSPair::HasValidTDOASolution_MPSTSD(const Scene* scene)
+{
+	if (!_calTDOASolution()) {
+		m_isValid = false;
+		return false;
+	}
+
+	//判定准测0-解是否和传感器位置重复
+	for (auto curSensor : scene->m_sensors) {
+		Point2D curSensorPoint = curSensor->GetPosition2D();
+		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
+			return false;
+		}
+	}
+
+
+	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
+	if (!scene->IsValidPoint(m_targetSolution)) {
+		m_isValid = false;
+		return false;
+	}
+
+	
+	return true;
+}
+
+void GSPair::CalculateSinglePairResidual()
+{
+	//1-追根溯源
+
+	//2-计算电磁场
+
+	//3-计算残差
+}
+
+void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
+{
+	RtLbsType r_norm_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
+	RtLbsType r_norm_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
+	if (r_norm_phi < 1e-4) { r_norm_phi = 1e-4; }
+	if (r_norm_powerDiff < 1e-4) { r_norm_powerDiff = 1e-4; }
+	RtLbsType w_phi = 1.0 / r_norm_phi;													/** @brief	角度权重	*/
+	RtLbsType w_powerDiff = 1.0 / r_norm_powerDiff;										/** @brief	功率差权重	*/
+	RtLbsType w_cluster = static_cast<RtLbsType>(m_clusterSize) / static_cast<RtLbsType>(max_clusterNum);		/** @brief	聚类权重	*/
+	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_powerWeight * w_powerDiff) * m_clusterSize / (m_angularSpreadResidual + 0.01);						/** @brief	总权重	*/
+	if (m_belongingPairCluster->m_isDeviateSolution) {																				//若pair所属父cluster为偏离簇(无效簇)，则权重置零
+		w_total = 0.0;	
+	}
+	m_gs1->m_weight = std::max(m_gs1->m_weight, w_total);
+	m_gs2->m_weight = std::max(m_gs2->m_weight, w_total);
+	m_weight = w_total;
+	m_belongingPairCluster->m_weight = m_weight;												//赋值所属父簇权重
+}
+
+void GSPair::CalNormalizedWeightAndUpdate_TOA(RtLbsType max_r_time, RtLbsType max_r_power, const WeightFactor& w, int max_clusterNum)
+{
+	RtLbsType r_norm_time = m_timeResidual / max_r_time;														/** @brief	归一化的时间残差	*/
+	RtLbsType r_norm_power = m_powerResidual / max_r_power;														/** @brief	归一化的功率残差	*/
+	if (r_norm_time < 1e-4) { r_norm_time = 1e-4; }
+	if (r_norm_power < 1e-4) { r_norm_power = 1e-4; }
+	RtLbsType w_time = 1.0 / r_norm_time;																		/** @brief	时间权重	*/
+	RtLbsType w_power = 1.0 / r_norm_power;																		/** @brief	功率权重	*/
+	RtLbsType w_cluster = static_cast<RtLbsType>(m_clusterSize) / static_cast<RtLbsType>(max_clusterNum);		/** @brief	聚类权重	*/
+	RtLbsType w_total = w.m_timeWeight * w_time + w.m_powerWeight * w_power;
+	if (m_belongingPairCluster->m_isDeviateSolution) { w_total = 0; }
+	m_gs1->m_weight = std::max(m_gs1->m_weight, w_total);
+	m_gs2->m_weight = std::max(m_gs2->m_weight, w_total);
+	m_weight = w_total;
+	m_belongingPairCluster->m_weight = m_weight;																//赋值所属父簇权重
+}
+
+void GSPair::CalNormalizedWeightAndUpdate_AOATOA(RtLbsType max_r_phi, RtLbsType max_r_time, RtLbsType max_r_power, const WeightFactor& w, int max_clusterNum)
+{
+	RtLbsType r_norm_phi = m_phiResidual / max_r_phi;															/** @brief	归一化的角度残差	*/
+	RtLbsType r_norm_time = m_timeResidual / max_r_time;														/** @brief	归一化的时间残差	*/
+	RtLbsType r_norm_power = m_powerResidual / max_r_power;														/** @brief	归一化的功率残差	*/
+	if (r_norm_phi < 1e-4) { r_norm_phi = 1e-4; }
+	if (r_norm_time < 1e-4) { r_norm_time = 1e-4; }
+	if (r_norm_power < 1e-4) { r_norm_power = 1e-4; }
+	RtLbsType w_phi = 1.0 / r_norm_phi;																			/** @brief	角度权重	*/
+	RtLbsType w_time = 1.0 / r_norm_time;																		/** @brief	时间权重	*/
+	RtLbsType w_power = 1.0 / r_norm_power;																		/** @brief	功率权重	*/
+	RtLbsType w_cluster = static_cast<RtLbsType>(m_clusterSize) / static_cast<RtLbsType>(max_clusterNum);		/** @brief	聚类权重	*/
+	RtLbsType w_total = w.m_phiWeight * w_phi + w.m_timeWeight * w_time + w.m_powerWeight * w_power;
+	if (m_belongingPairCluster->m_isDeviateSolution) { w_total = 0; }
+	m_gs1->m_weight = std::max(m_gs1->m_weight, w_total);
+	m_gs2->m_weight = std::max(m_gs2->m_weight, w_total);
+	m_weight = w_total;
+	m_belongingPairCluster->m_weight = m_weight;																//赋值所属父簇权重
+}
+
+void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
+{
+	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
+	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
+	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);										/** @brief	时间差权重	*/
+	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);										/** @brief	功率差权重	*/
+	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
+	RtLbsType w_total = (w.m_timeWeight * w_timeDiff + w.m_phiWeight * w_powerDiff) * m_clusterSize * m_clusterSize;		/** @brief	总权重	*/
+	if (m_belongingPairCluster->m_isDeviateSolution) { w_total = 0; }
+	if (m_gs1->m_weight < w_total) {
+		m_gs1->m_weight = w_total;
+	}
+	if (m_gs2->m_weight < w_total) {
+		m_gs2->m_weight = w_total;
+	}
+	m_weight = w_total;
+	m_belongingPairCluster->m_weight = m_weight;																//赋值所属父簇权重
+}
+
+void GSPair::CalNormalizedWeightAndUpdate_AOATDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
+{
+	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
+	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
+	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
+	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-4);													/** @brief	角度权重	*/
+	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-4);										/** @brief	时间差权重	*/
+	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-4);										/** @brief	功率差权重	*/
+	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
+	RtLbsType w_total = w.m_phiWeight * w_phi + w.m_timeWeight * w_timeDiff + w.m_powerWeight * w_powerDiff;		/** @brief	总权重	*/
+	if (m_belongingPairCluster->m_isDeviateSolution) { w_total = 0; }
+	if (m_gs1->m_weight < w_total) {
+		m_gs1->m_weight = w_total;
+	}
+	if (m_gs2->m_weight < w_total) {
+		m_gs2->m_weight = w_total;
+	}
+	m_weight = w_total;
+	m_belongingPairCluster->m_weight = m_weight;																//赋值所属父簇权重
+}
+
+bool GSPair::_calAOASolution()
+{
+	RtLbsType theta1 = m_gs1->m_sensorData.m_phi;
+	RtLbsType theta2 = m_gs2->m_sensorData.m_phi;
+	RtLbsType x1 = m_gs1->m_position.x;
+	RtLbsType x2 = m_gs2->m_position.x;
+	RtLbsType y1 = m_gs1->m_position.y;
+	RtLbsType y2 = m_gs2->m_position.y;
+
+	if (std::abs(theta1 - theta2) < EPSILON) {			//若角度相等，不会有解
+		return false;
+	}
+
+	RtLbsType sinTheta1 = sin(theta1);
+	RtLbsType cosTheta1 = cos(theta1);
+	RtLbsType sinTheta2 = sin(theta2);
+	RtLbsType cosTheta2 = cos(theta2);
+	RtLbsType sinTheta12 = sin(theta1 - theta2);
+
+	RtLbsType x = ((x1 * sinTheta1 - y1 * cosTheta1) * cosTheta2 - (x2 * sinTheta2 - y2 * cosTheta2) * cosTheta1) / sinTheta12;
+	RtLbsType y = ((x1 * sinTheta1 - y1 * cosTheta1) * sinTheta2 - (x2 * sinTheta2 - y2 * cosTheta2) * sinTheta1) / sinTheta12;
+
+	m_targetSolution.x = x;
+	m_targetSolution.y = y;
+
+	return true;
+}
+
+bool GSPair::_calTOASolution()
+{
+	//采用ceres求解TOA解
+	TOASolver solver;
+	solver.SetGeneralSource(m_gs1, m_gs2);
+	RtLbsType accuracy = solver.Solving_LS(m_targetSolution);
+	if (accuracy > EPSILON) {													//若精度高于EPSILON则认定为该组方程为无解情况
+		return false;
+	}
+	return true;
+}
+
+bool GSPair::_calTDOASolution()
+{
+	//采用ceres求解TDOA解
+	TDOASolver tdoaSolver;
+	tdoaSolver.SetGeneralSource(m_gsRef, m_gs1, m_gs2);				//设定广义源
+	RtLbsType accuracy = tdoaSolver.Solving_LS(m_targetSolution);
+	if (accuracy > EPSILON) {													//若精度高于EPSILON则认定为该组方程为无解情况
+		return false;
+	}
+	return true;
+}
+
+bool GSPair::_calAOATOASolution()
+{
+	//采用ceres求解AOA-TOA解
+	AOATOASolver solver;
+	solver.SetGeneralSource(m_gs1, m_gs2);
+	RtLbsType accuracy = solver.Solving_LS(m_targetSolution);
+	if (accuracy > 1) {													//若精度高于EPSILON则认定为该组方程为无解情况
+		return false;
+	}
+	return true;
+}
+
+bool GSPair::_calAOATDOASolution()
+{
+	//采用ceres求解AOA-TOA解
+	AOATDOASolver solver;
+	solver.SetGeneralSource(m_gsRef, m_gs1, m_gs2);
+	RtLbsType accuracy = solver.Solving_LS(m_targetSolution);
+	if (accuracy > 1) {
+		return false;
+	}
+	return true;
+}
+
+bool GSPair::_judgementRules(const Scene* scene)
+{
 	//判定准测0-解是否和传感器位置重复
 	for (auto& curSensor : scene->m_sensors) {
 		Point2D curSensorPoint = curSensor->GetPosition2D();
@@ -179,7 +533,7 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 			return false;
 		}
 	}
-	
+
 	Segment2D segment2(m_targetSolution, np2);							/** @brief	组合测试线段2	*/
 	if (m_gs2->m_type == NODE_REFL) {
 		Intersection2D testIntersect;
@@ -192,235 +546,11 @@ bool GSPair::HasValidAOASolution(const Scene* scene)
 			return false;
 		}
 	}
-	else if(m_gs2->m_type == NODE_ROOT || m_gs2->m_type == NODE_DIFF) {
+	else if (m_gs2->m_type == NODE_ROOT || m_gs2->m_type == NODE_DIFF) {
 		if (scene->GetIntersect(segment2, nullptr)) {								//若根节点或绕射情况下线段1与环境相交，则表明解无效
 			m_isValid = false;
 			return false;
 		}
-	}
-
-	//运行到此处证明解为有效解，权重计数+1
-	m_gs1->m_wCount += 1;
-	m_gs2->m_wCount += 1;
-
-	return true;
-}
-
-bool GSPair::HasValidTOASolution(const Scene* scene)
-{
-	return false;
-}
-
-bool GSPair::HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunctionData)
-{
-	if (!_calTDOASolution()) {
-		m_isValid = false;
-		return false;
-	}
-
-	//判定准测0-解是否和传感器位置重复
-	for (auto curSensor : scene->m_sensors) {
-		Point2D curSensorPoint = curSensor->GetPosition2D();
-		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
-			return false;
-		}
-	}
-
-
-	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
-	if (!scene->IsValidPoint(m_targetSolution)) {
-		m_isValid = false;
-		return false;
-	}
-
-	//判定准则2- 按照反向射线追踪计算模式，计算从源到各个广义源之间的路径是否真实存在
-
-	RtLbsType delay_refSource = 0.0;
-	RtLbsType power_refSource = 0.0;
-	if (!m_gsRef->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunctionData, delay_refSource, power_refSource)) {
-		return false;
-	}
-
-	RtLbsType delay_source1 = 0.0;
-	RtLbsType power_source1 = 0.0;
-	if (!m_gs1->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunctionData, delay_source1, power_source1)) {
-		return false;
-	}
-
-	RtLbsType delay_source2 = 0.0;
-	RtLbsType power_source2 = 0.0;
-	if (!m_gs2->CalTDOAParameters_SPSTMD(m_targetSolution, scene, freq, tranFunctionData, delay_source2, power_source2)) {
-		return false;
-	}
-	
-	RtLbsType timeDiff_gs1 = (delay_source1 - delay_refSource) * 1e9;
-	RtLbsType timeDiff_gs2 = (delay_source2 - delay_refSource) * 1e9;
-	RtLbsType powerDiff_gs1 = power_source1 - power_refSource;
-	RtLbsType powerDiff_gs2 = power_source2 - power_refSource;
-
-	RtLbsType r_timeDiff_gs1 = timeDiff_gs1 - m_gs1->m_sensorData.m_timeDiff * 1e9;						//转换为ns
-	RtLbsType r_timeDiff_gs2 = timeDiff_gs2 - m_gs2->m_sensorData.m_timeDiff * 1e9;
-	RtLbsType r_powerDiff_gs1 = powerDiff_gs1 - (m_gs1->m_sensorData.m_power - m_gsRef->m_sensorData.m_power);
-	RtLbsType r_powerDiff_gs2 = powerDiff_gs2 - (m_gs2->m_sensorData.m_power - m_gsRef->m_sensorData.m_power);
-	
-	m_powerDiffResidual = r_powerDiff_gs1 * r_powerDiff_gs1 + r_powerDiff_gs2 * r_powerDiff_gs2;
-	m_timeDiffResidual = r_timeDiff_gs1 * r_timeDiff_gs1 + r_timeDiff_gs2 * r_timeDiff_gs2;
-
-
-	//运行到此处证明解为有效解，权重计数+1
-	m_gs1->m_wCount += 1;
-	m_gs2->m_wCount += 1;
-	return true;
-}
-
-bool GSPair::HasValidTDOASolution_MPSTSD(const Scene* scene)
-{
-	if (!_calTDOASolution()) {
-		m_isValid = false;
-		return false;
-	}
-
-	//判定准测0-解是否和传感器位置重复
-	for (auto curSensor : scene->m_sensors) {
-		Point2D curSensorPoint = curSensor->GetPosition2D();
-		if (Distance(curSensorPoint, m_targetSolution) < 1e-1) {			//若解距离与传感器位置小于10cm，则表明解无效
-			return false;
-		}
-	}
-
-
-	//判定准测1- 是否处于环境的无效位置(超出环境边界或在建筑内部)
-	if (!scene->IsValidPoint(m_targetSolution)) {
-		m_isValid = false;
-		return false;
-	}
-
-	//判定准则2- 判定路径的有效性，追根溯源型
-	RtLbsType delay_refSource = 0.0;
-	RtLbsType power_refSource = 0.0;
-	if (!m_gsRef->CalTDOAParameters_MPSTSD(m_targetSolution, scene)) {
-		return false;
-	}
-
-	RtLbsType delay_source1 = 0.0;
-	RtLbsType power_source1 = 0.0;
-	if (!m_gs1->CalTDOAParameters_MPSTSD(m_targetSolution, scene)) {
-		return false;
-	}
-
-	RtLbsType delay_source2 = 0.0;
-	RtLbsType power_source2 = 0.0;
-	if (!m_gs2->CalTDOAParameters_MPSTSD(m_targetSolution, scene)) {
-		return false;
-	}
-	return true;
-}
-
-void GSPair::CalculateSinglePairResidual()
-{
-	//1-追根溯源
-
-	//2-计算电磁场
-
-	//3-计算残差
-}
-
-void GSPair::CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
-{
-	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
-	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
-	if (r_normalized_phi < 1e-4) { r_normalized_phi = 1e-4; }
-	if (r_normalized_powerDiff < 1e-4) { r_normalized_powerDiff = 1e-4; }
-	RtLbsType w_phi = 1.0 / r_normalized_phi;													/** @brief	角度权重	*/
-	RtLbsType w_powerDiff = 1.0 / r_normalized_powerDiff;										/** @brief	功率差权重	*/
-	RtLbsType w_cluster = static_cast<RtLbsType>(m_clusterSize) / static_cast<RtLbsType>(max_clusterNum);		/** @brief	聚类权重	*/
-	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_powerWeight * w_powerDiff) * m_clusterSize / (m_angularSpreadResidual + 0.01);						/** @brief	总权重	*/
-	if (m_belongingPairCluster->m_isDeviateSolution) {																				//若pair所属父cluster为偏离簇，则权重置零
-		w_total = 0.0;	
-	}
-	m_gs1->m_weight = std::max(m_gs1->m_weight, w_total);
-	m_gs2->m_weight = std::max(m_gs2->m_weight, w_total);
-	m_weight = w_total;
-	m_belongingPairCluster->m_weight = m_weight;												//赋值所属父簇权重
-}
-
-void GSPair::CalNormalizedWeightAndUpdate_TDOA(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
-{
-	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
-	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
-	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);										/** @brief	时间差权重	*/
-	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);										/** @brief	功率差权重	*/
-	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
-	RtLbsType w_total = (w.m_timeWeight * w_timeDiff + w.m_phiWeight * w_powerDiff) * m_clusterSize * m_clusterSize;		/** @brief	总权重	*/
-	if (m_gs1->m_weight < w_total) {
-		m_gs1->m_weight = w_total;
-	}
-	if (m_gs2->m_weight < w_total) {
-		m_gs2->m_weight = w_total;
-	}
-	m_weight = w_total;
-}
-
-void GSPair::CalNormalizedWeightAndUpdate_AOA_TDOA(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum)
-{
-	RtLbsType r_normalized_phi = m_phiResidual / max_r_phi;												/** @brief	归一化的角度残差	*/
-	RtLbsType r_normalized_timeDiff = m_phiResidual / max_r_timeDiff;									/** @brief	归一化的时间差残差	*/
-	RtLbsType r_normalized_powerDiff = m_powerDiffResidual / max_r_powerDiff;							/** @brief	归一化的功率差残差	*/
-	RtLbsType w_phi = 1.0 / (r_normalized_phi + 1e-6);													/** @brief	角度权重	*/
-	RtLbsType w_timeDiff = 1.0 / (r_normalized_timeDiff + 1e-6);										/** @brief	时间差权重	*/
-	RtLbsType w_powerDiff = 1.0 / (r_normalized_powerDiff + 1e-6);										/** @brief	功率差权重	*/
-	RtLbsType w_cluster = m_clusterSize / max_clusterNum;												/** @brief	聚类权重	*/
-	RtLbsType w_total = (w.m_phiWeight * w_phi + w.m_timeWeight * w_timeDiff + w.m_powerWeight * w_powerDiff) * m_clusterSize * m_clusterSize;		/** @brief	总权重	*/
-	if (m_gs1->m_weight < w_total) {
-		m_gs1->m_weight = w_total;
-	}
-	if (m_gs2->m_weight < w_total) {
-		m_gs2->m_weight = w_total;
-	}
-	m_weight = w_total;
-}
-
-bool GSPair::_calAOASolution()
-{
-	RtLbsType theta1 = m_gs1->m_sensorData.m_phi;
-	RtLbsType theta2 = m_gs2->m_sensorData.m_phi;
-	RtLbsType x1 = m_gs1->m_position.x;
-	RtLbsType x2 = m_gs2->m_position.x;
-	RtLbsType y1 = m_gs1->m_position.y;
-	RtLbsType y2 = m_gs2->m_position.y;
-
-	if (std::abs(theta1 - theta2) < EPSILON) {			//若角度相等，不会有解
-		return false;
-	}
-
-	RtLbsType sinTheta1 = sin(theta1);
-	RtLbsType cosTheta1 = cos(theta1);
-	RtLbsType sinTheta2 = sin(theta2);
-	RtLbsType cosTheta2 = cos(theta2);
-	RtLbsType sinTheta12 = sin(theta1 - theta2);
-
-	RtLbsType x = ((x1 * sinTheta1 - y1 * cosTheta1) * cosTheta2 - (x2 * sinTheta2 - y2 * cosTheta2) * cosTheta1) / sinTheta12;
-	RtLbsType y = ((x1 * sinTheta1 - y1 * cosTheta1) * sinTheta2 - (x2 * sinTheta2 - y2 * cosTheta2) * sinTheta1) / sinTheta12;
-
-	m_targetSolution.x = x;
-	m_targetSolution.y = y;
-
-	return true;
-}
-
-bool GSPair::_calTOASolution()
-{
-	return false;
-}
-
-bool GSPair::_calTDOASolution()
-{
-	//采用ceres求解TDOA解
-	TDOASolver tdoaSolver;
-	tdoaSolver.SetGeneralSource(m_gsRef, m_gs1, m_gs2);				//设定广义源
-	RtLbsType accuracy = tdoaSolver.Solving_LS(m_targetSolution);
-	if (accuracy > EPSILON) {													//若精度高于EPSILON则认定为该组方程为无解情况
-		return false;
 	}
 	return true;
 }

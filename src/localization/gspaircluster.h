@@ -26,6 +26,7 @@ public:
 	RtLbsType m_phiResidual;
 	RtLbsType m_timeResidual;
 	RtLbsType m_timeDiffResidual;
+	RtLbsType m_powerResidual;
 	RtLbsType m_powerDiffResidual;
 	int m_nullDataNum;
 	RtLbsType m_weight;
@@ -43,13 +44,16 @@ public:
 	void CalClusterPosition();																							//计算簇内平均坐标点
 	void SetElementClusterId(int Id);																					//设置簇内元素的ID
 	void SetElementAOAResidual(RtLbsType r_phi, RtLbsType r_powerDiff, RtLbsType r_angularSpreadResidual, int nullDataNum);								//设置AOA型残差
+	void SetElementTOAResidual(RtLbsType r_time, RtLbsType r_power, int nullDataNum);
 	void SetElementTDOAResidual(RtLbsType r_timeDiff, RtLbsType r_powerDiff, int nullDataNum);							//设置TDOA型残差
 	void SetElementAOATDOAResidual(RtLbsType r_phi, RtLbsType r_timeDiff, RtLbsType r_powerDiff, int nullDataNum);		//设置AOA/TDOA型残差
+	void SetElementAOATOAResidual(RtLbsType r_phi, RtLbsType r_time, RtLbsType r_power, int nullDataNum);			//设置AOA/TOA型残差
 	void SetInValidState();																								//设置为无效
 	void CalNormalizedAOAWeight(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, const WeightFactor& w);											//计算簇AOA归一权重
 	void CalNormalizedTDOAWeight(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w);									//计算簇TDOA归一权重
 	void CalNormalizedAOATDOAWeight(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w);			//计算簇AOA-TDOA归一权重
-	void GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sources);																		//删除重复的广义源对及其广义源对中的广义源
+	void GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sources);																		//删除重复的广义源对及其广义源对中的广义源，主要用于角度平均
+	void CalculateRefSourceCount() const;																										//计算参考广义源
 };
 
 inline bool ComparedByClusterSize(const GSPairCluster& cluster1, const GSPairCluster& cluster2) {
@@ -250,4 +254,5 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_MPSTSD(GeneralSource* refSo
 	//排除大部分数据后，再通过射线追踪求解点到两个传感器之间的功率
 	return gsPairClusters.front();
 }
+
 #endif
