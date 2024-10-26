@@ -4,6 +4,7 @@
 GSPairCluster::GSPairCluster()
     : m_isValid(true)
     , m_isDeviateSolution(false)
+    , m_isRefGSOccupied(false)
     , m_nearExtendNum(0)
     , m_farExtendNum(0)
     , m_deviateDistance(0.5)
@@ -24,6 +25,7 @@ GSPairCluster::GSPairCluster()
 GSPairCluster::GSPairCluster(const GSPairCluster& cluster)
     : m_isValid(cluster.m_isValid)
     , m_isDeviateSolution(cluster.m_isDeviateSolution)
+    , m_isRefGSOccupied(cluster.m_isRefGSOccupied)
     , m_deviateDistance(cluster.m_deviateDistance)
     , m_nearExtendNum(cluster.m_nearExtendNum)
     , m_farExtendNum(cluster.m_farExtendNum)
@@ -61,6 +63,7 @@ GSPairCluster GSPairCluster::operator=(const GSPairCluster& cluster)
 {
     m_isValid = cluster.m_isValid;
     m_isDeviateSolution = cluster.m_isDeviateSolution;
+    m_isRefGSOccupied = cluster.m_isRefGSOccupied;
     m_nearExtendNum = cluster.m_nearExtendNum;
     m_farExtendNum = cluster.m_farExtendNum;
     m_deviateDistance = cluster.m_deviateDistance;
@@ -340,6 +343,15 @@ void GSPairCluster::GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sourc
 {
     std::unordered_map<size_t, GeneralSource*> sourceMap;
 
+    //先将source中的广义源添加至map中
+    for (auto& curSource : sources) {
+        size_t hash = curSource->GetHash();
+        auto pos = sourceMap.find(hash);
+        if (pos == sourceMap.end()) {
+            sourceMap[hash] = curSource;
+        }
+    }
+
     for (auto& curPair : m_pairs) {
         GeneralSource* gs1 = curPair->m_gs1;
         GeneralSource* gs2 = curPair->m_gs2;
@@ -373,15 +385,15 @@ void GSPairCluster::GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sourc
             }
         }
 
-        if (gs1_repeatFlag && gs2_repeatFlag) {     //若两个广义源都处于重复状态，则当前pair是重复的，设定当前pair有效性为false
-            curPair->m_isValid = false;
-        }
+        //if (gs1_repeatFlag && gs2_repeatFlag) {     //若两个广义源都处于重复状态，则当前pair是重复的，设定当前pair有效性为false
+        //    curPair->m_isValid = false;
+        //}
     }
 
 	m_pairs.erase(std::remove_if(m_pairs.begin(), m_pairs.end(), [](const GSPair* pair) {           //清空cluster中无效的广义源对
 		return pair->m_isValid == false;
 		}), m_pairs.end());
-
+    sources.clear();
     for (auto& data : sourceMap) {                                      //纳入非重复广义源
         GeneralSource* existSource = data.second;
         existSource->UpdateEvenPhiValue();                              //更新phi值
@@ -391,6 +403,73 @@ void GSPairCluster::GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sourc
 
 
 
+}
+
+void GSPairCluster::GetNonRepeatGeneralSource(GeneralSource* refSource, std::vector<GeneralSource*>& sources)
+{
+	std::unordered_map<size_t, GeneralSource*> sourceMap;
+
+	//先将source中的广义源添加至map中
+	for (auto& curSource : sources) {
+		size_t hash = curSource->GetHash();
+		auto pos = sourceMap.find(hash);
+		if (pos == sourceMap.end()) {
+			sourceMap[hash] = curSource;
+		}
+	}
+
+
+	for (auto& curPair : m_pairs) {
+        if (curPair->m_gsRef != refSource) {
+            continue;
+        }
+		GeneralSource* gs1 = curPair->m_gs1;
+		GeneralSource* gs2 = curPair->m_gs2;
+		size_t hash1 = gs1->GetHash();
+		size_t hash2 = gs2->GetHash();
+		auto pos1 = sourceMap.find(hash1);
+		auto pos2 = sourceMap.find(hash2);
+		bool gs1_repeatFlag = false;                //广义源1重复状态
+		bool gs2_repeatFlag = false;                //广义源2重复状态
+		if (pos1 == sourceMap.end()) {              //hash1未找到重复项
+			sourceMap[hash1] = gs1;
+		}
+		else {
+			GeneralSource*& existSource = pos1->second;
+			if (gs1 != existSource) {               //若广义源重复，则不进行计数
+				existSource->m_sensorData.m_phi += gs1->m_sensorData.m_phi;
+				existSource->m_phiRepeatCount += 1;
+				gs1_repeatFlag = true;
+			}
+		}
+
+		if (pos2 == sourceMap.end()) {              //hash2未找到重复项
+			sourceMap[hash2] = gs2;
+		}
+		else {
+			GeneralSource*& existSource = pos2->second;
+			if (gs2 != existSource) {               //若广义源重复，则不进行计数
+				existSource->m_sensorData.m_phi += gs2->m_sensorData.m_phi;
+				existSource->m_phiRepeatCount += 1;
+				gs2_repeatFlag = true;
+			}
+		}
+
+		if (gs1_repeatFlag && gs2_repeatFlag) {     //若两个广义源都处于重复状态，则当前pair是重复的，设定当前pair有效性为false
+			curPair->m_isValid = false;
+		}
+	}
+
+	m_pairs.erase(std::remove_if(m_pairs.begin(), m_pairs.end(), [](const GSPair* pair) {           //清空cluster中无效的广义源对
+		return pair->m_isValid == false;
+		}), m_pairs.end());
+    sources.clear();
+	for (auto& data : sourceMap) {                                      //纳入非重复广义源
+		GeneralSource* existSource = data.second;
+		existSource->UpdateEvenPhiValue();                              //更新phi值
+		existSource->m_phiRepeatCount = 1;                              //重置phi重复计数
+		sources.push_back(existSource);
+	}
 }
 
 void GSPairCluster::CalculateRefSourceCount() const

@@ -56,11 +56,14 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 		EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
 	}
 	else if (lbsMethod == LBS_METHOD_RT_TOA) {
-		m_sources.resize(m_nodes.size());
+		m_sources.reserve(m_nodes.size());
 		for (int i = 0; i < m_nodes.size(); ++i) {
-			GeneralSource* newSource = new GeneralSource();
-			m_nodes[i]->GetGeneralSource_TOA(newSource);
-			m_sources[i] = newSource;
+			RtLbsType propagation_t = m_nodes[i]->m_sensorData->m_time * LIGHT_VELOCITY_AIR;
+			if (propagation_t >= m_nodes[i]->m_tMin && propagation_t <= m_nodes[i]->m_tMax) {			//当且仅当测量到传播距离大于节点本身的距离时广义源才有效
+				GeneralSource* newSource = new GeneralSource();
+				m_nodes[i]->GetGeneralSource_AOA(newSource);
+				m_sources.push_back(newSource);
+			}
 		}
 		EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
 	}
@@ -71,6 +74,7 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 			m_nodes[i]->GetGeneralSource_AOA(newSource);
 			m_sources[i] = newSource;
 		}
+		//EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
 	}
 	else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
 		m_sources.resize(m_nodes.size());

@@ -264,7 +264,7 @@ RtLbsType RayPath3D::GetAOA_Phi() const
 {
 	if (m_nodes.size() < 2)
 		return 0.0;
-	Vector3D pathEnd = m_nodes[m_nodes.size() - 2]->m_point - m_nodes[m_nodes.size() - 1]->m_point;
+	Vector3D pathEnd = m_nodes[m_nodes.size()-2]->m_point - m_nodes[m_nodes.size() - 1]->m_point;
 	return pathEnd.Azimuth();
 }
 

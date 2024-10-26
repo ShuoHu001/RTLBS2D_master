@@ -61,7 +61,7 @@ void DirectlySetResultPath_GPUMultiThread(const std::vector<RayTreeNode*>& vroot
 	//合并cluster中所有的坐标点数量
 	std::vector<Point2D> targetPoints;
 	for (auto& cluster : clusters) {
-		for (auto point : cluster.m_aroundPoints) {
+		for (auto& point : cluster.m_aroundPoints) {
 			targetPoints.push_back(point);
 		}
 	}

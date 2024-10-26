@@ -85,6 +85,16 @@ void SensorDataCollection::SortByPower()
 	std::sort(m_datas.begin(), m_datas.end());
 }
 
+void SensorDataCollection::SortByTime()
+{
+	std::sort(m_datas.begin(), m_datas.end(), ComparedByTime);
+}
+
+void SensorDataCollection::SortByTimeDifference()
+{
+	std::sort(m_datas.begin(), m_datas.end(), ComparedByTimeDifference);
+}
+
 void SensorDataCollection::CalculateTimeDiff()
 {
 	if (m_datas.empty()) {
@@ -217,8 +227,8 @@ bool SensorDataCollection::Deserialize(const rapidjson::Value& value)
 		return false;
 	}
 
-	//对sensorDataCollection中的data数据按照能量大小进行排序,从大到小
-	SortByPower();
+	//对sensorDataCollection中的data数据按照时延大小进行排序,从小到大
+	SortByTime();
 	return true;
 }
 

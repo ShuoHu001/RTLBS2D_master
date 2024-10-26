@@ -26,6 +26,8 @@ public:
 	void ReClusterByAOAError(RtLbsType phiError);										//按照角度误差进行聚类	
 	void ReClusterByTOAError(RtLbsType timeError);										//按照时间误差进行聚类
 	void SortByPower();																	//按照能量的大小进行排序
+	void SortByTime();																	//按照时延大小进行排序
+	void SortByTimeDifference();														//按照时间差的大小进行排序
 	void CalculateTimeDiff();															//计算时延差值
 	RtLbsType GetMaxPropagationTime() const;											//获取最大传播时延值
 	std::vector<RtLbsType> GetPowerDiffMatrix() const;									//计算功率差矩阵

@@ -40,5 +40,11 @@ public:
 	bool Deserialize(const rapidjson::Value& value);
 	
 };
+inline bool ComparedByTimeDifference(const SensorData& s1, const SensorData& s2) {
+	return s1.m_timeDiff < s2.m_timeDiff;
+}
+inline bool ComparedByTime(const SensorData& s1, const SensorData& s2) {
+	return s1.m_time < s2.m_time;
+}
 
 #endif

@@ -77,7 +77,7 @@ Point2D LBS_TDOA_LOCATOR_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vecto
 			for (int i = 0; i < sensorNum; ++i) {
 				const Sensor* curSensor = scene->m_sensors[i];
 				curResult[i].CalculateBaseInfo(curSensor, freqs, tranFunctionData, antLibrary);
-				curResult[i].GetMaxPowerSensorData_Delay(targetSensorDataCollection[i], curSensor->m_timeErrorSTD);
+				curResult[i].GetMinDelaySensorData_Delay(targetSensorDataCollection[i], curSensor->m_timeErrorSTD);
 			}
 			RtLbsType cur_r_timeDiff = 0.0;
 			RtLbsType cur_r_powerDiff = 0.0;

@@ -57,7 +57,7 @@ public:
 	template <typename T> bool operator()(const T* const position, T* residual) const {
 		T dx = position[0] - T(m_x);
 		T dy = position[1] - T(m_y);
-		residual[0] = (dx * T(m_sinPhi) - dy * T(m_cosPhi)) * T(m_weight);
+		residual[0] = (dx * T(m_sinPhi) - dy * T(m_cosPhi)) / T(m_weight);
 		return true;
 	}
  
@@ -126,7 +126,7 @@ public:
 		T y = position[1];							/** @brief	预测点 y坐标	*/
 		T d1 = ceres::sqrt((x - p1_x) * (x - p1_x) + (y - p1_y) * (y - p1_y));
 		T di = ceres::sqrt((x - pi_x) * (x - pi_x) + (y - pi_y) * (y - pi_y));
-		residual[0] = (di - d1) - T(m_timeDiff) * T(LIGHT_VELOCITY_AIR);
+		residual[0] = (di - d1) / LIGHT_VELOCITY_AIR - T(m_timeDiff) * 1e9;				//ns 时间差
 		return true;
 	}
 };
@@ -162,7 +162,7 @@ public:
 		T y = position[1];							/** @brief	预测点 y坐标	*/
 		T d1 = ceres::sqrt((x - p1_x) * (x - p1_x) + (y - p1_y) * (y - p1_y));
 		T di = ceres::sqrt((x - pi_x) * (x - pi_x) + (y - pi_y) * (y - pi_y));
-		residual[0] = ((di - d1) - T(m_timeDiff) * LIGHT_VELOCITY_AIR) * T(m_weight);
+		residual[0] = ((di - d1) / LIGHT_VELOCITY_AIR - T(m_timeDiff) * 1e9) / T(m_weight);				//ns 时间差
 		return true;
 	}
 
@@ -224,7 +224,7 @@ public:
 		T dy = position[1] - T(m_y);
 		T distance = sqrt(dx * dx + dy * dy);
 		T calTime = distance / T(LIGHT_VELOCITY_AIR);  //单位ns
-		residual[0] = (calTime - m_time)*1e9;
+		residual[0] = (calTime - m_time) * 1e9 / T(m_weight);
 		return true;
 	}
 };

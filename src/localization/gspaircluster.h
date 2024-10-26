@@ -12,11 +12,13 @@ class GSPairCluster {
 public:
 	bool m_isValid;													/** @brief	簇内元素是否有效，对于定位来说	*/
 	bool m_isDeviateSolution;										/** @brief	是否是偏离解，解与广义源对的关联性不大，是由m_aroundPoints所提供的解	*/	
+	bool m_isRefGSOccupied;											/** @brief	参考广义源坐标是否被占用，若占用则不再进行赋值	*/
 	int m_nearExtendNum;											/** @brief	近距离扩展点数量	*/
 	int m_farExtendNum;												/** @brief	远距离扩展点数量	*/
 	RtLbsType m_deviateDistance;									/** @brief	偏离距离	*/
 	std::vector<GSPair*> m_pairs;									/** @brief	簇内广义源对	*/
 	Point2D m_point;												/** @brief	平均坐标	*/
+	Point2D m_TDOA_REFGS_Point;										/** @brief	含TDOA定位算法中需要结合RTresult结果计算参考广义源坐标	*/
 	std::vector<Point2D> m_aroundPoints;							/** @brief	周围的坐标	*/
 	RtLbsType m_residualFactor;										/** @brief	残差因子	*/
 	RtLbsType m_residual;											/** @brief	残差	*/
@@ -53,6 +55,7 @@ public:
 	void CalNormalizedTDOAWeight(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w);									//计算簇TDOA归一权重
 	void CalNormalizedAOATDOAWeight(RtLbsType max_r_phi, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff, const WeightFactor& w);			//计算簇AOA-TDOA归一权重
 	void GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sources);																		//删除重复的广义源对及其广义源对中的广义源，主要用于角度平均
+	void GetNonRepeatGeneralSource(GeneralSource* refSource, std::vector<GeneralSource*>& sources);												//删除重复的广义源，主要用于求解AOATDOA定位算法中的有效参考广义源对中的广义源
 	void CalculateRefSourceCount() const;																										//计算参考广义源
 };
 
@@ -73,7 +76,7 @@ inline bool ComparedByClusterResidual(const GSPairCluster& cluster1, const GSPai
 }
 
 //按照距离进行聚类
-inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& pairs, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, const ElevationMatrix& lbsShiftErrorMatrix, int& maxCluterNum) {
+inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& pairs, const Scene* scene, RtLbsType threshold, bool extendAroundPointState, const ElevationMatrix& lbsShiftErrorMatrix) {
 	std::vector<GSPairCluster> clusters;
 	for (auto& curPair : pairs) {
 		bool addFlag = false;
@@ -97,9 +100,6 @@ inline std::vector<GSPairCluster> ClusterGSPairByDistance(std::vector<GSPair*>& 
 	int id = 0;
 	for (auto& curCluster : clusters) {
 		curCluster.SetElementClusterId(id++);
-		if (maxCluterNum < static_cast<int>(curCluster.m_pairs.size())) {
-			maxCluterNum = static_cast<int>(curCluster.m_pairs.size());
-		}
 	}
 
 	//按照簇数量大小进行排序
@@ -187,8 +187,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_SPSTMD(GeneralSource* refSo
 
 
 	//对解进行初步聚类，得到聚类解
-	int max_cluster_num = 1;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, lbsShiftErrorMatrix, max_cluster_num);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, lbsShiftErrorMatrix);
 
 	RtLbsType max_rFactor = 0.0;											/** @brief	最大残差因子	*/
 	for (auto& curCluster : gsPairClusters) {								//求解残差因子，给出最大的残差因子
@@ -248,8 +247,7 @@ inline GSPairCluster CalMaxTDOASolutionGSPairCluster_MPSTSD(GeneralSource* refSo
 
 
 	//对解进行初步聚类，得到聚类解
-	int max_cluster_num = 1;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, lbsShiftErrorMatrix, max_cluster_num);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(pairs, scene, threshold, extendAroundPointState, lbsShiftErrorMatrix);
 
 	//排除大部分数据后，再通过射线追踪求解点到两个传感器之间的功率
 	return gsPairClusters.front();

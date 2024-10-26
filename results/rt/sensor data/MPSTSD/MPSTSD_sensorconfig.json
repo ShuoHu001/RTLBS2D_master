@@ -5,16 +5,46 @@
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 19.149999618530273,
-					"y": 102.47000122070313,
-					"z": 1.850000023841858
+					"x": 45.0,
+					"y": 21.0,
+					"z": 2.0
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
-				"PhiDegreeErrorSTD": 1.0,
-				"TimeErrorSTD": 5.0,
+				"PhiDegreeErrorSTD": 2.0,
+				"TimeErrorSTD": 1.0,
 				"PowerErrorSTD": 3.0,
-				"SensorDataFileName": ""
+				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_0_MPSTSD.json"
+			}, {
+				"Id": 1,
+				"AntId": 0,
+				"AntName": "0-Omni",
+				"Position": {
+					"x": 125.0,
+					"y": 21.0,
+					"z": 2.0
+				},
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"PhiDegreeErrorSTD": 2.0,
+				"TimeErrorSTD": 1.0,
+				"PowerErrorSTD": 3.0,
+				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_1_MPSTSD.json"
+			}, {
+				"Id": 2,
+				"AntId": 0,
+				"AntName": "0-Omni",
+				"Position": {
+					"x": 106.0,
+					"y": 74.0,
+					"z": 2.0
+				},
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"PhiDegreeErrorSTD": 2.0,
+				"TimeErrorSTD": 1.0,
+				"PowerErrorSTD": 3.0,
+				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_2_MPSTSD.json"
 			}]
 	}
 }

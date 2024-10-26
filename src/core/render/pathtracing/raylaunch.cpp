@@ -121,9 +121,9 @@ void RayLaunch_BySensor(LOCALIZATION_METHOD lbsMethod, LOCALIZATION_MODE lbsMode
 	}
 	else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
 		int singleDirectionRayNum = 1;														/** @brief	每个方向的射线数量,默认为1	*/
-		double thetaofSingleDirection = sensor->m_phiErrorSTD;								/** @brief	每个方向的张角	*/
-		if (sensor->m_phiErrorSTD != 0) {
-			singleDirectionRayNum = static_cast<int>(std::ceil(sensor->m_phiErrorSTD / rayLaunchTheta));
+		double thetaofSingleDirection = sensor->m_phiErrorSTD * 2.0;						/** @brief	每个方向的张角,扩大2倍	*/
+		if (thetaofSingleDirection != 0) {
+			singleDirectionRayNum = static_cast<int>(std::ceil(thetaofSingleDirection / rayLaunchTheta));
 		}
 		int rayNum = singleDirectionRayNum * sDataSize;
 		outRays.resize(rayNum);

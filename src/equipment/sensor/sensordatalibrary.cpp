@@ -113,6 +113,19 @@ void SensorDataLibrary::GetAllSensorDataCollectionWithTOAError(std::vector<Senso
 	}
 }
 
+void SensorDataLibrary::GetAllSensorDataCollectionWithError_AOATDOA(std::vector<SensorDataCollection>& collections) const
+{
+	if (collections.size() != m_sensorDataCollection.size()) {
+		collections.resize(m_sensorDataCollection.size());
+	}
+	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
+		collections[i] = *m_sensorDataCollection[i];
+		RtLbsType sensorPhiError = m_sensors[collections[i].m_sensorId]->m_phiErrorSTD;
+		collections[i].ReClusterByAOAError(sensorPhiError);
+		collections[i].SortByTimeDifference();
+	}
+}
+
 
 void SensorDataLibrary::GetAllSensorData(std::vector<SensorData>& datas) const
 {

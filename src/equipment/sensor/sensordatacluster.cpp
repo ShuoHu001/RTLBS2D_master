@@ -69,6 +69,7 @@ void SensorDataCluster::CalMergedDataByAOA()
 
 	//时延合成，按照功率最大的时延作为其时延
 	m_mergedData.m_time = m_datas.front().m_time;
+	m_mergedData.m_timeDiff = m_datas.front().m_timeDiff;
 }
 
 void SensorDataCluster::CalMergedDataByTime()

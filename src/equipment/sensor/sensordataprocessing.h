@@ -19,7 +19,7 @@ void CalculateResidual_TOA(const SensorData& d1, const SensorData& d2, RtLbsType
 void CalculateResidual_TDOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_timediff);
 
 //计算时间残差二范数和角度残差二范数
-void CalculateResidual_AOA_TOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_phi, RtLbsType r_time, RtLbsType r_power);
+void CalculateResidual_AOA_TOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_phi, RtLbsType& r_time, RtLbsType& r_power);
 
 
 //计算时间差残差二范数和角度残差二范数
@@ -27,6 +27,12 @@ void CalculateResidual_TDOA_AOA(const SensorData& d1, const SensorData& d2, RtLb
 
 //按照功率比较sensordatacollection的大小
 bool ComparedByPower_SensorDataCollection(const SensorDataCollection& c1, const SensorDataCollection& c2);
+
+//按照时延比较sensordatacollection的大小
+bool ComparedByDelay_SensorDataCollection(const SensorDataCollection& c1, const SensorDataCollection& c2);
+
+//按照时延差比较sensordatacollection的大小,升序
+bool ComparedByTimeDifference_SensorDataCollection(const SensorDataCollection& c1, const SensorDataCollection& c2);
 
 //计算两个传感器数据的残差二范数-AOA定位方法-单数据
 void CalculateSensorResidual_AOA_SingleData(const SensorDataCollection& c1, const SensorDataCollection& c2, RtLbsType& r_phi);
@@ -80,7 +86,7 @@ void CalculateSensorCollectionResidual_TDOA_MultiData(const std::vector<SensorDa
 void CalculateSensorResidual_AOATDOA_SingleData(const SensorDataCollection& c1, const SensorDataCollection& c2, RtLbsType& r_phi, RtLbsType& r_timeDiff);
 
 //计算两组传感器数据的残差二范数-TDOA/AOA定位方法-单数据
-void CalculateSensorCollectionResidual_AOATDOA_SingleData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_phi, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff);
+void CalculateSensorCollectionResidual_AOATDOA_SingleData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_phi, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum);
 
 //计算两个传感器数据的残差二范数-TDOA/AOA定位方法-多数据
 void CalculateSensorResidual_AOATDOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, const WeightFactor& w, RtLbsType& r_phi, RtLbsType& r_timeDiff, RtLbsType& r_powerdiff, int& nullDataNum);

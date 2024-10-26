@@ -117,7 +117,7 @@ void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig, con
 	//计算传感器数据结果,默认定位为单频点下的定位模式
 	if (outputConfig.m_outputSensorDataSPSTMD) {				//若为单站单源多数据定位，发射机可以为多个，接收机为1
 		m_sensorDataSPSTMD.resize(m_txNum);
-		if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA || outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA_TDOA) {
+		if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA) {
 			RtLbsType threshold = m_raytracingResult[0].m_receiver->m_angularThreshold;
 			for (unsigned i = 0; i < m_txNum; ++i) {
 				m_raytracingResult[i].GetAllSensorData_AOA2D(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
@@ -125,7 +125,9 @@ void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig, con
 				m_sensorDataSPSTMD[i].CalculateTimeDiff();			//计算时延差值
 			}
 		}
-		else if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_TDOA) {
+		else if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_TOA ||
+			outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA_TOA ||
+			outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA_TDOA) {
 			RtLbsType threshold = m_raytracingResult[0].m_receiver->m_delayThreshold;
 			for (unsigned i = 0; i < m_txNum; ++i) {
 				m_raytracingResult[i].GetAllSensorData_Delay(m_sensorDataSPSTMD[i], threshold, sensorDataSparseFactor);
@@ -137,14 +139,26 @@ void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig, con
 	if (outputConfig.m_outputSensorDataMPSTSD) {				//若为多站单源单数据定位，发射机可以为多个，接收机为多个
 		//计算每个发射天线与每个接收天线间的传感器数据（最大值）
 		m_sensorDataMPSTSD.resize(m_txNum * m_rxNum);
-		for (unsigned i = 0; i < m_txNum; ++i) {
-			for (unsigned j = 0; j < m_rxNum; ++j) {
-				RtLbsType threshold = m_raytracingResult[i * m_rxNum + j].m_receiver->m_angularThreshold;
-				m_raytracingResult[i * m_rxNum + j].GetMaxPowerSensorData_AOA2D(m_sensorDataMPSTSD[i * m_rxNum + j], threshold);
-				m_sensorDataMPSTSD[i * m_rxNum + j].m_sensorId = j;		//计算传感器ID，该ID即为接收机的ID
+		if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA) {
+			for (unsigned i = 0; i < m_txNum; ++i) {
+				for (unsigned j = 0; j < m_rxNum; ++j) {
+					RtLbsType threshold = m_raytracingResult[i * m_rxNum + j].m_receiver->m_angularThreshold;
+					m_raytracingResult[i * m_rxNum + j].GetMaxPowerSensorData_AOA2D(m_sensorDataMPSTSD[i * m_rxNum + j], threshold);
+					m_sensorDataMPSTSD[i * m_rxNum + j].m_sensorId = j;		//计算传感器ID，该ID即为接收机的ID
+				}
 			}
 		}
-
+		else if (outputConfig.m_outputLBSMethod == LBS_METHOD_RT_TOA ||
+			outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA_TOA	||
+			outputConfig.m_outputLBSMethod == LBS_METHOD_RT_AOA_TDOA) {
+			for (unsigned i = 0; i < m_txNum; ++i) {
+				for (unsigned j = 0; j < m_rxNum; ++j) {
+					RtLbsType threshold = m_raytracingResult[i * m_rxNum + j].m_receiver->m_angularThreshold;
+					m_raytracingResult[i * m_rxNum + j].GetMinDelaySensorData_Delay(m_sensorDataMPSTSD[i * m_rxNum + j], threshold);
+					m_sensorDataMPSTSD[i * m_rxNum + j].m_sensorId = j;		//计算传感器ID，该ID即为接收机的ID
+				}
+			}
+		}
 		//计算时延差值
 		for (unsigned i = 0; i < m_txNum; ++i) {
 			RtLbsType firstTimeDelay = m_sensorDataMPSTSD[i * m_rxNum].m_datas[0].m_time;

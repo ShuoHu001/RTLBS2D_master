@@ -6,7 +6,7 @@
 		"AntennaLibraryConfigFile": "config/antennalibrary.json",
 		"TransmitterConfigFile": "config/transmitterconfig.json",
 		"ReceiverConfigFile": "config/receiverconfig.json",
-		"SensorConfigFile": "results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json",
+		"SensorConfigFile": "results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json",
 		"RaytracingConfig": {
 			"RayNum": 10000,
 			"DiffractRayNum": 1000,
@@ -25,16 +25,16 @@
 			"CPUThreadNum": 20
 		},
 		"LocalizationConfig": {
-			"LBSMode": 0,
+			"LBSMode": 1,
 			"LBSMethod": 4,
 			"HardWareMode": 2,
 			"ThreadNum": 20,
-			"RayLaunchHalfTheta": 0.1,
+			"RayLaunchHalfTheta": 0.2,
 			"GSPairClusterThreshold": 2.0,
 			"WeightFactor": {
-				"PhiWeight": 2.0,
-				"TimeWeight": 400.0,
-				"PowerWeight": 400.0
+				"PhiWeight": 8.0,
+				"TimeWeight": 8.0,
+				"PowerWeight": 2.0
 			},
 			"ExtendAroundPointState": true,
 			"ShiftErrorMatrixFile": "config/4.000000_errormatrix.txt",
@@ -58,13 +58,13 @@
 			"OutputAOA": false,
 			"OutputAOD": false,
 			"OutputSpreadProfile":true,
-			"OutputSensorDataSPSTMD": true,
-			"OutputSensorDataMPSTSD": false,
+			"OutputSensorDataSPSTMD": false,
+			"OutputSensorDataMPSTSD": true,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
 			"OutputGSForCRLB": true,
 			"OutputSensorDataSparseFactor": 1.0,
-			"OutputLBSMethod": 0
+			"OutputLBSMethod": 2
 		}
 	}
 }

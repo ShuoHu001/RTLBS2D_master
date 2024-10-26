@@ -136,7 +136,7 @@ void System::RayLaunch(const RAYLAUNCHMODE& mode, uint64_t rayNum)
 	else if (m_sysMode == MODE_LBS) {
 		LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
 		LOCALIZATION_MODE lbsMode = m_simConfig.m_lbsConfig.m_lbsMode;
-		RtLbsType rayLaunchTheta = m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta * ONE_DEGEREE * 1.1;			/** @brief	射线发射角度值,扩大1.1倍	*/
+		RtLbsType rayLaunchTheta = m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta * ONE_DEGEREE;			/** @brief	射线发射角度值	*/
 		int sensorNum = static_cast<int>(m_scene->m_sensors.size());
 		for (int i = 0; i < sensorNum; ++i) {
 			const Sensor* curSensor = m_scene->m_sensors[i];

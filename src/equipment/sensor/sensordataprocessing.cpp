@@ -4,8 +4,8 @@
 void CalculateResidual_AOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_phi)
 {
 	RtLbsType cur_r_phi = std::abs(d1.m_phi - d2.m_phi);
-	if (cur_r_phi > PI) {
-		cur_r_phi -= PI;
+	if (cur_r_phi > PI) {										//修正越界角度残差
+		cur_r_phi  = TWO_PI - cur_r_phi;
 	}
 	r_phi = cur_r_phi * cur_r_phi;								//计算角度残差平方
 }
@@ -24,7 +24,7 @@ void CalculateResidual_TDOA(const SensorData& d1, const SensorData& d2, RtLbsTyp
 	r_timediff = cur_r_timeDiff * cur_r_timeDiff;		//计算时间差残差平方
 }
 
-void CalculateResidual_AOA_TOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_phi, RtLbsType r_time, RtLbsType r_power)
+void CalculateResidual_AOA_TOA(const SensorData& d1, const SensorData& d2, RtLbsType& r_phi, RtLbsType& r_time, RtLbsType& r_power)
 {
 	RtLbsType cur_r_phi = std::abs(d1.m_phi - d2.m_phi);
 	if (cur_r_phi > PI) {
@@ -50,6 +50,16 @@ void CalculateResidual_TDOA_AOA(const SensorData& d1, const SensorData& d2, RtLb
 
 bool ComparedByPower_SensorDataCollection(const SensorDataCollection& c1, const SensorDataCollection& c2) {
 	return c1.m_datas[0].m_power > c2.m_datas[0].m_power;
+}
+
+bool ComparedByDelay_SensorDataCollection(const SensorDataCollection& c1, const SensorDataCollection& c2)
+{
+	return c1.m_datas[0].m_time > c2.m_datas[0].m_time;
+}
+
+bool ComparedByTimeDifference_SensorDataCollection(const SensorDataCollection& c1, const SensorDataCollection& c2)
+{
+	return c1.m_datas[0].m_timeDiff < c2.m_datas[0].m_timeDiff;
 }
 
 void CalculateSensorResidual_AOA_SingleData(const SensorDataCollection& c1, const SensorDataCollection& c2, RtLbsType& r_phi)
@@ -501,23 +511,17 @@ void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, cons
 	RtLbsType max_r_timeDiff = 0.0;												/** @brief	最大时间残差	*/
 	RtLbsType max_r_powerDiff = 0.0;											/** @brief	最大功率差残差	*/
 
-	std::vector<std::vector<Residual>> cost(n);
-	std::vector<std::vector<RtLbsType>> norm_cost(n);							/** @brief	归一化代价矩阵	*/
+	std::vector<std::vector<Residual>> cost(n, std::vector<Residual>(m));
+	std::vector<std::vector<RtLbsType>> norm_cost(n, std::vector<RtLbsType>(m));							/** @brief	归一化代价矩阵	*/
 	for (int i = 0; i < n; ++i) {
-		cost[n].resize(m);
-		norm_cost[n].resize(m);
-		norm_cost[n].assign(m, 0);
+		norm_cost[i].assign(m, 0);
 		for (int j = 0; j < m; ++j) {
 			RtLbsType cur_r_timeDiff = (c1.m_datas[i].m_timeDiff - c2.m_datas[j].m_timeDiff) * 1e9;
 			RtLbsType cur_r_powerDiff = (c1.m_datas[i].m_power - c2.m_datas[j].m_power);
 			cost[i][j].r_timeDiff = cur_r_timeDiff * cur_r_timeDiff;
 			cost[i][j].r_powerDiff = cur_r_powerDiff * cur_r_powerDiff;
-			if (max_r_timeDiff < cur_r_timeDiff) {
-				max_r_timeDiff = cur_r_timeDiff;
-			}
-			if (max_r_powerDiff < cur_r_powerDiff) {
-				max_r_powerDiff = cur_r_powerDiff;
-			}
+			max_r_timeDiff = std::max(max_r_timeDiff, cost[i][j].r_timeDiff);
+			max_r_powerDiff = std::max(max_r_powerDiff, cost[i][j].r_powerDiff);
 		}
 	}
 
@@ -533,6 +537,7 @@ void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, cons
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j) {
 			cost[i][j].CalNormResidual(max_r_timeDiff, max_r_powerDiff);
+			norm_cost[i][j] = cost[i][j].r_norm;
 		}
 	}
 	int new_m = m;
@@ -552,7 +557,7 @@ void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, cons
 
 	//计算残差和
 	for (auto assign : assigns) {
-		int& ni = assign.second;
+		int& ni = assign.first;
 		int& mi = assign.second;
 		if (mi >= m) {											//防止在欠定指派问题情况下的越界访问无效数据
 			continue;
@@ -592,21 +597,31 @@ void CalculateSensorResidual_AOATDOA_SingleData(const SensorDataCollection& c1, 
 	}
 }
 
-void CalculateSensorCollectionResidual_AOATDOA_SingleData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_phi, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff)
+void CalculateSensorCollectionResidual_AOATDOA_SingleData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_phi, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum)
 {
 	//计算时延差、角度残差二范数和
 	for (int i = 0; i < static_cast<int>(c1.size()); ++i) {
+		if (c2[i].m_datas.size() == 0) {
+			nullDataNum++;
+			continue;
+		}
 		RtLbsType cur_r_phi = 0;
 		RtLbsType cur_r_timeDiff = 0;
 		CalculateSensorResidual_AOATDOA_SingleData(c1[i], c2[i], cur_r_phi, cur_r_timeDiff);
+		r_phi += cur_r_phi;
 		r_timeDiff += cur_r_timeDiff;
-	}
 
-	//计算功率差残差二范数和
-	for (int i = 1; i < static_cast<int>(c1.size()); ++i) {
-		RtLbsType powerDiff1 = c1[i].m_datas[0].m_power - c1[0].m_datas[0].m_power;
-		RtLbsType powerDiff2 = c2[i].m_datas[0].m_power - c2[0].m_datas[0].m_power;
-		r_powerDiff += (powerDiff1 - powerDiff2) * (powerDiff1 - powerDiff2);
+		if (i >= 1) {//计算功率差残差二范数和
+			RtLbsType powerDiff1 = c1[i].m_datas[0].m_power - c1[0].m_datas[0].m_power;
+			RtLbsType powerDiff2 = 0.0;
+			if (c2[0].m_datas.size() == 0) {
+				powerDiff2 = c2[i].m_datas[0].m_power;
+			}
+			else {
+				powerDiff2 = c2[i].m_datas[0].m_power - c2[0].m_datas[0].m_power;
+			}
+			r_powerDiff += (powerDiff1 - powerDiff2) * (powerDiff1 - powerDiff2);
+		}
 	}
 }
 
@@ -627,37 +642,41 @@ void CalculateSensorResidual_AOATDOA_MultiData(const SensorDataCollection& c1, c
 	};
 
 
-	//求解残差代价矩阵
-	int n = static_cast<int>(c1.m_datas.size());															/** @brief	原始数据的长度	*/
-	int m = static_cast<int>(c2.m_datas.size());															/** @brief	预测数据的长度	*/
+	//求解残差代价矩阵,TDOA算法中，第一元素为参考时延，固定指派
+	int n = static_cast<int>(c1.m_datas.size() - 1);															/** @brief	原始数据的长度	*/
+	int m = static_cast<int>(c2.m_datas.size() - 1);															/** @brief	预测数据的长度	*/
 
 	RtLbsType max_r_phi = 0.0;													/** @brief	最大角度残差	*/
 	RtLbsType max_r_timeDiff = 0.0;												/** @brief	最大时间残差	*/
 	RtLbsType max_r_powerDiff = 0.0;											/** @brief	最大功率差残差	*/
 
-	std::vector<std::vector<Residual>> cost(n);
-	std::vector<std::vector<RtLbsType>> norm_cost(n);							/** @brief	归一化代价矩阵	*/
-	for (int i = 0; i < n; ++i) {
-		cost[n].resize(m);
-		norm_cost[n].resize(m);
-		norm_cost[n].assign(m, 0);
-		for (int j = 0; j < m; ++j) {
+	RtLbsType first_r_phi = c1.m_datas[0].m_phi - c2.m_datas[0].m_phi;
+	RtLbsType first_r_timeDiff = c1.m_datas[0].m_timeDiff - c2.m_datas[0].m_timeDiff;
+	RtLbsType first_r_powerDiff = c1.m_datas[0].m_power - c2.m_datas[0].m_power;
 
-			RtLbsType cur_r_phi = std::abs(c1.m_datas[i].m_phi - c2.m_datas[j].m_phi);
-			RtLbsType cur_r_timeDiff = (c1.m_datas[i].m_timeDiff - c2.m_datas[j].m_timeDiff) * 1e9;
-			RtLbsType cur_r_powerDiff = c1.m_datas[i].m_power - c2.m_datas[j].m_power;
+	max_r_phi = first_r_phi* first_r_phi;
+	max_r_timeDiff = first_r_timeDiff* first_r_timeDiff;
+	max_r_powerDiff = first_r_powerDiff* first_r_powerDiff;
+
+	r_phi += max_r_phi;
+	r_timeDiff += max_r_timeDiff;
+	r_powerdiff += max_r_powerDiff;
+
+
+	std::vector<std::vector<Residual>> cost(n, std::vector<Residual>(m));
+	std::vector<std::vector<RtLbsType>> norm_cost(n, std::vector<RtLbsType>(m));							/** @brief	归一化代价矩阵	*/
+	for (int i = 0; i < n; ++i) {
+		norm_cost[i].assign(m, 0);
+		for (int j = 0; j < m; ++j) {
+			RtLbsType cur_r_phi = std::abs(c1.m_datas[i + 1].m_phi - c2.m_datas[j + 1].m_phi);
+			RtLbsType cur_r_timeDiff = (c1.m_datas[i + 1].m_timeDiff - c2.m_datas[j + 1].m_timeDiff) * 1e9;
+			RtLbsType cur_r_powerDiff = c1.m_datas[i + 1].m_power - c2.m_datas[j + 1].m_power;
 			cost[i][j].r_phi = cur_r_phi * cur_r_phi;
 			cost[i][j].r_timeDiff = cur_r_timeDiff * cur_r_timeDiff;
 			cost[i][j].r_powerDiff = cur_r_powerDiff * cur_r_powerDiff;
-			if (max_r_phi < cur_r_phi) {
-				max_r_phi = cur_r_phi;
-			}
-			if (max_r_timeDiff < cur_r_timeDiff) {
-				max_r_timeDiff = cur_r_timeDiff;
-			}
-			if (max_r_powerDiff < cur_r_powerDiff) {
-				max_r_powerDiff = cur_r_powerDiff;
-			}
+			max_r_phi = std::max(max_r_phi, cost[i][j].r_phi);
+			max_r_timeDiff = std::max(max_r_timeDiff, cost[i][j].r_timeDiff);
+			max_r_powerDiff = std::max(max_r_powerDiff, cost[i][j].r_powerDiff);
 		}
 	}
 
@@ -676,6 +695,7 @@ void CalculateSensorResidual_AOATDOA_MultiData(const SensorDataCollection& c1, c
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j) {
 			cost[i][j].CalNormResidual(max_r_phi, max_r_timeDiff, max_r_powerDiff, w);
+			norm_cost[i][j] = cost[i][j].r_norm;
 		}
 	}
 	int new_m = m;
@@ -695,7 +715,7 @@ void CalculateSensorResidual_AOATDOA_MultiData(const SensorDataCollection& c1, c
 
 	//计算残差和
 	for (auto assign : assigns) {
-		int& ni = assign.second;
+		int& ni = assign.first;
 		int& mi = assign.second;
 		if (mi >= m) {												//防止在欠定指派问题情况下的越界访问无效数据
 			continue;

@@ -47,7 +47,7 @@ GSPair::GSPair(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2)
 	, m_clusterSize(1)
 	, m_gs1(new GeneralSource(*gs1))
 	, m_gs2(new GeneralSource(*gs2))
-	, m_gsRef(new GeneralSource(*gsRef))
+	, m_gsRef(gsRef)
 	, m_belongingPairCluster(nullptr)
 	, m_phiResidual(0.0)
 	, m_timeResidual(0.0)
@@ -85,7 +85,6 @@ GSPair::~GSPair()
 {
 	delete m_gs1;
 	delete m_gs2;
-	delete m_gsRef;
 }
 
 GSPair& GSPair::operator=(const GSPair& pair)
@@ -193,6 +192,13 @@ bool GSPair::HasValidAOATOASolution(const Scene* scene)
 		m_isValid = false;
 		return false;
 	}
+
+	//先计算AOA初值解，在带入TOA进行解算
+	if (!_calAOASolution()) {
+		m_isValid = false;
+		return false;
+	}
+
 	if (!_calAOATOASolution()) {			//若传感器有解，才进行下一步
 		m_isValid = false;
 		return false;
@@ -214,6 +220,12 @@ bool GSPair::HasValidAOATDOASolution(const Scene* scene)
 {
 	//先判定两个广义源是否来自于一个传感器数据
 	if (m_gs1->m_sensorData.m_id == m_gs2->m_sensorData.m_id) {				//若两个广义源的数据相同，则为无效广义源
+		m_isValid = false;
+		return false;
+	}
+
+	//先计算AOA初值解，在带入TOA进行解算
+	if (!_calAOASolution()) {
 		m_isValid = false;
 		return false;
 	}
@@ -396,7 +408,9 @@ void GSPair::CalNormalizedWeightAndUpdate_AOATDOA(RtLbsType max_r_phi, RtLbsType
 		m_gs2->m_weight = w_total;
 	}
 	m_weight = w_total;
-	m_belongingPairCluster->m_weight = m_weight;																//赋值所属父簇权重
+	if (m_belongingPairCluster->m_weight < m_weight) {
+		m_belongingPairCluster->m_weight = m_weight;																//赋值所属父簇权重
+	}
 }
 
 bool GSPair::_calAOASolution()

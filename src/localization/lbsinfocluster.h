@@ -99,7 +99,7 @@ inline void TreeNodeGenerator_AOATOA_CPUSingleThread(const std::vector<RayTreeNo
 		}
 
 		std::vector<PathNode*> nodes;
-		GenerateAllLeafTreeNode(vroots[i], nodes);					//TOA算法只需要获取所有有效叶子节点即可
+		GenerateAllLeafTreeNode(vroots[i], nodes);
 		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
 		for (int j = 0; j < nodes.size(); ++j) {
 			const PathNode* curPathNode = nodes[j];

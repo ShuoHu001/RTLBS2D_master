@@ -176,6 +176,14 @@ void PathInfo::Convert2SensorData(SensorData& data) const
 	data.m_timeDiff = 0.0;
 }
 
+Point2D PathInfo::GetRefGeneralSource() const
+{
+	if (m_rayPath != nullptr) {
+		return m_rayPath->GetGeneralSource2D();
+	}
+	return Point2D();
+}
+
 size_t PathInfo::GetHash() const
 {
 	return m_rayPath->GetHash();

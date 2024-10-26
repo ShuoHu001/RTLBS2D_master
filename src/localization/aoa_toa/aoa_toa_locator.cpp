@@ -33,11 +33,16 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
 	for (int i = 0; i < sourceSize; ++i) {
 		for (int j = i + 1; j < sourceSize; ++j) {
+			if (allGSCopy[i]->m_sensorData.m_id == allGSCopy[j]->m_sensorData.m_id) {
+				continue;
+			}
 			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
 			if (!newPair->HasValidAOATOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
 				delete newPair;
 				continue;
 			}
+			allGSCopy[i]->m_wCount += 1;
+			allGSCopy[j]->m_wCount += 1;
 			gsPairs.push_back(newPair);
 		}
 	}
@@ -54,17 +59,15 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	}
 
 	//2-2 解集初步聚类
-	int max_cluster_num0 = 0;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, extendAroundPointState, lbsShiftErrorMatrix, max_cluster_num0);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, extendAroundPointState, lbsShiftErrorMatrix);
 
 	int clusterNum = static_cast<int>(gsPairClusters.size());																	//簇数量
 
-	int max_cluster_num = 0;
+	int max_cluster_num = gsPairClusters.front().m_pairs.size();																//簇中最大元素数量
 	//提取广义源非重复元素,用于角度平均
 	allGSCopy.clear();
 	for (auto& cluster : gsPairClusters) {
 		cluster.GetNonRepeatGeneralSource(allGSCopy);
-		max_cluster_num = std::max(max_cluster_num, static_cast<int>(cluster.m_pairs.size()));
 	}
 	sourceSize = allGSCopy.size();
 
@@ -88,15 +91,7 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	int sensorNum = static_cast<int>(scene->m_sensors.size());																	/** @brief	传感器数量	*/
 	std::vector<SensorDataCollection> targetSensorDataCollection(sensorNum);													/** @brief	实时计算目标对传感器的数据	*/
 	std::vector<SensorDataCollection> originalSensorDataCollection(sensorNum);													/** @brief	原始的传感器数据	*/
-	scene->m_sensorDataLibrary.GetAllSensorDataCollectionWithAOAError(originalSensorDataCollection);							//获取原始传感器数据
-	std::sort(originalSensorDataCollection.begin(), originalSensorDataCollection.end(), ComparedByPower_SensorDataCollection);	//按照功率对传感器数据进行排序
-	//为了同级比较残差，这里将原始数据按照功率的大小进行排序
-	RtLbsType max_r_phi = 0.0;																									//角度最大残差
-	RtLbsType max_r_time = 0.0;																									//时间最大残差
-	RtLbsType max_r_power = 0.0;																							//功率最大残差
-	RtLbsType mean_r_phi = 0.0;																									/** @brief	角度平均残差	*/
-	RtLbsType mean_r_time = 0.0;																								/** @brief	时间平均残差	*/
-	RtLbsType mean_r_power = 0.0;																								/** @brief	功率平均残差	*/
+	scene->m_sensorDataLibrary.GetAllSensorDataCollection(originalSensorDataCollection);										//获取原始传感器数据
 
 
 	if (hardwareMode == CPU_SINGLETHREAD) {
@@ -110,6 +105,13 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	else if (hardwareMode == GPU_MULTITHREAD) {
 		DirectlySetResultPath_GPUMultiThread(vroots, scene, splitRadius, gsPairClusters);
 	}
+
+	RtLbsType max_r_phi = 0.0;																									//角度最大残差
+	RtLbsType max_r_time = 0.0;																									//时间最大残差
+	RtLbsType max_r_power = 0.0;																								//功率最大残差
+	RtLbsType mean_r_phi = 0.0;																									/** @brief	角度平均残差	*/
+	RtLbsType mean_r_time = 0.0;																								/** @brief	时间平均残差	*/
+	RtLbsType mean_r_power = 0.0;																								/** @brief	功率平均残差	*/
 
 	for (auto& curCluster : gsPairClusters) {																					//遍历所有簇计算广义残差
 		RtLbsType curCluster_min_r_phi = FLT_MAX;
@@ -140,20 +142,19 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 				}
 				const Sensor* curSensor = scene->m_sensors[j];
 				curResult[j].CalculateBaseInfo(curSensor, freqs, tranFunctionData, antLibrary);						//执行电磁计算,LBS电磁计算
-				curResult[j].GetMaxPowerSensorData_Delay(targetSensorDataCollection[j], 0.0);						//计算最先到达的多径
-				CalculateSensorCollectionResidual_AOATOA_SingleData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_time, cur_r_power, cur_nullDataNum);
-
-				cur_r_weight = (weightFactor.m_phiWeight * cur_r_phi + weightFactor.m_timeWeight * cur_r_time + weightFactor.m_powerWeight * cur_r_power) / (weightFactor.m_phiWeight + weightFactor.m_timeWeight + weightFactor.m_powerWeight);
-
-				curCluster_r_phis.push_back(cur_r_phi);
-				curCluster_r_times.push_back(cur_r_power);
-				curCluster_r_powers.push_back(cur_r_power);
-				curCluster_nullDataNums.push_back(cur_nullDataNum);
-				curCluster_r_weights.push_back(cur_r_weight);
-
-				//计算完成后需要删除当前cluster中的多径
-				curResult[j].ReleaseAllRayPath();
+				curResult[j].GetMinDelaySensorData_Delay(targetSensorDataCollection[j], 0.0);						//计算最先到达的多径
+				
+				curResult[j].ReleaseAllRayPath();																	//计算完成后需要删除当前cluster中的多径
 			}
+			CalculateSensorCollectionResidual_AOATOA_SingleData(originalSensorDataCollection, targetSensorDataCollection, cur_r_phi, cur_r_time, cur_r_power, cur_nullDataNum);
+
+			cur_r_weight = (weightFactor.m_phiWeight * cur_r_phi + weightFactor.m_timeWeight * cur_r_time + weightFactor.m_powerWeight * cur_r_power) / (weightFactor.m_phiWeight + weightFactor.m_timeWeight + weightFactor.m_powerWeight);
+
+			curCluster_r_phis.push_back(cur_r_phi);
+			curCluster_r_times.push_back(cur_r_power);
+			curCluster_r_powers.push_back(cur_r_power);
+			curCluster_nullDataNums.push_back(cur_nullDataNum);
+			curCluster_r_weights.push_back(cur_r_weight);
 		}
 
 		if (curCluster_r_weights.size() == 0) {
@@ -236,16 +237,6 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 		return s->m_weight < 0.5;
 		}), allGSCopy.end());
 
-	//单源定位中，root源的数据最大只保留一个
-	int hasRootNum = 0;
-	for (auto& source : allGSCopy) {
-		if (source->m_type == NODE_ROOT) {
-			hasRootNum++;
-			if (hasRootNum > 1) {
-				source->m_isValid = false;
-			}
-		}
-	}
 
 	//删除无效的广义源
 	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* source) {
@@ -255,13 +246,7 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 
 	//获取最大权重的Cluster,并将解作为初始解
 	RtLbsType maxClusterWeight = 0;
-	Point2D initPoint;
-	for (auto& curCluster : gsPairClusters) {
-		if (maxClusterWeight < curCluster.m_pairs[0]->m_weight) {
-			maxClusterWeight = curCluster.m_pairs[0]->m_weight;
-			initPoint = curCluster.m_point;
-		}
-	}
+	Point2D initPoint = gsPairClusters.front().m_point;
 
 	//配置求解器
 	AOATOASolver* solver = new AOATOASolver();
@@ -350,8 +335,7 @@ Point2D LBS_AOA_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	}
 
 	//2-2 解集初步聚类
-	int max_cluster_num0 = 0;
-	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, extendAroundPointState, lbsShiftErrorMatrix, max_cluster_num0);
+	std::vector<GSPairCluster> gsPairClusters = ClusterGSPairByDistance(gsPairs, scene, gsPairClusterThreshold, extendAroundPointState, lbsShiftErrorMatrix);
 
 	int clusterNum = static_cast<int>(gsPairClusters.size());																	//簇数量
 

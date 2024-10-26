@@ -29,6 +29,7 @@ public:
 	void GetAllSensorDataCollection(std::vector<SensorDataCollection>& collections) const;
 	void GetAllSensorDataCollectionWithAOAError(std::vector<SensorDataCollection>& collections) const;										//获取所有传感器的数据，按照传感器角度误差合并
 	void GetAllSensorDataCollectionWithTOAError(std::vector<SensorDataCollection>& collections) const;										//获取所有传感器的数据，按照传感器时间误差合并
+	void GetAllSensorDataCollectionWithError_AOATDOA(std::vector<SensorDataCollection>& collections) const;									//获取所有的传感器数据，AOATDOA算法
 	void GetAllSensorData(std::vector<SensorData>& datas) const;
 	void SetRandomPhiValue(RtLbsType deltaPhi);						//对数据设置随机变化量
 };

@@ -74,7 +74,7 @@ RtLbsType AOAWLSResidual::GetResidual(RtLbsType* position) const
 {
 	RtLbsType dx = position[0] - m_x;
 	RtLbsType dy = position[1] - m_y;
-	return (dx * m_cosPhi - dy * m_sinPhi) * m_weight;
+	return (dx * m_cosPhi - dy * m_sinPhi) / m_weight;
 }
 
 void AOAWLSResidual::SetWeight(RtLbsType weight)
@@ -204,7 +204,7 @@ RtLbsType TDOALSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType y = position[1];							/** @brief	预测点 y坐标	*/
 	RtLbsType d1 = std::sqrt((x - m_x1) * (x - m_x1) + (y - m_y1) * (y - m_y1));
 	RtLbsType di = std::sqrt((x - m_xi) * (x - m_xi) + (y - m_yi) * (y - m_yi));
-	return (di - d1) - m_timeDiff * LIGHT_VELOCITY_AIR;
+	return (di - d1)/ LIGHT_VELOCITY_AIR - m_timeDiff * 1e9;
 }
 
 TDOAWLSResidual::TDOAWLSResidual()
@@ -278,7 +278,7 @@ RtLbsType TDOAWLSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType y = position[1];							/** @brief	预测点 y坐标	*/
 	RtLbsType d1 = std::sqrt((x - m_x1) * (x - m_x1) + (y - m_y1) * (y - m_y1));
 	RtLbsType di = std::sqrt((x - m_xi) * (x - m_xi) + (y - m_yi) * (y - m_yi));
-	return ((di - d1) - m_timeDiff * LIGHT_VELOCITY_AIR) * m_weight;
+	return ((di - d1) / LIGHT_VELOCITY_AIR - m_timeDiff * 1e9) / m_weight;				//ns 时间差
 }
 
 void TDOAWLSResidual::SetWeight(RtLbsType weight)
@@ -400,7 +400,7 @@ RtLbsType TOAWLSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType dy = position[1] - m_y;
 	RtLbsType distance = sqrt(dx * dx + dy * dy);
 	RtLbsType calDelay = distance / LIGHT_VELOCITY_AIR;
-	return m_weight * (calDelay - m_time)*1e9;
+	return (calDelay - m_time)*1e9/ m_weight;
 }
 
 RtLbsType TOAWLSResidual::GetWeight() const

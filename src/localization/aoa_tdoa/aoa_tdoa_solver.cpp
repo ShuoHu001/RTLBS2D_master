@@ -99,8 +99,8 @@ Point2D AOATDOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& 
 
 	//初始化残差
 	aoaResiduals[0] = new AOAWLSResidual(m_refSource);
-	for (int i = 1; i < dataNum + 1; ++i) {
-		aoaResiduals[i] = new AOAWLSResidual(m_gsData[i]);
+	for (int i = 0; i < dataNum; ++i) {
+		aoaResiduals[i + 1] = new AOAWLSResidual(m_gsData[i]);
 	}
 	for (int i = 0; i < dataNum; ++i) {
 		tdoaResiduals[i] = new TDOAWLSResidual(m_refSource, m_gsData[i]);
@@ -115,12 +115,12 @@ Point2D AOATDOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& 
 		ceres::Problem problem;
 
 		//指定数据集
-		for (auto& curAOAResidual : aoaResiduals) {
-			ceres::CostFunction* costFunc_AOA = new ceres::AutoDiffCostFunction<AOAWLSResidual, 1, 2>(curAOAResidual);
+		/*for (auto& curAOAResidual : aoaResiduals) {
+			ceres::CostFunction* costFunc_AOA = new ceres::AutoDiffCostFunction<AOAWLSResidual, 1, 2>(new AOAWLSResidual(*curAOAResidual));
 			problem.AddResidualBlock(costFunc_AOA, nullptr, position);
-		}
+		}*/
 		for (auto& curTDOAResidual : tdoaResiduals) {
-			ceres::CostFunction* costFunc_TDOA = new ceres::AutoDiffCostFunction<TDOAWLSResidual, 1, 2>(curTDOAResidual);
+			ceres::CostFunction* costFunc_TDOA = new ceres::AutoDiffCostFunction<TDOAWLSResidual, 1, 2>(new TDOAWLSResidual(*curTDOAResidual));
 			problem.AddResidualBlock(costFunc_TDOA, nullptr, position);
 		}
 
@@ -153,7 +153,7 @@ Point2D AOATDOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& 
 			RtLbsType res_tdoa = curTDOAResidual->GetResidual(position);
 			RtLbsType cur_tdoa_weight = curTDOAResidual->GetWeight() / (abs(res_tdoa) + EPSILON);
 			max_tdoa_weight = std::max(max_tdoa_weight, cur_tdoa_weight);
-			tdoaResiduals[i]->SetWeight(cur_tdoa_weight);
+			curTDOAResidual->SetWeight(cur_tdoa_weight);
 		}
 		//归一化权重
 		for (auto& curAOAResidual : aoaResiduals) {

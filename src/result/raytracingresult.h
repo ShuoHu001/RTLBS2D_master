@@ -59,7 +59,8 @@ public:
 	void GetAllSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于AOA3D定位
 	void GetMaxPowerSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于AOA3D定位
 	void GetAllSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于时延型定位
-	void GetMaxPowerSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于时延型定位
+	void GetMinDelaySensorData_Delay(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于时延型定位
+	Point2D GetRefGeneralSource() const;																									//获取参考广义源坐标
 	void OutputVectorEField(std::ofstream& stream) const;																					//输出矢量场
 	void OutputScalarEField(std::ofstream& stream) const;																					//输出标量场
 	void OutputVectorPower(std::ofstream& stream) const;																					//输出矢量功率信息

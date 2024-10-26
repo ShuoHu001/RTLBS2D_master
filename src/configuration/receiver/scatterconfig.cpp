@@ -54,7 +54,14 @@ void ScatterConfig::CalculateRxPosition(std::vector<ReceiverUnitConfig>& configs
 				configs.push_back(rxUnitConfig);
 			}
 		}
-		return;
+	}
+	else {		//从加载的点集数据中读取文件
+		for (int i = 0; i < m_positions.size(); ++i) {
+			ReceiverUnitConfig rxUnitConfig;
+			rxUnitConfig.m_position = m_positions[i];
+			//rxUnitConfig.m_velocity = m_velocities[i];  暂不添加速度项
+			configs.push_back(rxUnitConfig);
+		}
 	}
 }
 

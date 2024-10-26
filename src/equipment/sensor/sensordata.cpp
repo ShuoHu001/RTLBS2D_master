@@ -63,7 +63,7 @@ RtLbsType SensorData::DistanceTime(const SensorData& data) const
 
 Vector2D SensorData::GetDirection() const
 {
-	//默认定义传感器接收到的方位角是与水平X轴方向的夹角
+	//默认定义传感器接收到的方位角是与水平X轴正方向的夹角
 	Vector2D dir(cos(m_phi), sin(m_phi));
 	dir.Normalize();
 	return dir;
@@ -75,7 +75,9 @@ void SensorData::AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeError
 	RtLbsType timeError = NORMDOUBLE(0, timeErrorSigma*1e-9);
 	RtLbsType powerError = NORMDOUBLE(0, powerErrorSigma);
 	m_time += timeError;
-	m_timeDiff += timeError;
+	if (m_timeDiff != 0) {
+		m_timeDiff += timeError;
+	}
 	m_phi += phiError;
 	m_power += powerError;
 	m_phiDegree += phiError / ONE_DEGEREE;

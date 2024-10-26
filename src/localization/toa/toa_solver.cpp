@@ -38,7 +38,7 @@ RtLbsType TOASolver::Solving_LS(Point2D& outP)
 	//定义问题
 	ceres::Problem problem;
 
-	RtLbsType position[2] = { outP.x,outP.y };		//初始位置估计
+	RtLbsType position[2] = { 100, 100 };		//初始位置估计
 
 	int dataNum = static_cast<int>(m_gsData.size());
 
