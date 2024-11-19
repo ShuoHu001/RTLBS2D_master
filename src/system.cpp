@@ -1,5 +1,5 @@
 #include "system.h"
-#include "tree/gpu/raypathgpu.h"
+#include "radiowave/raypath/gpu/raypathgpu.h"
 #include "accel/gpu/sdfgpu.h"
 
 System::System()
@@ -44,11 +44,6 @@ System::~System()
 	m_rtInitRays.clear();
 	std::vector<std::vector<Ray2D>>().swap(m_rtInitRays);
 
-	_global_tranFunctionData.clear();
-	std::vector<Complex>().swap(_global_tranFunctionData);
-
-	_global_innerAntennas.clear();
-	std::vector<Antenna>().swap(_global_innerAntennas);
 
 	for (auto& nodes : m_rtGPUPathNodes) {
 		nodes.clear();
@@ -67,18 +62,17 @@ System::~System()
 
 bool System::Setup(SYSTEM_MODE mode)
 {
-	//0-数据初始化(全局变量)
-	_global_tranFunctionData = GetTranFunctionData();
-	InitInternalAntennas(_global_innerAntennas);
-
 	//1-初始化整体配置
 	if (!m_simConfig.Init(m_configFileName))
 		return false;
 	m_sysMode = mode;
 	m_simConfig.m_systemMode = mode;
 
-	_global_freqConfig = m_simConfig.m_frequencyConfig;				//全局频率变量赋值
-	_global_diffractRayNum = m_simConfig.m_raytracingConfig.m_diffractRayNum;		//全局绕射数量赋值
+	if (m_simConfig.m_lbsConfig.m_extendAroundPointState) {
+		m_lbsShiftErrorMatrix.Init(m_simConfig.m_lbsConfig.m_shiftErrorMatrixFileName, 1);			//lbs定位位移误差矩阵赋值
+	}
+
+	m_tranFunctionData = GetTranFunctionData();
 
 	//2-初始化场景
 	if (!m_scene->LoadScene(m_simConfig))
@@ -104,7 +98,11 @@ void System::Render()
 	uint64_t& rayNum = m_simConfig.m_raytracingConfig.m_rayNum;
 	RayLaunch(rayLaunchMode, rayNum);
 	if (systemMode == MODE_RT) {
+		auto start = std::chrono::high_resolution_clock::now();
 		RayTracing(hardwareMode);
+		auto end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		std::cout << duration.count() << std::endl;
 		PathBuilder(hardwareMode);
 	}
 	else if (systemMode == MODE_LBS) {
@@ -136,14 +134,15 @@ void System::RayLaunch(const RAYLAUNCHMODE& mode, uint64_t rayNum)
 		}
 	}
 	else if (m_sysMode == MODE_LBS) {
-		LOCALIZATION_METHOD localizeMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
-		RtLbsType rayLaunchTheta = m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta * ONE_DEGEREE * 1.1;			/** @brief	射线发射角度值,扩大1.1倍	*/
+		LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
+		LOCALIZATION_MODE lbsMode = m_simConfig.m_lbsConfig.m_lbsMode;
+		RtLbsType rayLaunchTheta = m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta * ONE_DEGEREE;			/** @brief	射线发射角度值	*/
 		int sensorNum = static_cast<int>(m_scene->m_sensors.size());
 		for (int i = 0; i < sensorNum; ++i) {
 			const Sensor* curSensor = m_scene->m_sensors[i];
 			const Point2D& sPosition = curSensor->GetPosition2D();
 			RayLaunch_Uniform(rayNum, sPosition, m_rtInitRays[i]);							//增加项-在定位模式中增加从传感器中的射线追踪模块
-			RayLaunch_BySensor(localizeMethod, rayNum, curSensor, rayLaunchTheta, m_lbsInitRays[i]);
+			RayLaunch_BySensor(lbsMethod, lbsMode, rayNum, curSensor, rayLaunchTheta, m_lbsInitRays[i]);
 		}
 	}
 	return;
@@ -154,18 +153,18 @@ void System::RayTracing(const HARDWAREMODE hardwareMode)
 	const LimitInfo& limitinfo = m_simConfig.m_raytracingConfig.m_limitInfo;
 	bool raySplitFlag = m_simConfig.m_raytracingConfig.m_raySplitFlag;
 	RtLbsType raySplitRadius = m_simConfig.m_raytracingConfig.m_raySplitRadius;
-	
+	int diffractRayNum = m_simConfig.m_raytracingConfig.m_diffractRayNum;
 
 	if (hardwareMode == CPU_SINGLETHREAD) {
-		RayTracing_CPUSingleThread(m_sysMode, m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_rtTreeRoot);
+		RayTracing_CPUSingleThread(m_sysMode, m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, diffractRayNum, m_scene, m_rtTreeRoot);
 	}
 	else if (hardwareMode == CPU_MULTITHREAD || hardwareMode == CPU_GPU_MULTITHREAD) {
 		uint16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
-		RayTracing_CPUMultiThread(m_sysMode, m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, threadNum, m_rtTreeRoot);
+		RayTracing_CPUMultiThread(m_sysMode, m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, diffractRayNum, m_scene, threadNum, m_rtTreeRoot);
 	}
 	else if (hardwareMode == GPU_MULTITHREAD) {
 		m_scene->ConvertToGPUHostScene();																							//在使用GPU进行计算时需要将场景转换为GPU场景
-		RayTracing_GPUMultiThread(m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_rtGPUPathNodes);
+		RayTracing_GPUMultiThread(m_rtInitRays, limitinfo, raySplitFlag, raySplitRadius, diffractRayNum, m_scene, m_rtGPUPathNodes);
 	}
 	LOG_INFO << "raytracing: has already traced all the rays." << ENDL;
 }
@@ -181,17 +180,18 @@ void System::RayTracingLBS(const HARDWAREMODE hardwareMode)
 	const LimitInfo& limitinfo = m_simConfig.m_raytracingConfig.m_limitInfo;
 	bool raySplitFlag = m_simConfig.m_raytracingConfig.m_raySplitFlag;
 	RtLbsType raySplitRadius = m_simConfig.m_raytracingConfig.m_raySplitRadius;
+	int diffractRayNum = m_simConfig.m_raytracingConfig.m_diffractRayNum;
 	if (curHardWareMode == CPU_SINGLETHREAD) {
-		RayTracingLBS_CPUSingleThread(m_sysMode, m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_lbsTreeRoot);
+		RayTracingLBS_CPUSingleThread(m_sysMode, m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, diffractRayNum, m_scene, m_lbsTreeRoot);
 	}
-	else if (curHardWareMode == CPU_MULTITHREAD) {				
+	else if (curHardWareMode == CPU_MULTITHREAD || curHardWareMode == CPU_GPU_MULTITHREAD) {				
 		uint16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
-		RayTracingLBS_CPUMultiThread(m_sysMode, m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, threadNum, m_lbsTreeRoot);
+		RayTracingLBS_CPUMultiThread(m_sysMode, m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, diffractRayNum, m_scene, threadNum, m_lbsTreeRoot);
 	}
-	//else if (hardwareMode == GPU_MULTITHREAD) {
-	//	m_scene->ConvertToGPUHostScene();																							//在使用GPU进行计算时需要将场景转换为GPU场景
-	//	RayTracing_GPUMultiThreadWithNode(m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, m_scene, m_gpuTreeNodes);
-	//}
+	else if (hardwareMode == GPU_MULTITHREAD) {
+		m_scene->ConvertToGPUHostScene();																							//在使用GPU进行计算时需要将场景转换为GPU场景
+		RayTracing_GPUMultiThreadWithNode(m_lbsInitRays, limitinfo, raySplitFlag, raySplitRadius, diffractRayNum, m_scene, m_gpuTreeNodes);
+	}
 
 	//增加-在LBS的同时进行射线追踪，用于计算路径做校正处理
 	RayTracing(curHardWareMode);
@@ -230,26 +230,33 @@ void System::PathBuilder(const HARDWAREMODE mode)
 
 void System::TreeNodeGenerator(const HARDWAREMODE hardwareNode)
 {
-	const LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
+	const LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;				/** @brief	定位方法	*/
+	const LOCALIZATION_MODE lbsMode = m_simConfig.m_lbsConfig.m_lbsMode;					/** @brief	定位模式	*/
 	int16_t threadNum = m_simConfig.m_raytracingConfig.m_cpuThreadNum;
 	if (lbsMethod == LBS_METHOD_RT_AOA || lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
-		if (hardwareNode == CPU_SINGLETHREAD) {
-			TreeNodeGenerator_AOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_result);
-		}
-		else if (hardwareNode == CPU_MULTITHREAD) {
-			TreeNodeGenerator_AOA_CPUMultiThread(m_lbsTreeRoot, m_scene, threadNum, m_result);
-		}
+		TreeNodeGenerator_AOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
 	}
 	else if(lbsMethod == LBS_METHOD_RT_TDOA) {
-		if (hardwareNode == CPU_SINGLETHREAD) {
-			TreeNodeGenerator_TDOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_result);
+		if (hardwareNode == GPU_MULTITHREAD) {
+			TreeNodeGenerator_GPUMultiThread(m_gpuTreeNodes, m_scene, m_lbsInfoCluster);
 		}
-		else if (hardwareNode == CPU_MULTITHREAD) {
-			TreeNodeGenerator_TDOA_CPUMultiThread(m_lbsTreeRoot, m_scene, threadNum, m_result);
+		else {
+			TreeNodeGenerator_TDOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
 		}
-		else if (hardwareNode == GPU_MULTITHREAD) {
-			TreeNodeGenerator_GPUMultiThread(m_gpuTreeNodes, m_scene, m_result);
+	}
+	else if (lbsMethod == LBS_METHOD_RT_TOA) {
+		if (lbsMode == LBS_MODE_MPSTSD) {													//多站单数据定位，每站时延只有一个
+			TreeNodeGenerator_AOATOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
 		}
+		else if (lbsMode == LBS_MODE_SPSTMD) {												//单站多数据定位，每站时延有多个
+			TreeNodeGenerator_TOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
+		}
+	}
+	else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
+		TreeNodeGenerator_AOATOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
+	}
+	else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+		TreeNodeGenerator_AOATDOA_CPUSingleThread(m_lbsTreeRoot, m_scene, m_lbsInfoCluster);
 	}
 	
 }
@@ -260,75 +267,80 @@ void System::PostProcessing()
 	if (m_sysMode == MODE_RT) {
 		
 		const OutputConfig& outputConfig = m_simConfig.m_outputConfig;
-		m_result.CalculateResult_RT_SensorData(outputConfig);
+		const std::vector<Complex>& tranfunctionData = GetTranFunctionData();
+		const FrequencyConfig& freqConfig = m_simConfig.m_frequencyConfig;
+		m_result.CalculateResult_RT_SensorData(outputConfig, freqConfig, tranfunctionData);
 		
 	}
 	else if(m_sysMode == MODE_LBS) {
-		HARDWAREMODE hardwareMode = m_simConfig.m_lbsConfig.m_hardWareMode;								/** @brief	定位算法工作模式	*/
-		LOCALIZATION_MODE lbsMode = m_simConfig.m_lbsConfig.m_lbsMode;
-		LOCALIZATION_METHOD lbsMethod = m_simConfig.m_lbsConfig.m_lbsMethod;
-		uint16_t threadNum = m_simConfig.m_lbsConfig.m_threadNum;
-		RtLbsType gsPairClusterThreshold = m_simConfig.m_lbsConfig.m_gsPairClusterThreshold;
-		RtLbsType splitRadius = m_simConfig.m_raytracingConfig.m_raySplitRadius;
-		WeightFactor& weightFactor = m_simConfig.m_lbsConfig.m_weightFactor;
-		
-		//增加输入射线追踪树结构
-		if (lbsMode == LBS_MODE_MPSTSD) {
-			if (lbsMethod == LBS_METHOD_RT_AOA) {
-				weightFactor.InitAOAWeight();
-				m_result.CalculateResult_LBS_AOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
-			}
-			else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-				m_result.CalculateResult_LBS_TDOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
-			}
-			
-		}
-		else if (lbsMode == LBS_MODE_SPSTMD) {
-			if (lbsMethod == LBS_METHOD_RT_AOA) {
-				weightFactor.InitAOAWeight();
-				m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
-			}
-			else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-				m_result.CalculateResult_LBS_TDOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
-			}
-		}
+		LOG_INFO << "system: not support for LBS Module." << ENDL;
 	}
 	
 }
 
 Point2D System::TargetLocalization(LOCALIZATION_MODE lbsMode, LOCALIZATION_METHOD lbsMethod)
 {
+	//遍历所有节点，生成节点结构
+
 	HARDWAREMODE hardwareMode = m_simConfig.m_lbsConfig.m_hardWareMode;								/** @brief	定位算法工作模式	*/
 	uint16_t threadNum = m_simConfig.m_lbsConfig.m_threadNum;
 	RtLbsType gsPairClusterThreshold = m_simConfig.m_lbsConfig.m_gsPairClusterThreshold;
 	RtLbsType splitRadius = m_simConfig.m_raytracingConfig.m_raySplitRadius;
 	WeightFactor& weightFactor = m_simConfig.m_lbsConfig.m_weightFactor;
+	bool extendAroundPointState = m_simConfig.m_lbsConfig.m_extendAroundPointState;
+	const FrequencyConfig& freqConfig = m_simConfig.m_frequencyConfig;
+	Point2D targetPosition;																			/** @brief	定位的目标位置	*/
+
 	if (lbsMode == LBS_MODE_MPSTSD) {
 		if (lbsMethod == LBS_METHOD_RT_AOA) {
 			weightFactor.InitAOAWeight();
-			return m_result.CalculateResult_LBS_AOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
+			targetPosition = LBS_AoA_Locator_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, lbsMethod, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
 		}
 		else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-			m_result.CalculateResult_LBS_TDOA_MPSTSD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
+			targetPosition = LBS_TDOA_LOCATOR_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, lbsMethod, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
+			weightFactor.InitAOATOAweight();
+			targetPosition = LBS_AOA_TOA_Locator_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_TOA) {
+			weightFactor.InitTOAWeight();
+			targetPosition = LBS_TOA_Locator_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+			weightFactor.InitAOATDOAWeight();
+			targetPosition = LBS_AOA_TDOA_Locator_MPSTSD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
 		}
 
 	}
 	else if (lbsMode == LBS_MODE_SPSTMD) {
 		if (lbsMethod == LBS_METHOD_RT_AOA) {
 			weightFactor.InitAOAWeight();
-			return m_result.CalculateResult_LBS_AOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
+			targetPosition = LBS_AoA_Locator_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, lbsMethod, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
 		}
 		else if (lbsMethod == LBS_METHOD_RT_TDOA) {
-			m_result.CalculateResult_LBS_TDOA_SPSTMD(hardwareMode, m_rtTreeRoot, m_scene, splitRadius, lbsMethod, threadNum, gsPairClusterThreshold, weightFactor);
+			targetPosition = LBS_TDOA_LOCATOR_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, lbsMethod, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
+			weightFactor.InitAOATOAweight();
+			targetPosition = LBS_AOA_TOA_Locator_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_TOA) {
+			weightFactor.InitTOAWeight();
+			targetPosition = LBS_TOA_Locator_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
+		}
+		else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
+			weightFactor.InitAOATDOAWeight();
+			targetPosition = LBS_AOA_TDOA_Locator_SPSTMD(m_lbsInfoCluster, m_rtTreeRoot, m_scene, hardwareMode, m_lbsShiftErrorMatrix, splitRadius, freqConfig, m_tranFunctionData, threadNum, gsPairClusterThreshold, extendAroundPointState, weightFactor);
 		}
 	}
-	return Point2D();
+	return targetPosition;
 }
 
 void System::OutputResults()
 {
 	//输出结果至文件
-	m_result.OutputResult(m_sysMode, m_simConfig.m_outputConfig);
+	m_result.OutputResult(m_simConfig.m_outputConfig);
 }
 
 void System::PreProcess()
@@ -382,7 +394,7 @@ bool System::_initLBSSystemMemory()
 			m_rtTreeRoot[i] = new RayTreeNode(rootNodeRT);
 			m_lbsTreeRoot[i] = new RayTreeNode(rootNodeLBS);
 		}
-		m_result.Init(m_scene->m_sensors);													//初始化结果
+		m_lbsInfoCluster.Init(m_scene->m_sensors);				//初始化定位信息集合
 	}
 	catch (std::exception& e) {
 		LOG_ERROR << e.what() << ENDL;

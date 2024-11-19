@@ -6,7 +6,7 @@
 #include "ray2d.h"
 #include "utility/define.h"
 #include "geometry/gpu/bbox2dgpu.h"
-#include "geometry/point3d.h"
+#include "math/point3d.h"
 
 
 class BBox2D {

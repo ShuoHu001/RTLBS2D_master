@@ -1,4 +1,4 @@
-clear,clc;
+
 data = load("errormatrix.txt");
 data(isnan(data))=0;
 xmin = 15;
@@ -9,15 +9,11 @@ gap = data(2,1) - data(1,1);
 x=xmin:gap:xmax;
 y=ymin:gap:ymax;
 [x,y]=meshgrid(x,y);
-max_dis=data(:,3);
-mean_dis=data(:,4);
+mean_dis=data(:,3);
 x=x';
 y=y';
-max_dis_matrix=reshape(max_dis,size(x));
 mean_dis_matrix=reshape(mean_dis,size(x));
 figure();
-surf(x,y,max_dis_matrix);
-title("max");
-figure();
-surf(x,y,mean_dis_matrix);
+surf(x,y,mean_dis_matrix,'EdgeColor','none');
 title("mean");
+view(2)

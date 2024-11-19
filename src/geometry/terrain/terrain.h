@@ -11,14 +11,11 @@
 #include "terrainsegment.h"
 #include "terrainprofile.h"
 
-#include "physical/propagationproperty.h"
+#include "configuration/radiowave/propagation/propagationproperty.h"
 #include "configuration/terrainconfig.h"
 #include "utility/fileoperation.h"
 #include "resources/supports.h"
 #include "material/materiallibrary.h"
-#include "tree/terraindiffractionpath.h"
-#include "tree/pathnode3d.h"
-#include "tree/raypath3d.h"
 #include "material/material.h"
 
 #include "geometry/object2d/object2d.h"
@@ -100,12 +97,13 @@ public:
 	bool IsBlock(const Point3D& ps, const Point3D& pe) const;																																//判定由起始点和终止点组成的路径是否被地形遮挡
 	Material* GetMaterial(const Point3D& p) const;																																				//获取地形P点上的材质属性，仅存在地形栅格矩阵时可用
 	bool IsValidPoint(const Point3D& p) const;																																				//判定点在地形中是否有效
-	bool GetTerrainDiffractionPath(Point3D tx, Point3D rx, TerrainDiffractionPath*& outPath) const;																							//基于给定的收发点计算之间的绕射路径（若trx之间视距，则不给定绕射路径）
-	bool GetTerrainReflectionPaths(const Point3D& tx, const Point3D& rx, std::vector<RayPath3D*>& outPath) const;																			//基于地形计算出一次反射路径
 	void Update(const Vector3D& offset);																																					//基于位移更新地形
 	void Update(const Euler& posture);																																						//基于姿态更新地形 以几何中心进行旋转
 	void Update(const Vector3D& offset, const Euler& posture);																																//基于位移和姿态更新地形 以几何中心进行旋转
-	RtLbsType GetObjectFoundationHeight(const Object2D* object) const;																														//获取二维物体在地形上的基础高度点
+	RtLbsType GetObjectFoundationHeight(const Object2D* object) const;	
+	bool GetTerrainProfileFacets(const Point3D& txPosition, const Point3D& rxPosition, std::vector<TerrainFacet*>& outFacets) const;														//计算trx连线上的所经历的面元																													//获取二维物体在地形上的基础高度点
+	TerrainFacet* GetTerrainFacetViaPoint(const Point2D& point) const;																														//通过坐标点计算出在哪个面元内部-二维坐标点
+	TerrainFacet* GetTerrainFacetViaPoint(const Point3D& point) const;																														//通过坐标点计算出在哪个面元内部-三维坐标点
 
 private:
 	void _init();																																											/** @brief	初始化数据	*/
@@ -123,9 +121,8 @@ private:
 	std::vector<unsigned> _getGridCoordAlongSegment(TerrainSegment* segment);																												//获取segment上的网格编号
 	bool _getIntersect(Ray3DLite* ray, unsigned voxelId, Point3D* intersectPoint = nullptr) const;																							//射线与voxel求交， 栅格单元法专用
 	bool _getIntersect(Ray3DLite* ray3d, Ray2D* ray2d, RtLbsType t, unsigned voxelId, unsigned& targetVoxelId) const;																		//射线与voxel求交，半边混合方法专用
-	TerrainFacet* _getTerrainFacetViaPoint(const Point2D& point) const;																															//通过坐标点计算出在哪个面元内部-二维坐标点
-	TerrainFacet* _getTerrainFacetViaPoint(const Point3D& point) const;																														//通过坐标点计算出在哪个面元内部-三维坐标点
-	bool _getTerrainProfileFacets(const Point3D& txPosition, const Point3D& rxPosition, std::vector<TerrainFacet*>& outFacets) const;														//计算trx连线上的所经历的面元
+
+														
 };
 
 #endif

@@ -106,6 +106,7 @@ void PathInfoCluster::CalMergedInfoByDelay()
 		 mergedTimeDelay += powerWeight[i] * m_infos[i].m_timeDelay;
 	}
 	m_mergedInfo.m_timeDelay = mergedTimeDelay;
+	m_mergedInfo.m_aoAPhi = m_infos[0].m_aoAPhi;										//获取最大多径处的角度值
 	
 }
 

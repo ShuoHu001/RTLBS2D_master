@@ -1,6 +1,6 @@
 phiErrors=[0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0];
 powerErrors=[0,1,2,3,4,5,6,7,8,9,10];
-station_name="B";
+station_name="A";
 phiNum=length(phiErrors);
 powerNum=length(powerErrors);
 error_matrix = zeros(phiNum,powerNum);

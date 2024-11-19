@@ -3,8 +3,8 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "point3d.h"
-#include "vector3d.h"
+#include "math/point3d.h"
+#include "math/vector3d.h"
 
 //轻量化三维射线
 class Ray3DLite {

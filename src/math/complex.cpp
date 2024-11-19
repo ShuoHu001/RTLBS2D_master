@@ -1,5 +1,5 @@
 #include "complex.h"
-#include "physical/radiowave/polarization3d.h"
+#include "math/polarization3d.h"
 
 Complex::Complex()
 	: m_real(0.0)

@@ -18,6 +18,7 @@ const std::string KEY_OUTPUTCONFIG_OUTPUTCIR = "OutputCIR";
 const std::string KEY_OUTPUTCONFIG_OUTPUTCFR = "OutputCFR";
 const std::string KEY_OUTPUTCONFIG_OUTPUTAOA = "OutputAOA";
 const std::string KEY_OUTPUTCONFIG_OUTPUTAOD = "OutputAOD";
+const std::string KEY_OUTPUTCONFIG_OUTPUTSPREADINFO = "OutputSpreadProfile";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPSTMD = "OutputSensorDataSPSTMD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD = "OutputSensorDataMPSTSD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD = "OutputSensorDataSPMTMD";
@@ -40,6 +41,7 @@ public:
 	bool m_outputCIR;									/** @brief	输出	信道冲激响应*/
 	bool m_outputAOA;									/** @brief	输出到达角	*/
 	bool m_outputAOD;									/** @brief	输出离开角	*/
+	bool m_outputSpreadInfo;							/** @brief	输出扩展信息	*/
 	bool m_outputSensorDataSPSTMD;						/** @brief	输出单站单源多数据定位模式传感器数据	*/
 	bool m_outputSensorDataMPSTSD;						/** @brief	输出多站单源单数据定位模式传感器数据	*/
 	bool m_outputSensorDataSPMTMD;						/** @brief	输出单站多源多数据定位模式传感器数据	*/

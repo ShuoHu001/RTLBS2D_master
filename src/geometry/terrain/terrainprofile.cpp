@@ -22,29 +22,6 @@ void TerrainProfile::InitParameters(const std::vector<Point3D>& points, const st
 	_findRidges();
 }
 
-void TerrainProfile::GetDiffractPathOverRidges(TerrainDiffractionPath*& outPath) const
-{
-	if (m_validRidgeNum == 0)
-		return;
-	outPath = new TerrainDiffractionPath();
-	
-	TerrainPathNode* txNode = new TerrainPathNode(m_txPosition);				/** @brief	tx节点	*/
-	outPath->m_nodes.push_back(txNode);											//添加tx节点
-	
-	for (int i = 0; i < m_ridges.size(); ++i) {									//添加path中的路径节点
-		if (m_ridges[i]->m_isValid == false)
-			continue;
-		TerrainPathNode* newNode = new TerrainPathNode(m_ridges[i]);
-		outPath->m_nodes.push_back(newNode);
-	}
-
-	TerrainPathNode* rxNode = new TerrainPathNode(m_rxPosition);				/** @brief	rx节点	*/
-	outPath->m_nodes.push_back(rxNode);											//添加rx节点
-
-	//更新绕射路径的s参数
-	outPath->RectifySParameters();
-}
-
 void TerrainProfile::WritePeaksToFile(std::string filename) const
 {
 	std::ofstream outFile(filename);

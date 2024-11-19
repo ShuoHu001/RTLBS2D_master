@@ -3,7 +3,7 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "geometry/vector2d.h"
+#include "math/vector2d.h"
 #include "terrainprofilepoint.h"
 
 //地形剖面线段对象

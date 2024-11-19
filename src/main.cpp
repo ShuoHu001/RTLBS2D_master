@@ -1,6 +1,6 @@
+#include "rtlbs.h"
 #include "managers/logmanager.h"
 #include "system.h"
-#include "localization/tdoa/tdoasolver.h"
 #include "managers/randomanager.h"
 #include "test/testlbs.h"
 //#include <glog/export.h>
@@ -13,42 +13,10 @@
 
 
 int main(int argc, char** argv) {
-	LOG_INFO << "TDOA 算法调试验证" << ENDL;
+
+	LOG_INFO << "TDOA-AOA 算法调试验证" << ENDL;
 	google::InitGoogleLogging(argv[0]);
-	//Point2D p1 = { 98,33 };
-	//Point2D p2 = { 237.42,33 };
-	//Point2D p3 = { 70,74 };
-
-	//Point2D s = { 84,50 };
-
-	//RtLbsType t21 = ((s - p2).Length() - (s - p1).Length()) / LIGHT_VELOCITY_AIR + 1e-9;
-	//RtLbsType t31 = ((s - p3).Length() - (s - p1).Length()) / LIGHT_VELOCITY_AIR - 1e-9;
-
-
-	////RtLbsType t21 = 3.10e-7;
-	////RtLbsType t31 = 2.77e-8;
-
-	//GeneralSource* refSource = new GeneralSource();
-	//refSource->m_position = p1;
-	//refSource->m_sensorData.m_timeDiff = 0;
-
-	//GeneralSource* dataSource1 = new GeneralSource();
-	//dataSource1->m_position = p2;
-	//dataSource1->m_sensorData.m_timeDiff = t21;
-
-	//GeneralSource* dataSource2 = new GeneralSource();
-	//dataSource2->m_position = p3;
-	//dataSource2->m_sensorData.m_timeDiff = t31;
-
-	//Point2D outPoint = { 84,50 };
-
-	//TDOASolver solver;
-	//solver.SetGeneralSource(refSource, dataSource1, dataSource2);
-	//solver.Solving_LS(outPoint);
-
-
-
-	int mode = 0;									//0为射线追踪，2为定位精度测试，3为定位区域测试
+	int mode = 1;									//0为射线追踪，2为定位精度测试，3为定位区域测试
 
 	if (mode == 0) {
 		System* system;
@@ -56,20 +24,42 @@ int main(int argc, char** argv) {
 			system = new System();
 			if (!system->Setup(MODE_RT))
 				return -1;
+
 			system->Render();
+
+
 			system->PostProcessing();
+			
+
 			system->OutputResults();
 			delete system;
 		}
 		
 	}
 	else if (mode == 1) {
-		System system;
-		if (!system.Setup(MODE_LBS))
-			return -1;
-		system.Render();
-		system.PostProcessing();
-		system.OutputResults();
+		RtLbsType timeConsume = 0;
+		for (int i = 0; i < 100; ++i) {
+			System* system = new System();
+			if (!system->Setup(MODE_LBS))
+				return -1;
+			system->Render();
+			
+			auto start = std::chrono::system_clock::now();
+
+			system->PostProcessing();
+			Point2D targetPosition = system->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TDOA);
+			std::cout << targetPosition.x << "," << targetPosition.y << std::endl;
+
+			auto end = std::chrono::system_clock::now();
+
+			auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			std::cout << duration.count() << std::endl;
+			timeConsume += duration.count() / 1e6;
+
+			system->OutputResults();
+			delete system;
+		}
+		std::cout << timeConsume / 100 << std::endl;
 	}
 	else if (mode == 2) {
 		TestAOALocalizationSingleStationInDifferentError();

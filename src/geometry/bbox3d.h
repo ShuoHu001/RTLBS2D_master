@@ -2,9 +2,9 @@
 #define RTLBS_BBOX3D
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "point3d.h"
-#include "vector3d.h"
-#include "euler.h"
+#include "math/point3d.h"
+#include "math/vector3d.h"
+#include "math/euler.h"
 #include "ray3dlite.h"
 
 class Ray3DLite;

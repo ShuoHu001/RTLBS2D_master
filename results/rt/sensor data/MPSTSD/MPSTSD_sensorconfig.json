@@ -5,43 +5,46 @@
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 28.0,
-					"y": 33.0,
+					"x": 45.0,
+					"y": 21.0,
 					"z": 2.0
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
-				"ThetaDegreeErrorSTD": 0.0,
-				"TimeErrorSTD": 0.0,
-				"SensorDataFileName": ""
+				"PhiDegreeErrorSTD": 2.0,
+				"TimeErrorSTD": 1.0,
+				"PowerErrorSTD": 3.0,
+				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_0_MPSTSD.json"
 			}, {
 				"Id": 1,
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 28.0,
-					"y": 82.0,
+					"x": 125.0,
+					"y": 21.0,
 					"z": 2.0
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
-				"ThetaDegreeErrorSTD": 0.0,
-				"TimeErrorSTD": 0.0,
-				"SensorDataFileName": ""
+				"PhiDegreeErrorSTD": 2.0,
+				"TimeErrorSTD": 1.0,
+				"PowerErrorSTD": 3.0,
+				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_1_MPSTSD.json"
 			}, {
 				"Id": 2,
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 130.0,
-					"y": 82.0,
+					"x": 106.0,
+					"y": 74.0,
 					"z": 2.0
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
-				"ThetaDegreeErrorSTD": 0.0,
-				"TimeErrorSTD": 0.0,
-				"SensorDataFileName": ""
+				"PhiDegreeErrorSTD": 2.0,
+				"TimeErrorSTD": 1.0,
+				"PowerErrorSTD": 3.0,
+				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_2_MPSTSD.json"
 			}]
 	}
 }

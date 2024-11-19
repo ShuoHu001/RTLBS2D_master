@@ -6,7 +6,7 @@
 #include "utility/define.h"
 #include "geometry/segment2d.h"
 #include "geometry/Intersection2D.h"
-#include "accel/gpu/sdfgpu.h"
+#include "gpu/sdfgpu.h"
 
 class Accelerator {
 	protected:

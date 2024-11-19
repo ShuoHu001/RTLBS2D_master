@@ -3,7 +3,7 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "geometry/point2d.h"
+#include "math/point2d.h"
 #include "result/pathinfo.h"
 #include "result/raytracingresult.h"
 

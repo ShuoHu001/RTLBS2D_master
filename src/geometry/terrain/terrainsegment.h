@@ -3,7 +3,7 @@
 
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "geometry/point2d.h"
+#include "math/point2d.h"
 #include "geometry/ray2d.h"
 #include "geometry/bbox2d.h"
 #include "geometry/ray3dlite.h"

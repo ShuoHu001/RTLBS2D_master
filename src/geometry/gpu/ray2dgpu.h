@@ -10,8 +10,8 @@
 #define RTLBS_RAY2DGPU
 
 #include "rtlbs.h"
-#include "geometry/vector2d.h"
-#include "geometry/point2d.h"
+#include "math/vector2d.h"
+#include "math/point2d.h"
 #include "utility/define.h"
 
 
@@ -26,8 +26,9 @@ public:
 	bool m_isValid;									/** @brief	射线是否有效	*/
 	Point2D m_Ori;									/** @brief	射线其实坐标	*/
 	Vector2D m_Dir;									/** @brief	射线的方向	*/
-	RtLbsType m_fMax;								/** @brief	射线的传播距离 最小距离	*/
-	RtLbsType m_fMin;								/** @brief	射线的传播距离 最大距离	*/
+	RtLbsType m_tMax;								/** @brief	射线的传播距离 最小距离	*/
+	RtLbsType m_tMin;								/** @brief	射线的传播距离 最大距离	*/
+	RtLbsType m_tLimit;								/** @brief	射线的传播距离 TOA定位下的最大允许传播距离	*/
 	double m_costheta;								/** @brief	半张角余弦值	*/
 	double m_theta;									/** @brief	半张角	*/
 	PATHNODETYPE m_nodeType;						/** @brief	射线原点处所处的节点类型	*/
@@ -49,7 +50,6 @@ public:
 	HOST_DEVICE_FUNC Ray2DGPU& operator = (const Ray2DGPU& ray);
 	HOST_DEVICE_FUNC Point2D operator () (RtLbsType t) const;
 	HOST_DEVICE_FUNC RtLbsType GetRayRadis(RtLbsType t) const;
-	HOST_DEVICE_FUNC bool IsCaptureByWedgePoint(Point2D p, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments) const;
 	HOST_DEVICE_FUNC Point2D GetVisualSource() const;  //计算当前射线的广义源坐标
 	HOST_DEVICE_FUNC RtLbsType GetSquaredDistanceToPoint(const Point2D& p) const;
 };

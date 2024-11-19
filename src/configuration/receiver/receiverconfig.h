@@ -7,10 +7,9 @@
 #include "lineconfig.h"
 #include "scatterconfig.h"
 #include "planeconfig.h"
-#include "antenna/antenna.h"
 #include "utility/enum.h"
 #include "utility/define.h"
-#include "geometry/point3d.h"
+#include "math/point3d.h"
 #include "solidconfig.h"
 #include "receiverunitconfig.h"
 

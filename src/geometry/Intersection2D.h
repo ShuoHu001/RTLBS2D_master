@@ -4,10 +4,9 @@
 #include "wedge2d.h"
 #include "ray2d.h"
 #include "geometry/gpu/Intersection2Dgpu.h"
-#include "physical/propagationproperty.h"
+#include "configuration/radiowave/propagation/propagationproperty.h"
 #include "material/material.h"
 
-class Point2D;
 class Segment2D;
 
 class Intersection2D {

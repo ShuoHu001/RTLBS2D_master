@@ -6,10 +6,10 @@ MaterialLibrary::MaterialLibrary()
 
 MaterialLibrary::MaterialLibrary(const MaterialLibraryConfig& config)
 {
-	const std::vector<Material>& materials = config.m_materials;
-	m_materials.resize(materials.size());
+	const std::vector<MaterialConfig>& materialConfigs = config.m_materials;
+	m_materials.resize(materialConfigs.size());
 	unsigned id = 0;
-	for (auto it = materials.begin(); it != materials.end(); ++it) {
+	for (auto it = materialConfigs.begin(); it != materialConfigs.end(); ++it) {
 		Material* material = new Material(*it);
 		m_materials[id++] = material;
 	}
@@ -27,12 +27,12 @@ MaterialLibrary::~MaterialLibrary()
 
 bool MaterialLibrary::Init(const MaterialLibraryConfig& config)
 {
-	const std::vector<Material>& materials = config.m_materials;
-	if (materials.size() == 0)
+	const std::vector<MaterialConfig>& materialConfigs = config.m_materials;
+	if (materialConfigs.size() == 0)
 		return false;
-	m_materials.resize(materials.size());
+	m_materials.resize(materialConfigs.size());
 	unsigned id = 0;
-	for (auto it = materials.begin(); it != materials.end(); ++it) {
+	for (auto it = materialConfigs.begin(); it != materialConfigs.end(); ++it) {
 		Material* material = new Material(*it);
 		m_materials[id++] = material;
 	}

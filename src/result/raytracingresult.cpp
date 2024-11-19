@@ -7,6 +7,8 @@ RaytracingResult::RaytracingResult()
 	, m_transmitter(nullptr)
 	, m_receiver(nullptr)
 	, m_terrainDiffPath(nullptr)
+	, m_rmsDelaySpread(0.0)
+	, m_rmsAngularSpread(0.0)
 {
 }
 
@@ -27,6 +29,8 @@ RaytracingResult::RaytracingResult(const RaytracingResult& result)
 	, m_loss(result.m_loss)
 	, m_magnitudesCFR(result.m_magnitudesCFR)
 	, m_magnitudesCIR(result.m_magnitudesCIR)
+	, m_rmsDelaySpread(result.m_rmsDelaySpread)
+	, m_rmsAngularSpread(result.m_rmsAngularSpread)
 {
 }
 
@@ -103,7 +107,23 @@ void RaytracingResult::SetRayPath(TerrainDiffractionPath* path)
 	m_terrainDiffPath = path;
 }
 
-void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
+void RaytracingResult::ReleaseAllRayPath()
+{
+	for (auto& path : m_commonPaths) {
+		if (path != nullptr) {
+			delete path;
+			path = nullptr;
+		}
+	}
+
+	if (m_terrainDiffPath != nullptr) {
+		delete m_terrainDiffPath;
+		m_terrainDiffPath = nullptr;
+	}
+
+}
+
+void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const std::vector<Complex>& tranFunctionData)
 {
 	//内存分配
 	int pathNum = 0;															/** @brief	总路径数量	*/
@@ -130,13 +150,17 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 	for (int i = 0; i < m_freqs.size(); ++i) {
 		for (int j = 0; j < m_commonPaths.size(); ++j) {						//设置常规多径
 			m_multipathInfo[infoId].SetRayPath(m_commonPaths[j]);
-			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], m_transmitter, m_receiver);
+			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], tranFunctionData, m_transmitter, m_receiver);
 		}
 		if (m_terrainDiffPath != nullptr) {
 			m_multipathInfo[infoId].SetRayPath(m_terrainDiffPath);
-			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], m_transmitter, m_receiver);
+			m_multipathInfo[infoId++].CalculateBaseInfo(m_freqs[i], tranFunctionData, m_transmitter, m_receiver);
 		}
 	}
+
+	//按照功率大小对info进行排序
+	std::sort(m_multipathInfo.begin(), m_multipathInfo.end(), ComparedByDelay_PathInfo);
+
 	//计算合成场强与功率
 	RtLbsType powerdBm = 10 * log10(m_transmitter->m_power * 1000);
 	infoId = 0;
@@ -175,6 +199,12 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 		}
 	}
 
+	//计算时延扩展
+	m_rmsDelaySpread = CalculateRMSDelaySpread();
+
+	//计算角度扩展
+	m_rmsAngularSpread = CalculateRMSAngularSpread();
+
 	//将CFR进行逆傅里叶逆变换得到CIR
 	fftw_complex* in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_freqNum);
 	fftw_complex* ifftOut = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_freqNum);
@@ -194,7 +224,7 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs)
 
 }
 
-void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const AntennaLibrary* antLibrary)
+void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const std::vector<Complex>& tranFunctionData, const AntennaLibrary* antLibrary)
 {
 	//内存分配
 	int pathNum = 0;															/** @brief	总路径数量	*/
@@ -220,11 +250,11 @@ void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbs
 	for (int i = 0; i < m_freqs.size(); ++i) {
 		for (int j = 0; j < m_commonPaths.size(); ++j) {						//设置常规多径
 			m_multipathInfo[infoId].SetRayPath(m_commonPaths[j]);
-			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, sensor);
+			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], tranFunctionData, antLibrary, sensor);
 		}
 		if (m_terrainDiffPath != nullptr) {
 			m_multipathInfo[infoId].SetRayPath(m_terrainDiffPath);
-			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], antLibrary, sensor);
+			m_multipathInfo[infoId++].CalculateBaseInfo(power, m_freqs[i], tranFunctionData, antLibrary, sensor);
 		}
 	}
 
@@ -246,6 +276,12 @@ void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbs
 		m_vectorPower[i] = 20 * log10(m_totalVectorEField[i].MValue()) + conterm + 30 + gain;					//计算矢量合成功率
 		m_scalarPower[i] = 20 * log10(m_totalScalarEField[i]) + conterm + 30 + gain;							//计算标量合成功率
 	}
+
+	//计算时延扩展
+	m_rmsDelaySpread = CalculateRMSDelaySpread();
+
+	//计算角度扩展
+	m_rmsAngularSpread = CalculateRMSAngularSpread();
 }
 
 void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
@@ -256,8 +292,8 @@ void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, 
 	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
 	//将pathCopy按照角度进行聚类
 	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA2D(pathInfoCopy, threshold);
-	//按照功率大小对类进行从大到小排序
-	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+	//按照时间大小对类进行从大到小排序
+	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
 
 	int clusterNum = static_cast<int>(clusters.size());															//簇数量
 	int sparsedClusterNum = static_cast<int>(std::round(sparseFactor * clusters.size()));									//按照百分比保留稀疏的数据簇
@@ -275,22 +311,22 @@ void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, 
 	RtLbsType powerDiff = 40;
 	RtLbsType maxPower = clusters[0].m_mergedInfo.m_power;
 	for (int i = 0; i < sparsedClusterNum; ++i) {
-		if (i != 0 && (maxPower - clusters[i].m_mergedInfo.m_power) > powerDiff) {			//去除大于45dB功率差的多径，无法检测到
+		if (i != 0 && (maxPower - clusters[i].m_mergedInfo.m_power) > powerDiff) {			//去除大于40dB功率差的多径，无法检测到
 			continue;
 		}
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
-		collection.m_data.push_back(curSensorData);
+		collection.m_datas.push_back(curSensorData);
 	}
-	if (collection.m_data.size() < 2 && clusters.size() > 1) {														//保证数据量至少有2个
-		while (collection.m_data.size() < 2) {
-			for (int i = static_cast<int>(collection.m_data.size()); i < sparsedClusterNum; ++i) {
+	if (collection.m_datas.size() < 2 && clusters.size() > 1) {														//保证数据量至少有2个
+		while (collection.m_datas.size() < 2) {
+			for (int i = static_cast<int>(collection.m_datas.size()); i < sparsedClusterNum; ++i) {
 				SensorData curSensorData;
 				clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
 				if (curSensorData.m_power < -120) {
 					break;
 				}
-				collection.m_data.push_back(curSensorData);
+				collection.m_datas.push_back(curSensorData);
 				break;
 			}
 			break;
@@ -308,12 +344,12 @@ void RaytracingResult::GetMaxPowerSensorData_AOA2D(SensorDataCollection& collect
 	//将pathCopy按照角度进行聚类
 	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA2D(pathInfoCopy, threshold);
 	//按照功率大小对类进行从大到小排序
-	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
 	SensorData maxPowerSensorData;
 	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
 	
 	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
-	collection.m_data.push_back(maxPowerSensorData);
+	collection.m_datas.push_back(maxPowerSensorData);
 }
 
 void RaytracingResult::GetAllSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
@@ -325,7 +361,7 @@ void RaytracingResult::GetAllSensorData_AOA3D(SensorDataCollection& collection, 
 	//将pathCopy按照角度进行聚类
 	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA3D(pathInfoCopy, threshold);
 	//按照功率大小对类进行从大到小排序
-	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
 
 	int clusterNum = static_cast<int>(clusters.size());															//簇数量
 	int sparsedClusterNum = static_cast<int>(std::round(sparseFactor * clusters.size()));									//按照百分比保留稀疏的数据簇
@@ -343,7 +379,7 @@ void RaytracingResult::GetAllSensorData_AOA3D(SensorDataCollection& collection, 
 	for (int i = 0; i < sparsedClusterNum; ++i) {
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
-		collection.m_data.push_back(curSensorData);
+		collection.m_datas.push_back(curSensorData);
 	}
 }
 
@@ -356,12 +392,12 @@ void RaytracingResult::GetMaxPowerSensorData_AOA3D(SensorDataCollection& collect
 	//将pathCopy按照角度进行聚类
 	std::vector<PathInfoCluster> clusters = ClusterPathInfoByAOA3D(pathInfoCopy, threshold);
 	//按照功率大小对类进行从大到小排序
-	std::sort(clusters.begin(), clusters.end(), ComparedByPower_PathInfoCluster);
+	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
 	SensorData maxPowerSensorData;
 	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
 
 	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
-	collection.m_data.push_back(maxPowerSensorData);
+	collection.m_datas.push_back(maxPowerSensorData);
 }
 
 void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
@@ -370,9 +406,9 @@ void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, 
 		return;
 	}
 	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
-	//将pathCopy按照角度进行聚类
+	//将pathCopy按照时间进行聚类
 	std::vector<PathInfoCluster> clusters = ClusterPathInfoByDelay(pathInfoCopy, threshold);
-	//按照功率大小对类进行从大到小排序
+	//按照时间大小对类进行从大到小排序
 	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
 
 	int clusterNum = static_cast<int>(clusters.size());															//簇数量
@@ -395,11 +431,16 @@ void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, 
 		}
 		SensorData curSensorData;
 		clusters[i].m_mergedInfo.Convert2SensorData(curSensorData);
-		collection.m_data.push_back(curSensorData);
+		collection.m_datas.push_back(curSensorData);
+	}
+
+	//计算时延差
+	for (int i = 1; i < collection.m_datas.size(); ++i) {
+		collection.m_datas[i].m_timeDiff = collection.m_datas[i].m_time - collection.m_datas[0].m_time;
 	}
 }
 
-void RaytracingResult::GetMaxPowerSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold) const
+void RaytracingResult::GetMinDelaySensorData_Delay(SensorDataCollection& collection, RtLbsType threshold) const
 {
 	if (m_pathNum == 0) {
 		return;
@@ -407,13 +448,32 @@ void RaytracingResult::GetMaxPowerSensorData_Delay(SensorDataCollection& collect
 	std::vector<PathInfo> pathInfoCopy = m_multipathInfo;
 	//将pathCopy按照角度进行聚类
 	std::vector<PathInfoCluster> clusters = ClusterPathInfoByDelay(pathInfoCopy, threshold);
-	//按照功率大小对类进行从大到小排序
+	//按照时延大小对类进行从大到小排序
 	std::sort(clusters.begin(), clusters.end(), ComparedByDelay_PathInfoCluster);
 	SensorData maxPowerSensorData;
 	clusters.front().m_mergedInfo.Convert2SensorData(maxPowerSensorData);
 
 	maxPowerSensorData.m_power = m_scalarPower[0];					//最大功率传感器数据应对应的是合成功率
-	collection.m_data.push_back(maxPowerSensorData);
+	collection.m_datas.push_back(maxPowerSensorData);
+}
+
+Point2D RaytracingResult::GetRefGeneralSource() const
+{
+	if (m_multipathInfo.size() < 2) {
+		return Point2D();
+	}
+	//获取时延最小的多径	
+	int minId = -1;									/** @brief	最小时延多径对应的数据ID	*/
+	RtLbsType minDelay = FLT_MAX;					/** @brief	最小的时延	*/
+	for (int i = 0; i < m_multipathInfo.size(); ++i) {
+		if (minDelay > m_multipathInfo[i].m_timeDelay) {
+			minDelay = m_multipathInfo[i].m_timeDelay;
+			minId = i;
+		}
+	}
+
+	Point2D refGSPoint = m_multipathInfo[minId].GetRefGeneralSource();
+	return refGSPoint;
 }
 
 void RaytracingResult::OutputVectorEField(std::ofstream& stream) const
@@ -527,6 +587,16 @@ void RaytracingResult::OutputAOD(std::ofstream& stream) const
 	}
 }
 
+void RaytracingResult::OutputSpreadProfile(std::ofstream& stream) const
+{
+	for (int i = 0; i < m_freqNum; ++i) {
+		stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t' << m_freqs[i] << '\t';
+		stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+		stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+		stream << m_rmsDelaySpread << "\t" << m_rmsAngularSpread << std::endl;
+	}
+}
+
 void RaytracingResult::OutputGeneralSourceForCRLB(std::ofstream& stream) const
 {
 	for (int i = 0; i < static_cast<int>(m_commonPaths.size()); ++i) {
@@ -537,4 +607,71 @@ void RaytracingResult::OutputGeneralSourceForCRLB(std::ofstream& stream) const
 		Point2D curGS = curPath->GetGeneralSource2D();
 		stream << curGS.x << "\t" << curGS.y << "\t" << m_multipathInfo[i].m_aoAPhi << "\t" << m_multipathInfo[i].m_timeDelay << std::endl;
 	}
+}
+
+RtLbsType RaytracingResult::CalculateMeanArrivedDelay() const
+{
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * pathInfo.m_timeDelay;
+		conTemp2 += pathInfo.m_powerLin;
+	}
+	return conTemp1 / conTemp2;
+}
+
+RtLbsType RaytracingResult::CalculateMeanArrivedAngle() const
+{
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * pathInfo.m_aoAPhi;
+		conTemp2 += pathInfo.m_powerLin;
+	}
+	return conTemp1 / conTemp2;
+}
+
+RtLbsType RaytracingResult::CalculateRMSDelaySpread() const
+{
+	if (m_multipathInfo.empty()) {
+		return 0.0;
+	}
+	if (m_multipathInfo.size() == 1) {
+		return m_multipathInfo[0].m_timeDelay;
+	}
+
+	RtLbsType meanDelay = CalculateMeanArrivedDelay();
+
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * (pathInfo.m_timeDelay - meanDelay) * (pathInfo.m_timeDelay - meanDelay);
+		conTemp2 += pathInfo.m_powerLin;
+	}
+	RtLbsType rmsDelay = sqrt(conTemp1 / conTemp2);
+	return rmsDelay;
+}
+
+RtLbsType RaytracingResult::CalculateRMSAngularSpread() const
+{
+	if (m_multipathInfo.empty()) {
+		return 0.0;
+	}
+	if (m_multipathInfo.size() == 1) {
+		return m_multipathInfo[0].m_aoAPhi;
+	}
+
+	RtLbsType meanAoA = CalculateMeanArrivedAngle();
+
+	RtLbsType conTemp1 = 0.0;
+	RtLbsType conTemp2 = 0.0;
+
+	for (auto& pathInfo : m_multipathInfo) {
+		conTemp1 += pathInfo.m_powerLin * (pathInfo.m_aoAPhi - meanAoA) * (pathInfo.m_aoAPhi - meanAoA);
+		conTemp2 += pathInfo.m_powerLin;
+	}
+
+	RtLbsType rmsAoA = sqrt(conTemp1 / conTemp2);
+	return rmsAoA;
 }

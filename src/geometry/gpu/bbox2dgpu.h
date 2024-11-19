@@ -4,7 +4,7 @@
 #include "utility/serializable.h"
 #include "rtlbs.h"
 #include "utility/define.h"
-#include "geometry/point2d.h"
+#include "math/point2d.h"
 #include <float.h>
 
 #include "ray2dgpu.h"

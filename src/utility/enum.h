@@ -74,7 +74,9 @@ enum SYSTEM_MODE {
 enum LOCALIZATION_METHOD {
 	LBS_METHOD_RT_AOA = 0,				/** @brief	RT-AOA 定位	*/
 	LBS_METHOD_RT_TDOA = 1,				/** @brief	RT-TDOA 定位	*/
-	LBS_METHOD_RT_AOA_TDOA = 2			/** @brief	RT-AOA-TDOA 定位	*/
+	LBS_METHOD_RT_TOA = 2,				/** @brief	RT_TOA定位	*/
+	LBS_METHOD_RT_AOA_TOA = 3,			/** @brief	RT-AOA-TOA 定位	*/
+	LBS_METHOD_RT_AOA_TDOA = 4,			/** @brief	RT_AOA_TDOA 定位	*/
 };
 
 /** @brief	定位模式	*/

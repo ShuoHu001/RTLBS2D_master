@@ -2,8 +2,8 @@
 #define RTLBS_LINECONFIG
 
 #include "rtlbs.h"
-#include "geometry/point3d.h"
-#include "geometry/vector3d.h"
+#include "math/point3d.h"
+#include "math/vector3d.h"
 #include "utility/serializable.h"
 #include "utility/define.h"
 #include "receiverunitconfig.h"

@@ -5,12 +5,12 @@
 #include "utility/define.h"
 #include "primitive2d.h"
 #include "geometry/gpu/segment2dgpu.h"
-#include "utility/serializable.h"
+#include "math/point2d.h"
 
 class Intersection2D;//预先定义，防止相互包含
 class Wedge2D;
 
-class Segment2D:public Primitive2D, Serializable {
+class Segment2D:public Primitive2D {
 public:
 	Point2D m_ps;						/** @brief	开始节点	*/
 	Point2D m_pe;						/** @brief	终止节点	*/
@@ -42,11 +42,6 @@ public:
 	const BBox2D& GetBBox() const;
 
 	Segment2DGPU Convert2GPU();
-	 
-
-public:
-	void Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
-	bool Deserialize(const rapidjson::Value& value);
 
 };
 

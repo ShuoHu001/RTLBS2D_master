@@ -384,24 +384,3 @@ Segment2DGPU Segment2D::Convert2GPU()
 	segmentGPU.m_propagationProperty = m_propagationProperty;
 	return segmentGPU;
 }
-
-void Segment2D::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
-{
-    writer.StartObject();
-    writer.String("m_ps"); m_ps.Serialize(writer);
-    writer.String("m_pe"); m_pe.Serialize(writer);
-    writer.String("m_normal"); m_normal.Serialize(writer);
-    writer.EndObject();
-}
-
-bool Segment2D::Deserialize(const rapidjson::Value& value)
-{
-    if (value.IsObject()) {
-        const rapidjson::Value& m_psValue = value["m_ps"];
-        const rapidjson::Value& m_peValue = value["m_pe"];
-        const rapidjson::Value& m_normalValue = value["m_normal"];
-        return m_ps.Deserialize(m_psValue) && m_pe.Deserialize(m_peValue) && m_normal.Deserialize(m_normalValue);
-
-    }
-    return false;
-}

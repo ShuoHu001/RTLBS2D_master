@@ -4,8 +4,8 @@
 #include "rtlbs.h"
 #include "utility/define.h"
 #include "utility/serializable.h"
-#include "geometry/vector3d.h"
-#include "geometry/euler.h"
+#include "math/vector3d.h"
+#include "math/euler.h"
 
 const std::string KEY_ANTENNACONFIG_ANTID = "AntId";
 const std::string KEY_ANTENNACONFIG_TYPEID = "TypeId";

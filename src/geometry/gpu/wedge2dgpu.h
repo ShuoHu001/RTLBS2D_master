@@ -2,7 +2,7 @@
 #define RTLBS_WEDGE2DGPU
 
 
-#include "geometry/point2d.h"
+#include "math/point2d.h"
 #include "segment2dgpu.h"
 
 class Wedge2DGPU {

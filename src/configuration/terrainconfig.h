@@ -6,7 +6,7 @@
 #include "utility/enum.h"
 #include "utility/serializable.h"
 #include "terrainobjectconfig.h"
-#include "physical/propagationproperty.h"
+#include "radiowave/propagation/propagationproperty.h"
 
 
 const std::string KEY_TERRAINGRIDCONFIG_GEOMETRYMATRIXFILE = "GeometryMatrixFile";

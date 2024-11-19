@@ -16,20 +16,11 @@
     <Filter Include="accel">
       <UniqueIdentifier>{db2d66bb-e49f-43f6-8a35-cf4c1f47cd50}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tree">
-      <UniqueIdentifier>{cb8a42be-0374-4c80-a120-f795a8569b5b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="configuation">
       <UniqueIdentifier>{c9e0f375-efb3-46f6-ae4f-02c0de36d11f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="antenna">
-      <UniqueIdentifier>{7fe47c0d-6fdb-4362-8464-b44953c305b6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="result">
       <UniqueIdentifier>{4cf27e66-a66b-4c7e-871f-80617015760b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="angularspectrum">
-      <UniqueIdentifier>{ca235a6e-6a2f-4d6b-bced-eb15645489ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="parallel">
       <UniqueIdentifier>{4661292f-0c5f-427b-b8e0-29f90a476dbe}</UniqueIdentifier>
@@ -40,23 +31,11 @@
     <Filter Include="geometry\gpu">
       <UniqueIdentifier>{04db47b2-ac32-4caa-8235-6e7c8dd75450}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tree\gpu">
-      <UniqueIdentifier>{537f7148-2fd3-4821-b0a0-4882676dd4a5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="geometry\object2d">
       <UniqueIdentifier>{c5d8c45e-c562-4bdc-8a57-e962f5b4a184}</UniqueIdentifier>
     </Filter>
-    <Filter Include="physical">
-      <UniqueIdentifier>{ac90146f-a4f6-42d8-9922-fc556c3b8351}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="physical\gpu">
-      <UniqueIdentifier>{3a14ec1f-baec-491f-b3a9-cf513af7ec97}</UniqueIdentifier>
-    </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{bfae0a0e-bdef-4e87-ad57-5935e7a4eb73}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="physical\radiowave">
-      <UniqueIdentifier>{248ef4d9-7259-4e70-8f8e-db5276003988}</UniqueIdentifier>
     </Filter>
     <Filter Include="configuation\library">
       <UniqueIdentifier>{dc711cc1-ae16-41b8-95e7-afb90581397f}</UniqueIdentifier>
@@ -109,8 +88,74 @@
     <Filter Include="test">
       <UniqueIdentifier>{4122a225-4a87-44d3-904a-681d0727fde9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="global">
-      <UniqueIdentifier>{bed90781-dda5-4f46-9b78-94bd26c28fe2}</UniqueIdentifier>
+    <Filter Include="general">
+      <UniqueIdentifier>{2ae4c8d5-751c-4bc3-a5fe-c0784741309b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="equipment\antenna">
+      <UniqueIdentifier>{1da0597e-5509-4ad4-baee-37a29e2d93dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="equipment\transceiver">
+      <UniqueIdentifier>{2249abbe-575d-4eca-af30-f91782c4da04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="equipment\sensor">
+      <UniqueIdentifier>{449fd8c4-a07b-4734-b37b-545cb30f713e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{11cbb391-79c1-4ee3-ad48-2b90562e4fa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation\localization">
+      <UniqueIdentifier>{11997d21-6569-4c52-9fbe-a4304eb31e6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="radiowave">
+      <UniqueIdentifier>{ac90146f-a4f6-42d8-9922-fc556c3b8351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="radiowave\propagation">
+      <UniqueIdentifier>{4e61e23e-8595-46e0-9fec-d6d78682596b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="radiowave\raypath">
+      <UniqueIdentifier>{007bfc47-785c-41cc-95dd-65fa52c18e90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="radiowave\propagation\gpu">
+      <UniqueIdentifier>{1e066da1-f0fd-482d-b6a4-a2cafaa6e11c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="efield">
+      <UniqueIdentifier>{df46c2a5-1827-4cba-ba4c-17166a0059ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation\radiowave">
+      <UniqueIdentifier>{6dc3c93f-3601-40d2-b3b0-1f26fb89d4fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="configuation\radiowave\propagation">
+      <UniqueIdentifier>{4d1b6ebb-7a4d-4fd1-9964-aa41981eef71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{4a003f86-0593-4d75-b042-81be2a044890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\raypathrectifier">
+      <UniqueIdentifier>{b83681a4-a78b-482d-9efd-1a0e226ea7d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\render">
+      <UniqueIdentifier>{351c07d2-f7ae-49e3-8bc9-7cec095dfc11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\render\pathtracing">
+      <UniqueIdentifier>{cd6b3396-c1e8-4e37-ac3e-bff8519356ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\render\pathtracing\gpu">
+      <UniqueIdentifier>{5ccf3194-d435-4fbf-94c5-c24b4c2fd59e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="radiowave\propagation\gpu\gpu">
+      <UniqueIdentifier>{e2d23b34-13bc-4611-bec9-663813a06607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="localization\gpu">
+      <UniqueIdentifier>{026dc1cc-99f9-4e88-a286-6ed1abb2f4da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="localization\aoa_tdoa">
+      <UniqueIdentifier>{1e6fcfed-653b-43d8-ade5-b916493699af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="localization\aoa_toa">
+      <UniqueIdentifier>{c15bf4e8-312c-42bf-92a5-667cff8bf18c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="localization\toa">
+      <UniqueIdentifier>{82704006-7ae8-467a-a668-f1f28ec83011}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -139,9 +184,6 @@
     <ClInclude Include="src\managers\matmanager.h">
       <Filter>managers</Filter>
     </ClInclude>
-    <ClInclude Include="src\geometry\scene.h">
-      <Filter>geometry</Filter>
-    </ClInclude>
     <ClInclude Include="src\accel\accelerator.h">
       <Filter>accel</Filter>
     </ClInclude>
@@ -154,12 +196,6 @@
     <ClInclude Include="src\accel\unigrid.h">
       <Filter>accel</Filter>
     </ClInclude>
-    <ClInclude Include="src\tree\raypath.h">
-      <Filter>tree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tree\pathnode.h">
-      <Filter>tree</Filter>
-    </ClInclude>
     <ClInclude Include="src\configuration\localizeconfig.h">
       <Filter>configuation</Filter>
     </ClInclude>
@@ -171,15 +207,6 @@
     </ClInclude>
     <ClInclude Include="src\result\result.h">
       <Filter>result</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tree\raytreenode.h">
-      <Filter>tree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\angularspectrum\angularspectrum.h">
-      <Filter>angularspectrum</Filter>
-    </ClInclude>
-    <ClInclude Include="src\angularspectrum\angularelement.h">
-      <Filter>angularspectrum</Filter>
     </ClInclude>
     <ClInclude Include="src\geometry\wedge2d.h">
       <Filter>geometry</Filter>
@@ -205,9 +232,6 @@
     <ClInclude Include="src\parallel\threadpool.h">
       <Filter>parallel</Filter>
     </ClInclude>
-    <ClInclude Include="src\tree\gpu\raypathgpu.h">
-      <Filter>tree\gpu</Filter>
-    </ClInclude>
     <ClInclude Include="src\geometry\object2d\object2d.h">
       <Filter>geometry\object2d</Filter>
     </ClInclude>
@@ -223,50 +247,11 @@
     <ClInclude Include="src\configuration\geometryconfig.h">
       <Filter>configuation</Filter>
     </ClInclude>
-    <ClInclude Include="src\geometry\vector3d.h">
-      <Filter>geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="src\geometry\point3d.h">
-      <Filter>geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="src\geometry\euler.h">
-      <Filter>geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tree\raypath3d.h">
-      <Filter>tree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tree\pathnode3d.h">
-      <Filter>tree</Filter>
-    </ClInclude>
     <ClInclude Include="src\math\complex.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="src\physical\diffraction.h">
-      <Filter>physical</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\pathtracing.h">
-      <Filter>physical</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\raysplitting.h">
-      <Filter>physical</Filter>
-    </ClInclude>
     <ClInclude Include="src\result\raytracingresult.h">
       <Filter>result</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\reflection.h">
-      <Filter>physical</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\scattering.h">
-      <Filter>physical</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\transmission.h">
-      <Filter>physical</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\radiowave\polarization2d.h">
-      <Filter>physical\radiowave</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\radiowave\polarization3d.h">
-      <Filter>physical\radiowave</Filter>
     </ClInclude>
     <ClInclude Include="src\material\materiallibrary.h">
       <Filter>material</Filter>
@@ -307,18 +292,6 @@
     <ClInclude Include="src\geometry\bbox3d.h">
       <Filter>geometry</Filter>
     </ClInclude>
-    <ClInclude Include="src\tree\terraindiffractionpath.h">
-      <Filter>tree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\antenna\antenna.h">
-      <Filter>antenna</Filter>
-    </ClInclude>
-    <ClInclude Include="src\antenna\antennalibrary.h">
-      <Filter>antenna</Filter>
-    </ClInclude>
-    <ClInclude Include="src\antenna\antennapattern.h">
-      <Filter>antenna</Filter>
-    </ClInclude>
     <ClInclude Include="src\configuration\antennaconfig.h">
       <Filter>configuation</Filter>
     </ClInclude>
@@ -330,12 +303,6 @@
     </ClInclude>
     <ClInclude Include="src\utility\fileoperation.h">
       <Filter>utility</Filter>
-    </ClInclude>
-    <ClInclude Include="src\equipment\transmitter.h">
-      <Filter>equipment</Filter>
-    </ClInclude>
-    <ClInclude Include="src\equipment\receiver.h">
-      <Filter>equipment</Filter>
     </ClInclude>
     <ClInclude Include="src\configuration\receiver\lineconfig.h">
       <Filter>configuation\receiver</Filter>
@@ -373,14 +340,8 @@
     <ClInclude Include="src\data\tranfunctiondata.h">
       <Filter>data</Filter>
     </ClInclude>
-    <ClInclude Include="src\physical\raylaunch.h">
-      <Filter>physical</Filter>
-    </ClInclude>
     <ClInclude Include="src\utility\struct.h">
       <Filter>utility</Filter>
-    </ClInclude>
-    <ClInclude Include="src\physical\pathbuilder.h">
-      <Filter>physical</Filter>
     </ClInclude>
     <ClInclude Include="src\system.h" />
     <ClInclude Include="src\algorithm\optimizationtoolkit\ga\ga.h">
@@ -389,35 +350,17 @@
     <ClInclude Include="src\algorithm\optimizationtoolkit\pso\pso.h">
       <Filter>algorithm\optimizationtoolkit\pso</Filter>
     </ClInclude>
-    <ClInclude Include="src\equipment\sensor.h">
-      <Filter>equipment</Filter>
-    </ClInclude>
     <ClInclude Include="src\configuration\sensor\sensorcollectionconfig.h">
       <Filter>configuation\sensor</Filter>
     </ClInclude>
     <ClInclude Include="src\configuration\sensor\sensorconfig.h">
       <Filter>configuation\sensor</Filter>
     </ClInclude>
-    <ClInclude Include="src\result\lbsresult.h">
-      <Filter>result</Filter>
-    </ClInclude>
     <ClInclude Include="src\localization\generalsource.h">
       <Filter>localization</Filter>
     </ClInclude>
-    <ClInclude Include="src\physical\treenodegenerator.h">
-      <Filter>physical</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tree\lbstreenode.h">
-      <Filter>tree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\equipment\sensordata.h">
-      <Filter>equipment</Filter>
-    </ClInclude>
     <ClInclude Include="src\localization\gspair.h">
       <Filter>localization</Filter>
-    </ClInclude>
-    <ClInclude Include="src\equipment\sensordatalibrary.h">
-      <Filter>equipment</Filter>
     </ClInclude>
     <ClInclude Include="src\localization\aoa\aoasolver.h">
       <Filter>localization\aoa</Filter>
@@ -427,12 +370,6 @@
     </ClInclude>
     <ClInclude Include="src\result\pathinfocluster.h">
       <Filter>result</Filter>
-    </ClInclude>
-    <ClInclude Include="src\equipment\sensordatacollection.h">
-      <Filter>equipment</Filter>
-    </ClInclude>
-    <ClInclude Include="src\equipment\sensordataprocessing.h">
-      <Filter>equipment</Filter>
     </ClInclude>
     <ClInclude Include="src\algorithm\decisiontoolkit\assignalgorithm.h">
       <Filter>algorithm\decisiontoolkit</Filter>
@@ -446,17 +383,176 @@
     <ClInclude Include="src\test\testlbs.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="src\localization\weightfactor.h">
-      <Filter>localization</Filter>
-    </ClInclude>
-    <ClInclude Include="src\global\globalvariables.h">
-      <Filter>global</Filter>
-    </ClInclude>
     <ClInclude Include="src\test\rtresultsimilarity.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="src\equipment\sensordatacluster.h">
-      <Filter>equipment</Filter>
+    <ClInclude Include="src\general\elevationmatrix.h">
+      <Filter>general</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\antenna\antenna.h">
+      <Filter>equipment\antenna</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\antenna\antennalibrary.h">
+      <Filter>equipment\antenna</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\antenna\antennapattern.h">
+      <Filter>equipment\antenna</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensor\sensor.h">
+      <Filter>equipment\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensor\sensordata.h">
+      <Filter>equipment\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensor\sensordatacluster.h">
+      <Filter>equipment\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensor\sensordatacollection.h">
+      <Filter>equipment\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensor\sensordatalibrary.h">
+      <Filter>equipment\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\sensor\sensordataprocessing.h">
+      <Filter>equipment\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\transceiver\receiver.h">
+      <Filter>equipment\transceiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\equipment\transceiver\transmitter.h">
+      <Filter>equipment\transceiver</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\polarization3d.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\polarization2d.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\point3d.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vector3d.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\euler.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\materialconfig.h">
+      <Filter>configuation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\localization\weightfactor.h">
+      <Filter>configuation\localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\lbstreenode.h">
+      <Filter>localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\raypath\raypath.h">
+      <Filter>radiowave\raypath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\raypath\raypath3d.h">
+      <Filter>radiowave\raypath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\raypath\raytreenode.h">
+      <Filter>radiowave\raypath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\raypath\terraindiffractionpath.h">
+      <Filter>radiowave\raypath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\raypath\pathnode.h">
+      <Filter>radiowave\raypath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\raypath\pathnode3d.h">
+      <Filter>radiowave\raypath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\propagation\diffraction.h">
+      <Filter>radiowave\propagation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\propagation\reflection.h">
+      <Filter>radiowave\propagation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\propagation\scattering.h">
+      <Filter>radiowave\propagation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\radiowave\propagation\transmission.h">
+      <Filter>radiowave\propagation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\caldiffractionfield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\calreflectionfield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\calscatteringfield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\caltransmissionfield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\calraypathefield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\calterrainraypathfield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\calradiationfield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\efield\calreceivedfield.h">
+      <Filter>efield</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\raypathrectifier\raypathrectifier.h">
+      <Filter>core\raypathrectifier</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\render\pathtracing\pathbuilder.h">
+      <Filter>core\render\pathtracing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\render\pathtracing\pathtracing.h">
+      <Filter>core\render\pathtracing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\render\pathtracing\raylaunch.h">
+      <Filter>core\render\pathtracing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\render\pathtracing\raysplitting.h">
+      <Filter>core\render\pathtracing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\render\pathtracing\treenodegenerator.h">
+      <Filter>core\render\pathtracing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa\aoa_locator.h">
+      <Filter>localization\aoa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\lbsinfo.h">
+      <Filter>localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\tdoa\tdoa_locator.h">
+      <Filter>localization\tdoa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\lbsinfocluster.h">
+      <Filter>localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\raypathsetter.h">
+      <Filter>localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa_toa\aoa_toa_solver.h">
+      <Filter>localization\aoa_toa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa_toa\aoa_toa_locator.h">
+      <Filter>localization\aoa_toa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa_tdoa\aoa_tdoa_solver.h">
+      <Filter>localization\aoa_tdoa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa_tdoa\aoa_tdoa_locator.h">
+      <Filter>localization\aoa_tdoa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\toa\toa_locator.h">
+      <Filter>localization\toa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\toa\toa_solver.h">
+      <Filter>localization\toa</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -470,9 +566,6 @@
     <ClCompile Include="src\managers\matmanager.cpp">
       <Filter>managers</Filter>
     </ClCompile>
-    <ClCompile Include="src\geometry\scene.cpp">
-      <Filter>geometry</Filter>
-    </ClCompile>
     <ClCompile Include="src\accel\accelerator.cpp">
       <Filter>accel</Filter>
     </ClCompile>
@@ -485,12 +578,6 @@
     <ClCompile Include="src\accel\unigrid.cpp">
       <Filter>accel</Filter>
     </ClCompile>
-    <ClCompile Include="src\tree\raypath.cpp">
-      <Filter>tree</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tree\pathnode.cpp">
-      <Filter>tree</Filter>
-    </ClCompile>
     <ClCompile Include="src\configuration\localizeconfig.cpp">
       <Filter>configuation</Filter>
     </ClCompile>
@@ -502,12 +589,6 @@
     </ClCompile>
     <ClCompile Include="src\result\result.cpp">
       <Filter>result</Filter>
-    </ClCompile>
-    <ClCompile Include="src\angularspectrum\angularspectrum.cpp">
-      <Filter>angularspectrum</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tree\raytreenode.cpp">
-      <Filter>tree</Filter>
     </ClCompile>
     <ClCompile Include="src\geometry\wedge2d.cpp">
       <Filter>geometry</Filter>
@@ -524,9 +605,6 @@
     <ClCompile Include="src\managers\randomanager.cpp">
       <Filter>managers</Filter>
     </ClCompile>
-    <ClCompile Include="src\angularspectrum\angularelement.cpp">
-      <Filter>angularspectrum</Filter>
-    </ClCompile>
     <ClCompile Include="src\accel\sdf.cpp">
       <Filter>accel</Filter>
     </ClCompile>
@@ -538,9 +616,6 @@
     </ClCompile>
     <ClCompile Include="src\parallel\threadpool.cpp">
       <Filter>parallel</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tree\gpu\raypathgpu.cpp">
-      <Filter>tree\gpu</Filter>
     </ClCompile>
     <ClCompile Include="src\geometry\object2d\object2d.cpp">
       <Filter>geometry\object2d</Filter>
@@ -560,50 +635,11 @@
     <ClCompile Include="src\material\material.cpp">
       <Filter>material</Filter>
     </ClCompile>
-    <ClCompile Include="src\geometry\vector3d.cpp">
-      <Filter>geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="src\geometry\point3d.cpp">
-      <Filter>geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="src\geometry\euler.cpp">
-      <Filter>geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tree\raypath3d.cpp">
-      <Filter>tree</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tree\pathnode3d.cpp">
-      <Filter>tree</Filter>
-    </ClCompile>
     <ClCompile Include="src\math\complex.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="src\physical\diffraction.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\pathtracing.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\raysplitting.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
     <ClCompile Include="src\result\raytracingresult.cpp">
       <Filter>result</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\reflection.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\scattering.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\transmission.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\radiowave\polarization3d.cpp">
-      <Filter>physical\radiowave</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\radiowave\polarization2d.cpp">
-      <Filter>physical\radiowave</Filter>
     </ClCompile>
     <ClCompile Include="src\material\materiallibrary.cpp">
       <Filter>material</Filter>
@@ -644,18 +680,6 @@
     <ClCompile Include="src\geometry\bbox3d.cpp">
       <Filter>geometry</Filter>
     </ClCompile>
-    <ClCompile Include="src\tree\terraindiffractionpath.cpp">
-      <Filter>tree</Filter>
-    </ClCompile>
-    <ClCompile Include="src\antenna\antenna.cpp">
-      <Filter>antenna</Filter>
-    </ClCompile>
-    <ClCompile Include="src\antenna\antennalibrary.cpp">
-      <Filter>antenna</Filter>
-    </ClCompile>
-    <ClCompile Include="src\antenna\antennapattern.cpp">
-      <Filter>antenna</Filter>
-    </ClCompile>
     <ClCompile Include="src\configuration\antennaconfig.cpp">
       <Filter>configuation</Filter>
     </ClCompile>
@@ -664,12 +688,6 @@
     </ClCompile>
     <ClCompile Include="src\utility\fileoperation.cpp">
       <Filter>utility</Filter>
-    </ClCompile>
-    <ClCompile Include="src\equipment\receiver.cpp">
-      <Filter>equipment</Filter>
-    </ClCompile>
-    <ClCompile Include="src\equipment\transmitter.cpp">
-      <Filter>equipment</Filter>
     </ClCompile>
     <ClCompile Include="src\configuration\receiver\lineconfig.cpp">
       <Filter>configuation\receiver</Filter>
@@ -704,42 +722,18 @@
     <ClCompile Include="src\result\pathinfo.cpp">
       <Filter>result</Filter>
     </ClCompile>
-    <ClCompile Include="src\physical\raylaunch.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physical\pathbuilder.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
     <ClCompile Include="src\system.cpp" />
-    <ClCompile Include="src\equipment\sensor.cpp">
-      <Filter>equipment</Filter>
-    </ClCompile>
     <ClCompile Include="src\configuration\sensor\sensorcollectionconfig.cpp">
       <Filter>configuation\sensor</Filter>
     </ClCompile>
     <ClCompile Include="src\configuration\sensor\sensorconfig.cpp">
       <Filter>configuation\sensor</Filter>
     </ClCompile>
-    <ClCompile Include="src\result\lbsresult.cpp">
-      <Filter>result</Filter>
-    </ClCompile>
     <ClCompile Include="src\localization\generalsource.cpp">
       <Filter>localization</Filter>
     </ClCompile>
-    <ClCompile Include="src\physical\treenodegenerator.cpp">
-      <Filter>physical</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tree\lbstreenode.cpp">
-      <Filter>tree</Filter>
-    </ClCompile>
-    <ClCompile Include="src\equipment\sensordata.cpp">
-      <Filter>equipment</Filter>
-    </ClCompile>
     <ClCompile Include="src\localization\gspair.cpp">
       <Filter>localization</Filter>
-    </ClCompile>
-    <ClCompile Include="src\equipment\sensordatalibrary.cpp">
-      <Filter>equipment</Filter>
     </ClCompile>
     <ClCompile Include="src\localization\aoa\aoasolver.cpp">
       <Filter>localization\aoa</Filter>
@@ -749,12 +743,6 @@
     </ClCompile>
     <ClCompile Include="src\result\pathinfocluster.cpp">
       <Filter>result</Filter>
-    </ClCompile>
-    <ClCompile Include="src\equipment\sensordatacollection.cpp">
-      <Filter>equipment</Filter>
-    </ClCompile>
-    <ClCompile Include="src\equipment\sensordataprocessing.cpp">
-      <Filter>equipment</Filter>
     </ClCompile>
     <ClCompile Include="src\algorithm\decisiontoolkit\assignalgorithm.cpp">
       <Filter>algorithm\decisiontoolkit</Filter>
@@ -768,26 +756,179 @@
     <ClCompile Include="src\test\testlbs.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="src\localization\weightfactor.cpp">
-      <Filter>localization</Filter>
-    </ClCompile>
-    <ClCompile Include="src\global\globalvariables.cpp">
-      <Filter>global</Filter>
-    </ClCompile>
     <ClCompile Include="src\test\rtresultsimilarity.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="src\equipment\sensordatacluster.cpp">
-      <Filter>equipment</Filter>
+    <ClCompile Include="src\general\elevationmatrix.cpp">
+      <Filter>general</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\antenna\antenna.cpp">
+      <Filter>equipment\antenna</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\antenna\antennalibrary.cpp">
+      <Filter>equipment\antenna</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\antenna\antennapattern.cpp">
+      <Filter>equipment\antenna</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensor\sensor.cpp">
+      <Filter>equipment\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensor\sensordata.cpp">
+      <Filter>equipment\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensor\sensordatacluster.cpp">
+      <Filter>equipment\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensor\sensordatacollection.cpp">
+      <Filter>equipment\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensor\sensordatalibrary.cpp">
+      <Filter>equipment\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\sensor\sensordataprocessing.cpp">
+      <Filter>equipment\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\transceiver\receiver.cpp">
+      <Filter>equipment\transceiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\equipment\transceiver\transmitter.cpp">
+      <Filter>equipment\transceiver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\polarization2d.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\polarization3d.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\point3d.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\vector3d.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\euler.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\scene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\materialconfig.cpp">
+      <Filter>configuation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\localization\weightfactor.cpp">
+      <Filter>configuation\localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\lbstreenode.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\raypath\raypath.cpp">
+      <Filter>radiowave\raypath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\raypath\raypath3d.cpp">
+      <Filter>radiowave\raypath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\raypath\raytreenode.cpp">
+      <Filter>radiowave\raypath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\raypath\terraindiffractionpath.cpp">
+      <Filter>radiowave\raypath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\raypath\pathnode.cpp">
+      <Filter>radiowave\raypath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\raypath\pathnode3d.cpp">
+      <Filter>radiowave\raypath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\propagation\diffraction.cpp">
+      <Filter>radiowave\propagation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\propagation\reflection.cpp">
+      <Filter>radiowave\propagation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\propagation\scattering.cpp">
+      <Filter>radiowave\propagation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\radiowave\propagation\transmission.cpp">
+      <Filter>radiowave\propagation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\caldiffractionfield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\calreflectionfield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\calscatteringfield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\caltransmissionfield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\calraypathefield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\calterrainraypathfield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\calradiationfield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\efield\calreceivedfield.cpp">
+      <Filter>efield</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\raypathrectifier\raypathrectifier.cpp">
+      <Filter>core\raypathrectifier</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\render\pathtracing\pathbuilder.cpp">
+      <Filter>core\render\pathtracing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\render\pathtracing\pathtracing.cpp">
+      <Filter>core\render\pathtracing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\render\pathtracing\raylaunch.cpp">
+      <Filter>core\render\pathtracing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\render\pathtracing\raysplitting.cpp">
+      <Filter>core\render\pathtracing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\render\pathtracing\treenodegenerator.cpp">
+      <Filter>core\render\pathtracing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa\aoa_locator.cpp">
+      <Filter>localization\aoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\lbsinfo.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\tdoa\tdoa_locator.cpp">
+      <Filter>localization\tdoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\lbsinfocluster.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\raypathsetter.cpp">
+      <Filter>localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa_toa\aoa_toa_locator.cpp">
+      <Filter>localization\aoa_toa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa_toa\aoa_toa_solver.cpp">
+      <Filter>localization\aoa_toa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa_tdoa\aoa_tdoa_solver.cpp">
+      <Filter>localization\aoa_tdoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa_tdoa\aoa_tdoa_locator.cpp">
+      <Filter>localization\aoa_tdoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\toa\toa_locator.cpp">
+      <Filter>localization\toa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\toa\toa_solver.cpp">
+      <Filter>localization\toa</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\geometry\vector2d.cpp">
-      <Filter>geometry</Filter>
-    </CudaCompile>
-    <CudaCompile Include="src\geometry\vector2d.h">
-      <Filter>geometry</Filter>
-    </CudaCompile>
     <CudaCompile Include="src\geometry\ray2d.h">
       <Filter>geometry</Filter>
     </CudaCompile>
@@ -799,12 +940,6 @@
     </CudaCompile>
     <CudaCompile Include="src\geometry\bbox2d.cpp">
       <Filter>geometry</Filter>
-    </CudaCompile>
-    <CudaCompile Include="src\tree\gpu\pathnodegpu.cpp">
-      <Filter>tree\gpu</Filter>
-    </CudaCompile>
-    <CudaCompile Include="src\tree\gpu\pathnodegpu.h">
-      <Filter>tree\gpu</Filter>
     </CudaCompile>
     <CudaCompile Include="src\geometry\gpu\bbox2dgpu.cpp">
       <Filter>geometry\gpu</Filter>
@@ -845,89 +980,107 @@
     <CudaCompile Include="src\geometry\gpu\wedge2dgpu.cpp">
       <Filter>geometry\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\geometry\point2d.h">
-      <Filter>geometry</Filter>
+    <CudaCompile Include="src\math\point2d.h">
+      <Filter>math</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\geometry\point2d.cpp">
-      <Filter>geometry</Filter>
+    <CudaCompile Include="src\math\point2d.cpp">
+      <Filter>math</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\diffractiongpu.h">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\math\vector2d.h">
+      <Filter>math</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\diffractiongpu.cpp">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\math\vector2d.cpp">
+      <Filter>math</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\pathtracinggpu.cpp">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\cpuconverterpathnode.h">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\pathtracinggpu.h">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\treenodegpu.h">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\propagationproperty.cpp">
-      <Filter>physical</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\diffractiongpu.cpp">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\propagationproperty.h">
-      <Filter>physical</Filter>
+    <CudaCompile Include="src\configuration\radiowave\propagation\limitinfo.cpp">
+      <Filter>configuation\radiowave\propagation</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\raysplittinggpu.cpp">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\core\render\pathtracing\gpu\pathbuildergpu.cpp">
+      <Filter>core\render\pathtracing\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\raysplittinggpu.h">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\core\render\pathtracing\raytracing.h">
+      <Filter>core\render\pathtracing</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\reflectiongpu.cpp">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\scattergpu.h">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\reflectiongpu.h">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\scattergpu.cpp">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\scattergpu.cpp">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\transmissiongpu.h">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\scattergpu.h">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\transmissiongpu.cpp">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\transmissiongpu.h">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\diffractiongpu.h">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\transmissiongpu.cpp">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\pathnodegpu.cpp">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\limitinfo.h">
-      <Filter>physical</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\pathnodegpu.h">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\limitinfo.cpp">
-      <Filter>physical</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\cpuconverterpathnode.cpp">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\raytracing.cpp">
-      <Filter>physical</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\treenodegpu.cpp">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\raytracing.h">
-      <Filter>physical</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\raypathgpu.h">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\utility\gpuutil.cpp">
-      <Filter>utility</Filter>
+    <CudaCompile Include="src\radiowave\raypath\gpu\raypathgpu.cpp">
+      <Filter>radiowave\propagation\gpu\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\utility\gpuutil.h">
-      <Filter>utility</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\reflectiongpu.h">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\tree\gpu\treenodegpu.cpp">
-      <Filter>tree\gpu</Filter>
+    <CudaCompile Include="src\radiowave\propagation\gpu\reflectiongpu.cpp">
+      <Filter>radiowave\propagation\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\tree\gpu\treenodegpu.h">
-      <Filter>tree\gpu</Filter>
+    <CudaCompile Include="src\configuration\radiowave\propagation\limitinfo.h">
+      <Filter>configuation\radiowave\propagation</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.h">
-      <Filter>tree\gpu</Filter>
+    <CudaCompile Include="src\configuration\radiowave\propagation\propagationproperty.cpp">
+      <Filter>configuation\radiowave\propagation</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\tree\gpu\cpuconverterpathnode.cpp">
-      <Filter>tree\gpu</Filter>
+    <CudaCompile Include="src\configuration\radiowave\propagation\propagationproperty.h">
+      <Filter>configuation\radiowave\propagation</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\pathbuildergpu.h">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\core\render\pathtracing\gpu\pathbuildergpu.h">
+      <Filter>core\render\pathtracing\gpu</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\physical\gpu\pathbuildergpu.cpp">
-      <Filter>physical\gpu</Filter>
+    <CudaCompile Include="src\core\render\pathtracing\gpu\pathtracinggpu.cpp">
+      <Filter>core\render\pathtracing\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\render\pathtracing\gpu\pathtracinggpu.h">
+      <Filter>core\render\pathtracing\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\render\pathtracing\gpu\raysplittinggpu.cpp">
+      <Filter>core\render\pathtracing\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\render\pathtracing\gpu\raysplittinggpu.h">
+      <Filter>core\render\pathtracing\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\core\render\pathtracing\raytracing.cpp">
+      <Filter>core\render\pathtracing</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\localization\gpu\raypathsettergpu.cpp">
+      <Filter>localization\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\localization\gpu\raypathsettergpu.h">
+      <Filter>localization\gpu</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@
 #include "utility/enum.h"
 #include "geometry/segment2d.h"
 #include "geometry/wedge2d.h"
-#include "physical/propagationproperty.h"
+#include "configuration/radiowave/propagation/propagationproperty.h"
 
 class Object2D {
 public:

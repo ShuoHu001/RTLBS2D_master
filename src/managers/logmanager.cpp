@@ -102,7 +102,6 @@ std::string LogManager::GetCurrentTime()
 
 	std::stringstream ss;
 	ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S.") << std::setfill('0') << std::setw(3) << ms.count();
-
 	return ss.str();
 }
 

@@ -6,7 +6,7 @@
 #include "utility/serializable.h"
 #include "managers/logmanager.h"
 #include "configuration/antennaconfig.h"
-#include "antenna/antenna.h"
+#include "equipment/antenna/antenna.h"
 
 const std::string KEY_ANTENNALIBRARYCONFIG = "AntennaLibraryConfig";
 const std::string KEY_ANTENNALIBRARYCONFIG_ANTENNAS = "Antennas";

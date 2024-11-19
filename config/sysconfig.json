@@ -1,45 +1,47 @@
 {
 	"SimConfig": {
-		"SystemMode": 1,
+		"SystemMode": 0,
 		"GeometryConfigFile": "config/geometryconfig.json",
 		"MaterialLibraryConfigFile": "config/materiallibrary.json",
 		"AntennaLibraryConfigFile": "config/antennalibrary.json",
 		"TransmitterConfigFile": "config/transmitterconfig.json",
 		"ReceiverConfigFile": "config/receiverconfig.json",
-		"SensorConfigFile": "config/SPSTMD_sensorconfig.json",
+		"SensorConfigFile": "results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json",
 		"RaytracingConfig": {
 			"RayNum": 10000,
 			"DiffractRayNum": 1000,
 			"LimitInfo": {
 				"LimitTotal": 10,
-				"LimitReflect": 3,
+				"LimitReflect": 4,
 				"LimitTransmit": 0,
-				"LimitDiffract": 2,
+				"LimitDiffract": 0,
 				"LimitScatter": 0
 			},
 			"RaySplitFlag": true,
 			"RaySplitRadius": 1.0,
 			"SceneAccelType": 5,
-			"HardwareMode": 3,
+			"HardwareMode": 0,
 			"RayLaunchMode": 1,
 			"CPUThreadNum": 20
 		},
 		"LocalizationConfig": {
-			"LBSMode": 0,
-			"LBSMethod": 0,
+			"LBSMode": 1,
+			"LBSMethod": 4,
 			"HardWareMode": 2,
-			"ThreadNum": 10,
-			"RayLaunchHalfTheta": 0.1,
+			"ThreadNum": 20,
+			"RayLaunchHalfTheta": 0.2,
 			"GSPairClusterThreshold": 2.0,
 			"WeightFactor": {
-				"PhiWeight": 2.0,
-				"TimeWeight": 1.0,
-				"PowerWeight": 1.0
+				"PhiWeight": 8.0,
+				"TimeWeight": 8.0,
+				"PowerWeight": 2.0
 			},
+			"ExtendAroundPointState": true,
+			"ShiftErrorMatrixFile": "config/4.000000_errormatrix.txt",
 			"HasSimuError": true
 		},
 		"FrequencyConfig": {
-			"CenterFrequency": 3e9,
+			"CenterFrequency": 5900000000.0,
 			"BandWidth": 5000000.0,
 			"SubCarrierNum": 1
 		},
@@ -49,19 +51,20 @@
 			"OutputPower": true,
 			"OutputLoss": false,
 			"OutputMagnitude": false,
-			"OutputMultipath": false,
+			"OutputMultipath": true,
 			"OutputPDP": false,
 			"OutputCFR": false,
 			"OutputCIR": false,
 			"OutputAOA": false,
 			"OutputAOD": false,
+			"OutputSpreadProfile":true,
 			"OutputSensorDataSPSTMD": false,
-			"OutputSensorDataMPSTSD": false,
+			"OutputSensorDataMPSTSD": true,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
-			"OutputGSForCRLB": false,
+			"OutputGSForCRLB": true,
 			"OutputSensorDataSparseFactor": 1.0,
-			"OutputLBSMethod": 0
+			"OutputLBSMethod": 2
 		}
 	}
 }

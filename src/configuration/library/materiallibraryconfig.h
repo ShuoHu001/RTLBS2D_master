@@ -5,14 +5,14 @@
 #include "utility/define.h"
 #include "utility/serializable.h"
 #include "managers/logmanager.h"
-#include "material/material.h"
+#include "configuration/materialconfig.h"
 
-const std::string KEY_MATERIALLIBRARYCONFIG_MATERIALS = "Materials";
+const std::string KEY_MATERIALLIBRARYCONFIG_MATERIALS = "MaterialConfigs";
 const std::string KEY_MATERIALLIBRARYCONFIG = "MaterialLibraryConfig";
 
 class MaterialLibraryConfig:public Serializable {
 public:
-	std::vector<Material> m_materials;																/** @brief	材质数组	*/
+	std::vector<MaterialConfig> m_materials;																/** @brief	材质数组	*/
 public:
 	MaterialLibraryConfig();
 	~MaterialLibraryConfig();

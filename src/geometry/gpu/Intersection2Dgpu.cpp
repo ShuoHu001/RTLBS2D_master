@@ -46,7 +46,7 @@ HOST_DEVICE_FUNC Intersection2DGPU& Intersection2DGPU::operator=(const Intersect
 HOST_DEVICE_FUNC bool Intersection2DGPU::IsCaptureRx(Point2D rx)
 {
 	//一求-广义源
-	RtLbsType t_refVsource = m_ray.m_fMax - m_ray.m_fMin; //t相对于广义源的值
+	RtLbsType t_refVsource = m_ray.m_tMax - m_ray.m_tMin; //t相对于广义源的值
 	RtLbsType tmax = t_refVsource + m_ft;
 	Point2D vSource = m_ray(-t_refVsource);
 	Vector2D op = rx - vSource;

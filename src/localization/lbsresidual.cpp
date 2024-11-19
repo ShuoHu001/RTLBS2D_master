@@ -74,7 +74,7 @@ RtLbsType AOAWLSResidual::GetResidual(RtLbsType* position) const
 {
 	RtLbsType dx = position[0] - m_x;
 	RtLbsType dy = position[1] - m_y;
-	return (dx * m_cosPhi - dy * m_sinPhi) * m_weight;
+	return (dx * m_cosPhi - dy * m_sinPhi) / m_weight;
 }
 
 void AOAWLSResidual::SetWeight(RtLbsType weight)
@@ -138,85 +138,6 @@ RtLbsType AOALSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType dy = position[1] - m_y;
 	return dx * m_cosPhi - dy * m_sinPhi;
 }
-
-
-RDOAWLSResidual::RDOAWLSResidual()
-	: m_x1(0.0)
-	, m_y1(0.0)
-	, m_xi(0.0)
-	, m_yi(0.0)
-	, m_powerDiff(0.0)
-	, m_weight(0.0)
-	, m_refSource(nullptr)
-	, m_dataSource(nullptr)
-{
-}
-
-RDOAWLSResidual::RDOAWLSResidual(GeneralSource* refSource, GeneralSource* dataSource)
-	: m_x1(refSource->m_position.x)
-	, m_y1(refSource->m_position.y)
-	, m_xi(dataSource->m_position.x)
-	, m_yi(dataSource->m_position.y)
-	, m_powerDiff(refSource->m_sensorData.m_power - dataSource->m_sensorData.m_power)
-	, m_weight(dataSource->m_weight)
-	, m_refSource(refSource)
-	, m_dataSource(dataSource)
-{
-}
-
-RDOAWLSResidual::RDOAWLSResidual(const RDOAWLSResidual& residual)
-	: m_x1(residual.m_x1)
-	, m_y1(residual.m_y1)
-	, m_xi(residual.m_xi)
-	, m_yi(residual.m_yi)
-	, m_powerDiff(residual.m_powerDiff)
-	, m_weight(residual.m_weight)
-	, m_refSource(residual.m_refSource)
-	, m_dataSource(residual.m_dataSource)
-{
-}
-
-RDOAWLSResidual::~RDOAWLSResidual()
-{
-}
-
-RDOAWLSResidual& RDOAWLSResidual::operator=(const RDOAWLSResidual& residual)
-{
-	m_x1 = residual.m_x1;
-	m_y1 = residual.m_y1;
-	m_xi = residual.m_xi;
-	m_yi = residual.m_yi;
-	m_powerDiff = residual.m_powerDiff;
-	m_weight = residual.m_weight;
-	m_refSource = residual.m_refSource;
-	m_dataSource = residual.m_dataSource;
-	return *this;
-}
-
-void RDOAWLSResidual::Init(GeneralSource* refSource, GeneralSource* dataSource)
-{
-	m_x1 = refSource->m_position.x;
-	m_y1 = refSource->m_position.y;
-	m_xi = dataSource->m_position.x;
-	m_yi = dataSource->m_position.y;
-	m_powerDiff = refSource->m_sensorData.m_power - dataSource->m_sensorData.m_power;
-	m_weight = dataSource->m_weight;
-	m_refSource = refSource;
-	m_dataSource = dataSource;
-}
-
-RtLbsType RDOAWLSResidual::GetResidual(RtLbsType* position) const
-{
-	Point2D tp(position[0], position[1]);
-	RtLbsType powerDiff = m_refSource->CalculateSinglePathPower(tp) - m_dataSource->CalculateSinglePathPower(tp);
-	return (powerDiff - m_powerDiff) * m_weight;
-}
-
-void RDOAWLSResidual::SetWeight(RtLbsType weight)
-{
-	m_weight = weight;
-}
-
 
 TDOALSResidual::TDOALSResidual()
 	: m_x1(0.0)
@@ -283,7 +204,7 @@ RtLbsType TDOALSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType y = position[1];							/** @brief	预测点 y坐标	*/
 	RtLbsType d1 = std::sqrt((x - m_x1) * (x - m_x1) + (y - m_y1) * (y - m_y1));
 	RtLbsType di = std::sqrt((x - m_xi) * (x - m_xi) + (y - m_yi) * (y - m_yi));
-	return (di - d1) - m_timeDiff * LIGHT_VELOCITY_AIR;
+	return (di - d1)/ LIGHT_VELOCITY_AIR - m_timeDiff * 1e9;
 }
 
 TDOAWLSResidual::TDOAWLSResidual()
@@ -357,6 +278,138 @@ RtLbsType TDOAWLSResidual::GetResidual(RtLbsType* position) const
 	RtLbsType y = position[1];							/** @brief	预测点 y坐标	*/
 	RtLbsType d1 = std::sqrt((x - m_x1) * (x - m_x1) + (y - m_y1) * (y - m_y1));
 	RtLbsType di = std::sqrt((x - m_xi) * (x - m_xi) + (y - m_yi) * (y - m_yi));
-	return ((di - d1) - m_timeDiff * LIGHT_VELOCITY_AIR) * m_weight;
+	return ((di - d1) / LIGHT_VELOCITY_AIR - m_timeDiff * 1e9) / m_weight;				//ns 时间差
+}
+
+void TDOAWLSResidual::SetWeight(RtLbsType weight)
+{
+	m_weight = weight;
+}
+
+RtLbsType TDOAWLSResidual::GetWeight() const
+{
+	return m_weight;
+}
+
+TOALSResidual::TOALSResidual()
+	: m_x(0.0)
+	, m_y(0.0)
+	, m_time(0.0)
+{
+}
+
+TOALSResidual::TOALSResidual(RtLbsType x, RtLbsType y, RtLbsType delay)
+	: m_x(x)
+	, m_y(y)
+	, m_time(delay)
+{
+}
+
+TOALSResidual::TOALSResidual(const GeneralSource* source)
+	: m_x(source->m_position.x)
+	, m_y(source->m_position.y)
+	, m_time(source->m_sensorData.m_time)
+{
+}
+
+TOALSResidual::~TOALSResidual()
+{
+}
+
+TOALSResidual& TOALSResidual::operator=(const TOALSResidual& r)
+{
+	m_x = r.m_x;
+	m_y = r.m_y;
+	m_time = r.m_time;
+	return *this;
+}
+
+void TOALSResidual::Init(const GeneralSource* source)
+{
+	m_x = source->m_position.x;
+	m_y = source->m_position.y;
+	m_time = source->m_sensorData.m_time;
+}
+
+RtLbsType TOALSResidual::GetTOAResidual(RtLbsType* position) const
+{
+	RtLbsType dx = position[0] - m_x;
+	RtLbsType dy = position[1] - m_y;
+	RtLbsType distance = sqrt(dx * dx + dy * dy);
+	RtLbsType calDelay = distance / LIGHT_VELOCITY_AIR;
+	return (calDelay - m_time)*1e9;
+}
+
+TOAWLSResidual::TOAWLSResidual()
+	: m_x(0.0)
+	, m_y(0.0)
+	, m_time(0.0)
+	, m_weight(0.0)
+{
+}
+
+TOAWLSResidual::TOAWLSResidual(RtLbsType x, RtLbsType y, RtLbsType delay, RtLbsType weight)
+	: m_x(x)
+	, m_y(y)
+	, m_time(delay)
+	, m_weight(weight)
+{
+}
+
+TOAWLSResidual::TOAWLSResidual(const GeneralSource* source)
+	: m_x(source->m_position.x)
+	, m_y(source->m_position.y)
+	, m_time(source->m_sensorData.m_time)
+	, m_weight(source->m_weight)
+{
+}
+
+TOAWLSResidual::TOAWLSResidual(const TOAWLSResidual& r)
+	: m_x(r.m_x)
+	, m_y(r.m_y)
+	, m_time(r.m_time)
+	, m_weight(r.m_weight)
+{
+}
+
+TOAWLSResidual::~TOAWLSResidual()
+{
+}
+
+TOAWLSResidual& TOAWLSResidual::operator=(const TOAWLSResidual& r)
+{
+	m_x = r.m_x;
+	m_y = r.m_y;
+	m_time = r.m_time;
+	m_weight = r.m_weight;
+	return *this;
+}
+
+void TOAWLSResidual::Init(const GeneralSource* source)
+{
+	m_x = source->m_position.x;
+	m_y = source->m_position.y;
+	m_time = source->m_sensorData.m_time;
+	m_weight = source->m_weight;
+}
+
+
+RtLbsType TOAWLSResidual::GetResidual(RtLbsType* position) const
+{
+	RtLbsType dx = position[0] - m_x;
+	RtLbsType dy = position[1] - m_y;
+	RtLbsType distance = sqrt(dx * dx + dy * dy);
+	RtLbsType calDelay = distance / LIGHT_VELOCITY_AIR;
+	return (calDelay - m_time)*1e9/ m_weight;
+}
+
+RtLbsType TOAWLSResidual::GetWeight() const
+{
+	return m_weight;
+}
+
+void TOAWLSResidual::SetWeight(RtLbsType weight)
+{
+	m_weight = weight;
 }
 

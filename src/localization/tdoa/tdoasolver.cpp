@@ -57,7 +57,7 @@ RtLbsType TDOASolver::Solving_LS(Point2D& outP)
 	//配置求解器
 	ceres::Solver::Options options;
 	options.linear_solver_type = ceres::DENSE_QR;
-	options.minimizer_progress_to_stdout = true;
+	options.minimizer_progress_to_stdout = false;
 
 	//求解
 	ceres::Solver::Summary summary;

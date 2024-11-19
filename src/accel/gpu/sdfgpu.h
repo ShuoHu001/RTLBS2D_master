@@ -48,6 +48,7 @@ public:
 	HOST_DEVICE_FUNC  ~SignedDistanceFieldGPU();
 	HOST_DEVICE_FUNC  SignedDistanceFieldGPU& operator = (const SignedDistanceFieldGPU& sdf);
 	HOST_DEVICE_FUNC void GetIntersect(const Ray2DGPU& ray, Intersection2DGPU* intersect, Segment2DGPU* segmentsGPU);
+	HOST_DEVICE_FUNC bool IsRayCaptureByWedgePoint(const Ray2DGPU& ray, Point2D& p, SignedDistanceFieldGPU* sdf, Segment2DGPU* segments) const;
 	void AllocateOnDevice(); //Allocate memory on GPU
 	void ReleaseOnDevice();//Release the memory on GPU
 	SignedDistanceFieldGPU* GetDevicePointer() const; // return the pointer to the device memory
