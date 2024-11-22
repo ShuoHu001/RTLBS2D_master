@@ -1,11 +1,19 @@
 #include "aoa_locator.h"
 
-Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, HARDWAREMODE hardwareMode, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
+Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, const LocalizeConfig& lbsConfig, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData)
 {
+	LOSSFUNCTIONTYPE lossType = lbsConfig.m_solvingConfig.m_lossType;
+	RtLbsType gsPairClusterThreshold = lbsConfig.m_gsPairClusterThreshold;
+	bool extendAroundPointState = lbsConfig.m_extendAroundPointState;
+	WeightFactor weightFactor = lbsConfig.m_weightFactor;
+	HARDWAREMODE hardwareMode = lbsConfig.m_hardWareMode;
+	uint16_t threadNum = lbsConfig.m_threadNum;
+	weightFactor.InitAOAWeight();
+
 	std::vector<LBSInfo*>& lbsInfos = lbsInfoCluster.m_infos;
 	//0-计算基本信息-计算广义源的位置 
 	for (auto& curInfo : lbsInfos) {
-		curInfo->CalculateBaseInfo(method);
+		curInfo->CalculateBaseInfo(LBS_METHOD_RT_AOA);
 	}
 
 	std::vector<GeneralSource*> mergedGSources;								/** @brief	合并的广义源	*/
@@ -242,9 +250,11 @@ Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	}
 
 	//配置AOA求解器
-	AOASolver* aoaSolver = new AOASolver();
-	aoaSolver->SetGeneralSource(mergedGSources);
-	Point2D targetPoint = aoaSolver->Solving_WIRLS(20, 1e-6, initPoint);
+	AOASolver aoaSolver;
+	aoaSolver.SetGeneralSource(mergedGSources);
+
+	Point2D targetPoint = initPoint;
+	targetPoint = aoaSolver.Solving(lbsConfig.m_solvingConfig, scene->m_bbox, initPoint);
 
 	if ((initPoint - targetPoint).Length() > 100) {							//若偏移程度过大，则恢复原始解（算法解无效）
 		targetPoint = initPoint;
@@ -270,12 +280,20 @@ Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	return targetPoint;
 }
 
-Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, HARDWAREMODE hardwareMode, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
+Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, const LocalizeConfig& lbsConfig, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData)
 {
+	LOSSFUNCTIONTYPE lossType = lbsConfig.m_solvingConfig.m_lossType;
+	RtLbsType gsPairClusterThreshold = lbsConfig.m_gsPairClusterThreshold;
+	bool extendAroundPointState = lbsConfig.m_extendAroundPointState;
+	WeightFactor weightFactor = lbsConfig.m_weightFactor;
+	HARDWAREMODE hardwareMode = lbsConfig.m_hardWareMode;
+	uint16_t threadNum = lbsConfig.m_threadNum;
+	weightFactor.InitAOAWeight();
+
 	std::vector<LBSInfo*>& lbsInfos = lbsInfoCluster.m_infos;
 	//0-计算基本信息-计算广义源的位置 
 	for (auto& curInfo: lbsInfos) {
-		curInfo->CalculateBaseInfo(method);
+		curInfo->CalculateBaseInfo(LBS_METHOD_RT_AOA);
 	}
 
 	std::vector<GeneralSource*> mergedGSources;
@@ -552,10 +570,11 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 
 
 	//配置求解器
-	AOASolver* aoaSolver = new AOASolver();
-	aoaSolver->SetGeneralSource(allGSCopy);
+	AOASolver aoaSolver;
+	aoaSolver.SetGeneralSource(allGSCopy);
 
-	Point2D targetPoint = aoaSolver->Solving_WIRLS(20, 1e-6, initPoint);
+	Point2D targetPoint = initPoint;
+	targetPoint = aoaSolver.Solving(lbsConfig.m_solvingConfig, scene->m_bbox, initPoint);
 
 	if ((initPoint - targetPoint).Length() > 100) {				//若偏移程度过大，则恢复原始点（解无效）
 		targetPoint = initPoint;

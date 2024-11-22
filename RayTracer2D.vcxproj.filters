@@ -157,6 +157,9 @@
     <Filter Include="localization\toa">
       <UniqueIdentifier>{82704006-7ae8-467a-a668-f1f28ec83011}</UniqueIdentifier>
     </Filter>
+    <Filter Include="localization\lossfunction">
+      <UniqueIdentifier>{0cf224d7-0091-46c1-a148-c27f7eed9154}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rtlbs.h" />
@@ -554,6 +557,24 @@
     <ClInclude Include="src\localization\toa\toa_solver.h">
       <Filter>localization\toa</Filter>
     </ClInclude>
+    <ClInclude Include="src\localization\lossfunction\lossfunction.h">
+      <Filter>localization\lossfunction</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\toa\toa_residual.h">
+      <Filter>localization\toa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa\aoa_residual.h">
+      <Filter>localization\aoa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\aoa_tdoa\tdoa_residual.h">
+      <Filter>localization\aoa_tdoa</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\localization\solvingconfig.h">
+      <Filter>configuation\localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vectorfunction.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -926,6 +947,21 @@
     </ClCompile>
     <ClCompile Include="src\localization\toa\toa_solver.cpp">
       <Filter>localization\toa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\lossfunction\lossfunction.cpp">
+      <Filter>localization\lossfunction</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\toa\toa_residual.cpp">
+      <Filter>localization\toa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa\aoa_residual.cpp">
+      <Filter>localization\aoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\aoa_tdoa\tdoa_residual.cpp">
+      <Filter>localization\aoa_tdoa</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\localization\solvingconfig.cpp">
+      <Filter>configuation\localization</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

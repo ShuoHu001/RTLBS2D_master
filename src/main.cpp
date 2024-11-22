@@ -16,6 +16,13 @@ int main(int argc, char** argv) {
 
 	LOG_INFO << "TDOA-AOA 算法调试验证" << ENDL;
 	google::InitGoogleLogging(argv[0]);
+	// 禁用所有日志输出
+	FLAGS_logtostderr = false;  // 禁止输出到标准错误
+	FLAGS_minloglevel = 3;      // 设置日志级别为3，屏蔽ERROR及以下级别的日志
+
+	int max_threads = omp_get_max_threads();
+	omp_set_num_threads(max_threads - 4);
+
 	int mode = 1;									//0为射线追踪，2为定位精度测试，3为定位区域测试
 
 	if (mode == 0) {

@@ -169,7 +169,7 @@ bool GSPair::HasValidTOASolution(const Scene* scene)
 		m_isValid = false;
 		return false;
 	}
-	if (!_calTOASolution()) {
+	if (!_calTOASolution(scene->m_bbox)) {
 		m_isValid = false;
 		return false;
 	}
@@ -199,7 +199,7 @@ bool GSPair::HasValidAOATOASolution(const Scene* scene)
 		return false;
 	}
 
-	if (!_calAOATOASolution()) {			//若传感器有解，才进行下一步
+	if (!_calAOATOASolution(scene->m_bbox)) {			//若传感器有解，才进行下一步
 		m_isValid = false;
 		return false;
 	}
@@ -230,7 +230,7 @@ bool GSPair::HasValidAOATDOASolution(const Scene* scene)
 		return false;
 	}
 
-	if (!_calAOATDOASolution()) {			//若传感器有解，才进行下一步
+	if (!_calAOATDOASolution(scene->m_bbox)) {			//若传感器有解，才进行下一步
 		m_isValid = false;
 		return false;
 	}
@@ -441,12 +441,12 @@ bool GSPair::_calAOASolution()
 	return true;
 }
 
-bool GSPair::_calTOASolution()
+bool GSPair::_calTOASolution(const BBox2D& bbox)
 {
 	//采用ceres求解TOA解
 	TOASolver solver;
 	solver.SetGeneralSource(m_gs1, m_gs2);
-	RtLbsType accuracy = solver.Solving_LS(m_targetSolution);
+	RtLbsType accuracy = solver.Solving_LS(bbox, m_targetSolution);
 	if (accuracy > EPSILON) {													//若精度高于EPSILON则认定为该组方程为无解情况
 		return false;
 	}
@@ -465,24 +465,24 @@ bool GSPair::_calTDOASolution()
 	return true;
 }
 
-bool GSPair::_calAOATOASolution()
+bool GSPair::_calAOATOASolution(const BBox2D& bbox)
 {
 	//采用ceres求解AOA-TOA解
 	AOATOASolver solver;
 	solver.SetGeneralSource(m_gs1, m_gs2);
-	RtLbsType accuracy = solver.Solving_LS(m_targetSolution);
+	RtLbsType accuracy = solver.Solving_LS(bbox, m_targetSolution);
 	if (accuracy > 1) {													//若精度高于EPSILON则认定为该组方程为无解情况
 		return false;
 	}
 	return true;
 }
 
-bool GSPair::_calAOATDOASolution()
+bool GSPair::_calAOATDOASolution(const BBox2D& bbox)
 {
 	//采用ceres求解AOA-TOA解
 	AOATDOASolver solver;
 	solver.SetGeneralSource(m_gsRef, m_gs1, m_gs2);
-	RtLbsType accuracy = solver.Solving_LS(m_targetSolution);
+	RtLbsType accuracy = solver.Solving_LS(bbox, m_targetSolution);
 	if (accuracy > 1) {
 		return false;
 	}

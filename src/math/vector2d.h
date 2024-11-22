@@ -28,7 +28,7 @@ public:
 
 public:
 	HOST_DEVICE_FUNC explicit Vector2D(bool normal = false);
-	HOST_DEVICE_FUNC explicit Vector2D(double radian, bool normal = false);
+	HOST_DEVICE_FUNC explicit Vector2D(double radian, bool normal = true);
 	HOST_DEVICE_FUNC explicit Vector2D(RtLbsType _x, RtLbsType _y, bool normal = false);
 	HOST_DEVICE_FUNC Vector2D(const Vector2D& v);
 	HOST_DEVICE_FUNC Vector2D(const Point2D& p);

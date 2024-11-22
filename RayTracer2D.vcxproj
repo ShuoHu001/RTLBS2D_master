@@ -138,6 +138,8 @@
       <AdditionalIncludeDirectories>$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -174,6 +176,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4996;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -198,6 +201,7 @@
     <ClCompile Include="src\configuration\antennaconfig.cpp" />
     <ClCompile Include="src\configuration\frequencyconfig.cpp" />
     <ClCompile Include="src\configuration\library\antennalibraryconfig.cpp" />
+    <ClCompile Include="src\configuration\localization\solvingconfig.cpp" />
     <ClCompile Include="src\configuration\localization\weightfactor.cpp" />
     <ClCompile Include="src\configuration\materialconfig.cpp" />
     <CudaCompile Include="src\configuration\radiowave\propagation\limitinfo.cpp" />
@@ -245,8 +249,10 @@
     <ClCompile Include="src\general\elevationmatrix.cpp" />
     <ClCompile Include="src\localization\aoa\aoasolver.cpp" />
     <ClCompile Include="src\localization\aoa\aoa_locator.cpp" />
+    <ClCompile Include="src\localization\aoa\aoa_residual.cpp" />
     <ClCompile Include="src\localization\aoa_tdoa\aoa_tdoa_locator.cpp" />
     <ClCompile Include="src\localization\aoa_tdoa\aoa_tdoa_solver.cpp" />
+    <ClCompile Include="src\localization\aoa_tdoa\tdoa_residual.cpp" />
     <ClCompile Include="src\localization\aoa_toa\aoa_toa_locator.cpp" />
     <ClCompile Include="src\localization\aoa_toa\aoa_toa_solver.cpp" />
     <ClCompile Include="src\localization\generalsource.cpp" />
@@ -257,11 +263,13 @@
     <ClCompile Include="src\localization\lbsinfocluster.cpp" />
     <ClCompile Include="src\localization\lbsresidual.cpp" />
     <ClCompile Include="src\localization\lbstreenode.cpp" />
+    <ClCompile Include="src\localization\lossfunction\lossfunction.cpp" />
     <ClCompile Include="src\localization\raypathsetter.cpp" />
     <ClCompile Include="src\localization\tdoa\tdoasolver.cpp" />
     <CudaCompile Include="src\math\point2d.cpp" />
     <ClCompile Include="src\localization\tdoa\tdoa_locator.cpp" />
     <ClCompile Include="src\localization\toa\toa_locator.cpp" />
+    <ClCompile Include="src\localization\toa\toa_residual.cpp" />
     <ClCompile Include="src\localization\toa\toa_solver.cpp" />
     <ClCompile Include="src\math\euler.cpp" />
     <ClCompile Include="src\math\point3d.cpp" />
@@ -349,6 +357,7 @@
     <ClInclude Include="src\algorithm\decisiontoolkit\assignalgorithm.h" />
     <ClInclude Include="src\algorithm\optimizationtoolkit\ga\ga.h" />
     <ClInclude Include="src\algorithm\optimizationtoolkit\pso\pso.h" />
+    <ClInclude Include="src\configuration\localization\solvingconfig.h" />
     <ClInclude Include="src\configuration\localization\weightfactor.h" />
     <ClInclude Include="src\configuration\materialconfig.h" />
     <CudaCompile Include="src\configuration\radiowave\propagation\limitinfo.h" />
@@ -387,8 +396,10 @@
     <ClInclude Include="src\general\elevationmatrix.h" />
     <ClInclude Include="src\localization\aoa\aoasolver.h" />
     <ClInclude Include="src\localization\aoa\aoa_locator.h" />
+    <ClInclude Include="src\localization\aoa\aoa_residual.h" />
     <ClInclude Include="src\localization\aoa_tdoa\aoa_tdoa_locator.h" />
     <ClInclude Include="src\localization\aoa_tdoa\aoa_tdoa_solver.h" />
+    <ClInclude Include="src\localization\aoa_tdoa\tdoa_residual.h" />
     <ClInclude Include="src\localization\aoa_toa\aoa_toa_locator.h" />
     <ClInclude Include="src\localization\aoa_toa\aoa_toa_solver.h" />
     <ClInclude Include="src\localization\generalsource.h" />
@@ -399,11 +410,13 @@
     <ClInclude Include="src\localization\lbsinfocluster.h" />
     <ClInclude Include="src\localization\lbsresidual.h" />
     <ClInclude Include="src\localization\lbstreenode.h" />
+    <ClInclude Include="src\localization\lossfunction\lossfunction.h" />
     <ClInclude Include="src\localization\raypathsetter.h" />
     <ClInclude Include="src\localization\tdoa\tdoasolver.h" />
     <CudaCompile Include="src\math\point2d.h" />
     <ClInclude Include="src\localization\tdoa\tdoa_locator.h" />
     <ClInclude Include="src\localization\toa\toa_locator.h" />
+    <ClInclude Include="src\localization\toa\toa_residual.h" />
     <ClInclude Include="src\localization\toa\toa_solver.h" />
     <ClInclude Include="src\math\euler.h" />
     <ClInclude Include="src\math\point3d.h" />
@@ -411,6 +424,7 @@
     <ClInclude Include="src\math\polarization3d.h" />
     <CudaCompile Include="src\math\vector2d.h" />
     <ClInclude Include="src\math\vector3d.h" />
+    <ClInclude Include="src\math\vectorfunction.h" />
     <ClInclude Include="src\radiowave\propagation\diffraction.h" />
     <CudaCompile Include="src\radiowave\propagation\gpu\diffractiongpu.h" />
     <CudaCompile Include="src\radiowave\propagation\gpu\reflectiongpu.h" />

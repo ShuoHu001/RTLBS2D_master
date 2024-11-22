@@ -47,6 +47,7 @@ void WeightFactor::InitTOAWeight()
 	m_powerWeight /= tw;
 }
 
+
 void WeightFactor::InitAOATOAweight()
 {
 	RtLbsType tw = m_phiWeight + m_timeWeight + m_powerWeight;

@@ -1,13 +1,20 @@
 #include "tdoa_locator.h"
 
-Point2D LBS_TDOA_LOCATOR_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, HARDWAREMODE hardwareMode, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData,  LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
+Point2D LBS_TDOA_LOCATOR_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, const LocalizeConfig& lbsConfig, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData)
 {
+	LOSSFUNCTIONTYPE lossType = lbsConfig.m_solvingConfig.m_lossType;
+	RtLbsType gsPairClusterThreshold = lbsConfig.m_gsPairClusterThreshold;
+	bool extendAroundPointState = lbsConfig.m_extendAroundPointState;
+	WeightFactor weightFactor = lbsConfig.m_weightFactor;
+	HARDWAREMODE hardwareMode = lbsConfig.m_hardWareMode;
+	uint16_t threadNum = lbsConfig.m_threadNum;
+	weightFactor.InitTOAWeight();
 
 	std::vector<LBSInfo*>& lbsInfos = lbsInfoCluster.m_infos;
 
 	//0-计算基本信息-计算广义源的位置
 	for (auto& curInfo : lbsInfos) {
-		curInfo->CalculateBaseInfo(method);
+		curInfo->CalculateBaseInfo(LBS_METHOD_RT_TDOA);
 	}
 
 	//组合数据，遍历每个传感器所产生的广义源，设定参考广义源，组合形成非线性方程
@@ -124,14 +131,21 @@ Point2D LBS_TDOA_LOCATOR_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vecto
 	return targetPoint;
 }
 
-Point2D LBS_TDOA_LOCATOR_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, HARDWAREMODE hardwareMode, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData, LOCALIZATION_METHOD method, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
+Point2D LBS_TDOA_LOCATOR_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, const LocalizeConfig& lbsConfig, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData)
 {
+	LOSSFUNCTIONTYPE lossType = lbsConfig.m_solvingConfig.m_lossType;
+	RtLbsType gsPairClusterThreshold = lbsConfig.m_gsPairClusterThreshold;
+	bool extendAroundPointState = lbsConfig.m_extendAroundPointState;
+	WeightFactor weightFactor = lbsConfig.m_weightFactor;
+	HARDWAREMODE hardwareMode = lbsConfig.m_hardWareMode;
+	uint16_t threadNum = lbsConfig.m_threadNum;
+	weightFactor.InitTOAWeight();
 
 	std::vector<LBSInfo*>& lbsInfos = lbsInfoCluster.m_infos;
 
 	//0-计算基本信息-计算广义源的位置 
 	for (auto& curInfo: lbsInfos) {
-		curInfo->CalculateBaseInfo(method);
+		curInfo->CalculateBaseInfo(LBS_METHOD_RT_TDOA);
 	}
 
 	std::vector<GeneralSource*> mergedGSource;

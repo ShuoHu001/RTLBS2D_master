@@ -26,19 +26,25 @@ void AOASolver::SetGeneralSource(const std::vector<GeneralSource*>& gsData)
 	m_gsData = gsData;
 }
 
-void AOASolver::Solving_LS()
+Point2D AOASolver::Solving_LS(const BBox2D& bbox, const Point2D& initPoint)
 {
 	//定义问题
 	ceres::Problem problem;
 
-	RtLbsType position[2] = { 0,0 };		//初始位置估计
+	RtLbsType position[2] = { initPoint.x, initPoint.y };		//初始位置估计
 
 	//指定数据集
 	for (auto it = m_gsData.begin(); it != m_gsData.end(); ++it) {
 		const GeneralSource* curSource = *it;
-		ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOALSResidual, 1, 2>(new AOALSResidual(curSource));				//定义损失函数
+		ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAResidual, 1, 2>(new AOAResidual(curSource));				//定义损失函数
 		problem.AddResidualBlock(costFunction, nullptr, position);
 	}
+
+	//设置边界约束
+	problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+	problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+	problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+	problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
 
 	//配置求解器
 	ceres::Solver::Options options;
@@ -49,23 +55,31 @@ void AOASolver::Solving_LS()
 	ceres::Solver::Summary summary;
 	ceres::Solve(options, &problem, &summary);
 
+
+
 	//输出结果
-	std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
+	return Point2D(position[0], position[1]);
 }
 
-void AOASolver::Solving_WLS()
+Point2D AOASolver::Solving_WLS(const BBox2D& bbox, const Point2D& initPoint)
 {
 	//定义问题
 	ceres::Problem problem;
 
-	RtLbsType position[2] = { 0,0 };		//初始位置估计
+	RtLbsType position[2] = { initPoint.x, initPoint.y };		//初始位置估计
 
 	//指定数据集
 	for (auto it = m_gsData.begin(); it != m_gsData.end(); ++it) {
 		const GeneralSource* curSource = *it;
-		ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAWLSResidual, 1, 2>(new AOAWLSResidual(curSource));				//定义损失函数
+		ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAResidual, 1, 2>(new AOAResidual(curSource, curSource->m_weight));				//定义损失函数
 		problem.AddResidualBlock(costFunction, nullptr, position);
 	}
+
+	//设置边界约束
+	problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+	problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+	problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+	problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
 
 	//配置求解器
 	ceres::Solver::Options options;
@@ -77,93 +91,24 @@ void AOASolver::Solving_WLS()
 	ceres::Solve(options, &problem, &summary);
 
 	//输出结果
-	std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
+	return Point2D(position[0], position[1]);
 }
 
-Point2D AOASolver::Solving_WIRLS(int iterNum, RtLbsType tol, const Point2D& initPoint)
+Point2D AOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint)
 {
-	RtLbsType position[2] = { initPoint.x, initPoint.y };								//初始位置估计
-	RtLbsType prevPosition[2] = { 0,0 };							//前一个节点的位置估计
+	int iterNum = config.m_iterNum;
+	double tol = config.m_tolerance;
+	LOSSFUNCTIONTYPE lossType = config.m_lossType;
 
-	int aoaDataNum = static_cast<int>(m_gsData.size());				//数据数量
-	std::vector<AOAWLSResidual> aoaResiduals(aoaDataNum);				//设置aoa残差对象
-	for (int i = 0; i < aoaDataNum; ++i) {
-		aoaResiduals[i].Init(m_gsData[i]);
-	}
-
-	//int rdoaDataNum = aoaDataNum - 1;								//RDOA 残差数据量
-	//std::vector<RDOAWLSResidual> rdoaResiduals(rdoaDataNum);
-	//for (int i = 0; i < rdoaDataNum; ++i) {
-	//	rdoaResiduals[i].Init(m_gsData[0], m_gsData[i + 1]);
-	//}
-	for (int i = 0; i < iterNum; ++i) {
-
-		prevPosition[0] = position[0];								//进行前一次预测结果的赋值
-		prevPosition[1] = position[1];
-
-		//定义问题
-		ceres::Problem problem;
-
-
-		//制定数据集
-
-		for (int i = 0; i < aoaDataNum; ++i) {
-			ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAWLSResidual, 1, 2>(new AOAWLSResidual(aoaResiduals[i]));				//定义损失函数
-			problem.AddResidualBlock(costFunction, nullptr, position);
-		}
-
-		//for (int i = 0; i < rdoaDataNum; ++i) {
-		//	ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<RDOAWLSResidual, 1, 2>(new RDOAWLSResidual(rdoaResiduals[i]));				//定义损失函数
-		//	problem.AddResidualBlock(costFunction, nullptr, position);
-		//}
-
-		//配置求解器
-		ceres::Solver::Options options;
-		options.linear_solver_type = ceres::DENSE_SCHUR;
-		options.minimizer_progress_to_stdout = true;
-		options.logging_type = ceres::LoggingType::SILENT; // 禁止日志输出
-
-		//开始求解问题
-		ceres::Solver::Summary summary;
-		ceres::Solve(options, &problem, &summary);
-
-		//输出结果
-		//std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
-
-
-		//求解预测坐标点与上一次优化的坐标之间的增量，若满足tolerance则进行break
-		RtLbsType deltaDis = sqrt((prevPosition[0] - position[0]) * (prevPosition[0] - position[0]) + (prevPosition[1] - position[1]) * (prevPosition[1] - position[1]));
-		if (deltaDis < tol) {
-			break;
-		}
-
-		//权重更新
-		std::vector<RtLbsType> weights(aoaDataNum);								//权重系数
-		for (int i = 0; i < aoaDataNum; ++i) {
-			RtLbsType res = aoaResiduals[i].GetResidual(position);
-			weights[i] = aoaResiduals[i].GetWeight() / (abs(res) + 1e-6);								//权重
-			aoaResiduals[i].SetWeight(weights[i]);
-		}
-
-		//for (int i = 0; i < rdoaDataNum; ++i) {
-		//	RtLbsType res = rdoaResiduals[i].GetResidual(position);
-		//	rdoaResiduals[i].SetWeight(1.0 / (res * res + 1e-6));
-		//}
-
-	}
-	return {position[0], position[1]};
-}
-
-void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
-{
 	RtLbsType position[2] = { 0,0 };								//初始位置估计
 	RtLbsType prevPosition[2] = { 0,0 };							//前一个节点的位置估计
 
+	double aoaResidual_STD = 0.01;											/** @brief	AOA残差标准差	*/
+
 	int aoaDataNum = static_cast<int>(m_gsData.size());				//AOA 残差数据数量
-	std::vector<AOAWLSResidual> aoaResiduals(aoaDataNum);				//设置aoa残差对象
+	std::vector<AOAResidual> aoaResiduals(aoaDataNum);				//设置aoa残差对象
 	for (int i = 0; i < aoaDataNum; ++i) {
 		aoaResiduals[i].Init(m_gsData[i]);
-		//aoaResiduals[i].SetWeight(1.0);								//设定初始权重为1
 	}
 
 
@@ -175,12 +120,19 @@ void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
 		//定义问题
 		ceres::Problem problem;
 
+		ceres::LossFunction* aoa_cost_function = custom_loss::CreateLossFunction(lossType, aoaResidual_STD);
+
 		//制定数据集
-		for (int i = 0; i < aoaDataNum; ++i) {
-			ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAWLSResidual, 1, 2>(new AOAWLSResidual(aoaResiduals[i]));				//定义损失函数
-			problem.AddResidualBlock(costFunction, nullptr, position);
+		for (int j = 0; j < aoaDataNum; ++j) {
+			ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAResidual, 1, 2>(new AOAResidual(aoaResiduals[j]));				//定义损失函数
+			problem.AddResidualBlock(costFunction, aoa_cost_function, position);
 		}
 
+		//设置边界约束
+		problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+		problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+		problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+		problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
 
 		//配置求解器
 		ceres::Solver::Options options;
@@ -191,8 +143,66 @@ void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
 		ceres::Solver::Summary summary;
 		ceres::Solve(options, &problem, &summary);
 
-		//输出结果
-		std::cout << "Estimate non-corporate source coordinate is (" << position[0] << "," << position[1] << ")." << std::endl;
+
+		//求解预测坐标点与上一次优化的坐标之间的增量，若满足tolerance则进行break
+		RtLbsType deltaDis = sqrt((prevPosition[0] - position[0]) * (prevPosition[0] - position[0]) + (prevPosition[1] - position[1]) * (prevPosition[1] - position[1]));
+		if (deltaDis < tol) {
+			break;
+		}
+
+		UpdateResidualWeight(position, aoaResiduals, aoaResidual_STD);
+	}
+	return Point2D(position[0], position[1]);
+}
+
+Point2D AOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint)
+{
+	int iterNum = config.m_iterNum;
+	double tol = config.m_tolerance;
+	LOSSFUNCTIONTYPE lossType = config.m_lossType;
+
+	RtLbsType position[2] = { initPoint.x, initPoint.y };								//初始位置估计
+	RtLbsType prevPosition[2] = { 0,0 };							//前一个节点的位置估计
+
+	double aoaResidual_STD = 0.01;											/** @brief	AOA残差标准差	*/
+
+	int aoaDataNum = static_cast<int>(m_gsData.size());				//数据数量
+	std::vector<AOAResidual> aoaResiduals(aoaDataNum);				//设置aoa残差对象
+	for (int i = 0; i < aoaDataNum; ++i) {
+		aoaResiduals[i].Init(m_gsData[i], m_gsData[i]->m_weight);
+	}
+
+	for (int i = 0; i < iterNum; ++i) {
+
+		prevPosition[0] = position[0];								//进行前一次预测结果的赋值
+		prevPosition[1] = position[1];
+
+		//定义问题
+		ceres::Problem problem;
+
+		ceres::LossFunction* aoa_cost_function = custom_loss::CreateLossFunction(lossType, aoaResidual_STD);
+
+		//制定数据集
+		for (int j = 0; j < aoaDataNum; ++j) {
+			ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAResidual, 1, 2>(new AOAResidual(aoaResiduals[j]));				//定义损失函数
+			problem.AddResidualBlock(costFunction, aoa_cost_function, position);
+		}
+
+		//设置边界约束
+		problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+		problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+		problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+		problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
+
+		//配置求解器
+		ceres::Solver::Options options;
+		options.linear_solver_type = ceres::DENSE_QR;
+		options.minimizer_progress_to_stdout = true;
+		options.logging_type = ceres::LoggingType::SILENT; // 禁止日志输出
+
+		//开始求解问题
+		ceres::Solver::Summary summary;
+		ceres::Solve(options, &problem, &summary);
 
 
 		//求解预测坐标点与上一次优化的坐标之间的增量，若满足tolerance则进行break
@@ -201,14 +211,60 @@ void AOASolver::Solving_IRLS(int iterNum, RtLbsType tol)
 			break;
 		}
 
-		//权重更新
-		for (int i = 0; i < aoaDataNum; ++i) {
-			RtLbsType res = aoaResiduals[i].GetResidual(position);
-			aoaResiduals[i].SetWeight(1.0 / (res * res + 1e-6));
-		}
+		UpdateResidualWeight(position, aoaResiduals, aoaResidual_STD);
+
 	}
+	return Point2D(position[0], position[1]);
 }
 
-void AOASolver::Solving_ElaspNet(RtLbsType lamda1, RtLbsType lamda2)
+Point2D AOASolver::Solving(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint)
 {
+	const SOLVINGMODE mode = config.m_solvingMode;
+	Point2D solution = initPoint;
+	if (mode == SOLVING_LS) {
+		solution = Solving_LS(bbox, initPoint);
+	}
+	else if (mode == SOLVING_WLS) {
+		solution = Solving_WLS(bbox, initPoint);
+	}
+	else if (mode == SOLVING_IRLS) {
+		solution = Solving_IRLS(config, bbox, initPoint);
+	}
+	else if (mode == SOLVING_WIRLS) {
+		solution = Solving_WIRLS(config, bbox, initPoint);
+	}
+	return solution;
+}
+
+void AOASolver::UpdateResidualWeight(const double* position, std::vector<AOAResidual>& aoaResiduals, double& aoaResidual_STD)
+{
+
+	//权重更新
+	double max_aoa_weight = 0.0;
+	std::vector<double> r_aoas;
+	for (auto& curAOAResidual: aoaResiduals) {
+		double res = curAOAResidual.GetResidual(position);
+		double cur_aoa_weight = curAOAResidual.GetWeight() / (abs(res) + EPSILON);								//权重
+		max_aoa_weight = std::max(max_aoa_weight, cur_aoa_weight);
+		curAOAResidual.SetWeight(cur_aoa_weight);
+		r_aoas.push_back(res);
+	}
+	//归一化权重
+	for (auto& curAOAResidual : aoaResiduals) {
+		double cur_aoa_weight = curAOAResidual.GetWeight()/max_aoa_weight;
+		curAOAResidual.SetWeight(cur_aoa_weight);
+	}
+
+	//更新残差标准差
+	aoaResidual_STD = vectoroperator::CalculateStandardDeviation(r_aoas);
+}
+
+double AOASolver::GetResidualSTD(const double* position, std::vector<AOAResidual>& aoaResiduals)
+{
+	std::vector<double> r_aoas;
+	for (auto& curAOAResidual : aoaResiduals) {
+		double res = curAOAResidual.GetResidual(position);
+		r_aoas.push_back(res);
+	}
+	return vectoroperator::CalculateStandardDeviation(r_aoas);
 }

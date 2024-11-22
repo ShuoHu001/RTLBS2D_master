@@ -63,10 +63,10 @@ public:
 	
 private:
 	bool _calAOASolution();
-	bool _calTOASolution();
+	bool _calTOASolution(const BBox2D& bbox);
 	bool _calTDOASolution();
-	bool _calAOATOASolution();
-	bool _calAOATDOASolution();
+	bool _calAOATOASolution(const BBox2D& bbox);
+	bool _calAOATDOASolution(const BBox2D& bbox);
 	bool _judgementRules(const Scene* scene);								//初步定位解判定准则
 
 };

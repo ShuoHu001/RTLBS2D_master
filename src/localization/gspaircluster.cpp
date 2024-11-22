@@ -353,41 +353,27 @@ void GSPairCluster::GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sourc
     }
 
     for (auto& curPair : m_pairs) {
-        GeneralSource* gs1 = curPair->m_gs1;
-        GeneralSource* gs2 = curPair->m_gs2;
-        size_t hash1 = gs1->GetHash();
-        size_t hash2 = gs2->GetHash();
-        auto pos1 = sourceMap.find(hash1);
-        auto pos2 = sourceMap.find(hash2);
-        bool gs1_repeatFlag = false;                //广义源1重复状态
-        bool gs2_repeatFlag = false;                //广义源2重复状态
-        if (pos1 == sourceMap.end()) {              //hash1未找到重复项
-            sourceMap[hash1] = gs1;
-        }
-        else {
-            GeneralSource*& existSource = pos1->second;
-            if (gs1 != existSource) {               //若广义源重复，则不进行计数
-				existSource->m_sensorData.m_phi += gs1->m_sensorData.m_phi;
-				existSource->m_phiRepeatCount += 1;
-				gs1_repeatFlag = true;
-            }
-        }
+		std::vector<GeneralSource*> gsVec;
+		gsVec.push_back(curPair->m_gs1);
+		gsVec.push_back(curPair->m_gs2);
+		if (curPair->m_gsRef != nullptr) {
+			gsVec.push_back(curPair->m_gsRef);
+		}
 
-        if (pos2 == sourceMap.end()) {              //hash2未找到重复项
-            sourceMap[hash2] = gs2;
-        }
-        else {
-			GeneralSource*& existSource = pos2->second;
-            if (gs2 != existSource) {               //若广义源重复，则不进行计数
-				existSource->m_sensorData.m_phi += gs2->m_sensorData.m_phi;
-				existSource->m_phiRepeatCount += 1;
-				gs2_repeatFlag = true;
-            }
-        }
-
-        //if (gs1_repeatFlag && gs2_repeatFlag) {     //若两个广义源都处于重复状态，则当前pair是重复的，设定当前pair有效性为false
-        //    curPair->m_isValid = false;
-        //}
+		for (auto& curGs : gsVec) {
+			size_t hash = curGs->GetHash();
+			auto pos = sourceMap.find(hash);
+			if (pos == sourceMap.end()) {
+				sourceMap[hash] = curGs;
+			}
+			else {
+				GeneralSource*& existSource = pos->second;
+				if (curGs != existSource) {               //排除相同地址的广义源
+					existSource->m_sensorData.m_phi += curGs->m_sensorData.m_phi;
+					existSource->m_phiRepeatCount += 1;
+				}
+			}
+		}
     }
 
 	m_pairs.erase(std::remove_if(m_pairs.begin(), m_pairs.end(), [](const GSPair* pair) {           //清空cluster中无效的广义源对
@@ -400,9 +386,6 @@ void GSPairCluster::GetNonRepeatGeneralSource(std::vector<GeneralSource*>& sourc
         existSource->m_phiRepeatCount = 1;                              //重置phi重复计数
         sources.push_back(existSource);
     }
-
-
-
 }
 
 void GSPairCluster::GetNonRepeatGeneralSource(GeneralSource* refSource, std::vector<GeneralSource*>& sources)

@@ -20,6 +20,7 @@ LocalizeConfig::LocalizeConfig(const LocalizeConfig& config)
 	, m_rayLaunchHalfTheta(config.m_rayLaunchHalfTheta)
 	, m_gsPairClusterThreshold(config.m_gsPairClusterThreshold)
 	, m_weightFactor(config.m_weightFactor)
+	, m_solvingConfig(config.m_solvingConfig)
 	, m_extendAroundPointState(config.m_extendAroundPointState)
 	, m_shiftErrorMatrixFileName(config.m_shiftErrorMatrixFileName)
 	, m_hasSimuError(config.m_hasSimuError)
@@ -39,6 +40,7 @@ LocalizeConfig& LocalizeConfig::operator=(const LocalizeConfig& config)
 	m_rayLaunchHalfTheta = config.m_rayLaunchHalfTheta;
 	m_gsPairClusterThreshold = config.m_gsPairClusterThreshold;
 	m_weightFactor = config.m_weightFactor;
+	m_solvingConfig = config.m_solvingConfig;
 	m_extendAroundPointState = config.m_extendAroundPointState;
 	m_shiftErrorMatrixFileName = config.m_shiftErrorMatrixFileName;
 	m_hasSimuError = config.m_hasSimuError;
@@ -55,6 +57,7 @@ void LocalizeConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 	writer.Key(KEY_LOCALIZATIONCONFIG_RAYLAUNCHHALFTHETA.c_str());							writer.Double(m_rayLaunchHalfTheta);
 	writer.Key(KEY_LOCALIZATIONCONFIG_GSPAIRCLUSTERTHRESHOLD.c_str());						writer.Double(m_gsPairClusterThreshold);
 	writer.Key(KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str());								m_weightFactor.Serialize(writer);
+	writer.Key(KET_LOCALIZATIONCONFIG_SOLVINGCONFIG.c_str());								m_solvingConfig.Serialize(writer);
 	writer.Key(KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str());						writer.Bool(m_extendAroundPointState);
 	writer.Key(KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME.c_str());					writer.String(m_shiftErrorMatrixFileName.c_str());
 	writer.Key(KEY_LOCALIZATIONCONFIG_HASSIMUERROR.c_str());								writer.Bool(m_hasSimuError);
@@ -96,6 +99,10 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "LocalizeConfig: missing " << KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str() << ENDL;
 		return false;
 	}
+	if (!value.HasMember(KET_LOCALIZATIONCONFIG_SOLVINGCONFIG.c_str())) {
+		LOG_ERROR << "LocalizeConfig: missing " << KET_LOCALIZATIONCONFIG_SOLVINGCONFIG.c_str() << ENDL;
+		return false;
+	}
 	if (!value.HasMember(KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str())) {
 		LOG_ERROR << "LocalizeConfig: missing " << KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str() << ENDL;
 		return false;
@@ -117,6 +124,7 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& rayLaunchHalfThetaValue = value[KEY_LOCALIZATIONCONFIG_RAYLAUNCHHALFTHETA.c_str()];
 	const rapidjson::Value& gsPairClusterThresholdValue = value[KEY_LOCALIZATIONCONFIG_GSPAIRCLUSTERTHRESHOLD.c_str()];
 	const rapidjson::Value& weightFactorValue = value[KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str()];
+	const rapidjson::Value& solvingConfigValue = value[KET_LOCALIZATIONCONFIG_SOLVINGCONFIG.c_str()];
 	const rapidjson::Value& extendAroundPointState = value[KEY_LOCALIZATIONCONFIG_EXTENDAROUNDPOINTSTATE.c_str()];
 	const rapidjson::Value& shiftErrorMatrixFileNameValue = value[KEY_LOCALIZATIONCONFIG_SHIFTERRORMATRIXFILENAME.c_str()];
 	const rapidjson::Value& hasSimuErrorValue = value[KEY_LOCALIZATIONCONFIG_HASSIMUERROR.c_str()];
@@ -147,6 +155,10 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 	}
 	if (!weightFactorValue.IsObject()) {
 		LOG_ERROR << "LocalizeConfig: " << KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!solvingConfigValue.IsObject()) {
+		LOG_ERROR << "LocalizeConfig: " << KET_LOCALIZATIONCONFIG_SOLVINGCONFIG.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
 	if (!extendAroundPointState.IsBool()) {
@@ -184,6 +196,11 @@ bool LocalizeConfig::Deserialize(const rapidjson::Value& value)
 
 	if (!m_weightFactor.Deserialize(weightFactorValue)) {
 		LOG_ERROR << "LocalizeConfig: " << KEY_LOCALIZATIONCONFIG_WEIGHTFACTOR.c_str() << ", deserialize failed." << ENDL;
+		return false;
+	}
+	
+	if (!m_solvingConfig.Deserialize(solvingConfigValue)) {
+		LOG_ERROR << "LocalizeConfig: " << KET_LOCALIZATIONCONFIG_SOLVINGCONFIG.c_str() << ", deserialize failed." << ENDL;
 		return false;
 	}
 

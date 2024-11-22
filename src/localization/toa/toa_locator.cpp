@@ -1,7 +1,15 @@
 #include "toa_locator.h"
 
-Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, HARDWAREMODE hardwareMode, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
+Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, const LocalizeConfig& lbsConfig, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData)
 {
+	LOSSFUNCTIONTYPE lossType = lbsConfig.m_solvingConfig.m_lossType;
+	RtLbsType gsPairClusterThreshold = lbsConfig.m_gsPairClusterThreshold;
+	bool extendAroundPointState = lbsConfig.m_extendAroundPointState;
+	WeightFactor weightFactor = lbsConfig.m_weightFactor;
+	HARDWAREMODE hardwareMode = lbsConfig.m_hardWareMode;
+	uint16_t threadNum = lbsConfig.m_threadNum;
+	weightFactor.InitTOAWeight();
+
 	std::vector<LBSInfo*>& lbsInfos = lbsInfoCluster.m_infos;
 	//0-计算广义源的位置
 	for (auto& curInfo : lbsInfos) {
@@ -30,6 +38,7 @@ Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	gsPairs.reserve(pairNum);
 
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
+#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < sourceSize; ++i) {
 		for (int j = i + 1; j < sourceSize; ++j) {
 			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
@@ -37,9 +46,14 @@ Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 				delete newPair;
 				continue;
 			}
+#pragma omp atomic
 			allGSCopy[i]->m_wCount += 1;
+#pragma omp atomic
 			allGSCopy[j]->m_wCount += 1;
-			gsPairs.push_back(newPair);
+#pragma omp critical
+			{
+				gsPairs.push_back(newPair);
+			}
 		}
 	}
 
@@ -243,10 +257,11 @@ Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	}
 
 	//配置求解器
-	TOASolver* solver = new TOASolver();
-	solver->SetGeneralSource(allGSCopy);
+	TOASolver solver;
+	solver.SetGeneralSource(allGSCopy);
 
-	Point2D targetPoint = solver->Solving_WIRLS(20, 1e-6, initPoint);
+	Point2D targetPoint = initPoint;
+	targetPoint = solver.Solving(lbsConfig.m_solvingConfig, scene->m_bbox, initPoint);
 
 	if ((initPoint - targetPoint).Length() > 100) {							//若偏移程度过大，则恢复原始解（算法解无效）
 		targetPoint = initPoint;
@@ -272,8 +287,16 @@ Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	return targetPoint;
 }
 
-Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, HARDWAREMODE hardwareMode, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData, uint16_t threadNum, RtLbsType gsPairClusterThreshold, bool extendAroundPointState, const WeightFactor& weightFactor)
+Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector<RayTreeNode*>& vroots, const Scene* scene, const LocalizeConfig& lbsConfig, const ElevationMatrix& lbsShiftErrorMatrix, RtLbsType splitRadius, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData)
 {
+	LOSSFUNCTIONTYPE lossType = lbsConfig.m_solvingConfig.m_lossType;
+	RtLbsType gsPairClusterThreshold = lbsConfig.m_gsPairClusterThreshold;
+	bool extendAroundPointState = lbsConfig.m_extendAroundPointState;
+	WeightFactor weightFactor = lbsConfig.m_weightFactor;
+	HARDWAREMODE hardwareMode = lbsConfig.m_hardWareMode;
+	uint16_t threadNum = lbsConfig.m_threadNum;
+	weightFactor.InitTOAWeight();
+
 	std::vector<LBSInfo*>& lbsInfos = lbsInfoCluster.m_infos;
 	std::vector<SensorData> sensorDatas;									/** @brief	获取到的所有传感器数据	*/
 	scene->m_sensorDataLibrary.GetAllSensorData(sensorDatas);
@@ -307,6 +330,7 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	gsPairs.reserve(pairNum);
 
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
+#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < sourceSize; ++i) {
 		for (int j = i + 1; j < sourceSize; ++j) {
 			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
@@ -314,9 +338,14 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 				delete newPair;
 				continue;
 			}
+#pragma omp atomic
 			allGSCopy[i]->m_wCount += 1;
+#pragma omp atomic
 			allGSCopy[j]->m_wCount += 1;
-			gsPairs.push_back(newPair);
+#pragma omp critical
+			{
+				gsPairs.push_back(newPair);
+			}
 		}
 	}
 
@@ -533,7 +562,8 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	TOASolver solver;
 	solver.SetGeneralSource(allGSCopy);
 
-	Point2D targetPoint = solver.Solving_WIRLS(20, 1e-6, initPoint);
+	Point2D targetPoint = initPoint;
+	targetPoint = solver.Solving(lbsConfig.m_solvingConfig, scene->m_bbox, initPoint);
 
 	if ((initPoint - targetPoint).Length() > 100) {							//若偏移程度过大，则恢复原始解（算法解无效）
 		targetPoint = initPoint;

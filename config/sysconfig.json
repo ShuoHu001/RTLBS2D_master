@@ -36,6 +36,12 @@
 				"TimeWeight": 8.0,
 				"PowerWeight": 2.0
 			},
+			"SolvingConfig":{
+		        "SolvingMode":3,
+		        "LossType":1,
+		        "IterNum":20,
+		        "Tolerance":1e-6
+		    },
 			"ExtendAroundPointState": true,
 			"ShiftErrorMatrixFile": "config/4.000000_errormatrix.txt",
 			"HasSimuError": true

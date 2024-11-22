@@ -143,5 +143,25 @@ enum RAYPATHTYPE {
 	RAYPATH_TERRAIN_DIFFRACTION					/** @brief	地面绕射	*/
 };
 
+/** @brief	求解模式	*/
+enum SOLVINGMODE {
+	SOLVING_LS,							/** @brief	最小二乘法	*/
+	SOLVING_WLS,						/** @brief	加权最小二乘法	*/
+	SOLVING_IRLS,						/** @brief	迭代最小二乘法	*/
+	SOLVING_WIRLS,						/** @brief	加权迭代最小二乘法	*/
+};
+
+/** @brief	损失函数类型	*/
+enum LOSSFUNCTIONTYPE {
+	LOSS_NONE,							/** @brief	无损失函数	*/
+	LOSS_HUBER,							/** @brief	Huber 损失函数	*/
+	LOSS_CAUCHY,						/** @brief	Cauchy 损失函数	*/
+	LOSS_ARCTAN,						/** @brief	Arctan 损失函数	*/
+	LOSS_TUKEY,							/** @brief	Tukey 损失函数	*/
+	LOSS_FAIR,							/** @brief	Fair 损失函数	*/
+	LOSS_GEMANMCCLURE,					/** @brief	Geman-McClure损失函数	*/
+	LOSS_DCS,							/** @brief	DCS损失函数	*/
+};
+
 
 #endif
