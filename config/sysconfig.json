@@ -6,18 +6,18 @@
 		"AntennaLibraryConfigFile": "config/antennalibrary.json",
 		"TransmitterConfigFile": "config/transmitterconfig.json",
 		"ReceiverConfigFile": "config/receiverconfig.json",
-		"SensorConfigFile": "results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json",
+		"SensorConfigFile": "results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json",
 		"RaytracingConfig": {
 			"RayNum": 10000,
 			"DiffractRayNum": 1000,
 			"LimitInfo": {
 				"LimitTotal": 10,
-				"LimitReflect": 4,
+				"LimitReflect": 34,
 				"LimitTransmit": 0,
 				"LimitDiffract": 0,
 				"LimitScatter": 0
 			},
-			"RaySplitFlag": true,
+			"RaySplitFlag": false,
 			"RaySplitRadius": 1.0,
 			"SceneAccelType": 5,
 			"HardwareMode": 0,
@@ -25,24 +25,24 @@
 			"CPUThreadNum": 20
 		},
 		"LocalizationConfig": {
-			"LBSMode": 1,
-			"LBSMethod": 4,
+			"LBSMode": 0,
+			"LBSMethod": 0,
 			"HardWareMode": 2,
 			"ThreadNum": 20,
-			"RayLaunchHalfTheta": 0.2,
-			"GSPairClusterThreshold": 2.0,
+			"RayLaunchHalfTheta": 0.1,
+			"GSPairClusterThreshold": 3.0,
 			"WeightFactor": {
-				"PhiWeight": 8.0,
-				"TimeWeight": 8.0,
-				"PowerWeight": 2.0
+				"PhiWeight": 6.0,
+				"TimeWeight": 15.0,
+				"PowerWeight": 6.0
 			},
 			"SolvingConfig":{
-		        "SolvingMode":3,
-		        "LossType":1,
+		        "SolvingMode":4,
+		        "LossType":6,
 		        "IterNum":20,
-		        "Tolerance":1e-6
+		        "Tolerance":1e-3
 		    },
-			"ExtendAroundPointState": true,
+			"ExtendAroundPointState": false,
 			"ShiftErrorMatrixFile": "config/4.000000_errormatrix.txt",
 			"HasSimuError": true
 		},
@@ -64,13 +64,22 @@
 			"OutputAOA": false,
 			"OutputAOD": false,
 			"OutputSpreadProfile":true,
-			"OutputSensorDataSPSTMD": false,
-			"OutputSensorDataMPSTSD": true,
+			"OutputSensorDataSPSTMD": true,
+			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
 			"OutputGSForCRLB": true,
+			"OutputMultiStationCRLB":false,
+			"OutputMultiStationGDOP":false,
+			"OutputSingleStationCRLB":true,
+			"OutputSingleStationGDOP":false,
 			"OutputSensorDataSparseFactor": 1.0,
-			"OutputLBSMethod": 2
+			"OutputLBSMethod": 2,
+			"OutputLBSErrorConfig":{
+				"ErrorType":1,
+				"PhiDegreeErrorSigmas":[0],
+				"TimeNSErrorSigmas":[2,4,6,8,10,12,14,16,18,20]
+			}
 		}
 	}
 }

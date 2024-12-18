@@ -61,6 +61,12 @@ RtLbsType SensorData::DistanceTime(const SensorData& data) const
 	return dDelay;
 }
 
+RtLbsType SensorData::DistanceTimeDiff(const SensorData& data) const
+{
+	RtLbsType dTimeDiff = abs(m_timeDiff - data.m_timeDiff);
+	return dTimeDiff;
+}
+
 Vector2D SensorData::GetDirection() const
 {
 	//默认定义传感器接收到的方位角是与水平X轴正方向的夹角

@@ -160,6 +160,9 @@
     <Filter Include="localization\lossfunction">
       <UniqueIdentifier>{0cf224d7-0091-46c1-a148-c27f7eed9154}</UniqueIdentifier>
     </Filter>
+    <Filter Include="localization\localizationfunction">
+      <UniqueIdentifier>{945f6c0a-256c-47ba-90ea-6ba6cfbfef44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rtlbs.h" />
@@ -575,6 +578,18 @@
     <ClInclude Include="src\math\vectorfunction.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="src\localization\localizationfunction\crlb.h">
+      <Filter>localization\localizationfunction</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\localizationfunction\gdop.h">
+      <Filter>localization\localizationfunction</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\matrixfunction.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\localization\lbserrorconfig.h">
+      <Filter>configuation\localization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -961,6 +976,18 @@
       <Filter>localization\aoa_tdoa</Filter>
     </ClCompile>
     <ClCompile Include="src\configuration\localization\solvingconfig.cpp">
+      <Filter>configuation\localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\localizationfunction\crlb.cpp">
+      <Filter>localization\localizationfunction</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\localizationfunction\gdop.cpp">
+      <Filter>localization\localizationfunction</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\matrixfunction.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\localization\lbserrorconfig.cpp">
       <Filter>configuation\localization</Filter>
     </ClCompile>
   </ItemGroup>

@@ -59,7 +59,7 @@ double AOAResidual::GetResidual(const double* position) const
 {
 	double dx = position[0] - m_x;
 	double dy = position[1] - m_y;
-	return (dx * m_cosPhi - dy * m_sinPhi) * m_weight;
+	return (dx * m_sinPhi - dy * m_cosPhi) * m_weight;
 }
 
 RtLbsType AOAResidual::GetWeight() const

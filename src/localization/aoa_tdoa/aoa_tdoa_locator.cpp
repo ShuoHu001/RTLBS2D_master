@@ -410,21 +410,27 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 
 	std::vector<GeneralSource*> allGSCopy = mergedGSources;						/** @brief	所有广义源的复制	*/
 
+
 	//2-按照几何约束条件删除无效广义源
 	//创建广义源对,数量为 n*(n-1)/2
+
+	bool hasAccurateSolution = false;
 
 	size_t pairNum = static_cast<int>(sourceSize * (sourceSize - 1) / 2);
 	std::vector<GSPair*> gsPairs;													/** @brief	广义源对	*/
 	gsPairs.reserve(pairNum);
 
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
 	for (int i = 0; i < sourceSize; ++i) {
 		for (int j = i + 1; j < sourceSize; ++j) {
 			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
 			if (!newPair->HasValidAOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
 				delete newPair;
 				continue;
+			}
+			if ((newPair->m_targetSolution - Point2D(70, 90)).Length() < 5.0) {
+				hasAccurateSolution = true;
 			}
 #pragma omp atomic
 			allGSCopy[i]->m_wCount += 1;
@@ -437,10 +443,15 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 		}
 	}
 
+
+
 	//删除权重为0值的广义源-先释放内存，后从数组中删除
 	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* source) {		//移除无效的广义源
 		return !source->IsValid();
 		}), allGSCopy.end());
+
+	//采用射线追踪回馈计算方法修正角度误差，
+
 
 	//删除pair
 	for (auto& curPair : gsPairs) {
@@ -449,8 +460,11 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 	}
 	gsPairs.clear();
 
+
+
     //AOA解筛除广义源,删除无效广义源
 	EraseRepeatGeneralSources(allGSCopy);			//删除重复的广义源
+
 
 	//筛选出参考广义源并且置零广义源计数
 	std::vector<GeneralSource*> refSources;
@@ -460,11 +474,15 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 			refSources.push_back(curSource);
 		}
 	}
+	//删除所有广义源中的参考广义源
+	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* source) {		//移除无效的广义源
+		return source->m_sensorData.m_id == 0;
+		}), allGSCopy.end());
 
 
     //组建AOA-TDOA方程组
 	sourceSize = allGSCopy.size();
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
 	for (int refId = 0; refId < refSources.size(); ++refId) {
 		auto& curRefSource = refSources[refId];
 		for (int i = 0; i < sourceSize; ++i) {
@@ -609,30 +627,25 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 			}
 		}
 
-		if (curCluster_r_weights.size() == 0) {
-			curCluster.m_isValid = false;
+		if (curCluster_r_weights.size() == 0) {			//若无路径数据，则为无效簇
+			curCluster.SetInValidState();
 			continue;
 		}
 
 		int minDataId = 0;							/** @brief	扩展点中的最小的ID值	*/
-		if (curCluster.m_aroundPoints.size() != 1) {									//当且仅当周围扩展点数量大于1时触发
-			for (int i = 0; i < static_cast<int>(curCluster_r_weights.size()); ++i) {
-				if ((curCluster_min_r_weight > curCluster_r_weights[i]) && curCluster_nullDataNums[i] <= curCluster_nullDataNums[0]) {		//在寻找最小值的过程中需要保证空数据数量小于第一值
-					curCluster_min_r_weight = curCluster_r_weights[i];
-					minDataId = i;
-				}
+		int datasize = static_cast<int>(curCluster_r_weights.size());					/** @brief	簇内所有有效的数据数量	*/
+		if (datasize > 1) {									//当且仅当周围扩展点数量大于1时触发
+			//重大版本更新，增加对远近扩展点的合理处理
+			
+			//计算簇内平均权重
+			RtLbsType max_cluster_r_weight = vectoroperator::GetMax(curCluster_r_weights);
+			for (int i = 0; i < datasize; ++i) {
+				curCluster_r_weights[i] += max_cluster_r_weight * curCluster_nullDataNums[i];
 			}
 
-			RtLbsType curCluster_min_r_weight_rectify = FLT_MAX;
-			if (minDataId < (curCluster.m_nearExtendNum + 1) && curCluster_nullDataNums[0] != 0) {												//修正存在差额数据导致的“最优权重”过低
-				for (int i = 0; i < static_cast<int>(curCluster_r_weights.size()); ++i) {
-					if (curCluster_min_r_weight_rectify > curCluster_r_weights[i] && curCluster_nullDataNums[i] == 0) {
-						curCluster_min_r_weight_rectify = curCluster_r_weights[i];
-						curCluster_min_r_weight = curCluster_r_weights[i];
-						minDataId = i;
-					}
-				}
-			}
+			//选取近端最小残差
+			minDataId = vectoroperator::GetMinIndex(curCluster_r_weights);
+
 
 			if (minDataId != 0 && minDataId > (curCluster.m_nearExtendNum + 1) && curCluster.m_deviateDistance > 5.0 && curCluster_min_r_weight / curCluster_r_weights[0] < 0.5) {					//额外追加大于5m条件,由于远距离扩展导致的误差低事件
 				curCluster.m_isDeviateSolution = true;
@@ -681,6 +694,14 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 		curCluster.m_weight /= maxPairWeight;
 	}
 
+	if (gsPairClusters.size() == 0) {
+		for (auto& source : mergedGSources) {
+			delete source;
+			source = nullptr;
+		}
+		return Point2D(FLT_MAX, FLT_MAX);
+	}
+
 	//将cluster按照权重进行排序
 	std::sort(gsPairClusters.begin(), gsPairClusters.end(), ComparedByClusterWeight);
 	Point2D refClusterGSPoint = gsPairClusters.front().m_TDOA_REFGS_Point;
@@ -716,21 +737,19 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 	//搜索0.9权重以上的cluster中的广义源
 	std::vector<GeneralSource*> validGSs;
 	for (auto& curCluster : gsPairClusters) {
-		if (curCluster.m_weight > 0.5) {
-			curCluster.GetNonRepeatGeneralSource(bestRefSource, validGSs);
-		}
+		curCluster.GetNonRepeatGeneralSource(bestRefSource, validGSs);
 	}
 
 	Point2D initPoint = gsPairClusters.front().m_point;				/** @brief	初始解	*/
 
 	//配置求解器
 	AOATDOASolver solver;
-	solver.SetGeneralSource(bestRefSource, validGSs);
+	solver.SetGeneralSource(bestRefSource, allGSCopy);
 
 	Point2D targetPoint = initPoint;
 	targetPoint = solver.Solving(lbsConfig.m_solvingConfig, scene->m_bbox, weightFactor, initPoint);
 
-	if ((initPoint - targetPoint).Length() > 20) {							//若偏移程度过大，则恢复原始解（算法解无效）
+	if ((initPoint - targetPoint).Length() > 200) {							//若偏移程度过大，则恢复原始解（算法解无效）
 		targetPoint = initPoint;
 	}
 	gsPairClusters.clear();

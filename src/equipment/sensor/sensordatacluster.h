@@ -16,8 +16,10 @@ public:
 	SensorDataCluster& operator = (const SensorDataCluster& cluster);
 	bool CanAddToClusterByAOA2D(const SensorData& data, RtLbsType threshold) const;					//按照二维角度是否可纳入类
 	bool CanAddToClusterByTime(const SensorData& data, RtLbsType threshold) const;
+	bool CanAddToClusterByTimeDiff(const SensorData& data, RtLbsType threshold) const;
 	void CalMergedDataByAOA();																		//计算合成信息，按照角度
 	void CalMergedDataByTime();																	//计算合成信息，按照时延
+	void CalMergedDataByTimeDiff();																//计算合成信息，按照时延差
 };
 
 //按照功率大小进行排序，从大到小
@@ -69,6 +71,28 @@ inline std::vector<SensorDataCluster> ClusterSensorDataByTime(std::vector<Sensor
 			SensorDataCluster newCluster;
 			newCluster.m_datas.push_back(curData);
 			newCluster.CalMergedDataByTime();
+			clusters.push_back(newCluster);
+		}
+	}
+	return clusters;
+}
+
+inline std::vector<SensorDataCluster> ClusterSensorDataByTimeDiff(std::vector<SensorData>& datas, RtLbsType threshold) {
+	std::vector<SensorDataCluster> clusters;
+	for (auto& curData : datas) {
+		bool addFlag = false;
+		for (auto& curCluster : clusters) {
+			if (curCluster.CanAddToClusterByTimeDiff(curData, threshold)) {
+				curCluster.m_datas.push_back(curData);
+				curCluster.CalMergedDataByTimeDiff();
+				addFlag = true;
+				break;
+			}
+		}
+		if (!addFlag) {
+			SensorDataCluster newCluster;
+			newCluster.m_datas.push_back(curData);
+			newCluster.CalMergedDataByTimeDiff();
 			clusters.push_back(newCluster);
 		}
 	}

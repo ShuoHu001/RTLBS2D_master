@@ -319,6 +319,7 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 
 
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
+#pragma omp parallel for schedule(static)
 	for (int i = 0; i < sourceSize; ++i) {
 		for (int j = i + 1; j < sourceSize; ++j) {
 			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
@@ -326,7 +327,14 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 				delete newPair;
 				continue;
 			}
-			gsPairs.push_back(newPair);
+#pragma omp atomic
+			allGSCopy[i]->m_wCount += 1;
+#pragma omp atomic
+			allGSCopy[j]->m_wCount += 1;
+#pragma omp critical
+			{
+				gsPairs.push_back(newPair);
+			}
 		}
 	}
 
@@ -505,8 +513,7 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 
 
 	for (auto curPair : gsPairs) {
-		curPair->m_phiResidual += curPair->m_nullDataNum * mean_r_phi;
-		curPair->m_powerDiffResidual += curPair->m_nullDataNum * mean_r_powerDiff;
+		curPair->UpdateResidual_AOA(mean_r_phi, mean_r_powerDiff);
 		max_r_phi = std::max(max_r_phi, curPair->m_phiResidual);
 		max_r_powerDiff = std::max(max_r_powerDiff, curPair->m_powerDiffResidual);
 	}
@@ -524,7 +531,6 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	//删除重复的广义源
 	EraseRepeatGeneralSources(allGSCopy);			//删除重复的广义源
 
-
 	//将cluster按照权重进行排序
 	std::sort(gsPairClusters.begin(), gsPairClusters.end(), ComparedByClusterWeight);
 
@@ -536,10 +542,10 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 		curSource->NormalizedWeight(max_weight);
 	}
 
-	//删除低于权重阈值的广义源
-	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
-		return s->m_weight < 0.9;
-		}), allGSCopy.end());
+	////删除低于权重阈值的广义源
+	//allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
+	//	return s->m_weight < 0.9;
+	//	}), allGSCopy.end());
 
 	//单源定位中，root源的数据最大只保留一个
 	int hasRootNum = 0;

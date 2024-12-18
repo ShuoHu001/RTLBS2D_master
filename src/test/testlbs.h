@@ -8,7 +8,18 @@
 #include "rtresultsimilarity.h"
 
 
+//测试单个站点的AOA定位误差
 void TestAOALocalizationSingleStationInDifferentError();
+
+//测试单个站点的TOA定位误差
+void TestTOALocalizationSingleStationInDifferentError();
+
+//测试单个站点的AOATDOA定位误差
+void TestAOATDOALocalizationSingleStationInDifferentError();
+
+//测试单个站点的AOATOA定位误差
+void TestAOATOALocalizationSingleStationInDifferentError();
+
 
 void TestAOALocalizaitonSingleStationErrorInDifferentPlace();
 

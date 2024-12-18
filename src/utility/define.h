@@ -60,6 +60,7 @@ typedef double RtLbsType;
 #define ONE_THIRD		0.33333333333333333333			//三分之一
 
 #define LIGHT_VELOCITY_AIR  299702547.1					//光在空气中的传播速度(标准大气压，20℃)
+#define LIGHT_DISTANCE_PER_NS 0.2997025471				//光在空气中一纳秒的传播距离，单位m
 #define LIGHT_VELOCITY_VACUME  299792458				//光在真空中的传播速度
 #define VACUME_PERMITTIVITY 8.8541e-12					//真空中的相对介电常数
 

@@ -23,7 +23,7 @@ public:
 	void SetSensorData(const SensorData& data);											//设置传感器数据
 	void SetNodes(std::vector<LBSTreeNode*>& nodes);
 	void CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod);								//计算基本信息
-	void CalculateBaseInfo(std::vector<SensorData>& sensorDatas);						//计算基本信息-TOA单站多数据定位算法
+	void CalculateBaseInfo(std::vector<SensorData>& sensorDatas, LOCALIZATION_METHOD lbsMethod = LBS_METHOD_RT_TOA);						//计算基本信息-TOA单站多数据定位算法
 };
 
 inline void EraseRepeatGeneralSources(std::vector<GeneralSource*>& sources);

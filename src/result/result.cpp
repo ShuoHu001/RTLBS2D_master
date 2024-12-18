@@ -32,6 +32,8 @@ void Result::Init(const std::vector<Transmitter*>& transmitters, const std::vect
 	unsigned rxNum = static_cast<unsigned>(receivers.size());
 	unsigned totalNum = static_cast<unsigned>(txNum * rxNum);
 	m_raytracingResult.resize(totalNum);
+	m_transmitters = transmitters;
+	m_receivers = receivers;
 	for (unsigned i = 0; i < txNum; ++i) {
 		for (unsigned j = 0; j < rxNum; ++j) {
 			m_raytracingResult[i * rxNum + j].m_transmitter = transmitters[i];
@@ -101,6 +103,18 @@ void Result::OutputResult(const OutputConfig& config) const
 	}
 	if (config.m_outputGSForCRLB) {
 		OutputGeneralSourceForCRLB();
+	}
+	if (config.m_outputMultiStationCRLB) {
+		OutputMultiStationCRLB(config.m_outputLBSErrorConfig);
+	}
+	if (config.m_outputMultiStationGDOP) {
+		OutputMultiStationGDOP(config.m_outputLBSErrorConfig);
+	}
+	if (config.m_outputSingleStationCRLB) {
+		OutputSingleStationCRLB(config.m_outputLBSErrorConfig);
+	}
+	if (config.m_outputSingleStationGDOP) {
+		OutputSingleStationGDOP(config.m_outputLBSErrorConfig);
 	}
 }
 
@@ -455,6 +469,207 @@ void Result::OutputGeneralSourceForCRLB() const
 	for (auto it = m_raytracingResult.begin(); it != m_raytracingResult.end(); ++it) {
 		const RaytracingResult& result = *it;
 		result.OutputGeneralSourceForCRLB(stream);
+	}
+	stream.close();
+}
+
+void Result::OutputMultiStationCRLB(const LBSErrorConfig& config) const
+{
+	std::ofstream stream(m_directory + "multistation_crlb.txt");
+	if (!stream.is_open()) {
+		LOG_ERROR << "Result:open multistation_crlb file failed." << ENDL;
+		return;
+	}
+	std::vector<std::vector<Point2D>> gss;								/** @brief	所有广义源坐标，第一维度为rx数量，第二维度为tx数量，相当于一个rx对应于多个发射机的情况	*/
+	gss.resize(m_rxNum);
+	//多个发射机为基站，接收机为移动站
+	if (config.m_errorType == LBSERRORTYPE_AOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMaxPowerGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			for (auto phiError : config.m_phiErrorSigmas) {
+				RtLbsType curCRLB = ComputeCRLBForAOA(gss[i], m_receivers[i]->GetPosition2D(), phiError);
+				stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+					<< phiError << "\t" << curCRLB << std::endl;
+			}
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_TOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMinDelayGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			for (auto timeError : config.m_timeMErrorSigmas) {
+				RtLbsType curCRLB = ComputeCRLBForTOA(gss[i], m_receivers[i]->GetPosition2D(), timeError);
+				stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+					<< timeError << "\t" << curCRLB << std::endl;
+			}
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_AOATOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMinDelayGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			for (auto phiError : config.m_phiErrorSigmas) {
+				for (auto timeError : config.m_timeMErrorSigmas) {
+					RtLbsType curCRLB = ComputeCRLBForAOATOA(gss[i], m_receivers[i]->GetPosition2D(), phiError, timeError);
+					stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+						<< phiError << "\t" << timeError << "\t" << curCRLB << std::endl;
+				}
+			}
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPEAOATDOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMinDelayGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			for (auto phiError : config.m_phiErrorSigmas) {
+				for (auto timeError : config.m_timeMErrorSigmas) {
+					RtLbsType curCRLB = ComputeCRLBForAOATDOA(gss[i], m_receivers[i]->GetPosition2D(), phiError, timeError);
+					stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+						<< phiError << "\t" << timeError << "\t" << curCRLB << std::endl;
+				}
+			}
+		}
+	}
+	
+	stream.close();
+}
+
+void Result::OutputMultiStationGDOP(const LBSErrorConfig& config) const
+{
+	std::ofstream stream(m_directory + "multistation_gdop.txt");
+	if (!stream.is_open()) {
+		LOG_ERROR << "Result:open multistation_gdop file failed." << ENDL;
+		return;
+	}
+	std::vector<std::vector<Point2D>> gss;								/** @brief	所有广义源坐标，第一维度为rx数量，第二维度为tx数量，相当于一个rx对应于多个发射机的情况	*/
+	gss.resize(m_rxNum);
+	//多个发射机为基站，接收机为移动站
+	if (config.m_errorType == LBSERRORTYPE_AOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMaxPowerGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			RtLbsType curGDOP = ComputeGDOPForAOA(gss[i], m_receivers[i]->GetPosition2D());
+			stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+				<< curGDOP << std::endl;
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_TOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMinDelayGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			RtLbsType curGDOP = ComputeGDOPForTOA(gss[i], m_receivers[i]->GetPosition2D());
+			stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+				 << curGDOP << std::endl;
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_AOATOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMinDelayGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			RtLbsType curGDOP = ComputeGDOPForAOATOA(gss[i], m_receivers[i]->GetPosition2D());
+			stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+				<< curGDOP << std::endl;
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPEAOATDOA) {
+		for (int i = 0; i < m_txNum; ++i) {
+			for (int j = 0; j < m_rxNum; ++j) {
+				int offset = i * m_rxNum + j;
+				Point2D gs;
+				if (m_raytracingResult[offset].GetMinDelayGeneralSource(gs)) {
+					gss[j].push_back(gs);
+				}
+			}
+		}
+		//在获取广义源之后需要计算CRLB并输出至文件中
+		for (int i = 0; i < m_rxNum; ++i) {
+			RtLbsType curGDOP = ComputeGDOPForAOATDOA(gss[i], m_receivers[i]->GetPosition2D());
+			stream << i << "\t" << m_receivers[i]->m_position.x << "\t" << m_receivers[i]->m_position.y << "\t" << m_receivers[i]->m_position.z << "\t"
+				<< curGDOP << std::endl;
+		}
+	}
+	stream.close();
+}
+
+void Result::OutputSingleStationCRLB(const LBSErrorConfig& config) const
+{
+	std::ofstream stream(m_directory + "gscrlb.txt");
+	if (!stream.is_open()) {
+		LOG_ERROR << "Result:open gscrlb file failed." << ENDL;
+		return;
+	}
+	for (auto& curResult: m_raytracingResult) {
+		curResult.OutputCRLB(stream, config);
+	}
+	stream.close();
+}
+
+void Result::OutputSingleStationGDOP(const LBSErrorConfig& config) const
+{
+	std::ofstream stream(m_directory + "gscrlb.txt");
+	if (!stream.is_open()) {
+		LOG_ERROR << "Result:open gscrlb file failed." << ENDL;
+		return;
+	}
+	for (auto& curResult : m_raytracingResult) {
+		curResult.OutputGDOP(stream, config);
 	}
 	stream.close();
 }

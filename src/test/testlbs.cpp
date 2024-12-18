@@ -14,14 +14,14 @@ void TestAOALocalizationSingleStationInDifferentError()
 		}
 	};
 
-	std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
-	std::vector<RtLbsType> powerErrors = { 0,1,2,3,4,5,6,7,8,9,10 };
+	std::vector<RtLbsType> phiDegreeErrors = { 0.1,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0 };
+	std::vector<RtLbsType> powerErrors = { 1.0 };
 	//std::vector<RtLbsType> phiDegreeErrors = { 4.0 };
 	//std::vector<RtLbsType> powerErrors = { 0 };
 
-	std::string positionName = "C";
-	int roundTime = 1000;
-	Point2D realPoint = { 70,90 };
+	std::string positionName = "A";
+	int roundTime = 400;
+	Point2D realPoint = { 76,56 };
 
 	int totalround = static_cast<int>(phiDegreeErrors.size() * powerErrors.size() * roundTime);
 
@@ -36,7 +36,7 @@ void TestAOALocalizationSingleStationInDifferentError()
 			SensorCollectionConfig curSensorCollectionConfig;
 			curSensorCollectionConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 			curSensorCollectionConfig.m_sensorConfigs[0].m_phiDegreeErrorSTD = phiDegreeError;
-			curSensorCollectionConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
+			curSensorCollectionConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError+2;
 			curSensorCollectionConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 			System* system;
 			for (int i = 0; i < roundTime; ++i) {
@@ -55,9 +55,11 @@ void TestAOALocalizationSingleStationInDifferentError()
 					continue;
 				}
 				RtLbsType error = (realPoint - curTargetPoint).Length();
-				curData.targetPosition = curTargetPoint;
-				curData.error = error;
-				datas.push_back(curData);
+				if (error < 200) {
+					curData.targetPosition = curTargetPoint;
+					curData.error = error;
+					datas.push_back(curData);
+				}
 				delete system;
 			}
 
@@ -77,6 +79,253 @@ void TestAOALocalizationSingleStationInDifferentError()
 			}
 			outFile.close();
 			LOG_INFO << errorMean << std::endl;
+		}
+	}
+	LOG_INFO << "计算完成" << ENDL;
+}
+
+void TestTOALocalizationSingleStationInDifferentError()
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	std::vector<RtLbsType> timeNSErrors = { 3 };
+	std::vector<RtLbsType> powerErrors = { 3 };
+	//std::vector<RtLbsType> phiDegreeErrors = { 4.0 };
+	//std::vector<RtLbsType> powerErrors = { 0 };
+
+	std::string positionName = "A";
+	int roundTime = 400;
+	Point2D realPoint = { 76,56 };
+
+	int totalround = static_cast<int>(timeNSErrors.size() * powerErrors.size() * roundTime);
+
+	int roundi = 0;
+	for (auto timeError : timeNSErrors) {
+		for (auto powerError : powerErrors) {
+			std::vector<LBSData> datas;
+			datas.reserve(roundTime);
+
+			//读取传感器信息，写入对应的误差数据
+			SensorCollectionConfig curSensorCollectionConfig;
+			curSensorCollectionConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+			curSensorCollectionConfig.m_sensorConfigs[0].m_timeErrorSTD = timeError+4;
+			curSensorCollectionConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
+			curSensorCollectionConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+			System* system;
+			for (int i = 0; i < roundTime; ++i) {
+				std::cout << roundi++ / static_cast<RtLbsType>(totalround) * 100 << std::endl;			//汇报进度
+
+				LBSData curData;
+				curData.truePosition = realPoint;
+
+				system = new System();
+				if (!system->Setup(MODE_LBS))
+					return;
+				system->Render();
+				Point2D curTargetPoint = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_TOA);
+				RtLbsType error = (realPoint - curTargetPoint).Length();
+				curData.targetPosition = curTargetPoint;
+				curData.error = error;
+				datas.push_back(curData);
+				delete system;
+			}
+
+			//计算平均误差
+			RtLbsType errorMean = 0.0;
+			for (auto& data : datas) {
+				errorMean += data.error;
+			}
+			errorMean /= roundTime;
+
+			//写入数据文件
+			std::stringstream ss;
+			ss << "定位性能分析/单点仿真分析/" << positionName << "_timeError_" << timeError << "_powerError_" << powerError << ".txt";
+			std::ofstream outFile(ss.str());
+			for (auto& data : datas) {
+				data.Write2File(outFile);
+			}
+			outFile.close();
+			LOG_INFO << errorMean << std::endl;
+		}
+	}
+	LOG_INFO << "计算完成" << ENDL;
+}
+
+void TestAOATDOALocalizationSingleStationInDifferentError()
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	std::vector<RtLbsType> timeNSErrors = { 3 };
+	std::vector<RtLbsType> phiDegreeErrors = { 0.1, 1, 2,3,4,5,6,7,8 };
+	std::vector<RtLbsType> powerErrors = { 3 };
+	//std::vector<RtLbsType> phiDegreeErrors = { 4.0 };
+	//std::vector<RtLbsType> powerErrors = { 0 };
+
+	std::string positionName = "A";
+	int roundTime = 400;
+	Point2D realPoint = { 76,56 };
+
+	int totalround = static_cast<int>(phiDegreeErrors.size() * timeNSErrors.size() * powerErrors.size() * roundTime);
+
+	int roundi = 0;
+	for (auto timeError : timeNSErrors) {
+		for (auto powerError : powerErrors) {
+			for (auto phiDegreeError : phiDegreeErrors) {
+				std::vector<LBSData> datas;
+				datas.reserve(roundTime);
+
+				//读取传感器信息，写入对应的误差数据
+				SensorCollectionConfig curSensorCollectionConfig;
+				curSensorCollectionConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+				curSensorCollectionConfig.m_sensorConfigs[0].m_phiDegreeErrorSTD = phiDegreeError;
+				curSensorCollectionConfig.m_sensorConfigs[0].m_timeErrorSTD = timeError;
+				curSensorCollectionConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
+				curSensorCollectionConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+				System* system;
+				int validRoundTime = 0;
+				for (int i = 0; i < roundTime; ++i) {
+					std::cout << roundi++ / static_cast<RtLbsType>(totalround) * 100 << std::endl;			//汇报进度
+					LBSData curData;
+					curData.truePosition = realPoint;
+
+					system = new System();
+					if (!system->Setup(MODE_LBS))
+						return;
+					system->Render();
+					Point2D curTargetPoint = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA_TDOA);
+					RtLbsType error = (realPoint - curTargetPoint).Length();
+					if (error < 200) {
+						curData.targetPosition = curTargetPoint;
+						curData.error = error;
+						datas.push_back(curData);
+						validRoundTime++;
+					}
+					delete system;
+				}
+
+				//计算平均误差
+				RtLbsType errorMean = 0.0;
+				for (auto& data : datas) {
+					errorMean += data.error;
+				}
+				errorMean /= validRoundTime;
+
+				//写入数据文件
+				std::stringstream ss;
+				ss << "定位性能分析/单点仿真分析/" << positionName<<"_phiError_" << phiDegreeError << "_timeError_" << timeError << "_powerError_" << powerError << ".txt";
+				std::ofstream outFile(ss.str());
+				for (auto& data : datas) {
+					data.Write2File(outFile);
+				}
+				outFile.close();
+				LOG_INFO << errorMean << std::endl;
+			}
+		}
+	}
+	LOG_INFO << "计算完成" << ENDL;
+}
+
+void TestAOATOALocalizationSingleStationInDifferentError()
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	std::vector<RtLbsType> timeNSErrors = { 3 };
+	std::vector<RtLbsType> phiDegreeErrors = { /*0.1, 1, */2,3,4,5,6,7,8 };
+	//std::vector<RtLbsType> phiDegreeErrors = { 1.0 };
+	std::vector<RtLbsType> powerErrors = { 3 };
+	//std::vector<RtLbsType> phiDegreeErrors = { 4.0 };
+	//std::vector<RtLbsType> powerErrors = { 0 };
+
+	std::string positionName = "A";
+	int roundTime = 400;
+	Point2D realPoint = { 76,56 };
+
+	int totalround = static_cast<int>(phiDegreeErrors.size() * timeNSErrors.size() * powerErrors.size() * roundTime);
+
+	int roundi = 0;
+	for (auto timeError : timeNSErrors) {
+		for (auto powerError : powerErrors) {
+			for (auto phiDegreeError : phiDegreeErrors) {
+				std::vector<LBSData> datas;
+				datas.reserve(roundTime);
+
+				//读取传感器信息，写入对应的误差数据
+				SensorCollectionConfig curSensorCollectionConfig;
+				curSensorCollectionConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+				curSensorCollectionConfig.m_sensorConfigs[0].m_phiDegreeErrorSTD = phiDegreeError;
+				curSensorCollectionConfig.m_sensorConfigs[0].m_timeErrorSTD = timeError+4;
+				curSensorCollectionConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
+				curSensorCollectionConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+				System* system;
+				int validRoundTime = 0;
+				for (int i = 0; i < roundTime; ++i) {
+					std::cout << roundi++ / static_cast<RtLbsType>(totalround) * 100 << std::endl;			//汇报进度
+
+					LBSData curData;
+					curData.truePosition = realPoint;
+
+					system = new System();
+					if (!system->Setup(MODE_LBS))
+						return;
+					system->Render();
+					Point2D curTargetPoint = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA_TOA);
+					RtLbsType error = (realPoint - curTargetPoint).Length();
+					if (error < 200) {
+						curData.targetPosition = curTargetPoint;
+						curData.error = error;
+						datas.push_back(curData);
+						validRoundTime++;
+					}
+					delete system;
+				}
+
+				//计算平均误差
+				RtLbsType errorMean = 0.0;
+				for (auto& data : datas) {
+					errorMean += data.error;
+				}
+				errorMean /= validRoundTime;
+
+				//写入数据文件
+				std::stringstream ss;
+				ss << "定位性能分析/单点仿真分析/" << positionName << "_phiError_" << phiDegreeError << "_timeError_" << timeError << "_powerError_" << powerError << ".txt";
+				std::ofstream outFile(ss.str());
+				for (auto& data : datas) {
+					data.Write2File(outFile);
+				}
+				outFile.close();
+				LOG_INFO << errorMean << std::endl;
+			}
 		}
 	}
 	LOG_INFO << "计算完成" << ENDL;

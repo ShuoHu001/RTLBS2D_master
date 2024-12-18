@@ -15,6 +15,9 @@
 #include "equipment/sensor/sensordatacollection.h"
 #include "equipment/sensor/sensordataprocessing.h"
 #include "configuration/sensor/sensorcollectionconfig.h"
+#include "configuration/localization/lbserrorconfig.h"
+#include "localization/localizationfunction/crlb.h"
+#include "localization/localizationfunction/gdop.h"
 
 
 
@@ -24,6 +27,8 @@ public:
 	unsigned m_txNum;														/** @brief	发射机数量	*/
 	unsigned m_rxNum;														/** @brief	接收机数量	*/
 	unsigned m_sensorNum;													/** @brief	传感器数量	*/
+	std::vector<Transmitter*> m_transmitters;								/** @brief	发射机集合	*/
+	std::vector<Receiver*> m_receivers;										/** @brief	接收机集合	*/
 	std::vector<RaytracingResult> m_raytracingResult;						/** @brief	射线追踪仿真结果	*/
 
 	std::vector<SensorDataCollection> m_sensorDataSPSTMD;					/** @brief	单站单源多数据定位, 接收数量为1	  支持定位类型：TOA、TDOA、AOA*/
@@ -60,6 +65,10 @@ private:
 	void OutputSensorDataSPMTMD() const;																									//输出单站多源多数据定位传感器仿真数据
 	void OutputSensorDataMPMTMD() const;																									//输出多站多源多数据定位传感器仿真数据
 	void OutputGeneralSourceForCRLB() const;																								//输出广义源信息，用于计算CRLB
+	void OutputMultiStationCRLB(const LBSErrorConfig& config) const;																		//计算并输出多站CRLB
+	void OutputMultiStationGDOP(const LBSErrorConfig& config) const;																		//计算并输出多站GDOP
+	void OutputSingleStationCRLB(const LBSErrorConfig& config) const;																		//计算并输出单站CRLB
+	void OutputSingleStationGDOP(const LBSErrorConfig& config) const;																		//计算并输出单站GDOP
 	
 };
 

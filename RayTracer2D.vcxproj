@@ -79,7 +79,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(VcpkgRoot)\installed\x64-windows\include;$(CUDA_PATH)\include;$(IncludePath)</IncludePath>
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(CUDA_PATH)\lib\x64;$(SolutionDir)\lib\x64\release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\bin\</OutDir>
     <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\assest\</IntDir>
@@ -201,6 +201,7 @@
     <ClCompile Include="src\configuration\antennaconfig.cpp" />
     <ClCompile Include="src\configuration\frequencyconfig.cpp" />
     <ClCompile Include="src\configuration\library\antennalibraryconfig.cpp" />
+    <ClCompile Include="src\configuration\localization\lbserrorconfig.cpp" />
     <ClCompile Include="src\configuration\localization\solvingconfig.cpp" />
     <ClCompile Include="src\configuration\localization\weightfactor.cpp" />
     <ClCompile Include="src\configuration\materialconfig.cpp" />
@@ -263,6 +264,8 @@
     <ClCompile Include="src\localization\lbsinfocluster.cpp" />
     <ClCompile Include="src\localization\lbsresidual.cpp" />
     <ClCompile Include="src\localization\lbstreenode.cpp" />
+    <ClCompile Include="src\localization\localizationfunction\crlb.cpp" />
+    <ClCompile Include="src\localization\localizationfunction\gdop.cpp" />
     <ClCompile Include="src\localization\lossfunction\lossfunction.cpp" />
     <ClCompile Include="src\localization\raypathsetter.cpp" />
     <ClCompile Include="src\localization\tdoa\tdoasolver.cpp" />
@@ -272,6 +275,7 @@
     <ClCompile Include="src\localization\toa\toa_residual.cpp" />
     <ClCompile Include="src\localization\toa\toa_solver.cpp" />
     <ClCompile Include="src\math\euler.cpp" />
+    <ClCompile Include="src\math\matrixfunction.cpp" />
     <ClCompile Include="src\math\point3d.cpp" />
     <ClCompile Include="src\math\polarization2d.cpp" />
     <ClCompile Include="src\math\polarization3d.cpp" />
@@ -357,6 +361,7 @@
     <ClInclude Include="src\algorithm\decisiontoolkit\assignalgorithm.h" />
     <ClInclude Include="src\algorithm\optimizationtoolkit\ga\ga.h" />
     <ClInclude Include="src\algorithm\optimizationtoolkit\pso\pso.h" />
+    <ClInclude Include="src\configuration\localization\lbserrorconfig.h" />
     <ClInclude Include="src\configuration\localization\solvingconfig.h" />
     <ClInclude Include="src\configuration\localization\weightfactor.h" />
     <ClInclude Include="src\configuration\materialconfig.h" />
@@ -410,6 +415,8 @@
     <ClInclude Include="src\localization\lbsinfocluster.h" />
     <ClInclude Include="src\localization\lbsresidual.h" />
     <ClInclude Include="src\localization\lbstreenode.h" />
+    <ClInclude Include="src\localization\localizationfunction\crlb.h" />
+    <ClInclude Include="src\localization\localizationfunction\gdop.h" />
     <ClInclude Include="src\localization\lossfunction\lossfunction.h" />
     <ClInclude Include="src\localization\raypathsetter.h" />
     <ClInclude Include="src\localization\tdoa\tdoasolver.h" />
@@ -419,6 +426,7 @@
     <ClInclude Include="src\localization\toa\toa_residual.h" />
     <ClInclude Include="src\localization\toa\toa_solver.h" />
     <ClInclude Include="src\math\euler.h" />
+    <ClInclude Include="src\math\matrixfunction.h" />
     <ClInclude Include="src\math\point3d.h" />
     <ClInclude Include="src\math\polarization2d.h" />
     <ClInclude Include="src\math\polarization3d.h" />

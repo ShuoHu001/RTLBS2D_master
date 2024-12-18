@@ -1,5 +1,5 @@
-phiErrors=[0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0];
-powerErrors=[0,1,2,3,4,5,6,7,8,9,10];
+phiErrors=[2,4,6,8,10,12];
+powerErrors=[0,1,2,3,4,5,6];
 station_name="A";
 phiNum=length(phiErrors);
 powerNum=length(powerErrors);
@@ -10,11 +10,11 @@ figure("WindowState","maximized", "Color","white");
 h=zeros(phiNum,1);
 for i=1:length(phiErrors)
     for j=1:length(powerErrors)
-        filename=strcat(station_name,"_phiError_",num2str(phiErrors(i)),"_powerError_",num2str(powerErrors(j)),".txt");
+        filename=strcat(station_name,"_timeError_",num2str(phiErrors(i)),"_powerError_",num2str(powerErrors(j)),".txt");
         data=load(filename);
         error_matrix(i,j)=mean(data(:,6));
     end
-    p=plot(0:10,error_matrix(i,:));
+    p=plot(0:6,error_matrix(i,:));
     % p.Color=color(i,:);
     p.LineStyle="--";
     p.Marker=mark(i);

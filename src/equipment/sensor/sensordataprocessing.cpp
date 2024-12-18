@@ -489,7 +489,7 @@ void CalculateSensorCollectionResidual_TDOA_SingleData(const std::vector<SensorD
 	}
 }
 
-void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, RtLbsType& r_timeDiff, RtLbsType& r_powerdiff, int& nullDataNum)
+void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, const WeightFactor& w, RtLbsType& r_timeDiff, RtLbsType& r_powerdiff, int& nullDataNum)
 {
 	//比较前需要确定c1和出的顺序都要按照功率从高到低的排序进行，并且以功率最大的多径作为能量主参考径来估计时延差
 
@@ -498,8 +498,8 @@ void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, cons
 		RtLbsType r_timeDiff;					/** @brief	时差残差	*/
 		RtLbsType r_powerDiff;					/** @brief	功率差残差	*/
 		RtLbsType r_norm;						/** @brief	归一化残差	*/
-		void CalNormResidual(RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff) {			//计算归一化残差
-			r_norm = 0.5 * r_timeDiff / max_r_timeDiff + 0.5 * r_powerDiff / max_r_powerDiff;
+		void CalNormResidual(const WeightFactor& w, RtLbsType max_r_timeDiff, RtLbsType max_r_powerDiff) {			//计算归一化残差
+			r_norm = w.m_timeWeight * r_timeDiff / max_r_timeDiff + w.m_powerWeight * r_powerDiff / max_r_powerDiff;
 		}
 	};
 
@@ -536,7 +536,7 @@ void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, cons
 	//将矩阵进行归一化处理
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j) {
-			cost[i][j].CalNormResidual(max_r_timeDiff, max_r_powerDiff);
+			cost[i][j].CalNormResidual(w, max_r_timeDiff, max_r_powerDiff);
 			norm_cost[i][j] = cost[i][j].r_norm;
 		}
 	}
@@ -567,16 +567,21 @@ void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, cons
 	}
 }
 
-void CalculateSensorCollectionResidual_TDOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum)
+void CalculateSensorCollectionResidual_TDOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, const WeightFactor& w, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum)
 {
 	for (int i = 0; i < static_cast<int>(c1.size()); ++i) {
 		RtLbsType cur_r_timeDiff = 0.0;
 		RtLbsType cur_r_powerDiff = 0.0;
 		int cur_nullDataNum = 0;
-		CalculateSensorResidual_TDOA_MultiData(c1[i], c2[i], cur_r_timeDiff, cur_r_powerDiff, cur_nullDataNum);
+		CalculateSensorResidual_TDOA_MultiData(c1[i], c2[i], w, cur_r_timeDiff, cur_r_powerDiff, cur_nullDataNum);
 		r_timeDiff += cur_r_timeDiff;
 		r_powerDiff += cur_r_powerDiff;
 		nullDataNum += cur_nullDataNum;
+	}
+	//TDOA 算法需要增加限制条件，若仿真多径远大于实测多径，则增加nulldata的数量，用以限制缺陷
+	int tuning_pathinfosize = c2[0].m_datas.size() - c1[0].m_datas.size();
+	if (tuning_pathinfosize >= 2) {							//设置多径差额数量为2
+		nullDataNum += tuning_pathinfosize - 1;
 	}
 }
 

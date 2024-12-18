@@ -147,6 +147,7 @@ enum RAYPATHTYPE {
 enum SOLVINGMODE {
 	SOLVING_LS,							/** @brief	最小二乘法	*/
 	SOLVING_WLS,						/** @brief	加权最小二乘法	*/
+	SOLVING_TSWLS,                      /** @brief	两步加权最小二乘法	*/
 	SOLVING_IRLS,						/** @brief	迭代最小二乘法	*/
 	SOLVING_WIRLS,						/** @brief	加权迭代最小二乘法	*/
 };
@@ -161,6 +162,14 @@ enum LOSSFUNCTIONTYPE {
 	LOSS_FAIR,							/** @brief	Fair 损失函数	*/
 	LOSS_GEMANMCCLURE,					/** @brief	Geman-McClure损失函数	*/
 	LOSS_DCS,							/** @brief	DCS损失函数	*/
+};
+
+/** @brief	定位误差类型，用于输出CRLB和GDOP参数	*/
+enum LBSERRORTYPE {
+	LBSERRORTYPE_AOA,			/** @brief	AOA 定位 误差	*/
+	LBSERRORTYPE_TOA,			/** @brief	TOA 定位 误差	*/
+	LBSERRORTYPE_AOATOA,		/** @brief	AOA-TOA 定位 误差	*/
+	LBSERRORTYPEAOATDOA		/** @brief	AOA-TDOA 定位 误差	*/
 };
 
 

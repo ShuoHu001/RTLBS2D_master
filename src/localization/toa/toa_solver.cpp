@@ -111,13 +111,63 @@ Point2D TOASolver::Solving_WLS(const BBox2D& bbox, const Point2D& initPoint)
 	return Point2D(position[0], position[1]);
 }
 
+Point2D TOASolver::Solving_TSWLS(const BBox2D& bbox)
+{
+	//使用两步加权最小二乘方法
+	Point2D initPoint(10, 10);
+	Solving_LS(bbox, initPoint);
+	//首先第一步使用LS进行计算初始位置
+	//调节权重，按照残差的大小进行调整
+
+	RtLbsType position[2] = { initPoint.x, initPoint.y };		//初始位置估计
+
+	int dataNum = static_cast<int>(m_gsData.size());
+
+	std::vector<TOAResidual> toaResiduals(dataNum);
+	for (int i = 0; i < dataNum; ++i) {//初始化残差
+		toaResiduals[i].Init(m_gsData[i]);
+		double res = toaResiduals[i].GetResidual(position);
+		double weight = 1.0 / (res * res + EPSILON);
+		toaResiduals[i].SetWeight(weight);
+	}
+
+	//定义问题
+	ceres::Problem problem;
+	//指定数据集(残差块)
+	for (int i = 0; i < dataNum; ++i) {
+		ceres::CostFunction* costFunc_TOA = new ceres::AutoDiffCostFunction<TOAResidual, 1, 2>(new TOAResidual(toaResiduals[i]));
+		problem.AddResidualBlock(costFunc_TOA, nullptr, position);
+	}
+
+	//设置边界约束
+	problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+	problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+	problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+	problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
+
+	//配置求解器
+	ceres::Solver::Options options;
+	options.linear_solver_type = ceres::DENSE_QR;
+	options.minimizer_progress_to_stdout = false;
+	options.logging_type = ceres::LoggingType::SILENT; // 禁止日志输出
+
+	//求解
+	ceres::Solver::Summary summary;
+	ceres::Solve(options, &problem, &summary);
+
+	return Point2D(position[0], position[1]);
+
+}
+
 Point2D TOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint)
 {
 	int iterNum = config.m_iterNum;
 	double tol = config.m_tolerance;
 	LOSSFUNCTIONTYPE lossType = config.m_lossType;
+	
 
-	RtLbsType position[2] = { initPoint.x, initPoint.y };				//初始位置估计
+
+	RtLbsType position[2] = { 10.0, 10.0 };				//初始位置估计,IRLS不加初值赋值
 	RtLbsType prevPosition[2] = { 0,0 };								//前一个节点的位置估计
 
 	double toaResidual_STD = 0.01;											/** @brief	AOA残差标准差	*/
@@ -136,12 +186,15 @@ Point2D TOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox,
 		//定义问题
 		ceres::Problem problem;
 
-		ceres::LossFunction* aoa_cost_function = custom_loss::CreateLossFunction(lossType, toaResidual_STD);
+		if (i == 0) {
+			lossType = LOSS_HUBER;                                   //初始时使用Huber损失函数
+		}
+		ceres::LossFunction* toa_cost_function = custom_loss::CreateLossFunction(lossType, toaResidual_STD);
 
 		//指定数据集(残差块)
 		for (int j = 0; j < dataNum; ++j) {
 			ceres::CostFunction* costFunc_TOA = new ceres::AutoDiffCostFunction<TOAResidual, 1, 2>(new TOAResidual(toaResiduals[j]));
-			problem.AddResidualBlock(costFunc_TOA, aoa_cost_function, position);
+			problem.AddResidualBlock(costFunc_TOA, toa_cost_function, position);
 		}
 
 		//设置边界约束
@@ -195,7 +248,6 @@ Point2D TOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& bbox
 
 		//定义问题
 		ceres::Problem problem;
-
 		ceres::LossFunction* aoa_cost_function = custom_loss::CreateLossFunction(lossType, toaResidual_STD);
 
 		//指定数据集(残差块)
@@ -225,8 +277,9 @@ Point2D TOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& bbox
 		if (deltaDis < tol) {
 			break;
 		}
-
-		UpdateResidualWeight(position, toaResiduals, toaResidual_STD);
+		double stdTemp = 0;
+		UpdateResidualWeight(position, toaResiduals, stdTemp);
+		//toaResidual_STD = std::min(toaResidual_STD, stdTemp);
 	}
 	return { position[0], position[1] };
 }
@@ -240,6 +293,9 @@ Point2D TOASolver::Solving(const SolvingConfig& config, const BBox2D& bbox, cons
 	}
 	else if (mode == SOLVING_WLS) {
 		solution = Solving_WLS(bbox, initPoint);
+	}
+	else if (mode == SOLVING_TSWLS) {
+		solution = Solving_TSWLS(bbox);
 	}
 	else if (mode == SOLVING_IRLS) {
 		solution = Solving_IRLS(config, bbox, initPoint);
@@ -257,7 +313,7 @@ void TOASolver::UpdateResidualWeight(const double* position, std::vector<TOAResi
 	std::vector<double> r_aoas;
 	for (auto& curTOAResidual : toaResiduals) {
 		double res = curTOAResidual.GetResidual(position);
-		double cur_toa_weight = curTOAResidual.GetWeight() / (abs(res) + EPSILON);								//权重
+		double cur_toa_weight = curTOAResidual.GetWeight() / (res * res + EPSILON);								//权重
 		max_toa_weight = std::max(max_toa_weight, cur_toa_weight);
 		curTOAResidual.SetWeight(cur_toa_weight);
 		r_aoas.push_back(res);

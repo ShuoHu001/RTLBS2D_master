@@ -56,6 +56,43 @@ namespace vectoroperator {
 
 		return std::sqrt(sum / observed.size());  // RMSE = sqrt(误差平方和 / 数据数量)
 	}
+
+	//获取矢量最小元素对应的索引
+	template <typename T>
+	size_t GetMinIndex(const std::vector<T>& data) {
+		size_t minIndex = 0;
+		for (size_t i = 1; i < data.size(); ++i) {
+			if (data[i] < data[minIndex]) {
+				minIndex = i;
+			}
+		}
+		return minIndex;
+	}
+
+	//获取矢量最大元素对应的索引
+	template <typename T>
+	size_t GetMaxIndex(const std::vector<T>& data) {
+		size_t maxIndex = 0;
+		for (size_t i = 1; i < data.size(); ++i) {
+			if (data[i] > data[maxIndex]) {
+				maxIndex = i;
+			}
+		}
+		return maxIndex;
+	}
+
+	//获取矢量最大值
+	template <typename T>
+	T GetMax(const std::vector<T>& data) {
+		return data[GetMaxIndex(data)];
+	}
+
+	//获取矢量最小值
+	template <typename T>
+	T GetMin(const std::vector<T>& data) {
+		return data[GetMinIndex(data)];
+	}
+
 }
 
 

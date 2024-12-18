@@ -45,6 +45,7 @@ public:
 	RtLbsType DistanceTo(const GSPair& pair);																						//计算与其他pair之间的距离（解集中的距离）
 	void UpdateResidual_AOA(RtLbsType mean_r_phi, RtLbsType mean_r_powerDiff);														//更新权重AOA
 	void UpdateResidual_TOA(RtLbsType mean_r_time, RtLbsType mean_r_power);															//更新权重TOA
+	void UpdateResidual_TDOA(RtLbsType mean_r_timeDiff, RtLbsType mean_r_powerDiff);												//更新权重TDOA
 	void UpdateResidual_AOATOA(RtLbsType mean_r_phi, RtLbsType mean_r_time, RtLbsType mean_r_power);								//更新权重AOATOA
 	void UpdateResidual_AOATDOA(RtLbsType mean_r_phi, RtLbsType mean_r_timeDiff, RtLbsType mean_r_powerDiff);						//跟新权重AOATDOA
 	void NormalizedWeight(RtLbsType max_weight);																				//计算归一化权重
@@ -52,8 +53,7 @@ public:
 	bool HasValidTOASolution(const Scene* scene);
 	bool HasValidAOATOASolution(const Scene* scene);
 	bool HasValidAOATDOASolution(const Scene* scene);
-	bool HasValidTDOASolution_SPSTMD(const Scene* scene, RtLbsType freq, const std::vector<Complex>& tranFunctionData);									//验证TDOA算法的有效性 单源多数据定位
-	bool HasValidTDOASolution_MPSTSD(const Scene* scene);																							//验证TDOA算法的有效性 多源单数据定位
+	bool HasValidTDOASolution(const Scene* scene);
 	void CalculateSinglePairResidual();																												//计算单个pair组合的残差
 	void CalNormalizedWeightAndUpdate_AOA(RtLbsType max_r_phi, RtLbsType max_r_powerDiff, const WeightFactor& w, int max_clusterNum);										//计算部分归一化权重值并更新广义源权重-AOA型
 	void CalNormalizedWeightAndUpdate_TOA(RtLbsType max_r_time, RtLbsType max_r_power, const WeightFactor& w, int max_clusterNum);											//计算部分归一化权重值并更新广义源权重-TOA型
@@ -64,11 +64,40 @@ public:
 private:
 	bool _calAOASolution();
 	bool _calTOASolution(const BBox2D& bbox);
-	bool _calTDOASolution();
+	bool _calTDOASolution(const BBox2D& bbox);
 	bool _calAOATOASolution(const BBox2D& bbox);
 	bool _calAOATDOASolution(const BBox2D& bbox);
 	bool _judgementRules(const Scene* scene);								//初步定位解判定准则
 
 };
+
+inline bool PreCheckGSPairValidation_TDOA(GeneralSource* gsRef, GeneralSource* gs1, GeneralSource* gs2) {
+	//若gs1或gs2中与gsref点位相同，则无效
+	if (gsRef->m_position == gs1->m_position ||
+		gsRef->m_position == gs2->m_position ||
+		gs1->m_position == gs2->m_position) {
+		return false;
+	}
+
+	//若传感器数据相同，则解无效
+	if (gsRef->m_sensorData.m_id == gs1->m_sensorData.m_id ||
+		gsRef->m_sensorData.m_id == gs2->m_sensorData.m_id ||
+		gs1->m_sensorData.m_id == gs2->m_sensorData.m_id) {
+		return false;
+	}
+
+	//根据时延差来判定是否为有效的广义源组合
+	RtLbsType timeDiff_data1 = gs1->m_sensorData.m_timeDiff;
+	RtLbsType timeDiff_data2 = gs2->m_sensorData.m_timeDiff;
+	RtLbsType time_refNode = gsRef->m_originPathNode.m_ft;
+	RtLbsType time_dataNode1 = gs1->m_originPathNode.m_ft;
+	RtLbsType time_dataNode2 = gs2->m_originPathNode.m_ft;
+	RtLbsType flag_data1 = time_dataNode1 * (time_dataNode1 - time_refNode);
+	RtLbsType flag_data2 = time_dataNode2 * (time_dataNode2 - time_refNode);
+	if (flag_data1 < 0 || flag_data2 < 0) {									//保证时延差的符号与节点坐标传播距离差的符号相同
+		return false;
+	}
+	return true;
+}
 
 #endif

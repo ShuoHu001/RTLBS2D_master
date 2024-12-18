@@ -34,6 +34,7 @@ public:
 	bool operator < (const SensorData& data);									//重载小于符号，按照功率大小进行逆向排序
 	RtLbsType DistanceAOA2D(const SensorData& data) const;						//二维角度距离
 	RtLbsType DistanceTime(const SensorData& data) const;						//时延
+	RtLbsType DistanceTimeDiff(const SensorData& data) const;					//时差
 	Vector2D GetDirection() const;												//将接收到的角度转换为方向矢量
 	void AddSimulationError(RtLbsType phiErrorSigma, RtLbsType timeErrorSigma, RtLbsType powerErrorSigma);			//增加仿真误差
 	void Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);

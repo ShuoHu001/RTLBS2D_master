@@ -126,7 +126,7 @@ void GSPairCluster::ExtendAroundPoint(bool expandFlag, const ElevationMatrix& lb
 		Point2D WestPoint = m_point + Point2D(-offset, 0);                          /** @brief	西点	*/
 		Point2D EastPoint = m_point + Point2D(offset, 0);                           /** @brief	东点	*/
 
-		RtLbsType offset1 = 0.5;                                                    /** @brief	倾斜处偏移量,提供微量偏移	*/
+		RtLbsType offset1 = 3.0;                                                    /** @brief	倾斜处偏移量,提供微量偏移	*/
 		Point2D NorthWestPoint = m_point + Point2D(-offset1, offset1);              /** @brief	西北点	*/
 		Point2D NorthEastPoint = m_point + Point2D(offset1, offset1);               /** @brief	东北点	*/
 		Point2D SouthWestPoint = m_point + Point2D(-offset1, -offset1);             /** @brief	西南点	*/
@@ -190,9 +190,30 @@ void GSPairCluster::ExtendAroundPoint(bool expandFlag, const ElevationMatrix& lb
         m_rtResult.resize(m_aroundPoints.size(), std::vector<RaytracingResult>());
     }
     else {
-        m_aroundPoints.resize(1);
-        m_rtResult.resize(1, std::vector<RaytracingResult>());
-        m_aroundPoints[0] = m_point;
+        m_aroundPoints.push_back(m_point);
+		RtLbsType offset1 = 0.5;                                                    /** @brief	倾斜处偏移量,提供微量偏移	*/
+		Point2D NorthWestPoint = m_point + Point2D(-offset1, offset1);              /** @brief	西北点	*/
+		Point2D NorthEastPoint = m_point + Point2D(offset1, offset1);               /** @brief	东北点	*/
+		Point2D SouthWestPoint = m_point + Point2D(-offset1, -offset1);             /** @brief	西南点	*/
+		Point2D SouthEastPoint = m_point + Point2D(offset1, -offset1);              /** @brief	东南点	*/
+
+		if (scene->IsValidPoint(NorthWestPoint)) {
+			m_aroundPoints.push_back(NorthWestPoint);
+			m_nearExtendNum++;
+		}
+		if (scene->IsValidPoint(NorthEastPoint)) {
+			m_aroundPoints.push_back(NorthEastPoint);
+			m_nearExtendNum++;
+		}
+		if (scene->IsValidPoint(SouthWestPoint)) {
+			m_aroundPoints.push_back(SouthWestPoint);
+			m_nearExtendNum++;
+		}
+		if (scene->IsValidPoint(SouthEastPoint)) {
+			m_aroundPoints.push_back(SouthEastPoint);
+			m_nearExtendNum++;
+		}
+		m_rtResult.resize(m_aroundPoints.size(), std::vector<RaytracingResult>());
     }
    
 }
@@ -406,46 +427,27 @@ void GSPairCluster::GetNonRepeatGeneralSource(GeneralSource* refSource, std::vec
         if (curPair->m_gsRef != refSource) {
             continue;
         }
-		GeneralSource* gs1 = curPair->m_gs1;
-		GeneralSource* gs2 = curPair->m_gs2;
-		size_t hash1 = gs1->GetHash();
-		size_t hash2 = gs2->GetHash();
-		auto pos1 = sourceMap.find(hash1);
-		auto pos2 = sourceMap.find(hash2);
-		bool gs1_repeatFlag = false;                //广义源1重复状态
-		bool gs2_repeatFlag = false;                //广义源2重复状态
-		if (pos1 == sourceMap.end()) {              //hash1未找到重复项
-			sourceMap[hash1] = gs1;
-		}
-		else {
-			GeneralSource*& existSource = pos1->second;
-			if (gs1 != existSource) {               //若广义源重复，则不进行计数
-				existSource->m_sensorData.m_phi += gs1->m_sensorData.m_phi;
-				existSource->m_phiRepeatCount += 1;
-				gs1_repeatFlag = true;
-			}
-		}
 
-		if (pos2 == sourceMap.end()) {              //hash2未找到重复项
-			sourceMap[hash2] = gs2;
-		}
-		else {
-			GeneralSource*& existSource = pos2->second;
-			if (gs2 != existSource) {               //若广义源重复，则不进行计数
-				existSource->m_sensorData.m_phi += gs2->m_sensorData.m_phi;
-				existSource->m_phiRepeatCount += 1;
-				gs2_repeatFlag = true;
-			}
-		}
+        std::vector<GeneralSource*> gsVec;
+        gsVec.push_back(curPair->m_gs1);
+        gsVec.push_back(curPair->m_gs2);
 
-		if (gs1_repeatFlag && gs2_repeatFlag) {     //若两个广义源都处于重复状态，则当前pair是重复的，设定当前pair有效性为false
-			curPair->m_isValid = false;
-		}
+        for (auto& curGS : gsVec) {
+            size_t hash = curGS->GetHash();
+            auto pos = sourceMap.find(hash);
+			if (pos == sourceMap.end()) {              //hash1未找到重复项
+				sourceMap[hash] = curGS;
+			}
+			else {
+				GeneralSource*& existSource = pos->second;
+				if (curGS != existSource) {               //若广义源重复，则不进行计数
+					existSource->m_sensorData.m_phi += curGS->m_sensorData.m_phi;
+					existSource->m_phiRepeatCount += 1;
+				}
+			}
+        }
 	}
 
-	m_pairs.erase(std::remove_if(m_pairs.begin(), m_pairs.end(), [](const GSPair* pair) {           //清空cluster中无效的广义源对
-		return pair->m_isValid == false;
-		}), m_pairs.end());
     sources.clear();
 	for (auto& data : sourceMap) {                                      //纳入非重复广义源
 		GeneralSource* existSource = data.second;

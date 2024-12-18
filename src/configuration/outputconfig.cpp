@@ -16,6 +16,10 @@ OutputConfig::OutputConfig()
 	, m_outputSensorDataSPMTMD(false)
 	, m_outputSensorDataMPMTMD(false)
 	, m_outputGSForCRLB(false)
+	, m_outputMultiStationCRLB(false)
+	, m_outputMultiStationGDOP(false)
+	, m_outputSingleStationCRLB(false)
+	, m_outputSingleStationGDOP(false)
 	, m_outputLBSMethod(LBS_METHOD_RT_AOA)
 	, m_outputSensorDataSparseFactor(1.0)
 {
@@ -39,6 +43,10 @@ OutputConfig::OutputConfig(const OutputConfig& config)
 	, m_outputSensorDataSPMTMD(config.m_outputSensorDataSPMTMD)
 	, m_outputSensorDataMPMTMD(config.m_outputSensorDataMPMTMD)
 	, m_outputGSForCRLB(config.m_outputGSForCRLB)
+	, m_outputMultiStationCRLB(config.m_outputMultiStationCRLB)
+	, m_outputMultiStationGDOP(config.m_outputMultiStationGDOP)
+	, m_outputSingleStationCRLB(config.m_outputSingleStationCRLB)
+	, m_outputSingleStationGDOP(config.m_outputSingleStationGDOP)
 	, m_outputLBSMethod(config.m_outputLBSMethod)
 	, m_outputSensorDataSparseFactor(config.m_outputSensorDataSparseFactor)
 {
@@ -67,6 +75,10 @@ OutputConfig& OutputConfig::operator=(const OutputConfig& config)
 	m_outputSensorDataSPMTMD=config.m_outputSensorDataSPMTMD;
 	m_outputSensorDataMPMTMD=config.m_outputSensorDataMPMTMD;
 	m_outputGSForCRLB = config.m_outputGSForCRLB;
+	m_outputMultiStationCRLB = config.m_outputMultiStationCRLB;
+	m_outputMultiStationGDOP = config.m_outputMultiStationGDOP;
+	m_outputSingleStationCRLB = config.m_outputSingleStationCRLB;
+	m_outputSingleStationGDOP = config.m_outputSingleStationGDOP;
 	m_outputLBSMethod = config.m_outputLBSMethod;
 	m_outputSensorDataSparseFactor = config.m_outputSensorDataSparseFactor;
 	return *this;
@@ -85,6 +97,10 @@ bool OutputConfig::IsValid() const
 	}
 	if (m_outputSensorDataSparseFactor < 0.1) {
 		LOG_ERROR << "OuputConfig: sensor data output sparse factor must greater than 0.1." << ENDL;
+		return false;
+	}
+	if (m_outputMultiStationCRLB * m_outputMultiStationGDOP * m_outputSingleStationCRLB * m_outputSingleStationGDOP == 1) {
+		LOG_ERROR << "OuputConfig: can't output multi and single CRLB and GDOP simultaneously." << ENDL;
 		return false;
 	}
 	return true;
@@ -110,8 +126,13 @@ void OutputConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str());							writer.Bool(m_outputSensorDataSPMTMD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str());							writer.Bool(m_outputSensorDataMPMTMD);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTGSFORCRLB.c_str());									writer.Bool(m_outputGSForCRLB);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONCRLB.c_str());							writer.Bool(m_outputMultiStationCRLB);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONGDOP.c_str());							writer.Bool(m_outputMultiStationGDOP);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONCRLB.c_str());							writer.Bool(m_outputSingleStationCRLB);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONGDOP.c_str());							writer.Bool(m_outputSingleStationGDOP);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str());						writer.Double(m_outputSensorDataSparseFactor);
 	writer.Key(KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str());									SerializeEnum(m_outputLBSMethod, writer);
+	writer.Key(KEY_OUTPUTCONFIG_OUTPUTLBSERRORCONFIG.c_str());								m_outputLBSErrorConfig.Serialize(writer);
 	writer.EndObject();
 }
 
@@ -190,12 +211,32 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTGSFORCRLB.c_str() << ENDL;
 		return false;
 	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONCRLB.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONCRLB.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONGDOP.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONGDOP.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONCRLB.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONCRLB.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONGDOP.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONGDOP.c_str() << ENDL;
+		return false;
+	}
 	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str())) {
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str() << ENDL;
 		return false;
 	}
 	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str())) {
 		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str() << ENDL;
+		return false;
+	}
+	if (!value.HasMember(KEY_OUTPUTCONFIG_OUTPUTLBSERRORCONFIG.c_str())) {
+		LOG_ERROR << "OutputConfig: missing " << KEY_OUTPUTCONFIG_OUTPUTLBSERRORCONFIG.c_str() << ENDL;
 		return false;
 	}
 
@@ -216,8 +257,13 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& outputSensorDataSPMTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD.c_str()];
 	const rapidjson::Value& outputSensorDataMPMTMDValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD.c_str()];
 	const rapidjson::Value& outputGSForCRLBValue = value[KEY_OUTPUTCONFIG_OUTPUTGSFORCRLB.c_str()];
+	const rapidjson::Value& outputMultiStationCRLBValue = value[KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONCRLB.c_str()];
+	const rapidjson::Value& outputMultiStationGDOPValue = value[KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONGDOP.c_str()];
+	const rapidjson::Value& outputSingleStationCRLBValue = value[KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONCRLB.c_str()];
+	const rapidjson::Value& outputSingleStationGDOPValue = value[KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONGDOP.c_str()];
 	const rapidjson::Value& outputLBSMethodValue = value[KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str()];
 	const rapidjson::Value& outputSensorDataSparseFactorValue = value[KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str()];
+	const rapidjson::Value& outputLBSErrorConfigValue = value[KEY_OUTPUTCONFIG_OUTPUTLBSERRORCONFIG.c_str()];
 
 	if (!rtDirectoryValue.IsString()) {
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_RTDIRECTORY.c_str() << ", wrong value format." << ENDL;
@@ -287,12 +333,32 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTGSFORCRLB.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
+	if (!outputMultiStationCRLBValue.IsBool()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONCRLB.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!outputMultiStationGDOPValue.IsBool()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONGDOP.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!outputSingleStationCRLBValue.IsBool()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONCRLB.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!outputSingleStationGDOPValue.IsBool()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONGDOP.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
 	if (!outputLBSMethodValue.IsInt()) {
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
 	if (!outputSensorDataSparseFactorValue.IsDouble()) {
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
+	if (!outputLBSErrorConfigValue.IsObject()) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTLBSERRORCONFIG.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
 
@@ -313,9 +379,18 @@ bool OutputConfig::Deserialize(const rapidjson::Value& value)
 	m_outputSensorDataSPMTMD = outputSensorDataSPMTMDValue.GetBool();
 	m_outputSensorDataMPMTMD = outputSensorDataMPMTMDValue.GetBool();
 	m_outputGSForCRLB = outputGSForCRLBValue.GetBool();
+	m_outputMultiStationCRLB = outputMultiStationCRLBValue.GetBool();
+	m_outputMultiStationGDOP = outputMultiStationGDOPValue.GetBool();
+	m_outputSingleStationCRLB = outputSingleStationCRLBValue.GetBool();
+	m_outputSingleStationGDOP = outputSingleStationGDOPValue.GetBool();
 	m_outputSensorDataSparseFactor = outputSensorDataSparseFactorValue.GetDouble();
+
 	if (!DeserializeEnum(m_outputLBSMethod, outputLBSMethodValue)) {
 		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD.c_str() << ", deserialize failed." << ENDL;
+		return false;
+	}
+	if (!m_outputLBSErrorConfig.Deserialize(outputLBSErrorConfigValue)) {
+		LOG_ERROR << "OutputConfig: " << KEY_OUTPUTCONFIG_OUTPUTLBSERRORCONFIG.c_str() << ", deserialize failed." << ENDL;
 		return false;
 	}
 

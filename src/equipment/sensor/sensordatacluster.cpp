@@ -39,6 +39,15 @@ bool SensorDataCluster::CanAddToClusterByTime(const SensorData& data, RtLbsType 
 	return addFlag;
 }
 
+bool SensorDataCluster::CanAddToClusterByTimeDiff(const SensorData& data, RtLbsType threshold) const
+{
+	bool addFlag = false;
+	if (m_mergedData.DistanceTimeDiff(data) > threshold) {
+		addFlag = false;
+	}
+	return addFlag;
+}
+
 void SensorDataCluster::CalMergedDataByAOA()
 {
 	//计算功率权重系数(可同时进行功率合成)
@@ -95,4 +104,29 @@ void SensorDataCluster::CalMergedDataByTime()
 		mergedTimeDelay += powerWeight[i] * m_datas[i].m_time;
 	}
 	m_mergedData.m_time = mergedTimeDelay;
+}
+
+void SensorDataCluster::CalMergedDataByTimeDiff()
+{
+	//计算功率权重-可同时计算合成功率
+	std::sort(m_datas.begin(), m_datas.end());				//按照功率大小进行排序
+	std::vector<RtLbsType> powerWeight;													/** @brief	功率权重	*/
+	powerWeight.reserve(m_datas.size());												//预留空间
+	RtLbsType sumPowerWeight = 0.0;														/** @brief	功率权重和	*/
+	for (auto& curInfo : m_datas) {
+		RtLbsType curPowerWeight = pow(10, curInfo.m_power / 10.0);
+		powerWeight.push_back(curPowerWeight);
+		sumPowerWeight += curPowerWeight;
+	}
+	for (auto& w : powerWeight) {
+		w /= sumPowerWeight;
+	}
+
+	m_mergedData.m_power = 10 * log10(sumPowerWeight);									//转换合成功率
+
+	RtLbsType mergedTimeDiff = 0.0;
+	for (int i = 0; i < static_cast<int>(m_datas.size()); ++i) {						//计算加权时间差
+		mergedTimeDiff += powerWeight[i] * m_datas[i].m_timeDiff;
+	}
+	m_mergedData.m_timeDiff = mergedTimeDiff;
 }

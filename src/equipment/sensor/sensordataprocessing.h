@@ -77,10 +77,10 @@ void CalculateSensorResidual_TDOA_SingleData(const SensorDataCollection& c1, con
 void CalculateSensorCollectionResidual_TDOA_SingleData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum);
 
 //计算两个传感器数据的残差二范数-TDOA定位方法-多数据
-void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, RtLbsType& r_timeDiff, RtLbsType& r_powerdiff, int& nullDataNum);
+void CalculateSensorResidual_TDOA_MultiData(const SensorDataCollection& c1, const SensorDataCollection& c2, const WeightFactor& w, RtLbsType& r_timeDiff, RtLbsType& r_powerdiff, int& nullDataNum);
 
 //计算两组传感器数据的残差二范数-TDOA定位方法-多数据
-void CalculateSensorCollectionResidual_TDOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum);
+void CalculateSensorCollectionResidual_TDOA_MultiData(const std::vector<SensorDataCollection>& c1, const std::vector<SensorDataCollection>& c2, const WeightFactor& w, RtLbsType& r_timeDiff, RtLbsType& r_powerDiff, int& nullDataNum);
 
 //计算两个传感器数据的残差二范数-TDOA/AOA定位方法-单数据
 void CalculateSensorResidual_AOATDOA_SingleData(const SensorDataCollection& c1, const SensorDataCollection& c2, RtLbsType& r_phi, RtLbsType& r_timeDiff);

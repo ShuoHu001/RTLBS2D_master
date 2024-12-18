@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 	int max_threads = omp_get_max_threads();
 	omp_set_num_threads(max_threads - 4);
 
-	int mode = 1;									//0为射线追踪，2为定位精度测试，3为定位区域测试
+	int mode = 0;									//0为射线追踪，2为定位精度测试，3为定位区域测试
 
 	if (mode == 0) {
 		System* system;
@@ -31,21 +31,18 @@ int main(int argc, char** argv) {
 			system = new System();
 			if (!system->Setup(MODE_RT))
 				return -1;
-
 			system->Render();
-
-
 			system->PostProcessing();
-			
-
 			system->OutputResults();
 			delete system;
 		}
 		
 	}
 	else if (mode == 1) {
+		RtLbsType meanAccuracy = 0.0;
 		RtLbsType timeConsume = 0;
-		for (int i = 0; i < 100; ++i) {
+		int validRoundTime = 0;
+		for (int i = 0; i < 1; ++i) {
 			System* system = new System();
 			if (!system->Setup(MODE_LBS))
 				return -1;
@@ -54,8 +51,15 @@ int main(int argc, char** argv) {
 			auto start = std::chrono::system_clock::now();
 
 			system->PostProcessing();
-			Point2D targetPosition = system->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TDOA);
+			Point2D targetPosition = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA);
 			std::cout << targetPosition.x << "," << targetPosition.y << std::endl;
+
+			RtLbsType curaccuracy = (targetPosition - Point2D(70,90)).Length();
+			if (curaccuracy > 200) {
+				delete system;
+				continue;
+			}
+			meanAccuracy += curaccuracy;
 
 			auto end = std::chrono::system_clock::now();
 
@@ -65,8 +69,9 @@ int main(int argc, char** argv) {
 
 			system->OutputResults();
 			delete system;
+			validRoundTime++;
 		}
-		std::cout << timeConsume / 100 << std::endl;
+		std::cout << meanAccuracy / validRoundTime << std::endl;
 	}
 	else if (mode == 2) {
 		TestAOALocalizationSingleStationInDifferentError();

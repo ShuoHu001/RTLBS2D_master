@@ -100,7 +100,7 @@ Point2D AOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox,
 	double tol = config.m_tolerance;
 	LOSSFUNCTIONTYPE lossType = config.m_lossType;
 
-	RtLbsType position[2] = { 0,0 };								//初始位置估计
+	RtLbsType position[2] = { initPoint.x,initPoint.y };								//初始位置估计
 	RtLbsType prevPosition[2] = { 0,0 };							//前一个节点的位置估计
 
 	double aoaResidual_STD = 0.01;											/** @brief	AOA残差标准差	*/

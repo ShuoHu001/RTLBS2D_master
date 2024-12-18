@@ -6,6 +6,7 @@
 #include "utility/enum.h"
 #include "utility/serializable.h"
 #include "managers/logmanager.h"
+#include "configuration/localization/lbserrorconfig.h"
 
 const std::string KEY_OUTPUTCONFIG_RTDIRECTORY = "RTDirectory";
 const std::string KEY_OUTPUTCONFIG_LBSDIRECTORY = "LBSDirectory";
@@ -24,8 +25,13 @@ const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPSTSD = "OutputSensorDataMP
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_SPMTMD = "OutputSensorDataSPMTMD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATA_MPMTMD = "OutputSensorDataMPMTMD";
 const std::string KEY_OUTPUTCONFIG_OUTPUTGSFORCRLB = "OutputGSForCRLB";
+const std::string KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONCRLB = "OutputMultiStationCRLB";
+const std::string KEY_OUTPUTCONFIG_OUTPUTMULTISTATIONGDOP = "OutputMultiStationGDOP";
+const std::string KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONCRLB = "OutputSingleStationCRLB";
+const std::string KEY_OUTPUTCONFIG_OUTPUTSINGLESTATIONGDOP = "OutputSingleStationGDOP";
 const std::string KEY_OUTPUTCONFIG_OUTPUTLBSMETHOD = "OutputLBSMethod";
 const std::string KEY_OUTPUTCONFIG_OUTPUTSENSORDATASPARSEFACTOR = "OutputSensorDataSparseFactor";
+const std::string KEY_OUTPUTCONFIG_OUTPUTLBSERRORCONFIG = "OutputLBSErrorConfig";
 
 class OutputConfig:public Serializable { 
 	
@@ -47,8 +53,14 @@ public:
 	bool m_outputSensorDataSPMTMD;						/** @brief	输出单站多源多数据定位模式传感器数据	*/
 	bool m_outputSensorDataMPMTMD;						/** @brief	输出多站多源多数据定位模式传感器数据	*/
 	bool m_outputGSForCRLB;								/** @brief	输出广义源-计算CRLB	*/
+	bool m_outputMultiStationCRLB;						/** @brief	输出多站CRLB	*/
+	bool m_outputMultiStationGDOP;						/** @brief	输出多站GDOP	*/
+	bool m_outputSingleStationCRLB;						/** @brief	输出单站CRLB	*/
+	bool m_outputSingleStationGDOP;						/** @brief	输出单站GDOP	*/
 	LOCALIZATION_METHOD m_outputLBSMethod;				/** @brief	输出定位传感器数据时候的定位模式	*/
 	RtLbsType m_outputSensorDataSparseFactor;			/** @brief	输出传感器数据的稀疏程度，1为不稀疏，0为极度稀疏	*/
+	LBSErrorConfig m_outputLBSErrorConfig;				/** @brief	输出定位算法的误差评估	*/
+
 
 public:
 	OutputConfig();

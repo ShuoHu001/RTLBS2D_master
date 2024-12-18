@@ -190,6 +190,21 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const st
 		}
 	}
 
+	//计算定位中的广义源,只采用首径功率40dB以内的多径信息
+	RtLbsType maxPower = -FLT_MAX;												/** @brief	最大功率	*/
+	int commonPathNum = m_commonPaths.size();
+	for (int i = 0; i < commonPathNum; ++i) {
+		if (maxPower < m_multipathInfo[i].m_power) {
+			maxPower = m_multipathInfo[i].m_power;
+		}
+	}
+	for (int i = 0; i < commonPathNum; ++i) {
+		if ((maxPower - m_multipathInfo[i].m_power) <= 40) {
+			Point2D gs = m_commonPaths[i]->GetGeneralSource2D();
+			m_generalSources.push_back(gs);
+		}
+	}
+
 	//计算其他参数
 	for (int i = 0; i < m_freqs.size(); ++i) {
 		for (int j = 0; j < m_pathNum; ++j) {
@@ -282,6 +297,54 @@ void RaytracingResult::CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbs
 
 	//计算角度扩展
 	m_rmsAngularSpread = CalculateRMSAngularSpread();
+}
+
+RtLbsType RaytracingResult::CalculateCRLB_AOA(RtLbsType phiSigma) const
+{
+	RtLbsType crlb = ComputeCRLBForAOA(m_generalSources, m_receiver->GetPosition2D(), phiSigma);
+	return crlb;
+}
+
+RtLbsType RaytracingResult::CalculateCRLB_TOA(RtLbsType timeSigma) const
+{
+	RtLbsType crlb = ComputeCRLBForTOA(m_generalSources, m_receiver->GetPosition2D(), timeSigma);
+	return crlb;
+}
+
+RtLbsType RaytracingResult::CalculateCRLB_AOATOA(RtLbsType phiSigma, RtLbsType timeSigma) const
+{
+	RtLbsType crlb = ComputeCRLBForAOATOA(m_generalSources, m_receiver->GetPosition2D(), phiSigma, timeSigma);
+	return crlb;
+}
+
+RtLbsType RaytracingResult::CalculateCRLB_AOATDOA(RtLbsType phiSigma, RtLbsType timeSigma) const
+{
+	RtLbsType crlb = ComputeCRLBForAOATDOA(m_generalSources, m_receiver->GetPosition2D(), phiSigma, timeSigma);
+	return crlb;
+}
+
+RtLbsType RaytracingResult::CalculateGDOP_AOA() const
+{
+	RtLbsType gdop = ComputeGDOPForAOA(m_generalSources, m_receiver->GetPosition2D());
+	return gdop;
+}
+
+RtLbsType RaytracingResult::CalculateGDOP_TOA() const
+{
+	RtLbsType gdop = ComputeGDOPForTOA(m_generalSources, m_receiver->GetPosition2D());
+	return gdop;
+}
+
+RtLbsType RaytracingResult::CalculateGDOP_AOATOA() const
+{
+	RtLbsType gdop = ComputeGDOPForAOATOA(m_generalSources, m_receiver->GetPosition2D());
+	return gdop;
+}
+
+RtLbsType RaytracingResult::CalculateGDOP_AOATDOA() const
+{
+	RtLbsType gdop = ComputeGDOPForAOATDOA(m_generalSources, m_receiver->GetPosition2D());
+	return gdop;
 }
 
 void RaytracingResult::GetAllSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const
@@ -419,7 +482,7 @@ void RaytracingResult::GetAllSensorData_Delay(SensorDataCollection& collection, 
 		}
 		else {
 			sparsedClusterNum = clusterNum;
-			LOG_WARNING << "RaytracingResult: generate sensor data size is " << sparsedClusterNum << " , may not satisfy localization condition." << ENDL;
+			//LOG_WARNING << "RaytracingResult: generate sensor data size is " << sparsedClusterNum << " , may not satisfy localization condition." << ENDL;
 		}
 
 	}
@@ -474,6 +537,40 @@ Point2D RaytracingResult::GetRefGeneralSource() const
 
 	Point2D refGSPoint = m_multipathInfo[minId].GetRefGeneralSource();
 	return refGSPoint;
+}
+
+bool RaytracingResult::GetMaxPowerGeneralSource(Point2D& p) const
+{
+	if (m_commonPaths.size() == 0) {
+		return false;
+	}
+	int maxPowerId = 0;
+	RtLbsType maxPower = -FLT_MAX;
+	for (int i = 0; i < m_commonPaths.size(); ++i) {
+		if (maxPower < m_multipathInfo[i].m_power) {
+			maxPower = m_multipathInfo[i].m_power;
+			maxPowerId = i;
+		}
+	}
+	p = m_commonPaths[maxPowerId]->GetGeneralSource2D();
+	return true;
+}
+
+bool RaytracingResult::GetMinDelayGeneralSource(Point2D& p) const
+{
+	if (m_commonPaths.size() == 0) {
+		return false;
+	}
+	int minDelayId = 0;
+	RtLbsType minDelay = FLT_MAX;
+	for (int i = 0; i < m_commonPaths.size(); ++i) {
+		if (minDelay > m_multipathInfo[i].m_timeDelay) {
+			minDelay = m_multipathInfo[i].m_timeDelay;
+			minDelayId = i;
+		}
+	}
+	p = m_commonPaths[minDelayId]->GetGeneralSource2D();
+	return true;
 }
 
 void RaytracingResult::OutputVectorEField(std::ofstream& stream) const
@@ -606,6 +703,102 @@ void RaytracingResult::OutputGeneralSourceForCRLB(std::ofstream& stream) const
 		}
 		Point2D curGS = curPath->GetGeneralSource2D();
 		stream << curGS.x << "\t" << curGS.y << "\t" << m_multipathInfo[i].m_aoAPhi << "\t" << m_multipathInfo[i].m_timeDelay << std::endl;
+	}
+}
+
+void RaytracingResult::OutputCRLB(std::ofstream& stream, const LBSErrorConfig& config) const
+{
+	RtLbsType crlb = -1;
+	if (config.m_errorType == LBSERRORTYPE_AOA) {
+		for (auto phiSigma : config.m_phiErrorSigmas) {
+			stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+			stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+			stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+			crlb = CalculateCRLB_AOA(phiSigma);
+			stream << phiSigma << "\t" << crlb << std::endl;
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_TOA) {
+		for (auto timeSigma : config.m_timeMErrorSigmas) {
+			stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+			stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+			stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+			crlb = CalculateCRLB_TOA(timeSigma);
+			stream << timeSigma << "\t" << crlb << std::endl;
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_AOATOA) {
+		for (auto phiSigma : config.m_phiErrorSigmas) {
+			for (auto timeSigma : config.m_timeMErrorSigmas) {
+				stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+				stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+				stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+				crlb = CalculateCRLB_AOATOA(phiSigma, timeSigma);
+				stream << phiSigma << "\t" << timeSigma << "\t" << crlb << std::endl;
+			}
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPEAOATDOA) {
+		for (auto phiSigma : config.m_phiErrorSigmas) {
+			for (auto timeSigma : config.m_timeMErrorSigmas) {
+				stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+				stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+				stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+				crlb = CalculateCRLB_AOATDOA(phiSigma, timeSigma);
+				stream << phiSigma << "\t" << timeSigma << "\t" << crlb << std::endl;
+			}
+		}
+	}
+	else {
+		LOG_ERROR << "RaytracingResult: not support." << ENDL;
+	}
+}
+
+void RaytracingResult::OutputGDOP(std::ofstream& stream, const LBSErrorConfig& config) const
+{
+	RtLbsType gdop = -1;
+	if (config.m_errorType == LBSERRORTYPE_AOA) {
+		for (auto phiSigma : config.m_phiErrorSigmas) {
+			stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+			stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+			stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+			gdop = CalculateGDOP_AOA();
+			stream << gdop << std::endl;
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_TOA) {
+		for (auto timeSigma : config.m_timeMErrorSigmas) {
+			stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+			stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+			stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+			gdop = CalculateGDOP_TOA();
+			stream << gdop << std::endl;
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPE_AOATOA) {
+		for (auto phiSigma : config.m_phiErrorSigmas) {
+			for (auto timeSigma : config.m_timeMErrorSigmas) {
+				stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+				stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+				stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+				gdop = CalculateGDOP_AOATOA();
+				stream << gdop << std::endl;
+			}
+		}
+	}
+	else if (config.m_errorType == LBSERRORTYPEAOATDOA) {
+		for (auto phiSigma : config.m_phiErrorSigmas) {
+			for (auto timeSigma : config.m_timeMErrorSigmas) {
+				stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t';
+				stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+				stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+				gdop = CalculateGDOP_AOATDOA();
+				stream << gdop << std::endl;
+			}
+		}
+	}
+	else {
+		LOG_ERROR << "RaytracingResult: not support." << ENDL;
 	}
 }
 

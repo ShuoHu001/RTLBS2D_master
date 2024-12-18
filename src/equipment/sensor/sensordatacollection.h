@@ -25,6 +25,7 @@ public:
 	RtLbsType CalculateRMSDelaySpread() const;											//计算RMS时延扩展
 	void ReClusterByAOAError(RtLbsType phiError);										//按照角度误差进行聚类	
 	void ReClusterByTOAError(RtLbsType timeError);										//按照时间误差进行聚类
+	void ReClusterByTDOAError(RtLbsType timeDiffError);									//按照时间差误差进行聚类
 	void SortByPower();																	//按照能量的大小进行排序
 	void SortByTime();																	//按照时延大小进行排序
 	void SortByTimeDifference();														//按照时间差的大小进行排序

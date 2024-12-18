@@ -489,6 +489,7 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 		curCluster_min_r_time = curCluster_r_times[minDataId];
 		curCluster_min_r_power = curCluster_r_powers[minDataId];
 		curCluster_min_nullDataNum = curCluster_nullDataNums[minDataId];
+		curCluster.m_point = curCluster.m_aroundPoints[minDataId];										//更新当前簇的中心点
 
 		curCluster.SetElementTOAResidual(curCluster_min_r_time, curCluster_min_r_power, curCluster_min_nullDataNum);
 
@@ -520,16 +521,19 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	std::sort(gsPairClusters.begin(), gsPairClusters.end(), ComparedByClusterWeight);
 
 	//计算所有广义源中权重最大的数值，进行权重归一化
+	if (gsPairClusters.size() == 0) {
+		return Point2D();
+	}
 	RtLbsType max_weight = gsPairClusters.front().m_weight;
 	for (auto it = allGSCopy.begin(); it != allGSCopy.end(); ++it) {
 		GeneralSource*& curSource = *it;
 		curSource->NormalizedWeight(max_weight);
 	}
 
-	//删除低于权重阈值的广义源
-	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
-		return s->m_weight < 0.7;
-		}), allGSCopy.end());
+	////删除低于权重阈值的广义源
+	//allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
+	//	return s->m_weight < 0.8;
+	//	}), allGSCopy.end());
 
 	//单源定位中，root源的数据最大只保留一个
 	int hasRootNum = 0;

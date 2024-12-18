@@ -31,6 +31,7 @@ public:
 	void SetGeneralSource(GeneralSource* gs1, GeneralSource* gs2);
 	RtLbsType Solving_LS(const BBox2D& bbox, Point2D& outP);
 	Point2D Solving_WLS(const BBox2D& bbox, const Point2D& initPoint);
+	Point2D Solving_TSWLS(const BBox2D& bbox);
 	Point2D Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint);
 	Point2D Solving_WIRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint);
 	Point2D Solving(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint);

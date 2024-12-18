@@ -39,7 +39,7 @@ public:
 	template <typename T> bool operator()(const T* const position, T* residual) const {
 		T dx = position[0] - T(m_x);
 		T dy = position[1] - T(m_y);
-		residual[0] = (dx * T(m_sinPhi) - dy * T(m_cosPhi)) / T(m_weight);
+		residual[0] = (dx * T(m_sinPhi) - dy * T(m_cosPhi)) * T(m_weight);
 		return true;
 	}
 };

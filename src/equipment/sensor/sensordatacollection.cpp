@@ -80,6 +80,15 @@ void SensorDataCollection::ReClusterByTOAError(RtLbsType timeError)
 	}
 }
 
+void SensorDataCollection::ReClusterByTDOAError(RtLbsType timeDiffError)
+{
+	std::vector<SensorDataCluster> clusters = ClusterSensorDataByTimeDiff(m_datas, timeDiffError);
+	m_datas.clear();
+	for (auto& curCluster : clusters) {
+		m_datas.push_back(curCluster.m_mergedData);
+	}
+}
+
 void SensorDataCollection::SortByPower()
 {
 	std::sort(m_datas.begin(), m_datas.end());

@@ -16,6 +16,9 @@
 #include "material/material.h"
 #include "material/materiallibrary.h"
 #include "equipment/sensor/sensordata.h"
+#include "localization/localizationfunction/crlb.h"
+#include "localization/localizationfunction/gdop.h"
+#include "configuration/localization/lbserrorconfig.h"
 
 
 
@@ -41,6 +44,9 @@ public:
 	RtLbsType m_rmsDelaySpread;								/** @brief	均方根时延扩展	*/
 	RtLbsType m_rmsAngularSpread;							/** @brief	均方根角度扩展	*/
 
+private:
+	std::vector <Point2D> m_generalSources;					/** @brief	广义源坐标,用于求解CRLB和GDOP	*/
+
 public:
 	RaytracingResult();
 	RaytracingResult(const RaytracingResult& result);
@@ -52,8 +58,15 @@ public:
 	void SetRayPath(TerrainDiffractionPath* path);			//设置路径信息 地形绕射
 	void ReleaseAllRayPath();								//释放所包含的路径信息
 	void CalculateBaseInfo(std::vector<RtLbsType>& freqs, const std::vector<Complex>& tranFunctionData);								//计算基本信息-射线追踪模式
-	
 	void CalculateBaseInfo(const Sensor* sensor, std::vector<RtLbsType>& freqs, const std::vector<Complex>& tranFunctionData, const AntennaLibrary* antLibrary);		//计算基本信息-定位模式中的伴随射线追踪
+	RtLbsType CalculateCRLB_AOA(RtLbsType phiSigma) const;
+	RtLbsType CalculateCRLB_TOA(RtLbsType timeSigma) const;
+	RtLbsType CalculateCRLB_AOATOA(RtLbsType phiSigma, RtLbsType timeSigma) const;
+	RtLbsType CalculateCRLB_AOATDOA(RtLbsType phiSigma, RtLbsType timeSigma) const;
+	RtLbsType CalculateGDOP_AOA() const;
+	RtLbsType CalculateGDOP_TOA() const;
+	RtLbsType CalculateGDOP_AOATOA() const;
+	RtLbsType CalculateGDOP_AOATDOA() const;
 	void GetAllSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于AOA2D定位
 	void GetMaxPowerSensorData_AOA2D(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于AOA2D定位
 	void GetAllSensorData_AOA3D(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于AOA3D定位
@@ -61,6 +74,8 @@ public:
 	void GetAllSensorData_Delay(SensorDataCollection& collection, RtLbsType threshold, RtLbsType sparseFactor) const;						//获取所有的传感器数据,适用于时延型定位
 	void GetMinDelaySensorData_Delay(SensorDataCollection& collection, RtLbsType threshold) const;											//获取最大功率的传感器数据,适用于时延型定位
 	Point2D GetRefGeneralSource() const;																									//获取参考广义源坐标
+	bool GetMaxPowerGeneralSource(Point2D& p) const;																								//获取最大功率广义源坐标,适用AOA定位CRLB等求解
+	bool GetMinDelayGeneralSource(Point2D& p) const;																								//获取最小时延广义源坐标,使用TOA定位CRLB等求解
 	void OutputVectorEField(std::ofstream& stream) const;																					//输出矢量场
 	void OutputScalarEField(std::ofstream& stream) const;																					//输出标量场
 	void OutputVectorPower(std::ofstream& stream) const;																					//输出矢量功率信息
@@ -74,6 +89,8 @@ public:
 	void OutputAOD(std::ofstream& stream) const;																							//输出AOD信息
 	void OutputSpreadProfile(std::ofstream& stream) const;																					//输出扩展相关信息，包括时延扩展和角度扩展
 	void OutputGeneralSourceForCRLB(std::ofstream& stream) const;																			//输出广义源信息，为了计算CRLB
+	void OutputCRLB(std::ofstream& stream, const LBSErrorConfig& config) const;																//输出单站CRLB
+	void OutputGDOP(std::ofstream& stream, const LBSErrorConfig& config) const;																//输出单站GDOP
 
 private:
 	RtLbsType CalculateMeanArrivedDelay() const;																							//计算平均到达时延

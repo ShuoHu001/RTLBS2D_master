@@ -1,12 +1,14 @@
 #include "aoa_tdoa_solver.h"
 
 AOATDOASolver::AOATDOASolver()
-	: m_refSource(nullptr)
+	: m_isValid(true)
+	, m_refSource(nullptr)
 {
 }
 
 AOATDOASolver::AOATDOASolver(const AOATDOASolver& solver)
-	: m_refSource(solver.m_refSource)
+	: m_isValid(solver.m_isValid)
+	, m_refSource(solver.m_refSource)
 	, m_gsData(solver.m_gsData)
 	, m_solution(solver.m_solution)
 {
@@ -18,6 +20,7 @@ AOATDOASolver::~AOATDOASolver()
 
 AOATDOASolver& AOATDOASolver::operator=(const AOATDOASolver& solver)
 {
+	m_isValid = solver.m_isValid;
 	m_refSource = solver.m_refSource;
 	m_gsData = solver.m_gsData;
 	m_solution = solver.m_solution;
@@ -29,12 +32,13 @@ void AOATDOASolver::SetGeneralSource(GeneralSource* refSource, const std::vector
 	m_refSource = refSource;
 	m_gsData.reserve(gsData.size());
 	for (auto& curSource : gsData) {
-		if (curSource != refSource) {
+		if (curSource->m_position != refSource->m_position) {			//跳过与参考源位置相同的源
 			m_gsData.push_back(curSource);
 		}
 	}
 	if (m_gsData.size() < 2) {
 		LOG_ERROR<< "AOATDOASolver: not satisfied TDOA algorithm min equation set size, min size is 2." << ENDL;
+		m_isValid = false;
 	}
 }
 
@@ -126,6 +130,61 @@ Point2D AOATDOASolver::Solving_WLS(const BBox2D& bbox, const Point2D& initPoint)
 	return Point2D(position[0], position[1]);
 }
 
+Point2D AOATDOASolver::Solving_TSWLS(const BBox2D& bbox, const Point2D& initPoint)
+{
+	//使用两步加权最小二乘方法求解
+	Point2D tsInitPoint = Point2D(0,0);
+	Solving_LS(bbox, tsInitPoint);
+
+	RtLbsType position[2] = { tsInitPoint.x, tsInitPoint.y };		//初始位置估计
+
+	int dataNum = static_cast<int>(m_gsData.size());
+
+	std::vector<AOAResidual> aoaResiduals(dataNum);					/** @brief	AOA 残差	*/
+	std::vector<TDOAResidual> tdoaResiduals(dataNum);				/** @brief	TDOA 残差	*/
+
+	//初始化残差
+	for (int i = 0; i < dataNum; ++i) {
+		aoaResiduals[i].Init(m_gsData[i]);
+		tdoaResiduals[i].Init(m_refSource, m_gsData[i]);
+		double res_aoa = aoaResiduals[i].GetResidual(position);
+		double res_tdoa = tdoaResiduals[i].GetResidual(position);
+		double weight_aoa = 1.0 / (res_aoa * res_aoa + EPSILON);
+		double weight_tdoa = 1.0 / (res_tdoa * res_tdoa + EPSILON);
+		aoaResiduals[i].SetWeight(weight_aoa);
+		tdoaResiduals[i].SetWeight(weight_tdoa);
+	}
+
+	//定义问题
+	ceres::Problem problem;
+	//指定数据集(残差块)
+	for (int i = 0; i < dataNum; ++i) {
+		ceres::CostFunction* costFunc_AOA = new ceres::AutoDiffCostFunction<AOAResidual, 1, 2>(new AOAResidual(aoaResiduals[i]));
+		ceres::CostFunction* costFunc_TDOA = new ceres::AutoDiffCostFunction<TDOAResidual, 1, 2>(new TDOAResidual(tdoaResiduals[i]));
+		problem.AddResidualBlock(costFunc_AOA, nullptr, position);
+		problem.AddResidualBlock(costFunc_TDOA, nullptr, position);
+	}
+
+	////设置边界约束
+	//problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+	//problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+	//problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+	//problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
+
+	//配置求解器
+	ceres::Solver::Options options;
+	options.linear_solver_type = ceres::DENSE_QR;
+	options.minimizer_progress_to_stdout = false;
+	options.logging_type = ceres::LoggingType::SILENT; // 禁止日志输出
+
+	//求解
+	ceres::Solver::Summary summary;
+	ceres::Solve(options, &problem, &summary);
+
+	return Point2D(position[0], position[1]);
+
+}
+
 Point2D AOATDOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox, const WeightFactor& weightFactor, const Point2D& initPoint)
 {
 	int iterNum = config.m_iterNum;
@@ -144,8 +203,8 @@ Point2D AOATDOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& b
 
 	//初始化残差
 	for (int i = 0; i < dataNum; ++i) {
-		aoaResiduals[i].Init(m_gsData[i], weightFactor.m_phiWeight);
-		tdoaResiduals[i].Init(m_refSource, m_gsData[i], weightFactor.m_timeWeight);
+		aoaResiduals[i].Init(m_gsData[i]);
+		tdoaResiduals[i].Init(m_refSource, m_gsData[i]);
 	}
 
 	for (int i = 0; i < iterNum; ++i) {
@@ -190,7 +249,7 @@ Point2D AOATDOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& b
 			break;
 		}
 
-		UpdateResidualWeight(position, aoaResiduals, tdoaResiduals, aoaResidual_STD, tdoaResidual_STD);
+		UpdateResidualWeight(position, weightFactor, aoaResiduals, tdoaResiduals, aoaResidual_STD, tdoaResidual_STD);
 	}
 
 	return { position[0], position[1] };
@@ -205,8 +264,7 @@ Point2D AOATDOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& 
 	RtLbsType position[2] = { initPoint.x, initPoint.y };				//初始位置估计
 	RtLbsType prevPosition[2] = { 0,0 };								//前一个节点的位置估计
 
-	double aoaResidual_STD = 0.01;											/** @brief	AOA残差标准差	*/
-	double tdoaResidual_STD = 0.01;											/** @brief	TDOA残差标准差	*/
+
 
 	int dataNum = static_cast<int>(m_gsData.size());
 	std::vector<AOAResidual> aoaResiduals(dataNum);					/** @brief	AOA 残差	*/
@@ -218,6 +276,11 @@ Point2D AOATDOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& 
 		tdoaResiduals[i].Init(m_refSource, m_gsData[i], m_gsData[i]->m_weight * weightFactor.m_timeWeight);
 	}
 
+	//初始化残差标准差
+	double aoaResidual_STD = 0.01;											/** @brief	AOA残差标准差	*/
+	double tdoaResidual_STD = 0.01;											/** @brief	TDOA残差标准差	*/
+	//CalculateResidualSTD(position, aoaResiduals, tdoaResiduals, aoaResidual_STD, tdoaResidual_STD);
+
 	for (int i = 0; i < iterNum; ++i) {
 
 		prevPosition[0] = position[0];								//进行前一次预测结果的赋值
@@ -225,7 +288,9 @@ Point2D AOATDOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& 
 
 		//定义问题
 		ceres::Problem problem;
-
+		if (i == 0) {
+			lossType = LOSS_GEMANMCCLURE;
+		}
 		ceres::LossFunction* aoa_cost_function = custom_loss::CreateLossFunction(lossType, aoaResidual_STD);
 		ceres::LossFunction* tdoa_cost_function = custom_loss::CreateLossFunction(lossType, tdoaResidual_STD);
 
@@ -259,8 +324,11 @@ Point2D AOATDOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& 
 		if (deltaDis < tol) {
 			break;
 		}
-
-		UpdateResidualWeight(position, aoaResiduals, tdoaResiduals, aoaResidual_STD, tdoaResidual_STD);
+		RtLbsType a, b;
+		UpdateResidualWeight(position, weightFactor, aoaResiduals, tdoaResiduals, aoaResidual_STD, tdoaResidual_STD);
+		//if (i == 0) {
+		//	CalculateResidualSTD(position, aoaResiduals, tdoaResiduals, aoaResidual_STD, tdoaResidual_STD);
+		//}
 	}
 
 	return { position[0], position[1] };
@@ -268,6 +336,9 @@ Point2D AOATDOASolver::Solving_WIRLS(const SolvingConfig& config, const BBox2D& 
 
 Point2D AOATDOASolver::Solving(const SolvingConfig& config, const BBox2D& bbox, const WeightFactor& weightFactor, const Point2D& initPoint)
 {
+	if (!m_isValid) {
+		return Point2D(FLT_MAX, FLT_MAX);
+	}
 	const SOLVINGMODE mode = config.m_solvingMode;
 	Point2D solution = initPoint;
 	if (mode == SOLVING_LS) {
@@ -275,6 +346,9 @@ Point2D AOATDOASolver::Solving(const SolvingConfig& config, const BBox2D& bbox, 
 	}
 	else if (mode == SOLVING_WLS) {
 		solution = Solving_WLS(bbox, initPoint);
+	}
+	else if (mode == SOLVING_TSWLS) {
+		solution = Solving_TSWLS(bbox, initPoint);
 	}
 	else if (mode == SOLVING_IRLS) {
 		solution = Solving_IRLS(config, bbox, weightFactor, initPoint);
@@ -285,7 +359,7 @@ Point2D AOATDOASolver::Solving(const SolvingConfig& config, const BBox2D& bbox, 
 	return solution;
 }
 
-void AOATDOASolver::UpdateResidualWeight(const double* position, std::vector<AOAResidual>& aoaResiduals, std::vector<TDOAResidual>& tdoaResiduals, double& aoaResidual_STD, double& tdoaResidual_STD)
+void AOATDOASolver::UpdateResidualWeight(const double* position, const WeightFactor& weightFactor, std::vector<AOAResidual>& aoaResiduals, std::vector<TDOAResidual>& tdoaResiduals, double& aoaResidual_STD, double& tdoaResidual_STD)
 {
 	double max_aoa_weight = 0.0;
 	double max_tdoa_weight = 0.0;
@@ -293,14 +367,14 @@ void AOATDOASolver::UpdateResidualWeight(const double* position, std::vector<AOA
 	std::vector<double> r_tdoas;
 	for (auto& curAOAResidual : aoaResiduals) {
 		double res_aoa = curAOAResidual.GetResidual(position);
-		double cur_aoa_weight = curAOAResidual.GetWeight() / (abs(res_aoa) + EPSILON);
+		double cur_aoa_weight = curAOAResidual.GetWeight() / (res_aoa*res_aoa + EPSILON);
 		max_aoa_weight = std::max(max_aoa_weight, cur_aoa_weight);
 		curAOAResidual.SetWeight(cur_aoa_weight);
 		r_aoas.push_back(res_aoa);
 	}
 	for (auto& curTDOAResidual : tdoaResiduals) {
 		double res_tdoa = curTDOAResidual.GetResidual(position);
-		double cur_tdoa_weight = curTDOAResidual.GetWeight() / (abs(res_tdoa) + EPSILON);
+		double cur_tdoa_weight = curTDOAResidual.GetWeight() / (res_tdoa*res_tdoa + EPSILON);
 		max_tdoa_weight = std::max(max_tdoa_weight, cur_tdoa_weight);
 		curTDOAResidual.SetWeight(cur_tdoa_weight);
 		r_tdoas.push_back(res_tdoa);
@@ -308,23 +382,35 @@ void AOATDOASolver::UpdateResidualWeight(const double* position, std::vector<AOA
 	//归一化权重
 	for (auto& curAOAResidual : aoaResiduals) {
 		double cur_aoa_weight = curAOAResidual.GetWeight() / max_aoa_weight;
-		curAOAResidual.SetWeight(cur_aoa_weight);
+		curAOAResidual.SetWeight(cur_aoa_weight * weightFactor.m_phiWeight);
 	}
 	for (auto& curTDOAResidual : tdoaResiduals) {
 		double cur_tdoa_weight = curTDOAResidual.GetWeight() / max_tdoa_weight;
-		curTDOAResidual.SetWeight(cur_tdoa_weight);
-	}
-
-	double aoa_r_sum = 0.0;
-	double tdoa_r_sum = 0.0;
-	for (auto& cur_r_aoa : r_aoas) {
-		aoa_r_sum += abs(cur_r_aoa);
-	}
-	for (auto& cur_r_tdoa : r_tdoas) {
-		tdoa_r_sum += abs(cur_r_tdoa);
+		curTDOAResidual.SetWeight(cur_tdoa_weight * weightFactor.m_timeWeight);
 	}
 
 	//更新残差标准差
 	aoaResidual_STD = vectoroperator::CalculateStandardDeviation(r_aoas);
 	tdoaResidual_STD = vectoroperator::CalculateStandardDeviation(r_tdoas);
+}
+
+void AOATDOASolver::CalculateResidualSTD(const double* position, const std::vector<AOAResidual>& aoaResiduals, const std::vector<TDOAResidual>& tdoaResiduals, double& aoaResidual_STD, double& tdoaResidual_STD)
+{
+	double max_aoa_weight = 0.0;
+	double max_tdoa_weight = 0.0;
+	std::vector<double> r_aoas;
+	std::vector<double> r_tdoas;
+	for (auto& curAOAResidual : aoaResiduals) {
+		double res_aoa = curAOAResidual.GetResidual(position);
+		r_aoas.push_back(res_aoa);
+	}
+	for (auto& curTDOAResidual : tdoaResiduals) {
+		double res_tdoa = curTDOAResidual.GetResidual(position);
+		r_tdoas.push_back(res_tdoa);
+	}
+
+	//更新残差标准差
+	aoaResidual_STD = vectoroperator::CalculateStandardDeviation(r_aoas);
+	tdoaResidual_STD = vectoroperator::CalculateStandardDeviation(r_tdoas);
+
 }
