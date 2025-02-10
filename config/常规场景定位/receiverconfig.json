@@ -1,0 +1,86 @@
+{
+	"ReceiverConfig": {
+		"PredictionMode": 0,
+		"SingleConfig": {
+			"Position": {
+				"x": 45.0,
+				"y": 21.0,
+				"z": 2.0
+			},
+			"Velocity": 0.0
+		},
+		"LineConfig": {
+			"Routes": [{
+					"Id": 0,
+					"StartPoint": {
+						"x": 21.0,
+						"y": 8.0,
+						"z": 595.0
+					},
+					"EndPoint": {
+						"x": 90.0,
+						"y": 8.0,
+						"z": 595.0
+					},
+					"Interval": 1.0,
+					"Velocity": 0.0
+				}]
+		},
+		"ScatterConfig": {
+			"FileName": "",
+			"Positions": [
+				{
+				"x": 45.0,
+				"y": 21.0,
+				"z": 2.0
+			},
+				{
+				"x": 125.0,
+				"y": 21.0,
+				"z": 2.0
+			},
+				{
+				"x": 106.0,
+				"y": 74.0,
+				"z": 2.0
+			}],
+			"Velocities": [0,0,0]
+		},
+		"PlaneConfig": {
+			"XInterval": 1.0,
+			"YInterval": 1.0,
+			"XMin": 15.0,
+			"XMax": 135.0,
+			"YMin": 15.0,
+			"YMax": 95.0,
+			"Height": 2.0,
+			"Velocity": 0.0
+		},
+		"SolidConfig": {
+			"XMin": 0.0,
+			"XMax": 100.0,
+			"YMin": 0.0,
+			"YMax": 100.0,
+			"ZMin": 0.0,
+			"ZMax": 100.0,
+			"XInterval": 10.0,
+			"YInterval": 10.0,
+			"ZInterval": 10.0,
+			"Velocity": 0.0
+		},
+		"AttachFileName": "receivers.json",
+		"AntId": 0,
+		"AntName": "0-omni",
+		"InsertLoss": 0.0,
+		"AttachGain": 0.0,
+		"PowerThreshold": -160.0,
+		"AngularThreshold": 0.0,
+		"DelayThreshold": 0.0,
+		"Posture": {
+			"IsRadian": false,
+			"Yaw": 0.0,
+			"Pitch": 0.0,
+			"Roll": 0.0
+		}
+	}
+}

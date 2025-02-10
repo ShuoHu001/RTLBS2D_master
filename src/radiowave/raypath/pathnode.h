@@ -27,7 +27,7 @@ public:
 	Ray2D m_prevRay;													/** @brief	节点之前的射线(引用变量)	*/
 	Ray2D m_nextRay;													/** @brief	节点之后的射线(引用变量)	*/
 	Point2D m_source;													/** @brief	广义源点的坐标	*/
-	RtLbsType m_ft;														/** @brief	当前节点距离root源的距离	*/  
+	RtLbsType m_ft;														/** @brief	当前节点距离root源的距离	*/
 	int m_fatherNodeId;													/** @brief	父节点ID，定位模式中需要用到，用于追根溯源组成路径	*/
 
 public:

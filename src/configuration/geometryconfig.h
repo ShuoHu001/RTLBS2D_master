@@ -17,6 +17,7 @@ const std::string KEY_GEOMETRYCONFIG_WALLFILE = "WallFile";
 const std::string KEY_GEOMETRYCONFIG_WALLATTRIBUTEFILE = "WallAttributeFile";
 const std::string KEY_GEOMETRYCONFIG_LOADINGTERRAINFLAG = "LoadingTerrainFlag";
 const std::string KEY_GEOMETRYCONFIG_TERRAINCOFNIG = "TerrainConfig";
+const std::string KEY_GEOMETRYCONFIG_POSITIONERROR = "PositionError";
 
 class GeometryConfig :public Serializable {
 public:
@@ -28,6 +29,7 @@ public:
 	std::string m_wallAttributeFile;			/** @brief	墙体属性文件	*/
 	bool m_loadingTerrainFlag;					/** @brief	地形加载状态	*/
 	TerrainConfig m_terrainConfig;				/** @brief	地形配置	*/
+	RtLbsType m_positionError;					/** @brief	位置偏移误差	*/
 
 public:
 	GeometryConfig();

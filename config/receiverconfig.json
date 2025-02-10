@@ -1,6 +1,6 @@
 {
 	"ReceiverConfig": {
-		"PredictionMode": 0,
+		"PredictionMode": 3,
 		"SingleConfig": {
 			"Position": {
 				"x": 45.0,
@@ -28,31 +28,28 @@
 		},
 		"ScatterConfig": {
 			"FileName": "",
-			"Positions": [
-				{
-				"x": 45.0,
-				"y": 21.0,
-				"z": 2.0
-			},
-				{
-				"x": 125.0,
-				"y": 21.0,
-				"z": 2.0
-			},
-				{
-				"x": 106.0,
-				"y": 74.0,
-				"z": 2.0
-			}],
-			"Velocities": [0,0,0]
+			"Positions": [{
+					"x": 76.0,
+					"y": 56.0,
+					"z": 2.0
+				}, {
+					"x": 121.0,
+					"y": 74.0,
+					"z": 2.0
+				}, {
+					"x": 70.0,
+					"y": 90.0,
+					"z": 2.0
+				}],
+			"Velocities": [0.0, 0.0, 0.0]
 		},
 		"PlaneConfig": {
-			"XInterval": 1.0,
-			"YInterval": 1.0,
-			"XMin": 15.0,
-			"XMax": 135.0,
-			"YMin": 15.0,
-			"YMax": 95.0,
+			"XInterval": 2.0,
+			"YInterval": 2.0,
+			"XMin": 0.0,
+			"XMax": 600.0,
+			"YMin": 0.0,
+			"YMax": 560.0,
 			"Height": 2.0,
 			"Velocity": 0.0
 		},

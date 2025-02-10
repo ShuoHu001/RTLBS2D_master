@@ -24,6 +24,7 @@
 				"MaterialMatrixFile": "",
 				"MatNames": ["brick", "congrete"]
 			}
-		}
+		},
+		"PositionError": 0.0
 	}
 }

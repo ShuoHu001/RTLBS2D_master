@@ -16,6 +16,8 @@ public:
 	Sensor* m_sensor;
 	std::vector<LBSTreeNode*> m_nodes;
 	std::vector<GeneralSource*> m_sources;
+private:
+	std::vector<GeneralSource*> m_originalSources;										/** @brief	存储原始的广义源	*/
 
 public:
 	LBSInfo();

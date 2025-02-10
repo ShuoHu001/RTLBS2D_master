@@ -52,7 +52,7 @@ void Result::Init(const std::vector<Transmitter*>& transmitters, const std::vect
 	return;
 }
 
-void Result::OutputResult(const OutputConfig& config) const
+void Result::OutputResult(const OutputConfig& config)
 {
 	m_directory = config.m_rtDirectory;
 	if (m_raytracingResult.empty())
@@ -116,6 +116,7 @@ void Result::OutputResult(const OutputConfig& config) const
 	if (config.m_outputSingleStationGDOP) {
 		OutputSingleStationGDOP(config.m_outputLBSErrorConfig);
 	}
+	OutputLocationRange();			//输出论文中需要的定位范围
 }
 
 void Result::CalculateResult_RT_SensorData(const OutputConfig& outputConfig, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData)
@@ -286,18 +287,43 @@ void Result::OutputLoss() const
 	stream.close();
 }
 
-void Result::OutputRayPath() const
+void Result::OutputRayPath()
 {
+	//输出全部路径
 	std::ofstream stream(m_directory + "multipath.txt");
 	if (!stream.is_open()) {
 		LOG_ERROR << "Result:open multipath file failed." << ENDL;
 		return;
 	}
 	for (auto it = m_raytracingResult.begin(); it != m_raytracingResult.end(); ++it) {
-		const RaytracingResult& result = *it;
+		RaytracingResult& result = *it;
 		result.OutputRayPath(stream);
 	}
 	stream.close();
+
+	//输出最小时延多径
+	std::ofstream stream1(m_directory + "min_delay_multipath.txt");
+	if (!stream1.is_open()) {
+		LOG_ERROR << "Result:open multipath file failed." << ENDL;
+		return;
+	}
+	for (auto it = m_raytracingResult.begin(); it != m_raytracingResult.end(); ++it) {
+		const RaytracingResult& result = *it;
+		result.OutputMinDelayRayPath(stream1);
+	}
+	stream1.close();
+
+	//输出最大功率多径
+	std::ofstream stream2(m_directory + "max_power_multipath.txt");
+	if (!stream2.is_open()) {
+		LOG_ERROR << "Result:open multipath file failed." << ENDL;
+		return;
+	}
+	for (auto it = m_raytracingResult.begin(); it != m_raytracingResult.end(); ++it) {
+		const RaytracingResult& result = *it;
+		result.OutputMaxPowerRayPath(stream2);
+	}
+	stream2.close();
 }
 
 void Result::OutputPDP() const
@@ -670,6 +696,20 @@ void Result::OutputSingleStationGDOP(const LBSErrorConfig& config) const
 	}
 	for (auto& curResult : m_raytracingResult) {
 		curResult.OutputGDOP(stream, config);
+	}
+	stream.close();
+}
+
+void Result::OutputLocationRange() const
+{
+	std::ofstream stream(m_directory + "lbsrange.txt");
+	if (!stream.is_open()) {
+		LOG_ERROR << "Result:open loss file failed." << ENDL;
+		return;
+	}
+	for (auto it = m_raytracingResult.begin(); it != m_raytracingResult.end(); ++it) {
+		const RaytracingResult& result = *it;
+		result.OutputLocationRange(stream);
 	}
 	stream.close();
 }

@@ -623,16 +623,59 @@ void RaytracingResult::OutputLoss(std::ofstream& stream) const
 	}
 }
 
-void RaytracingResult::OutputRayPath(std::ofstream& stream) const
+void RaytracingResult::OutputRayPath(std::ofstream& stream)
 {
-	stream << "multipath" << "\t" << m_transmitter->m_id << "\t" << m_receiver->m_id << "\t" <<m_pathNum << std::endl;				//写入节点编号信息
-	for (auto it = m_commonPaths.begin(); it != m_commonPaths.end(); ++it) {							//输出常规路径
-		RayPath3D* path = *it;
-		path->OutputRaypath(stream);
+
+	std::sort(m_multipathInfo.begin(), m_multipathInfo.end(), ComparedByPower_PathInfo);
+	int id = 0;
+	for (auto& info : m_multipathInfo) {
+		if ((m_multipathInfo[0].m_power - info.m_power) < 25) {
+			id++;
+		}
+	}
+	stream << "multipath" << "\t" << m_transmitter->m_id << "\t" << m_receiver->m_id << "\t" << id << std::endl;				//写入节点编号信息
+	for (int i = 0; i < id; ++i) {
+		m_multipathInfo[i].m_rayPath->OutputRaypath(stream);
 	}
 	if (m_terrainDiffPath != nullptr) {
 		m_terrainDiffPath->OuputRaypath(stream);
 	}
+}
+
+void RaytracingResult::OutputMinDelayRayPath(std::ofstream& stream) const
+{
+	stream << "multipath" << "\t" << m_transmitter->m_id << "\t" << m_receiver->m_id << "\t" << 1 << std::endl;				//写入节点编号信息
+	if (m_multipathInfo.size() == 0) {
+		return;
+	}
+	//找到最小时延
+	int minId = 0;
+	int minNode = m_multipathInfo[0].m_rayPath->m_nodes.size();
+	for (int i = 1; i < m_multipathInfo.size(); ++i) {
+		if  (m_multipathInfo[i].m_rayPath->m_nodes.size() < minNode) {
+			minNode = m_multipathInfo[i].m_rayPath->m_nodes.size();
+			minId = i;
+		}
+	}
+	m_multipathInfo[minId].m_rayPath->OutputRaypath(stream);
+}
+
+void RaytracingResult::OutputMaxPowerRayPath(std::ofstream& stream) const
+{
+	stream << "multipath" << "\t" << m_transmitter->m_id << "\t" << m_receiver->m_id << "\t" << 1 << std::endl;				//写入节点编号信息
+	if (m_multipathInfo.size() == 0) {
+		return;
+	}
+	//找到最小时延
+	int maxId = 0;
+	RtLbsType maxPower = m_multipathInfo[0].m_power;
+	for (int i = 1; i < m_multipathInfo.size(); ++i) {
+		if (m_multipathInfo[i].m_power > maxPower) {
+			maxPower = m_multipathInfo[i].m_power;
+			maxId = i;
+		}
+	}
+	m_multipathInfo[maxId].m_rayPath->OutputRaypath(stream);
 }
 
 void RaytracingResult::OutputPDP(std::ofstream& stream) const
@@ -799,6 +842,21 @@ void RaytracingResult::OutputGDOP(std::ofstream& stream, const LBSErrorConfig& c
 	}
 	else {
 		LOG_ERROR << "RaytracingResult: not support." << ENDL;
+	}
+}
+
+void RaytracingResult::OutputLocationRange(std::ofstream& stream) const
+{
+	for (int i = 0; i < m_freqNum; ++i) {
+		stream << m_transmitter->m_id << '\t' << m_receiver->m_id << '\t' << static_cast<int>(m_freqs[i]) << '\t';
+		stream << m_transmitter->m_position.x << '\t' << m_transmitter->m_position.y << '\t' << m_transmitter->m_position.z << '\t';
+		stream << m_receiver->m_position.x << '\t' << m_receiver->m_position.y << '\t' << m_receiver->m_position.z << '\t';
+		if (m_multipathInfo.size() != 0) {
+			stream << 1 << std::endl;
+		}
+		else {
+			stream << 0 << std::endl;
+		}
 	}
 }
 

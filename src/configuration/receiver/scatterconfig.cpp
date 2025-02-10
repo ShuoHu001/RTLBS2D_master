@@ -41,16 +41,15 @@ void ScatterConfig::CalculateRxPosition(std::vector<ReceiverUnitConfig>& configs
 			// 解析每行数据
 			std::vector<std::string> cols;
 			boost::split(cols, line, boost::is_any_of(" \t,"));
-			if (cols.size() == 4) {
+			if (cols.size() == 3) {
 				float x = boost::lexical_cast<float>(cols[0]);
 				float y = boost::lexical_cast<float>(cols[1]);
 				float z = boost::lexical_cast<float>(cols[2]);
-				float v = boost::lexical_cast<float>(cols[3]);
 				// 添加到离散点数组中
 				Point3D p(x, y, z);
 				ReceiverUnitConfig rxUnitConfig;
 				rxUnitConfig.m_position = p;
-				rxUnitConfig.m_velocity = v;
+				rxUnitConfig.m_velocity = 0;
 				configs.push_back(rxUnitConfig);
 			}
 		}

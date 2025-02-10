@@ -8,40 +8,40 @@
 		"ReceiverConfigFile": "config/receiverconfig.json",
 		"SensorConfigFile": "results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json",
 		"RaytracingConfig": {
-			"RayNum": 10000,
+			"RayNum": 50000,
 			"DiffractRayNum": 1000,
 			"LimitInfo": {
 				"LimitTotal": 10,
-				"LimitReflect": 34,
+				"LimitReflect": 4,
 				"LimitTransmit": 0,
-				"LimitDiffract": 0,
+				"LimitDiffract": 1,
 				"LimitScatter": 0
 			},
 			"RaySplitFlag": false,
 			"RaySplitRadius": 1.0,
 			"SceneAccelType": 5,
-			"HardwareMode": 0,
+			"HardwareMode": 3,
 			"RayLaunchMode": 1,
 			"CPUThreadNum": 20
 		},
 		"LocalizationConfig": {
 			"LBSMode": 0,
-			"LBSMethod": 0,
+			"LBSMethod": 2,
 			"HardWareMode": 2,
 			"ThreadNum": 20,
 			"RayLaunchHalfTheta": 0.1,
-			"GSPairClusterThreshold": 3.0,
+			"GSPairClusterThreshold": 2.0,
 			"WeightFactor": {
-				"PhiWeight": 6.0,
-				"TimeWeight": 15.0,
+				"PhiWeight": 12.0,
+				"TimeWeight": 20.0,
 				"PowerWeight": 6.0
 			},
-			"SolvingConfig":{
-		        "SolvingMode":4,
-		        "LossType":6,
-		        "IterNum":20,
-		        "Tolerance":1e-3
-		    },
+			"SolvingConfig": {
+				"SolvingMode": 0,
+				"LossType": 6,
+				"IterNum": 20,
+				"Tolerance": 0.001
+			},
 			"ExtendAroundPointState": false,
 			"ShiftErrorMatrixFile": "config/4.000000_errormatrix.txt",
 			"HasSimuError": true
@@ -54,31 +54,31 @@
 		"OutputConfig": {
 			"RTDirectory": "results/rt/",
 			"LBSDirectory": "results/lbs/",
-			"OutputPower": true,
+			"OutputPower": false,
 			"OutputLoss": false,
 			"OutputMagnitude": false,
-			"OutputMultipath": true,
+			"OutputMultipath": false,
 			"OutputPDP": false,
 			"OutputCFR": false,
 			"OutputCIR": false,
 			"OutputAOA": false,
 			"OutputAOD": false,
-			"OutputSpreadProfile":true,
-			"OutputSensorDataSPSTMD": true,
+			"OutputSpreadProfile": false,
+			"OutputSensorDataSPSTMD": false,
 			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
-			"OutputGSForCRLB": true,
-			"OutputMultiStationCRLB":false,
-			"OutputMultiStationGDOP":false,
-			"OutputSingleStationCRLB":true,
-			"OutputSingleStationGDOP":false,
+			"OutputGSForCRLB": false,
+			"OutputMultiStationCRLB": false,
+			"OutputMultiStationGDOP": false,
+			"OutputSingleStationCRLB": false,
+			"OutputSingleStationGDOP": false,
 			"OutputSensorDataSparseFactor": 1.0,
 			"OutputLBSMethod": 2,
-			"OutputLBSErrorConfig":{
-				"ErrorType":1,
-				"PhiDegreeErrorSigmas":[0],
-				"TimeNSErrorSigmas":[2,4,6,8,10,12,14,16,18,20]
+			"OutputLBSErrorConfig": {
+				"ErrorType": 0,
+				"PhiDegreeErrorSigmas": [0.1, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+				"TimeNSErrorSigmas": [3.0]
 			}
 		}
 	}

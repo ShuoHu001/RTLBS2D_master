@@ -111,6 +111,43 @@ Point2D AOATOASolver::Solving_WLS(const BBox2D& bbox, const Point2D& initPoint)
 	return Point2D(position[0], position[1]);
 }
 
+Point2D AOATOASolver::Solving_TSWLS(const BBox2D& bbox, const Point2D& initPoint)
+{
+	Point2D tsInitPoint = initPoint;
+	Solving_LS(bbox, tsInitPoint);
+	//定义问题
+	ceres::Problem problem;
+
+	RtLbsType position[2] = { tsInitPoint.x, tsInitPoint.y };		//初始位置估计
+
+	int dataNum = static_cast<int>(m_gsData.size());
+
+	//指定数据集(残差块)
+	for (int i = 0; i < dataNum; ++i) {
+		ceres::CostFunction* costFunc_AOA = new ceres::AutoDiffCostFunction<AOAResidual, 1, 2>(new AOAResidual(m_gsData[i]));
+		ceres::CostFunction* costFunc_TOA = new ceres::AutoDiffCostFunction<TOAResidual, 1, 2>(new TOAResidual(m_gsData[i]));
+		problem.AddResidualBlock(costFunc_AOA, nullptr, position);
+		problem.AddResidualBlock(costFunc_TOA, nullptr, position);
+	}
+
+	//设置边界约束
+	problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+	problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+	problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+	problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
+
+	//配置求解器
+	ceres::Solver::Options options;
+	options.linear_solver_type = ceres::DENSE_QR;
+	options.minimizer_progress_to_stdout = false;
+
+	//求解
+	ceres::Solver::Summary summary;
+	ceres::Solve(options, &problem, &summary);
+
+	return Point2D(position[0], position[1]);
+}
+
 Point2D AOATOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox, const WeightFactor& weightFactor, const Point2D& initPoint)
 {
 	int iterNum = config.m_iterNum;
@@ -258,6 +295,9 @@ Point2D AOATOASolver::Solving(const SolvingConfig& config, const BBox2D& bbox, c
 	}
 	else if (mode == SOLVING_WLS) {
 		solution = Solving_WLS(bbox, initPoint);
+	}
+	else if (mode == SOLVING_TSWLS) {
+		solution = Solving_TSWLS(bbox, initPoint);
 	}
 	else if (mode == SOLVING_IRLS) {
 		solution = Solving_IRLS(config, bbox, weightFactor, initPoint);

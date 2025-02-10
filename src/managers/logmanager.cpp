@@ -105,6 +105,12 @@ std::string LogManager::GetCurrentTime()
 	return ss.str();
 }
 
+LogManager& LogManager::log_without_anything(LOGLEVEL level, const char* file, int line)
+{
+	log(level);
+	return *this;
+}
+
 LogManager& LogManager::log_with_location(LOGLEVEL level, const char* file, int line)
 {
 	log(level);

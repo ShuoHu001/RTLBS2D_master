@@ -177,7 +177,17 @@ bool GSPair::HasValidTOASolution(const Scene* scene)
 	}
 
 	if (!_judgementRules(scene)) {
-		return false;
+		//若点位无效，则采用对称点
+		const Point2D& c1 = m_gs1->m_position;
+		const Point2D& c2 = m_gs2->m_position;
+		const Point2D& p = m_targetSolution;
+		Vector2D c1_p = p - c1;
+		Vector2D c1_c2 = (c2 - c1).Normalize();
+		Point2D inter_p = c1 + c1_c2 * (c1_p * c1_c2);
+		m_targetSolution = inter_p + (inter_p - p);
+		if (!_judgementRules(scene)) {
+			return false;
+		}
 	}
 
 

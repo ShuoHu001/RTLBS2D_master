@@ -11,17 +11,11 @@ LBSInfo::~LBSInfo()
 		delete node;
 		node = nullptr;
 	}
-	m_nodes.clear();
-	std::vector<LBSTreeNode*>().swap(m_nodes);
 
-	//for (auto& source : m_sources) {
-	//	if (source != nullptr) {
-	//		delete source;
-	//		source = nullptr;
-	//	}
-	//}
-	m_sources.clear();
-	std::vector<GeneralSource*>().swap(m_sources);
+	for (auto& source : m_originalSources) {
+		delete source;
+		source = nullptr;
+	}
 }
 
 void LBSInfo::SetSensorData(const SensorData& data)
@@ -45,6 +39,7 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 			m_nodes[i]->GetGeneralSource_AOA(newSource);
 			m_sources[i] = newSource;
 		}
+		m_originalSources = m_sources;
 	}
 	else if (lbsMethod == LBS_METHOD_RT_TDOA) {																	//纯TDOA方法
 		m_sources.resize(m_nodes.size());
@@ -53,18 +48,27 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 			m_nodes[i]->GetGeneralSource_TDOA(newSource);
 			m_sources[i] = newSource;
 		}
+		m_originalSources = m_sources;
 		EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
 	}
 	else if (lbsMethod == LBS_METHOD_RT_TOA) {
 		m_sources.reserve(m_nodes.size());
 		for (int i = 0; i < m_nodes.size(); ++i) {
 			RtLbsType propagation_t = m_nodes[i]->m_sensorData->m_time * LIGHT_VELOCITY_AIR;
-			if (propagation_t >= m_nodes[i]->m_tMin && propagation_t <= m_nodes[i]->m_tMax) {			//当且仅当测量到传播距离大于节点本身的距离时广义源才有效
+			if (m_nodes[i]->m_type == NODE_ROOT) {															//对于根节点直接入
 				GeneralSource* newSource = new GeneralSource();
 				m_nodes[i]->GetGeneralSource_AOA(newSource);
 				m_sources.push_back(newSource);
 			}
+			else {
+				if (propagation_t >= m_nodes[i]->m_tMin && propagation_t <= m_nodes[i]->m_tMax) {			//当且仅当测量到传播距离大于节点本身的距离时广义源才有效
+					GeneralSource* newSource = new GeneralSource();
+					m_nodes[i]->GetGeneralSource_AOA(newSource);
+					m_sources.push_back(newSource);
+				}
+			}
 		}
+		m_originalSources = m_sources;
 		EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
 	}
 	else if (lbsMethod == LBS_METHOD_RT_AOA_TOA) {
@@ -74,6 +78,7 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 			m_nodes[i]->GetGeneralSource_AOA(newSource);
 			m_sources[i] = newSource;
 		}
+		m_originalSources = m_sources;
 		//EraseRepeatGeneralSources(m_sources);																	//消除掉重复的广义源
 	}
 	else if (lbsMethod == LBS_METHOD_RT_AOA_TDOA) {
@@ -83,6 +88,7 @@ void LBSInfo::CalculateBaseInfo(LOCALIZATION_METHOD lbsMethod)
 			m_nodes[i]->GetGeneralSource_AOA(newSource);
 			m_sources[i] = newSource;
 		}
+		m_originalSources = m_sources;
 	}
 
 
@@ -102,6 +108,7 @@ void LBSInfo::CalculateBaseInfo(std::vector<SensorData>& sensorDatas, LOCALIZATI
 					tempSources.push_back(newSource);
 				}
 			}
+			m_originalSources.insert(m_originalSources.end(), tempSources.begin(), tempSources.end());
 			EraseRepeatGeneralSources(tempSources);																	//消除掉重复的广义源
 			//将tempSource拷贝至m_source中
 			int oldSize = m_sources.size();
@@ -119,6 +126,7 @@ void LBSInfo::CalculateBaseInfo(std::vector<SensorData>& sensorDatas, LOCALIZATI
 				m_nodes[i]->GetGeneralSource_TOA(newSource, curData);
 				tempSources.push_back(newSource);
 			}
+			m_originalSources.insert(m_originalSources.end(), tempSources.begin(), tempSources.end());
 			EraseRepeatGeneralSources(tempSources);																	//消除掉重复的广义源
 			//将tempSource拷贝至m_source中
 			int oldSize = m_sources.size();
@@ -158,7 +166,6 @@ inline void EraseRepeatGeneralSources(std::vector<GeneralSource*>& sources)
 		GeneralSource* curSource = data.second;
 		sources.push_back(curSource);
 	}
-
 
 	//重新计算phi值
 	for (auto& curSource : sources) {

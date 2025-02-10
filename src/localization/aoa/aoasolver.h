@@ -32,6 +32,7 @@ public:
 	void SetGeneralSource(const std::vector<GeneralSource*>& gsData);
 	Point2D Solving_LS(const BBox2D& bbox, const Point2D& initPoint);																//最小二乘方法求解器
 	Point2D Solving_WLS(const BBox2D& bbox, const Point2D& initPoint);																//加权最小二乘方法求解器
+	Point2D Solving_TSWLS(const BBox2D& bbox, const Point2D& initPoint);															//两步最小二乘方法求解器
 	Point2D Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint);								//迭代加权最小二乘方法求解器
 	Point2D Solving_WIRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint);								//初始权重迭代加权最小二乘方法求解器
 	Point2D Solving(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint);										//方程求解

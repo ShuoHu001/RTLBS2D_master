@@ -8,7 +8,6 @@
 #include "geometry/ray2d.h"
 #include "geometry/Intersection2D.h"
 #include "accel/accelerator.h"
-#include "accel/accelerator.h"
 #include "accel/bvh.h"
 #include "accel/kdtree.h"
 #include "accel/unigrid.h"

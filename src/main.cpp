@@ -20,8 +20,15 @@ int main(int argc, char** argv) {
 	FLAGS_logtostderr = false;  // 禁止输出到标准错误
 	FLAGS_minloglevel = 3;      // 设置日志级别为3，屏蔽ERROR及以下级别的日志
 
+
 	int max_threads = omp_get_max_threads();
 	omp_set_num_threads(max_threads - 4);
+
+	//TestAOATDOALocalizationMultiStationInGeometryError(2);
+	//TestAOATDOALocalizationMultiStationInGeometryError(1);
+	//TestAOATDOALocalizationMultiStationInGeometryError(2);
+
+	//return 1;
 
 	int mode = 0;									//0为射线追踪，2为定位精度测试，3为定位区域测试
 
@@ -74,7 +81,7 @@ int main(int argc, char** argv) {
 		std::cout << meanAccuracy / validRoundTime << std::endl;
 	}
 	else if (mode == 2) {
-		TestAOALocalizationSingleStationInDifferentError();
+		TestTOALocalizationSingleStationInDifferentError(1);
 	}
 	else if (mode == 3) {
 		TestAOALocalizaitonSingleStationErrorInDifferentPlace();
@@ -83,8 +90,6 @@ int main(int argc, char** argv) {
 		ResearchMultipathSimilarityInLocalizationInDifferentPlaces();
 	}
 
-
-	
 
 	
 	return 0;

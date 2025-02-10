@@ -9,7 +9,7 @@
 #include "utility/define.h"
 
 #define LOG_ERROR LogManager::getInstance().log_with_location(LEVEL_ERROR, __FILE__, __LINE__)
-#define LOG_INFO LogManager::getInstance().log(LEVEL_INFO)
+#define LOG_INFO LogManager::getInstance().log_without_anything(LEVEL_WARNING, __FILE__, __LINE__)
 #define LOG_WARNING LogManager::getInstance().log_with_location(LEVEL_WARNING, __FILE__, __LINE__)
 #define ENDL _ENDL(false);
 #define CRASH _ENDL(true);
@@ -27,7 +27,7 @@ public:
 	LogManager& log(LOGLEVEL level) {
 		switch (level) {
 		case LEVEL_INFO:
-			*this <<COLOR_GREEN<< "[INFO] "<< GetCurrentTime() << " ";
+			*this <<COLOR_GREEN<< "[INFO] "<< GetCurrentTime()<<" ";
 			break;
 		case LEVEL_WARNING:
 			*this <<COLOR_YELLOW<< "[WARNING] "<< GetCurrentTime() << " " << " ";
@@ -63,6 +63,7 @@ public:
 
 	std::string GetCurrentTime();
 
+	LogManager& log_without_anything(LOGLEVEL level, const char* file, int line);
 	LogManager& log_with_location(LOGLEVEL level, const char* file, int line);
 
 

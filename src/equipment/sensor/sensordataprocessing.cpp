@@ -87,14 +87,20 @@ void CalculateSensorCollectionResidual_AOA_SingleData(std::vector<SensorDataColl
 	}
 
 	//计算功率差残差二范数和
-	for (int i = 1; i < static_cast<int>(c1.size()); ++i) {
-		if (c2[i].m_datas.size() == 0) {
-			continue;
-		}
-		RtLbsType powerDiff1 = c1[i].m_datas[0].m_power - c1[0].m_datas[0].m_power;
-		RtLbsType powerDiff2 = c2[i].m_datas[0].m_power - c2[0].m_datas[0].m_power;
-		r_powerDiff += (powerDiff1 - powerDiff2) * (powerDiff1 - powerDiff2);
+	if (c2[0].m_datas.size() == 0) {			//参考站无功率
+		nullDataNum = c2.size();
 	}
+	else {
+		for (int i = 1; i < static_cast<int>(c1.size()); ++i) {
+			if (c2[i].m_datas.size() == 0) {
+				continue;
+			}
+			RtLbsType powerDiff1 = c1[i].m_datas[0].m_power - c1[0].m_datas[0].m_power;
+			RtLbsType powerDiff2 = c2[i].m_datas[0].m_power - c2[0].m_datas[0].m_power;
+			r_powerDiff += (powerDiff1 - powerDiff2) * (powerDiff1 - powerDiff2);
+		}
+	}
+	
 
 }
 

@@ -47,6 +47,11 @@
 #  include <algorithm> // for std::min and std::max 
 #endif
 
+#ifdef __cplusplus
+#define kdnsjad
+
+#endif
+
 //include Intel MKL library
 #include <mkl.h>
 #include <mkl_cblas.h>

@@ -1,0 +1,11 @@
+{
+	"SensorDataCollection": {
+		"SensorId": 2,
+		"SensorDatas": [{
+				"Time": 7.799092434032895e-8,
+				"TimeDiff": 3.4799752248155766e-8,
+				"PhiDegree": 101.84119384360217,
+				"Power": -23.949192168023764
+			}]
+	}
+}

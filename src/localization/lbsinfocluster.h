@@ -98,17 +98,14 @@ inline void TreeNodeGenerator_AOATOA_CPUSingleThread(const std::vector<RayTreeNo
 			continue;
 		}
 
-		std::vector<PathNode*> nodes;
+		std::vector<RayTreeNode*> nodes;
 		GenerateAllLeafTreeNode(vroots[i], nodes);
 		std::vector<LBSTreeNode*> lbsNodes(nodes.size());
 		for (int j = 0; j < nodes.size(); ++j) {
-			const PathNode* curPathNode = nodes[j];
-			int sensorDataId = curPathNode->m_nextRay.m_sensorDataId;
+			const RayTreeNode* curNode = nodes[j];
+			int sensorDataId = curNode->m_data->m_nextRay.m_sensorDataId;
 			SensorData* sensorData = scene->m_sensorDataLibrary.GetData(sensorDataId);
-			lbsNodes[j] = new LBSTreeNode(*curPathNode, sensorData);
-		}
-		for (auto& node : nodes) {
-			delete node;
+			lbsNodes[j] = new LBSTreeNode(*curNode->m_data, sensorData, curNode->m_data->m_ft, curNode->m_pLeft->m_data->m_ft);
 		}
 
 		infoCluster.m_infos[i]->SetNodes(lbsNodes);

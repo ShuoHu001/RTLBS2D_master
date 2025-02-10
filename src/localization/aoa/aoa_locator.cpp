@@ -228,10 +228,10 @@ Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 		curSource->NormalizedWeight(max_weight);
 	}
 
-	//删除低于权重阈值的广义源
-	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
-		return s->m_weight < 0.7;
-		}), allGSCopy.end());
+	////删除低于权重阈值的广义源
+	//allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
+	//	return s->m_weight < 0.7;
+	//	}), allGSCopy.end());
 
 	//删除无效的广义源
 	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* source) {
@@ -241,13 +241,7 @@ Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 
 	//获取最大权重的Cluster,并将解作为初始解
 	RtLbsType maxClusterWeight = 0;
-	Point2D initPoint;
-	for (auto& curCluster : gsPairClusters) {
-		if (maxClusterWeight < curCluster.m_pairs[0]->m_weight) {
-			maxClusterWeight = curCluster.m_pairs[0]->m_weight;
-			initPoint = curCluster.m_point;
-		}
-	}
+	Point2D initPoint = gsPairClusters.front().m_point;
 
 	//配置AOA求解器
 	AOASolver aoaSolver;
@@ -256,7 +250,7 @@ Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	Point2D targetPoint = initPoint;
 	targetPoint = aoaSolver.Solving(lbsConfig.m_solvingConfig, scene->m_bbox, initPoint);
 
-	if ((initPoint - targetPoint).Length() > 100) {							//若偏移程度过大，则恢复原始解（算法解无效）
+	if ((initPoint - targetPoint).Length() > 50) {							//若偏移程度过大，则恢复原始解（算法解无效）
 		targetPoint = initPoint;
 	}
 	gsPairClusters.clear();
@@ -269,11 +263,11 @@ Point2D LBS_AoA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 
@@ -596,11 +590,11 @@ Point2D LBS_AoA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 

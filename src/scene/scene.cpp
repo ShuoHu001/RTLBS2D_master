@@ -85,7 +85,7 @@ bool Scene::LoadScene(const SimConfig& config)
     //读取建筑物
     if (!config.m_geometryConfig.m_buildingFile.empty() && !config.m_geometryConfig.m_buildingAttributeFile.empty()) {
         std::vector<Building2D*> buildings;         /** @brief	待读取的建筑物集合	*/
-        if (!LoadBuildingsFromFile(config.m_geometryConfig.m_buildingFile, config.m_geometryConfig.m_buildingAttributeFile, buildings))
+        if (!LoadBuildingsFromFile(config.m_geometryConfig.m_buildingFile, config.m_geometryConfig.m_buildingAttributeFile, buildings, config.m_geometryConfig.m_positionError))
             return false;
         for (int i = 0; i < buildings.size(); ++i) {
             buildings[i]->m_objectId = objectNum;

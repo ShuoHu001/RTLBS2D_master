@@ -31,7 +31,7 @@ public:
 public:
 	LBSTreeNode();
 	LBSTreeNode(const LBSTreeNode& node);
-	LBSTreeNode(const PathNode& node, SensorData* sensorData);													//由路径节点进行初始化，含AOA型的定位算法
+	LBSTreeNode(const PathNode& node, SensorData* sensorData, RtLbsType ftmin = 0.0, RtLbsType ftmax = 0.0);	//由路径节点进行初始化，含AOA型的定位算法
 	LBSTreeNode(const PathNode& node);																			//由路径节点进行初始化，只适合TDOA的定位算法
 	LBSTreeNode(const PathNode& curNode, const PathNode& nextNode);												//由路径节点进行初始化。只适合TOA单站定位算法
 	LBSTreeNode(const TreeNodeGPU& node, Segment2D* segment, Wedge2D* wedge, SensorData* sensorData);			//由GPU树节点进行初始化-弃用

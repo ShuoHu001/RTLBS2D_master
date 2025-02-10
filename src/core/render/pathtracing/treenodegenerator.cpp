@@ -189,7 +189,7 @@ void GenerateAllTreeNode(RayTreeNode* root, std::vector<RayTreeNode*>& outNodes)
 	}
 }
 
-void GenerateAllLeafTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes)
+void GenerateAllLeafTreeNode(RayTreeNode* root, std::vector<RayTreeNode*>& outNodes)
 {
 	struct StackItem {
 		RayTreeNode* node;									/** @brief	当前节点	*/
@@ -234,8 +234,7 @@ void GenerateAllLeafTreeNode(RayTreeNode* root, std::vector<PathNode*>& outNodes
 		}
 		else {
 			if (curNode->IsValidLeafNode()) {				//判断是否是有效叶子节点
-				outNodes.push_back(new PathNode(*curNode->m_data));
-				outNodes.back()->m_fatherNodeId = curFatherNodeId;		//修改新入数组元素的父节点ID
+				outNodes.push_back(curNode);
 			}
 			
 		}

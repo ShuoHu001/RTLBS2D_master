@@ -8,6 +8,7 @@ GeometryConfig::GeometryConfig()
 	, m_wallFile("")
 	, m_wallAttributeFile("")
 	, m_loadingTerrainFlag(false)
+	, m_positionError(0.0)
 {
 }
 
@@ -20,6 +21,7 @@ GeometryConfig::GeometryConfig(const GeometryConfig& config)
 	, m_wallAttributeFile(config.m_wallAttributeFile)
 	, m_loadingTerrainFlag(config.m_loadingTerrainFlag)
 	, m_terrainConfig(config.m_terrainConfig)
+	, m_positionError(config.m_positionError)
 {
 }
 
@@ -37,6 +39,7 @@ GeometryConfig& GeometryConfig::operator=(const GeometryConfig& config)
 	m_wallAttributeFile = config.m_wallAttributeFile;
 	m_loadingTerrainFlag = config.m_loadingTerrainFlag;
 	m_terrainConfig = config.m_terrainConfig;
+	m_positionError = config.m_positionError;
 	return* this;
 }
 
@@ -51,6 +54,7 @@ void GeometryConfig::Serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 	writer.Key(KEY_GEOMETRYCONFIG_WALLATTRIBUTEFILE.c_str());								writer.String(m_wallAttributeFile.c_str());
 	writer.Key(KEY_GEOMETRYCONFIG_LOADINGTERRAINFLAG.c_str());								writer.Bool(m_loadingTerrainFlag);
 	writer.Key(KEY_GEOMETRYCONFIG_TERRAINCOFNIG.c_str());									m_terrainConfig.Serialize(writer);
+	writer.Key(KEY_GEOMETRYCONFIG_POSITIONERROR.c_str());									writer.Double(m_positionError);
 	writer.EndObject();
 }
 
@@ -93,6 +97,10 @@ bool GeometryConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "GeometryConfig: missing " << KEY_GEOMETRYCONFIG_TERRAINCOFNIG.c_str() << ENDL;
 		return false;
 	}
+	if (!value.HasMember(KEY_GEOMETRYCONFIG_POSITIONERROR.c_str())) {
+		LOG_ERROR << "GeometryConfig: missing " << KEY_GEOMETRYCONFIG_POSITIONERROR.c_str() << ENDL;
+		return false;
+	}
 
 	const rapidjson::Value& buildingFileValue = value[KEY_GEOMETRYCONFIG_BUILDINGFILE.c_str()];
 	const rapidjson::Value& buildingAttributeFileValue = value[KEY_GEOMETRYCONFIG_BUILDINGATTRIBUTEFILE.c_str()];
@@ -102,6 +110,7 @@ bool GeometryConfig::Deserialize(const rapidjson::Value& value)
 	const rapidjson::Value& wallAttributeFileValue = value[KEY_GEOMETRYCONFIG_WALLATTRIBUTEFILE.c_str()];
 	const rapidjson::Value& loadingTerrainFlagValue = value[KEY_GEOMETRYCONFIG_LOADINGTERRAINFLAG.c_str()];
 	const rapidjson::Value& terrainConfigValue = value[KEY_GEOMETRYCONFIG_TERRAINCOFNIG.c_str()];
+	const rapidjson::Value& positionErrorValue = value[KEY_GEOMETRYCONFIG_POSITIONERROR.c_str()];
 
 	if (!buildingFileValue.IsString()) {
 		LOG_ERROR << "GeometryConfig: " << KEY_GEOMETRYCONFIG_BUILDINGFILE.c_str() << ", wrong value format." << ENDL;
@@ -135,6 +144,10 @@ bool GeometryConfig::Deserialize(const rapidjson::Value& value)
 		LOG_ERROR << "GeometryConfig: " << KEY_GEOMETRYCONFIG_TERRAINCOFNIG.c_str() << ", wrong value format." << ENDL;
 		return false;
 	}
+	if (!positionErrorValue.IsDouble()) {
+		LOG_ERROR << "GeometryConfig: " << KEY_GEOMETRYCONFIG_POSITIONERROR.c_str() << ", wrong value format." << ENDL;
+		return false;
+	}
 
 	m_buildingFile = buildingFileValue.GetString();
 	m_buildingAttributeFile = buildingAttributeFileValue.GetString();
@@ -143,6 +156,7 @@ bool GeometryConfig::Deserialize(const rapidjson::Value& value)
 	m_wallFile = wallFileValue.GetString();
 	m_wallAttributeFile = wallAttributeFileValue.GetString();
 	m_loadingTerrainFlag = loadingTerrainFlagValue.GetBool();
+	m_positionError = positionErrorValue.GetDouble();
 
 	if (!m_terrainConfig.Deserialize(terrainConfigValue)) {
 		LOG_ERROR << "GeometryConfig: " << KEY_GEOMETRYCONFIG_TERRAINCOFNIG.c_str() << ", deserialize failed." << ENDL;

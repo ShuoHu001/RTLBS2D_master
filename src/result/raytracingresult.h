@@ -81,7 +81,9 @@ public:
 	void OutputVectorPower(std::ofstream& stream) const;																					//输出矢量功率信息
 	void OutputScalarPower(std::ofstream& stream) const;																					//输出标量功率信息
 	void OutputLoss(std::ofstream& stream) const;																							//输出损耗信息
-	void OutputRayPath(std::ofstream& stream) const;																						//输出多径信息
+	void OutputRayPath(std::ofstream& stream);																						//输出多径信息
+	void OutputMinDelayRayPath(std::ofstream& stream) const;																				//输出最小延迟多径信息
+	void OutputMaxPowerRayPath(std::ofstream& stream) const;																				//输出最大功率多径信息
 	void OutputPDP(std::ofstream& stream) const;																							//输出PDP信息
 	void OutputCFR(std::ofstream& stream) const;																							//输出CFR信息
 	void OutputCIR(std::ofstream& stream) const;																							//输出CIR信息
@@ -91,6 +93,9 @@ public:
 	void OutputGeneralSourceForCRLB(std::ofstream& stream) const;																			//输出广义源信息，为了计算CRLB
 	void OutputCRLB(std::ofstream& stream, const LBSErrorConfig& config) const;																//输出单站CRLB
 	void OutputGDOP(std::ofstream& stream, const LBSErrorConfig& config) const;																//输出单站GDOP
+
+	//论文中需要输出的内容
+	void OutputLocationRange(std::ofstream& stream) const;																										//输出定位范围
 
 private:
 	RtLbsType CalculateMeanArrivedDelay() const;																							//计算平均到达时延

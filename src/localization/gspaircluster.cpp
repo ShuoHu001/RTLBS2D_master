@@ -191,7 +191,7 @@ void GSPairCluster::ExtendAroundPoint(bool expandFlag, const ElevationMatrix& lb
     }
     else {
         m_aroundPoints.push_back(m_point);
-		RtLbsType offset1 = 0.5;                                                    /** @brief	倾斜处偏移量,提供微量偏移	*/
+		RtLbsType offset1 = 1.5;                                                    /** @brief	倾斜处偏移量,提供微量偏移	*/
 		Point2D NorthWestPoint = m_point + Point2D(-offset1, offset1);              /** @brief	西北点	*/
 		Point2D NorthEastPoint = m_point + Point2D(offset1, offset1);               /** @brief	东北点	*/
 		Point2D SouthWestPoint = m_point + Point2D(-offset1, -offset1);             /** @brief	西南点	*/

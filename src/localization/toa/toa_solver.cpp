@@ -82,7 +82,7 @@ Point2D TOASolver::Solving_WLS(const BBox2D& bbox, const Point2D& initPoint)
 	//定义问题
 	ceres::Problem problem;
 
-	RtLbsType position[2] = { initPoint.x, initPoint.y };		//初始位置估计
+	RtLbsType position[2] = { 0, 0 };		//初始位置估计
 
 	int dataNum = static_cast<int>(m_gsData.size());
 

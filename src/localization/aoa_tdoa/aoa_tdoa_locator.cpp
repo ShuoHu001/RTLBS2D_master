@@ -114,6 +114,10 @@ Point2D LBS_AOA_TDOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::v
 		return !source->IsValid();
 		}), allGSCopy.end());
 
+	if (allGSCopy.size() == 0) {
+		return Point2D(0, 0);
+	}
+
 	//将所有广义源权重置0
 	for (int i = 0; i < allGSCopy.size(); ++i) {
 		allGSCopy[i]->m_wCount = 0;					//权重计数归零
@@ -284,7 +288,7 @@ Point2D LBS_AOA_TDOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::v
 	mean_r_powerDiff /= clusterNum;
 
 	for (auto curPair : gsPairs) {														//更新pair内权重并寻找最大权重
-		curPair->UpdateResidual_AOATOA(mean_r_phi, mean_r_timeDiff, mean_r_powerDiff);
+		curPair->UpdateResidual_AOATDOA(mean_r_phi, mean_r_timeDiff, mean_r_powerDiff);
 		max_r_phi = std::max(max_r_phi, curPair->m_phiResidual);
 		max_r_timeDiff = std::max(max_r_timeDiff, curPair->m_timeDiffResidual);
 		max_r_powerDiff = std::max(max_r_powerDiff, curPair->m_powerDiffResidual);
@@ -343,9 +347,7 @@ Point2D LBS_AOA_TDOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::v
 	//搜索0.9权重以上的cluster中的广义源
 	std::vector<GeneralSource*> validGSs;
 	for (auto& curCluster : gsPairClusters) {
-		if (curCluster.m_weight > 0.5) {
-			curCluster.GetNonRepeatGeneralSource(bestRefSource, validGSs);
-		}
+		curCluster.GetNonRepeatGeneralSource(bestRefSource, validGSs);
 	}
 
 	Point2D initPoint = gsPairClusters.front().m_point;				/** @brief	初始解	*/
@@ -357,7 +359,7 @@ Point2D LBS_AOA_TDOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::v
 	Point2D targetPoint = initPoint;
 	targetPoint = solver.Solving(lbsConfig.m_solvingConfig, scene->m_bbox, weightFactor, initPoint);
 
-	if ((initPoint - targetPoint).Length() > 20) {							//若偏移程度过大，则恢复原始解（算法解无效）
+	if ((initPoint - targetPoint).Length() > 100) {							//若偏移程度过大，则恢复原始解（算法解无效）
 		targetPoint = initPoint;
 	}
 	gsPairClusters.clear();
@@ -370,11 +372,11 @@ Point2D LBS_AOA_TDOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::v
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 
@@ -762,11 +764,11 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 

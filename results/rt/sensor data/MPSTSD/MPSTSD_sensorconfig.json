@@ -5,46 +5,46 @@
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 45.0,
-					"y": 21.0,
-					"z": 2.0
+					"x": 10.0,
+					"y": 22.0,
+					"z": 1.7999999523162842
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
 				"PhiDegreeErrorSTD": 2.0,
-				"TimeErrorSTD": 1.0,
-				"PowerErrorSTD": 3.0,
-				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_0_MPSTSD.json"
+				"TimeErrorSTD": 0.2,
+				"PowerErrorSTD": 2.0,
+				"SensorDataFileName": "config/sensor data/uwb_sim_aoa/tx0_sensor_0_MPSTSD.json"
 			}, {
 				"Id": 1,
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 125.0,
-					"y": 21.0,
-					"z": 2.0
+					"x": 10.0,
+					"y": 47.0,
+					"z": 1.7999999523162842
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
 				"PhiDegreeErrorSTD": 2.0,
-				"TimeErrorSTD": 1.0,
-				"PowerErrorSTD": 3.0,
-				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_1_MPSTSD.json"
+				"TimeErrorSTD": 0.2,
+				"PowerErrorSTD": 2.0,
+				"SensorDataFileName": "config/sensor data/uwb_sim_aoa/tx0_sensor_1_MPSTSD.json"
 			}, {
 				"Id": 2,
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 106.0,
-					"y": 74.0,
-					"z": 2.0
+					"x": 20.0,
+					"y": 21.0,
+					"z": 1.7999999523162842
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
 				"PhiDegreeErrorSTD": 2.0,
-				"TimeErrorSTD": 1.0,
-				"PowerErrorSTD": 3.0,
-				"SensorDataFileName": "results/rt/sensor data/MPSTSD/tx0_sensor_2_MPSTSD.json"
+				"TimeErrorSTD": 0.2,
+				"PowerErrorSTD": 2.0,
+				"SensorDataFileName": "config/sensor data/uwb_sim_aoa/tx0_sensor_2_MPSTSD.json"
 			}]
 	}
 }

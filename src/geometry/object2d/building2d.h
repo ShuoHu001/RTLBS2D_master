@@ -5,6 +5,7 @@
 #include "utility/define.h"
 #include "object2d.h"
 #include "managers/logmanager.h"
+#include "managers/randomanager.h"
 
 class Building2D :public Object2D {
 public:
@@ -16,6 +17,6 @@ public:
 };
 
 //从文件中初始化建筑物
-bool LoadBuildingsFromFile(const std::string& geometryFile, const std::string& attributeFile, std::vector<Building2D*>& outBuildings);
+bool LoadBuildingsFromFile(const std::string& geometryFile, const std::string& attributeFile, std::vector<Building2D*>& outBuildings, RtLbsType positionError = 0.0);
 
 #endif

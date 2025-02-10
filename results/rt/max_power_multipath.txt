@@ -1,0 +1,3 @@
+multipath	0	0	1
+multipath	1	0	1
+multipath	2	0	1

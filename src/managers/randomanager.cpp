@@ -25,9 +25,10 @@ double RandoManager::NormDistributionDouble(RtLbsType mu, RtLbsType sigma)
 	}
 	std::normal_distribution<double> dis(mu, sigma);
 	RtLbsType reVal = dis(m_gen);
-	//while (std::abs(reVal - mu) > sigma) {
-	//	reVal = dis(m_gen);
-	//}
+	while (std::abs(reVal - mu) > sigma /*|| std::abs(reVal - mu) < 0.8 * sigma*/) {
+		reVal = dis(m_gen);
+	}
+
 	return reVal;
 }
 

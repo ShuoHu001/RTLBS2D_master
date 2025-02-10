@@ -32,7 +32,7 @@ bool RayTreeNode::IsValidLeafNode() const
 	if (m_pLeft == nullptr) {		//若该节点无子节点，则为真正叶子节点，该节点无效
 		return false;
 	}
-	if (m_pLeft->m_pLeft != nullptr) { //若该节点
+	if (m_pLeft->m_pLeft != nullptr) { //本方法所求为求解真正叶子节点的前一节点
 		return false;
 	}
 	return true;

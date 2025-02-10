@@ -44,7 +44,7 @@ public:
 	Result();
 	~Result();
 	void Init(const std::vector<Transmitter*>& transmitters, const std::vector<Receiver*> receivers);										//初始化结果-射线追踪
-	void OutputResult(const OutputConfig& config) const;																					//输出计算结果
+	void OutputResult(const OutputConfig& config);																					//输出计算结果
 	void CalculateResult_RT_SensorData(const OutputConfig& outputConfig, const FrequencyConfig& freqConfig, const std::vector<Complex>& tranFunctionData);																	//计算射线追踪结果，用于模拟传感器数据
 
 private:
@@ -53,7 +53,7 @@ private:
 	void OutputVectorPower() const;																											//输出矢量功率
 	void OutputScalarPower() const;																											//输出标量功率
 	void OutputLoss() const;																												//输出损耗
-	void OutputRayPath() const;																												//输出射线路径
+	void OutputRayPath();																												//输出射线路径
 	void OutputPDP() const;																													//输出功率时延信息
 	void OutputCFR() const;																													//输出信道频率响应信息
 	void OutputCIR() const;																													//输出信道冲激相应信息
@@ -69,6 +69,9 @@ private:
 	void OutputMultiStationGDOP(const LBSErrorConfig& config) const;																		//计算并输出多站GDOP
 	void OutputSingleStationCRLB(const LBSErrorConfig& config) const;																		//计算并输出单站CRLB
 	void OutputSingleStationGDOP(const LBSErrorConfig& config) const;																		//计算并输出单站GDOP
+
+	//论文中需要输出的内容
+	void OutputLocationRange() const;																										//输出定位范围
 	
 };
 

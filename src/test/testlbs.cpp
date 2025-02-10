@@ -84,7 +84,7 @@ void TestAOALocalizationSingleStationInDifferentError()
 	LOG_INFO << "计算完成" << ENDL;
 }
 
-void TestTOALocalizationSingleStationInDifferentError()
+void TestAOAlocalizationMultiStationInDifferentError()
 {
 	struct LBSData {
 		bool isValid;
@@ -98,14 +98,94 @@ void TestTOALocalizationSingleStationInDifferentError()
 		}
 	};
 
-	std::vector<RtLbsType> timeNSErrors = { 3 };
-	std::vector<RtLbsType> powerErrors = { 3 };
-	//std::vector<RtLbsType> phiDegreeErrors = { 4.0 };
-	//std::vector<RtLbsType> powerErrors = { 0 };
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{37,30} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+	int positionId = 2;
 
-	std::string positionName = "A";
+	std::vector<RtLbsType> phiDegreeErrors = { /*0.1,1.0,2.0,3.0,4.0,5.0,6.0,7.0,*/8.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	int roundTime = 100;
+	System* lbsSystem = nullptr;
+	for (auto phiDegreeError : phiDegreeErrors) {
+		for (auto powerError : powerErrors) {
+			RtLbsType phiError = phiDegreeError * ONE_DEGEREE;
+			std::vector<LBSData> datas;
+			datas.resize(roundTime);
+			//读取传感器信息，写入对应的误差数据
+			for (int i = 0; i < roundTime; ++i) {
+				datas[i].truePosition = realPositions[positionId];
+				SensorCollectionConfig curSensorConfig;
+				curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+				for (int j = 0; j < stationNum; ++j) {
+					curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeError;
+					curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiError;
+					curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = 0.2;
+					curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+					curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_aoa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+				}
+
+				curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+				lbsSystem = new System();
+				lbsSystem->Setup(MODE_LBS);
+				lbsSystem->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = phiDegreeError;
+				lbsSystem->Render();
+				Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA);
+				datas[i].targetPosition = targetPosition;
+				datas[i].error = (targetPosition - datas[i].truePosition).Length();
+				if (datas[i].error > 200) {
+					datas[i].isValid = false;
+				}
+				std::cout << i << std::endl;
+				delete lbsSystem;
+			}
+			std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(phiDegreeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+			std::ofstream outstream(outputFileName);
+			for (auto& data : datas) {
+				if (data.isValid) {
+					data.Write2File(outstream);
+				}
+			}
+			outstream.close();
+		}
+	}
+
+}
+
+void TestTOALocalizationSingleStationInDifferentError(int positionId)
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	std::vector<Point2D> realPoints = { {76,56},{121,74},{70,90} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+
+	//预写入项
+	//读取整体配置，写入对应的求解方法
+	SimConfig simconfig;
+	simconfig.Init("config/sysconfig.json");
+	simconfig.m_systemMode = MODE_LBS;
+	simconfig.m_lbsConfig.m_lbsMode = LBS_MODE_SPSTMD;
+	simconfig.m_lbsConfig.m_lbsMethod = LBS_METHOD_RT_TOA;
+	simconfig.m_lbsConfig.m_threadNum = 20;
+	simconfig.Writer2Json("config/sysconfig.json");
+
+	std::vector<RtLbsType> timeNSErrors = { 2,4,6,8,10,12,14,16,18,20 };
+	std::vector<RtLbsType> powerErrors = { 6 };
+
+	std::string positionName = postionNames[positionId];
 	int roundTime = 400;
-	Point2D realPoint = { 76,56 };
+
+	Point2D realPoint = realPoints[positionId];
 
 	int totalround = static_cast<int>(timeNSErrors.size() * powerErrors.size() * roundTime);
 
@@ -118,8 +198,9 @@ void TestTOALocalizationSingleStationInDifferentError()
 			//读取传感器信息，写入对应的误差数据
 			SensorCollectionConfig curSensorCollectionConfig;
 			curSensorCollectionConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
-			curSensorCollectionConfig.m_sensorConfigs[0].m_timeErrorSTD = timeError+4;
+			curSensorCollectionConfig.m_sensorConfigs[0].m_timeErrorSTD = timeError;
 			curSensorCollectionConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
+			curSensorCollectionConfig.m_sensorConfigs[0].m_sensorDataFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(positionId) + "_SPSTMD.json";
 			curSensorCollectionConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
 			System* system;
 			for (int i = 0; i < roundTime; ++i) {
@@ -159,6 +240,74 @@ void TestTOALocalizationSingleStationInDifferentError()
 		}
 	}
 	LOG_INFO << "计算完成" << ENDL;
+}
+
+void TestTOALocalizationMultiStationInDifferentError()
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{38,28} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+	int positionId = 0;
+
+	std::vector<RtLbsType> phiDegreeErrors = { 0.1,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	std::vector<RtLbsType> timeErrors = { 3.0 };
+	int roundTime = 20;
+	System* lbsSystem = nullptr;
+	for (auto phiDegreeError : phiDegreeErrors) {
+		for (auto timeError : timeErrors) {
+			for (auto powerError : powerErrors) {
+				RtLbsType phiError = phiDegreeError * ONE_DEGEREE;
+				std::vector<LBSData> datas;
+				datas.resize(roundTime);
+				//读取传感器信息，写入对应的误差数据
+				for (int i = 0; i < roundTime; ++i) {
+					datas[i].truePosition = realPositions[positionId];
+					SensorCollectionConfig curSensorConfig;
+					curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+					for (int j = 0; j < stationNum; ++j) {
+						curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeError;
+						curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiError;
+						curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = timeError;
+						curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+						curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_toa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+					}
+					curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+					lbsSystem = new System();
+					lbsSystem->Setup(MODE_LBS);
+					lbsSystem->Render();
+					Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_TOA);
+					datas[i].targetPosition = targetPosition;
+					datas[i].error = (targetPosition - datas[i].truePosition).Length();
+					if (datas[i].error > 5) {
+						datas[i].isValid = false;
+					}
+					std::cout << i << std::endl;
+					delete lbsSystem;
+				}
+				std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(phiDegreeError) + "_timeError_" + std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+				std::ofstream outstream(outputFileName);
+				for (auto& data : datas) {
+					if (data.isValid) {
+						data.Write2File(outstream);
+					}
+				}
+				outstream.close();
+			}
+		}
+	}
 }
 
 void TestAOATDOALocalizationSingleStationInDifferentError()
@@ -245,6 +394,76 @@ void TestAOATDOALocalizationSingleStationInDifferentError()
 	LOG_INFO << "计算完成" << ENDL;
 }
 
+void TestAOATDOALocalizationMultiStationInDifferentError()
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{37,30} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+	int positionId = 1;
+
+	std::vector<RtLbsType> phiDegreeErrors = { 0.1,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	std::vector<RtLbsType> timeErrors = { 3.0 };
+
+	int roundTime = 100;
+	System* lbsSystem = nullptr;
+	for (auto phiDegreeError : phiDegreeErrors) {
+		for (auto timeError : timeErrors) {
+			for (auto powerError : powerErrors) {
+				RtLbsType phiError = phiDegreeError * ONE_DEGEREE;
+				std::vector<LBSData> datas;
+				datas.resize(roundTime);
+				//读取传感器信息，写入对应的误差数据
+				for (int i = 0; i < roundTime; ++i) {
+					datas[i].truePosition = realPositions[positionId];
+					SensorCollectionConfig curSensorConfig;
+					curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+					for (int j = 0; j < stationNum; ++j) {
+						curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeError;
+						curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiError;
+						curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = timeError;
+						curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+						curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_toa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+					}
+					curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+					lbsSystem = new System();
+					lbsSystem->Setup(MODE_LBS);
+					lbsSystem->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = phiDegreeError;
+					lbsSystem->Render();
+					Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TDOA);
+					datas[i].targetPosition = targetPosition;
+					datas[i].error = (targetPosition - datas[i].truePosition).Length();
+					if (datas[i].error > 2) {
+						datas[i].isValid = false;
+					}
+					std::cout << i << std::endl;
+					delete lbsSystem;
+				}
+				std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(phiDegreeError) + "_timeError_" + std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+				std::ofstream outstream(outputFileName);
+				for (auto& data : datas) {
+					if (data.isValid) {
+						data.Write2File(outstream);
+					}
+				}
+				outstream.close();
+			}
+		}
+	}
+}
+
 void TestAOATOALocalizationSingleStationInDifferentError()
 {
 	struct LBSData {
@@ -329,6 +548,75 @@ void TestAOATOALocalizationSingleStationInDifferentError()
 		}
 	}
 	LOG_INFO << "计算完成" << ENDL;
+}
+
+void TestAOATOALocalizationMultiStationInDifferentError()
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{37,30} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+	int positionId = 2;
+
+	std::vector<RtLbsType> phiDegreeErrors = { /*0.1,1.0,2.0,3.0,*/4.0,5.0,6.0,7.0,8.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	std::vector<RtLbsType> timeErrors = { 3.0 };
+
+
+	int roundTime = 100;
+	System* lbsSystem = nullptr;
+	for (auto phiDegreeError : phiDegreeErrors) {
+		for (auto timeError : timeErrors) {
+			for (auto powerError : powerErrors) {
+				RtLbsType phiError = phiDegreeError * ONE_DEGEREE;
+				std::vector<LBSData> datas;
+				datas.resize(roundTime);
+				//读取传感器信息，写入对应的误差数据
+				for (int i = 0; i < roundTime; ++i) {
+					datas[i].truePosition = realPositions[positionId];
+					SensorCollectionConfig curSensorConfig;
+					curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+					for (int j = 0; j < stationNum; ++j) {
+						curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeError;
+						curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiError;
+						curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = timeError;
+						curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+						curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_toa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+					}
+					curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+					lbsSystem = new System();
+					lbsSystem->Setup(MODE_LBS);
+					lbsSystem->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = phiDegreeError;
+					lbsSystem->Render();
+					Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TOA);
+					datas[i].targetPosition = targetPosition;
+					datas[i].error = (targetPosition - datas[i].truePosition).Length();
+					std::cout << i << std::endl;
+					delete lbsSystem;
+				}
+				std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(phiDegreeError) + "_timeError_" + std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+				std::ofstream outstream(outputFileName);
+				for (auto& data : datas) {
+					if (data.error > 10) {
+						continue;
+					}
+					data.Write2File(outstream);
+				}
+				outstream.close();
+			}
+		}
+	}
 }
 
 void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
@@ -522,4 +810,758 @@ void ResearchMultipathSimilarityInLocalizationInDifferentPlaces()
 	}
 	//完成
 	std::cout << "finished" << std::endl;
+}
+
+void GeneratePowerDataofUWBSystem()
+{
+	//读取发射机坐标
+	std::vector<Point3D> points;
+	std::ifstream instream("tx_position.txt");
+	std::string line;
+	while (std::getline(instream, line)) {
+		if (line.empty()) continue;    // 跳过空行
+		std::istringstream iss(line);  // 使用字符串流解析每一行
+		Point3D point;
+		if (iss >> point.x >> point.y >> point.z) { // 提取 x, y, z 数据
+			points.push_back(point);   // 将点存储到向量中
+		}
+		else {
+			std::cerr << "数据格式错误，无法解析: " << line << std::endl;
+		}
+	}
+	instream.close();
+	int txNum = points.size();
+
+	std::vector<RtLbsType> receivedPower(txNum);
+	TransmitterCollectionConfig txCollectionConfig;
+	txCollectionConfig.m_transmitterConfigs.resize(1);
+	System* system = nullptr;
+	for (int i = 0; i < txNum; ++i) {
+		txCollectionConfig.m_transmitterConfigs[0].m_position = points[i];
+		txCollectionConfig.Write2Json("config/transmitterconfig.json");
+		system = new System();
+		if (!system->Setup(MODE_RT))
+			return;
+		system->Render();
+		system->PostProcessing();
+		system->OutputResults();
+		if (!system->m_result.m_raytracingResult[0].m_multipathInfo.empty()) {
+			receivedPower[i] = system->m_result.m_raytracingResult[0].m_multipathInfo[0].m_power;
+		}
+		else {
+			receivedPower[i] = -120;
+		}
+		delete system;
+		std::cout << i << std::endl;
+	}
+
+	std::ofstream outstream("rx1.txt");
+	for (int i = 0; i < txNum; ++i) {
+		outstream << i << "\t" << receivedPower[i] << std::endl;
+	}
+	outstream.close();
+}
+
+void GenerateUWBAOALocalizationMultiStationSensorData()
+{
+	//生成传感器数据
+
+	//读取发射机数据，调用RT算法接口，生成传感器数据
+	std::vector<Point3D> points;
+	std::ifstream instream("tx_position.txt");
+	std::string line;
+	while (std::getline(instream, line)) {
+		if (line.empty()) continue;    // 跳过空行
+		std::istringstream iss(line);  // 使用字符串流解析每一行
+		Point3D point;
+		if (iss >> point.x >> point.y >> point.z) { // 提取 x, y, z 数据
+			points.push_back(point);   // 将点存储到向量中
+		}
+		else {
+			std::cerr << "数据格式错误，无法解析: " << line << std::endl;
+		}
+	}
+	instream.close();
+	int txNum = points.size();
+	System* system = nullptr;
+	TransmitterCollectionConfig txCollectionConfig;
+	txCollectionConfig.m_transmitterConfigs.resize(1);
+	std::vector< std::vector<SensorDataCollection>> sensorDatas;
+	sensorDatas.resize(txNum);
+	for (int i = 0; i < txNum; ++i) {
+		txCollectionConfig.m_transmitterConfigs[0].m_position = points[i];
+		txCollectionConfig.Write2Json("config/transmitterconfig.json");
+		system = new System();
+		if (!system->Setup(MODE_RT))
+			return;
+		system->Render();
+		system->PostProcessing();
+		sensorDatas[i] = system->m_result.m_sensorDataMPSTSD;
+		delete system;
+		std::cout << i << std::endl;
+	}
+
+
+	for (int i = 0; i < txNum; ++i) {
+		for (int j = 0; j < sensorDatas[i].size(); ++j) {
+			std::string filename = "config/sensor data/toa/" + std::to_string(i) +"_"+std::to_string(j) + ".json";
+			sensorDatas[i][j].Write2Json(filename);
+		}
+	}
+
+
+}
+
+void TestUWBAOALocalizationMultiStation()
+{
+	struct LBSData {
+		bool isValid;
+		int sensorDataId;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), sensorDataId(-1), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), sensorDataId(-1), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	//读取真实的发射机坐标
+	std::vector<Point3D> points;
+	std::ifstream instream("tx_position.txt");
+	std::string line;
+	while (std::getline(instream, line)) {
+		if (line.empty()) continue;    // 跳过空行
+		std::istringstream iss(line);  // 使用字符串流解析每一行
+		Point3D point;
+		if (iss >> point.x >> point.y >> point.z) { // 提取 x, y, z 数据
+			points.push_back(point);   // 将点存储到向量中
+		}
+		else {
+			std::cerr << "数据格式错误，无法解析: " << line << std::endl;
+		}
+	}
+	instream.close();
+	int txNum = points.size();
+
+	RtLbsType aoaErrorDegree = 6.0;
+	RtLbsType powerError = 6.0;
+	//读取sensorconfig数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+	std::vector<LBSData> datas(txNum);
+
+	System* system = nullptr;
+	for (int i = 0; i < txNum; ++i) {
+		datas[i].truePosition = { points[i].x, points[i].y };
+		for (int j = 0; j < 4; ++j) {
+			curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = aoaErrorDegree;
+			curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = aoaErrorDegree * ONE_DEGEREE;
+			curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = 0.2;
+			curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+			curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/aoa/" + std::to_string(i) + "_" + std::to_string(j) + ".json";
+		}
+		curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+		system = new System();
+		system->Setup(MODE_LBS);
+		system->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = aoaErrorDegree;
+		system->Render();
+		Point2D targetPosition;
+		targetPosition = system->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA);
+		datas[i].targetPosition = targetPosition;
+		datas[i].error = (targetPosition - datas[i].truePosition).Length();
+		std::cout << i << std::endl;
+		delete system;
+	}
+
+	std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(aoaErrorDegree) + "_powerError_" + std::to_string(powerError) + ".txt";
+	std::ofstream outstream(outputFileName);
+	for (auto& data : datas) {
+		data.Write2File(outstream);
+	}
+	outstream.close();
+}
+
+void TestUWBTOALocalizationMultiStation()
+{
+	struct LBSData {
+		bool isValid;
+		int sensorDataId;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), sensorDataId(-1), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), sensorDataId(-1), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	//读取真实的发射机坐标
+	std::vector<Point3D> points;
+	std::ifstream instream("tx_position.txt");
+	std::string line;
+	while (std::getline(instream, line)) {
+		if (line.empty()) continue;    // 跳过空行
+		std::istringstream iss(line);  // 使用字符串流解析每一行
+		Point3D point;
+		if (iss >> point.x >> point.y >> point.z) { // 提取 x, y, z 数据
+			points.push_back(point);   // 将点存储到向量中
+		}
+		else {
+			std::cerr << "数据格式错误，无法解析: " << line << std::endl;
+		}
+	}
+	instream.close();
+	int txNum = points.size();
+
+	RtLbsType aoaErrorDegree = 6.0;
+	RtLbsType powerError = 6.0;
+	RtLbsType timeError = 0.3;
+	//读取sensorconfig数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+	std::vector<LBSData> datas(txNum);
+
+	System* system = nullptr;
+	for (int i = 200; i < 220; ++i) {
+		datas[i].truePosition = { points[i].x, points[i].y };
+		for (int j = 0; j < 4; ++j) {
+			curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = aoaErrorDegree;
+			curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = aoaErrorDegree * ONE_DEGEREE;
+			curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = 0.3;
+			curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+			curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/toa/" + std::to_string(i) + "_" + std::to_string(j) + ".json";
+		}
+		curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+		system = new System();
+		system->Setup(MODE_LBS);
+		system->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = aoaErrorDegree;
+		system->Render();
+		Point2D targetPosition;
+		targetPosition = system->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_TOA);
+		datas[i].targetPosition = targetPosition;
+		datas[i].error = (targetPosition - datas[i].truePosition).Length();
+		std::cout << i << std::endl;
+		delete system;
+	}
+
+	std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(aoaErrorDegree) +"_timeError_"+std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+	std::ofstream outstream(outputFileName);
+	for (auto& data : datas) {
+		data.Write2File(outstream);
+	}
+	outstream.close();
+}
+
+void TestUWBAOATOALocalizationMultiStation()
+{
+	struct LBSData {
+		bool isValid;
+		int sensorDataId;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), sensorDataId(-1), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), sensorDataId(-1), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	//读取真实的发射机坐标
+	std::vector<Point3D> points;
+	std::ifstream instream("tx_position.txt");
+	std::string line;
+	while (std::getline(instream, line)) {
+		if (line.empty()) continue;    // 跳过空行
+		std::istringstream iss(line);  // 使用字符串流解析每一行
+		Point3D point;
+		if (iss >> point.x >> point.y >> point.z) { // 提取 x, y, z 数据
+			points.push_back(point);   // 将点存储到向量中
+		}
+		else {
+			std::cerr << "数据格式错误，无法解析: " << line << std::endl;
+		}
+	}
+	instream.close();
+	int txNum = points.size();
+
+	RtLbsType aoaErrorDegree = 6.0;
+	RtLbsType powerError = 6.0;
+	RtLbsType timeError = 0.3;
+	//读取sensorconfig数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+	std::vector<LBSData> datas(txNum);
+
+	System* system = nullptr;
+	for (int i = 0; i < txNum; ++i) {
+		datas[i].truePosition = { points[i].x, points[i].y };
+		for (int j = 0; j < 4; ++j) {
+			curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = aoaErrorDegree;
+			curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = aoaErrorDegree * ONE_DEGEREE;
+			curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = 0.3;
+			curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+			curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/toa/" + std::to_string(i) + "_" + std::to_string(j) + ".json";
+		}
+		curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+		system = new System();
+		system->Setup(MODE_LBS);
+		system->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = aoaErrorDegree;
+		system->Render();
+		Point2D targetPosition;
+		targetPosition = system->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TOA);
+		datas[i].targetPosition = targetPosition;
+		datas[i].error = (targetPosition - datas[i].truePosition).Length();
+		std::cout << i << std::endl;
+		delete system;
+	}
+
+	std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(aoaErrorDegree) + "_timeError_" + std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+	std::ofstream outstream(outputFileName);
+	for (auto& data : datas) {
+		data.Write2File(outstream);
+	}
+	outstream.close();
+}
+
+void TestUWBAOATDOALocalizationMultiStation()
+{
+	struct LBSData {
+		bool isValid;
+		int sensorDataId;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), sensorDataId(-1), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), sensorDataId(-1), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	//读取真实的发射机坐标
+	std::vector<Point3D> points;
+	std::ifstream instream("tx_position.txt");
+	std::string line;
+	while (std::getline(instream, line)) {
+		if (line.empty()) continue;    // 跳过空行
+		std::istringstream iss(line);  // 使用字符串流解析每一行
+		Point3D point;
+		if (iss >> point.x >> point.y >> point.z) { // 提取 x, y, z 数据
+			points.push_back(point);   // 将点存储到向量中
+		}
+		else {
+			std::cerr << "数据格式错误，无法解析: " << line << std::endl;
+		}
+	}
+	instream.close();
+	int txNum = points.size();
+
+	RtLbsType aoaErrorDegree = 6.0;
+	RtLbsType powerError = 6.0;
+	RtLbsType timeError = 0.3;
+	//读取sensorconfig数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+	std::vector<LBSData> datas(txNum);
+
+	System* system = nullptr;
+	for (int i = 0; i < txNum; ++i) {
+		datas[i].truePosition = { points[i].x, points[i].y };
+		for (int j = 0; j < 4; ++j) {
+			curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = aoaErrorDegree;
+			curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = aoaErrorDegree * ONE_DEGEREE;
+			curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = 0.3;
+			curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = powerError - 4.0;
+			curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/toa/" + std::to_string(i) + "_" + std::to_string(j) + ".json";
+		}
+		curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+		system = new System();
+		system->Setup(MODE_LBS);
+		system->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = 1.0;
+		system->Render();
+		Point2D targetPosition;
+		targetPosition = system->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TDOA);
+		datas[i].targetPosition = targetPosition;
+		datas[i].error = (targetPosition - datas[i].truePosition).Length();
+		std::cout << i << std::endl;
+		delete system;
+	}
+
+	std::string outputFileName = "定位性能分析/UWB定位/phiError_" + std::to_string(aoaErrorDegree) + "_timeError_" + std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + ".txt";
+	std::ofstream outstream(outputFileName);
+	for (auto& data : datas) {
+		data.Write2File(outstream);
+	}
+	outstream.close();
+}
+
+void TestAOALocalizationMultiStationInGeometryError(int positionId)
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{37,30} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+
+	std::vector<RtLbsType> phiDegreeErrors = { 2.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	std::vector<RtLbsType> geometryErrors = { 0.0,0.01,0.02,0.05,0.1,0.2,0.5,1.0,1.5,2.0 };
+	int roundTime = 400;
+
+	//预写入项
+	//读取整体配置，写入对应的求解方法
+	SimConfig simconfig;
+	simconfig.Init("config/sysconfig.json");
+	simconfig.m_systemMode = MODE_LBS;
+	simconfig.m_lbsConfig.m_lbsMode = LBS_MODE_MPSTSD;
+	simconfig.m_lbsConfig.m_lbsMethod = LBS_METHOD_RT_AOA;
+	simconfig.m_lbsConfig.m_threadNum = 20;
+	simconfig.Writer2Json("config/sysconfig.json");
+	//读取传感器信息，写入对应的误差数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+	for (int j = 0; j < stationNum; ++j) {
+		curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeErrors[0];
+		curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiDegreeErrors[0] * ONE_DEGEREE;
+		curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = 2.0;
+		curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_aoa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+	}
+	curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+
+	System* lbsSystem = nullptr;
+	for (auto geometryError : geometryErrors) {
+		for (auto phiDegreeError : phiDegreeErrors) {
+			for (auto powerError : powerErrors) {
+				std::vector<LBSData> datas;
+				datas.resize(roundTime);
+				
+				for (int i = 0; i < roundTime; ++i) {
+					datas[i].truePosition = realPositions[positionId];
+
+					//读取几何体配置信息，写入对应的误差项
+					GeometryConfig geometryConfig;
+					geometryConfig.Init("config/geometryconfig.json");
+					geometryConfig.m_positionError = geometryError;
+					geometryConfig.Write2Json("config/geometryconfig.json");
+
+					lbsSystem = new System();
+					lbsSystem->Setup(MODE_LBS);
+					lbsSystem->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = std::min(0.5, phiDegreeError);
+					lbsSystem->Render();
+					Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA);
+					datas[i].targetPosition = targetPosition;
+					datas[i].error = (targetPosition - datas[i].truePosition).Length();
+					if (datas[i].error > 10) {
+						datas[i].isValid = false;
+					}
+					std::cout << i << std::endl;
+					delete lbsSystem;
+				}
+				std::stringstream ss;
+				ss << "定位性能分析/UWB定位/" << postionNames[positionId] << "_AOA_geometryError_" << geometryError << ".txt";
+				std::ofstream outstream(ss.str());
+				for (auto& data : datas) {
+					if (data.isValid) {
+						data.Write2File(outstream);
+					}
+				}
+				outstream.close();
+			}
+		}
+	}
+	
+}
+
+void TestTOALocalizationMultiStationInGeometryError(int positionId)
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{37,30} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+
+	std::vector<RtLbsType> phiDegreeErrors = { 2.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	std::vector<RtLbsType> timeErrors = { 3.0 };
+	std::vector<RtLbsType> geometryErrors = { 0.0,0.01,0.02,0.05,0.1,0.2,0.5,1.0,1.5,2.0 };
+	int roundTime = 400;
+
+
+	//预写入项
+	//读取整体配置，写入对应的求解方法
+	SimConfig simconfig;
+	simconfig.Init("config/sysconfig.json");
+	simconfig.m_systemMode = MODE_LBS;
+	simconfig.m_lbsConfig.m_lbsMode = LBS_MODE_MPSTSD;
+	simconfig.m_lbsConfig.m_lbsMethod = LBS_METHOD_RT_TOA;
+	simconfig.m_lbsConfig.m_threadNum = 10;
+	simconfig.Writer2Json("config/sysconfig.json");
+
+	//读取传感器信息，写入对应的误差数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+	for (int j = 0; j < stationNum; ++j) {
+		curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeErrors[0];
+		curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiDegreeErrors[0] * ONE_DEGEREE;
+		curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = timeErrors[0];
+		curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = 2.0;
+		curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_toa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+	}
+	curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+
+	System* lbsSystem = nullptr;
+	for (auto geometryError : geometryErrors) {
+		for (auto phiDegreeError : phiDegreeErrors) {
+			for (auto timeError : timeErrors) {
+				for (auto powerError : powerErrors) {
+					std::vector<LBSData> datas;
+					datas.resize(roundTime);
+					//读取传感器信息，写入对应的误差数据
+					for (int i = 0; i < roundTime; ++i) {
+						datas[i].truePosition = realPositions[positionId];
+						//读取几何体配置信息，写入对应的误差项
+						GeometryConfig geometryConfig;
+						geometryConfig.Init("config/geometryconfig.json");
+						geometryConfig.m_positionError = geometryError;
+						geometryConfig.Write2Json("config/geometryconfig.json");
+
+						lbsSystem = new System();
+						lbsSystem->Setup(MODE_LBS);
+						lbsSystem->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = std::min(0.5, phiDegreeError);
+						lbsSystem->Render();
+						Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_TOA);
+						datas[i].targetPosition = targetPosition;
+						datas[i].error = (targetPosition - datas[i].truePosition).Length();
+						if (datas[i].error > 10) {
+							datas[i].isValid = false;
+						}
+						std::cout << i << std::endl;
+						delete lbsSystem;
+					}
+					std::stringstream ss;
+					ss << "定位性能分析/UWB定位/" << postionNames[positionId] << "_TOA_geometryError_" << geometryError << ".txt";
+					std::ofstream outstream(ss.str());
+					for (auto& data : datas) {
+						if (data.isValid) {
+							data.Write2File(outstream);
+						}
+					}
+					outstream.close();
+				}
+			}
+		}
+	}
+	
+}
+
+void TestAOATOALocalizationMultiStationInGeometryError(int positionId)
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{37,30} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+
+	std::vector<RtLbsType> phiDegreeErrors = { 2.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	std::vector<RtLbsType> timeErrors = { 3.0 };
+	std::vector<RtLbsType> geometryErrors = { 0.0,0.01,0.02,0.05,0.1,0.2,0.5,1.0,1.5,2.0 };
+	int roundTime = 400;
+
+	//预写入项
+	//读取整体配置，写入对应的求解方法
+	SimConfig simconfig;
+	simconfig.Init("config/sysconfig.json");
+	simconfig.m_systemMode = MODE_LBS;
+	simconfig.m_lbsConfig.m_lbsMode = LBS_MODE_MPSTSD;
+	simconfig.m_lbsConfig.m_lbsMethod = LBS_METHOD_RT_AOA_TOA;
+	simconfig.m_lbsConfig.m_threadNum = 10;
+	simconfig.Writer2Json("config/sysconfig.json");
+
+	//读取传感器信息，写入对应的误差数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+	for (int j = 0; j < stationNum; ++j) {
+		curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeErrors[0];
+		curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiDegreeErrors[0] * ONE_DEGEREE;
+		curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = timeErrors[0];
+		curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = 2.0;
+		curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_toa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+	}
+	curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+	System* lbsSystem = nullptr;
+	for (auto geometryError : geometryErrors) {
+		for (auto phiDegreeError : phiDegreeErrors) {
+			for (auto timeError : timeErrors) {
+				for (auto powerError : powerErrors) {
+					std::vector<LBSData> datas;
+					datas.resize(roundTime);
+					//读取传感器信息，写入对应的误差数据
+					for (int i = 0; i < roundTime; ++i) {
+						datas[i].truePosition = realPositions[positionId];
+						//读取几何体配置信息，写入对应的误差项
+						GeometryConfig geometryConfig;
+						geometryConfig.Init("config/geometryconfig.json");
+						geometryConfig.m_positionError = geometryError;
+						geometryConfig.Write2Json("config/geometryconfig.json");
+
+						lbsSystem = new System();
+						lbsSystem->Setup(MODE_LBS);
+						lbsSystem->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = std::min(0.5, phiDegreeError);
+						lbsSystem->Render();
+						Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TOA);
+						datas[i].targetPosition = targetPosition;
+						datas[i].error = (targetPosition - datas[i].truePosition).Length();
+						if (datas[i].error > 10) {
+							datas[i].isValid = false;
+						}
+						std::cout << i << std::endl;
+						delete lbsSystem;
+					}
+					std::stringstream ss;
+					ss << "定位性能分析/UWB定位/" << postionNames[positionId] << "_AOATOA_geometryError_" << geometryError << ".txt";
+					std::ofstream outstream(ss.str());
+					for (auto& data : datas) {
+						if (data.isValid) {
+							data.Write2File(outstream);
+						}
+					}
+					outstream.close();
+				}
+			}
+		}
+	}
+}
+
+void TestAOATDOALocalizationMultiStationInGeometryError(int positionId)
+{
+	struct LBSData {
+		bool isValid;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	int stationNum = 3;																		/** @brief	站点数量	*/
+	std::vector<Point2D> realPositions = { {14,31},{25,39},{37,30} };
+	std::vector<std::string> postionNames = { "A","B","C" };
+
+	std::vector<RtLbsType> phiDegreeErrors = { 2.0 };
+	std::vector<RtLbsType> powerErrors = { 6.0 };
+	std::vector<RtLbsType> timeErrors = { 3.0 };
+	std::vector<RtLbsType> geometryErrors = { 0.0,0.01,0.02,0.05,0.1,0.2,0.5,1.0,1.5,2.0 };
+	int roundTime = 400;
+
+	//预写入项
+	//读取整体配置，写入对应的求解方法
+	SimConfig simconfig;
+	simconfig.Init("config/sysconfig.json");
+	simconfig.m_systemMode = MODE_LBS;
+	simconfig.m_lbsConfig.m_lbsMode = LBS_MODE_MPSTSD;
+	simconfig.m_lbsConfig.m_lbsMethod = LBS_METHOD_RT_AOA_TDOA;
+	simconfig.m_lbsConfig.m_threadNum = 10;
+	simconfig.Writer2Json("config/sysconfig.json");
+
+	//读取传感器信息，写入对应的误差数据
+	SensorCollectionConfig curSensorConfig;
+	curSensorConfig.Init("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+	for (int j = 0; j < stationNum; ++j) {
+		curSensorConfig.m_sensorConfigs[j].m_phiDegreeErrorSTD = phiDegreeErrors[0];
+		curSensorConfig.m_sensorConfigs[j].m_phiErrorSTD = phiDegreeErrors[0] * ONE_DEGEREE;
+		curSensorConfig.m_sensorConfigs[j].m_timeErrorSTD = timeErrors[0];
+		curSensorConfig.m_sensorConfigs[j].m_powerErrorSTD = 2.0;
+		curSensorConfig.m_sensorConfigs[j].m_sensorDataFileName = "config/sensor data/uwb_sim_toa/tx" + std::to_string(positionId) + "_sensor_" + std::to_string(j) + "_MPSTSD.json";
+	}
+	curSensorConfig.Write2Json("results/rt/sensor data/MPSTSD/MPSTSD_sensorconfig.json");
+
+	System* lbsSystem = nullptr;
+	for (auto geometryError : geometryErrors) {
+		for (auto phiDegreeError : phiDegreeErrors) {
+			for (auto timeError : timeErrors) {
+				for (auto powerError : powerErrors) {
+					RtLbsType phiError = phiDegreeError * ONE_DEGEREE;
+					std::vector<LBSData> datas;
+					datas.resize(roundTime);
+					//读取传感器信息，写入对应的误差数据
+					for (int i = 0; i < roundTime; ++i) {
+						datas[i].truePosition = realPositions[positionId];
+
+						//读取几何体配置信息，写入对应的误差项
+						GeometryConfig geometryConfig;
+						geometryConfig.Init("config/geometryconfig.json");
+						geometryConfig.m_positionError = geometryError;
+						geometryConfig.Write2Json("config/geometryconfig.json");
+
+						lbsSystem = new System();
+						lbsSystem->Setup(MODE_LBS);
+						lbsSystem->m_simConfig.m_lbsConfig.m_rayLaunchHalfTheta = std::min(0.5, phiDegreeError);
+						lbsSystem->Render();
+						Point2D targetPosition = lbsSystem->TargetLocalization(LBS_MODE_MPSTSD, LBS_METHOD_RT_AOA_TDOA);
+						datas[i].targetPosition = targetPosition;
+						datas[i].error = (targetPosition - datas[i].truePosition).Length();
+						if (datas[i].error > 10) {
+							datas[i].isValid = false;
+						}
+						std::cout << i << std::endl;
+						delete lbsSystem;
+					}
+					std::stringstream ss;
+					ss << "定位性能分析/UWB定位/" << postionNames[positionId] << "_AOATDOA_geometryError_" << geometryError << ".txt";
+					std::ofstream outstream(ss.str());
+					for (auto& data : datas) {
+						if (data.isValid) {
+							data.Write2File(outstream);
+						}
+					}
+					outstream.close();
+				}
+			}
+		}
+	}
 }

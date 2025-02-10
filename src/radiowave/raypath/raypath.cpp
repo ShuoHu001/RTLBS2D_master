@@ -113,4 +113,6 @@ void RayPath::ConvertFrom(const std::vector<CPUConverterPathNode*>& nodes, const
             m_bContainRefract = true;
         }
 	}
+	//调整末尾节点广义源位置
+	m_nodes[m_nodes.size() - 1]->m_source = m_nodes[m_nodes.size() - 2]->m_source;
 }

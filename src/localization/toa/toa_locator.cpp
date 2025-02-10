@@ -28,6 +28,8 @@ Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 
 	std::vector<GeneralSource*> allGSCopy = mergedGSources;						/** @brief	所有广义源的复制	*/
 
+
+
 	//2-求解权重矩阵
 
 	//2-按照几何约束条件删除无效广义源
@@ -235,16 +237,22 @@ Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 		curSource->NormalizedWeight(max_weight);
 	}
 
-	//删除低于权重阈值的广义源
-	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
-		return s->m_weight < 0.5;
-		}), allGSCopy.end());
+	////删除低于权重阈值的广义源
+	//allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
+	//	return s->m_weight < 0.5;
+	//	}), allGSCopy.end());
 
 	//删除无效的广义源
 	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* source) {
 		return  !source->m_isValid;
 		}), allGSCopy.end());
 
+
+	if (allGSCopy.size() == lbsInfos.size()) {//当广义源数量与传感器数量相同时，全部权重为1
+		for (auto& gs : allGSCopy) {
+			gs->m_weight = 1.0;
+		}
+	}
 
 	//获取最大权重的Cluster,并将解作为初始解
 	RtLbsType maxClusterWeight = 0;
@@ -276,11 +284,11 @@ Point2D LBS_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 
@@ -321,6 +329,7 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	std::vector<GeneralSource*> allGSCopy = mergedGSources;						/** @brief	所有广义源的复制	*/
 
 	//2-求解权重矩阵
+
 
 	//2-按照几何约束条件删除无效广义源
 	//创建广义源对,数量为 n*(n-1)/2
@@ -553,14 +562,7 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 
 
 	//获取最大权重的Cluster,并将解作为初始解
-	RtLbsType maxClusterWeight = 0;
-	Point2D initPoint;
-	for (auto& curCluster : gsPairClusters) {
-		if (maxClusterWeight < curCluster.m_pairs[0]->m_weight) {
-			maxClusterWeight = curCluster.m_pairs[0]->m_weight;
-			initPoint = curCluster.m_point;
-		}
-	}
+	Point2D initPoint = gsPairClusters.front().m_point;
 
 	////配置求解器
 	TOASolver solver;
@@ -582,11 +584,11 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 

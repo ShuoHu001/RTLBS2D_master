@@ -239,6 +239,12 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	//将cluster按照权重进行排序
 	std::sort(gsPairClusters.begin(), gsPairClusters.end(), ComparedByClusterWeight);
 
+	if (gsPairClusters.empty()) {
+		return Point2D();
+	}
+	if (gsPairClusters.empty()) {
+		return Point2D();
+	}
 	//计算所有广义源中权重最大的数值，进行权重归一化
 	RtLbsType max_weight = gsPairClusters.front().m_weight;
 	for (auto it = allGSCopy.begin(); it != allGSCopy.end(); ++it) {
@@ -247,9 +253,9 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	}
 
 	//删除低于权重阈值的广义源
-	allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
-		return s->m_weight < 0.5;
-		}), allGSCopy.end());
+	//allGSCopy.erase(std::remove_if(allGSCopy.begin(), allGSCopy.end(), [](const GeneralSource* s) {
+	//	return s->m_weight < 0.5;
+	//	}), allGSCopy.end());
 
 
 	//删除无效的广义源
@@ -282,11 +288,11 @@ Point2D LBS_AOA_TOA_Locator_MPSTSD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 
@@ -584,11 +590,11 @@ Point2D LBS_AOA_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::ve
 	gsPairs.clear();
 	std::vector<GSPair*>().swap(gsPairs);
 
-	//计算完成后删除所有广义源
-	for (auto& source : mergedGSources) {
-		delete source;
-		source = nullptr;
-	}
+	////计算完成后删除所有广义源
+	//for (auto& source : mergedGSources) {
+	//	delete source;
+	//	source = nullptr;
+	//}
 	mergedGSources.clear();
 	std::vector<GeneralSource*>().swap(mergedGSources);
 

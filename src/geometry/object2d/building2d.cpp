@@ -12,7 +12,7 @@ Building2D::~Building2D()
 {
 }
 
-bool LoadBuildingsFromFile(const std::string& geometryFile, const std::string& attributeFile, std::vector<Building2D*>& outBuildings)
+bool LoadBuildingsFromFile(const std::string& geometryFile, const std::string& attributeFile, std::vector<Building2D*>& outBuildings, RtLbsType positionError)
 {
 	if (geometryFile.empty() || attributeFile.empty()) {
 		LOG_ERROR << "Building2D: empty filename." << ENDL;
@@ -56,8 +56,14 @@ bool LoadBuildingsFromFile(const std::string& geometryFile, const std::string& a
 				boost::split(cols1, glines[++i], boost::is_any_of(" \t,"));
 				RtLbsType x = boost::lexical_cast<RtLbsType>(cols1[0]);
 				RtLbsType y = boost::lexical_cast<RtLbsType>(cols1[1]);
-				points[j].x = x;
-				points[j].y = y;
+				if (positionError != 0) {						//限制方形可进行变换
+					points[j].x = x + NORMDOUBLE(0, positionError);
+					points[j].y = y + NORMDOUBLE(0, positionError);
+				}
+				else {
+					points[j].x = x;
+					points[j].y = y;
+				}
 			}
 			Building2D* building = new Building2D();
 			std::vector<Segment2D*> segments(points.size() - 1);					/** @brief	读取的形体	*/

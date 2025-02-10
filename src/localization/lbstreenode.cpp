@@ -26,9 +26,9 @@ LBSTreeNode::LBSTreeNode(const LBSTreeNode& node)
 {
 }
 
-LBSTreeNode::LBSTreeNode(const PathNode& node, SensorData* sensorData)
-	: m_tMin(0.0)
-	, m_tMax(0.0)
+LBSTreeNode::LBSTreeNode(const PathNode& node, SensorData* sensorData, RtLbsType ftmin, RtLbsType ftmax)
+	: m_tMin(ftmin)
+	, m_tMax(ftmax)
 {
 	m_type = node.m_type;
 	m_depth = node.m_limitInfo.m_depth;
@@ -44,8 +44,8 @@ LBSTreeNode::LBSTreeNode(const PathNode& node, SensorData* sensorData)
 }
 
 LBSTreeNode::LBSTreeNode(const PathNode& node)
-	: m_tMin(0.0)
-	, m_tMax(0.0)
+	: m_tMin(node.m_nextRay.m_tMin)
+	, m_tMax(node.m_nextRay.m_tMax)
 {
 	m_type = node.m_type;
 	m_depth = node.m_limitInfo.m_depth;
@@ -72,8 +72,8 @@ LBSTreeNode::LBSTreeNode(const PathNode& curNode, const PathNode& nextNode)
 }
 
 LBSTreeNode::LBSTreeNode(const TreeNodeGPU& node, Segment2D* segment, Wedge2D* wedge, SensorData* sensorData)
-	: m_tMin(0.0)
-	, m_tMax(0.0)
+	: m_tMin(node.m_nextRay.m_tMin)
+	, m_tMax(node.m_nextRay.m_tMax)
 {
 	m_type = node.m_type;
 	m_depth = node.m_depth;

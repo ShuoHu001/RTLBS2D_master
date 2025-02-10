@@ -94,6 +94,42 @@ Point2D AOASolver::Solving_WLS(const BBox2D& bbox, const Point2D& initPoint)
 	return Point2D(position[0], position[1]);
 }
 
+Point2D AOASolver::Solving_TSWLS(const BBox2D& bbox, const Point2D& initPoint)
+{
+	Point2D tsInitPoint = Solving_LS(bbox, initPoint);
+
+	
+	//定义问题
+	ceres::Problem problem;
+
+	RtLbsType position[2] = { tsInitPoint.x, tsInitPoint.y };		//初始位置估计
+
+	//指定数据集
+	for (auto it = m_gsData.begin(); it != m_gsData.end(); ++it) {
+		const GeneralSource* curSource = *it;
+		ceres::CostFunction* costFunction = new ceres::AutoDiffCostFunction<AOAResidual, 1, 2>(new AOAResidual(curSource));				//定义损失函数
+		problem.AddResidualBlock(costFunction, nullptr, position);
+	}
+
+	//设置边界约束
+	problem.SetParameterLowerBound(position, 0, bbox.m_min.x);
+	problem.SetParameterUpperBound(position, 0, bbox.m_max.x);
+	problem.SetParameterLowerBound(position, 1, bbox.m_min.y);
+	problem.SetParameterUpperBound(position, 1, bbox.m_max.y);
+
+	//配置求解器
+	ceres::Solver::Options options;
+	options.linear_solver_type = ceres::DENSE_QR;
+	options.minimizer_progress_to_stdout = false;
+
+	//开始求解问题
+	ceres::Solver::Summary summary;
+	ceres::Solve(options, &problem, &summary);
+
+	//输出结果
+	return Point2D(position[0], position[1]);
+}
+
 Point2D AOASolver::Solving_IRLS(const SolvingConfig& config, const BBox2D& bbox, const Point2D& initPoint)
 {
 	int iterNum = config.m_iterNum;
@@ -226,6 +262,9 @@ Point2D AOASolver::Solving(const SolvingConfig& config, const BBox2D& bbox, cons
 	}
 	else if (mode == SOLVING_WLS) {
 		solution = Solving_WLS(bbox, initPoint);
+	}
+	else if (mode == SOLVING_TSWLS) {
+		solution = Solving_TSWLS(bbox, initPoint);
 	}
 	else if (mode == SOLVING_IRLS) {
 		solution = Solving_IRLS(config, bbox, initPoint);

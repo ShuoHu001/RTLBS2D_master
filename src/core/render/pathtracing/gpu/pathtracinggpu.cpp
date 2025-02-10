@@ -321,7 +321,7 @@ void ResetRay2DGPU(thrust::device_vector<Ray2DGPU>& rays) {
 	_resetRayGPUKernel CUDA_KERNEL(numblocks, threadPerBlock)(thrust::raw_pointer_cast(rays.data()), static_cast<int>(rays.size()));
 	cudaError_t cudaerr = cudaDeviceSynchronize();
 	if (cudaerr != cudaSuccess) {
-		LOG_ERROR << "PathTracingGPU: _resetRayGPUKernel " << cudaGetErrorString(cudaerr) << ENDL;
+		//LOG_ERROR << "PathTracingGPU: _resetRayGPUKernel " << cudaGetErrorString(cudaerr) << ENDL;
 	}
 }
 
@@ -338,7 +338,7 @@ void ResetIntersect2DGPU(thrust::device_vector<Intersection2DGPU>& intersects) {
 	_resetIntersectGPUKernel CUDA_KERNEL(numblocks, threadPerBlock)(thrust::raw_pointer_cast(intersects.data()), static_cast<int>(intersects.size()));
 	cudaError_t cudaerr = cudaDeviceSynchronize();
 	if (cudaerr != cudaSuccess) {
-		LOG_ERROR << "PathTracingGPU: _resetIntersectGPUKernel " << cudaGetErrorString(cudaerr) << ENDL;
+		//LOG_ERROR << "PathTracingGPU: _resetIntersectGPUKernel " << cudaGetErrorString(cudaerr) << ENDL;
 	}
 }
 
@@ -355,7 +355,7 @@ void ResetPathNodeGPU(thrust::device_vector<PathNodeGPU>& pathNodes) {
 	_resetPathNodeGPUKernel CUDA_KERNEL(numblocks, threadPerBlock)(thrust::raw_pointer_cast(pathNodes.data()), static_cast<int>(pathNodes.size()));
 	cudaError_t cudaerr = cudaDeviceSynchronize();
 	if (cudaerr != cudaSuccess) {
-		LOG_ERROR << "PathTracingGPU: _resetPathNodeGPUKernel " << cudaGetErrorString(cudaerr) << ENDL;
+		//LOG_ERROR << "PathTracingGPU: _resetPathNodeGPUKernel " << cudaGetErrorString(cudaerr) << ENDL;
 	}
 }
 
@@ -387,7 +387,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 
 
 	start = std::chrono::high_resolution_clock::now();
-	LOG_INFO << "running gpu code" << ENDL;
+	//LOG_INFO << "running gpu code" << ENDL;
 
 	cudaMemcpyToSymbol(D_CONST_LIM_TOTL, &limitInfo.m_limitTotal, sizeof(uint16_t));
 	cudaMemcpyToSymbol(D_CONST_LIM_REFL, &limitInfo.m_limitReflect, sizeof(uint16_t));
@@ -446,7 +446,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 					&wedges[i], sdfGPU, segmentsGPU, thrust::raw_pointer_cast(dev_interDiffSeries.data()));
 				cudaerr = cudaDeviceSynchronize();
 				if (cudaerr != cudaSuccess) {
-					LOG_ERROR <<"PathTracingGPU: diffractionFindKernel1D " << cudaGetErrorString(cudaerr) << ENDL;	
+					//LOG_ERROR <<"PathTracingGPU: diffractionFindKernel1D " << cudaGetErrorString(cudaerr) << ENDL;	
 				}
 			}
 			auto iter_end = thrust::remove_if(dev_interDiffSeries.begin(), dev_interDiffSeries.end(), IsInValidIntersectGPU());
@@ -474,7 +474,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 				thrust::raw_pointer_cast(dev_interInit.data()), thrust::raw_pointer_cast(everySplitNum.data()), sdfGPU, segmentsGPU, static_cast<int>(numRays));
 			cudaerr = cudaDeviceSynchronize();//等待线程计算完成
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: intersectAndCalculateRaySplitNumKernel " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: intersectAndCalculateRaySplitNumKernel " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 
 			//保留有效的交点信息-供后续捕获及新射线使用
@@ -500,7 +500,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 					thrust::raw_pointer_cast(dev_splitRays.data()), thrust::raw_pointer_cast(everySplitNum.data()), segmentsGPU);
 				cudaerr = cudaDeviceSynchronize();
 				if (cudaerr != cudaSuccess) {
-					LOG_ERROR << "PathTracingGPU: raySplitKernel " << cudaGetErrorString(cudaerr) << ENDL;
+					//LOG_ERROR << "PathTracingGPU: raySplitKernel " << cudaGetErrorString(cudaerr) << ENDL;
 				}
 
 				//保留有效的分裂射线
@@ -515,7 +515,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 					thrust::raw_pointer_cast(dev_InterSplit.data()), sdfGPU, segmentsGPU);
 				cudaerr = cudaDeviceSynchronize();
 				if (cudaerr != cudaSuccess) {
-					LOG_ERROR << "PathTracingGPU: intersectKernel " << cudaGetErrorString(cudaerr) << ENDL;
+					//LOG_ERROR << "PathTracingGPU: intersectKernel " << cudaGetErrorString(cudaerr) << ENDL;
 				}
 			}
 		}
@@ -556,7 +556,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 				thrust::raw_pointer_cast(&dev_rxPositions[i]), i, offset, layer, thrust::raw_pointer_cast(dev_rxPathNode.data() + oldPathNodeSize));//只捕获反射系列部分
 			cudaerr = cudaDeviceSynchronize();
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: checkRxInsideKernel1D " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: checkRxInsideKernel1D " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 			//返回每个rx的路径节点值（多径），层数一致，与迭代深度相同
 		}
@@ -590,7 +590,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 				thrust::raw_pointer_cast(dev_initRays.data()), segmentsGPU);
 			cudaerr = cudaDeviceSynchronize();
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: generateNewReflectionRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: generateNewReflectionRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 			numValidReflRay = static_cast<int>(thrust::distance(dev_initRays.begin(), thrust::remove_if(dev_initRays.begin(), dev_initRays.end(), IsInValidRayGPU())));//有效的反射路径数量
 		}
@@ -601,7 +601,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay), segmentsGPU);
 			cudaerr = cudaDeviceSynchronize();
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: generateNewTransmitRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: generateNewTransmitRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 			numValidTranRay = static_cast<int>(thrust::distance(dev_initRays.begin() + numValidReflRay, thrust::remove_if(dev_initRays.begin(), dev_initRays.end(), IsInValidRayGPU())));
 			
@@ -613,7 +613,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay + numValidTranRay), wedges);
 			cudaerr = cudaDeviceSynchronize();
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: generateNewDifftactRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: generateNewDifftactRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 			numValidDiffRay = static_cast<int>(thrust::distance(dev_initRays.begin() + numValidReflRay + numValidTranRay, thrust::remove_if(dev_initRays.begin(), dev_initRays.end(), IsInValidRayGPU())));
 		}
@@ -642,7 +642,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 	}
 
 	//释放显存数据，将多径数据导出处理
-	LOG_INFO << "start release GPU memory" << ENDL;
+	//LOG_INFO << "start release GPU memory" << ENDL;
 	dev_initRays.swap(dev_initRays);
 	dev_interInit.swap(dev_interInit);
 	dev_interDiffSeries.swap(dev_interDiffSeries);
@@ -659,7 +659,7 @@ void PathTraceGPU(const std::vector<Ray2D>& rays, const LimitInfo& limitInfo, bo
 	//ClearDeviceVectorMemory(dev_InterSplit);//dev_interSplit
 	//ClearDeviceVectorMemory(dev_interReflSeries);//dev_interReflSeries
 	//ClearDeviceVectorMemory(dev_rxPathNode);//dev_rxPathNode
-	LOG_INFO << "GPU memory release complete" << ENDL;
+	//LOG_INFO << "GPU memory release complete" << ENDL;
 }
 
 //考虑更新GPU算法
@@ -754,7 +754,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 					&wedges[i], sdfGPU, segmentsGPU, thrust::raw_pointer_cast(dev_interDiffSeries.data()));
 				cudaerr = cudaDeviceSynchronize();
 				if (cudaerr != cudaSuccess) {
-					LOG_ERROR << "PathTracingGPU: diffractionFindKernel1D " << cudaGetErrorString(cudaerr) << ENDL;
+					//LOG_ERROR << "PathTracingGPU: diffractionFindKernel1D " << cudaGetErrorString(cudaerr) << ENDL;
 				}
 			}
 			auto iter_end = thrust::remove_if(dev_interDiffSeries.begin(), dev_interDiffSeries.end(), IsInValidIntersectGPU());
@@ -782,7 +782,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 				thrust::raw_pointer_cast(dev_interInit.data()), thrust::raw_pointer_cast(everySplitNum.data()), sdfGPU, segmentsGPU, numRays);
 			cudaerr = cudaDeviceSynchronize();//等待线程计算完成
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: intersectAndCalculateRaySplitNumKernel " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: intersectAndCalculateRaySplitNumKernel " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 
 			//保留有效的交点信息-供后续捕获及新射线使用
@@ -808,7 +808,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 					thrust::raw_pointer_cast(dev_splitRays.data()), thrust::raw_pointer_cast(everySplitNum.data()), segmentsGPU);
 				cudaerr = cudaDeviceSynchronize();
 				if (cudaerr != cudaSuccess) {
-					LOG_ERROR << "PathTracingGPU: raySplitKernel " << cudaGetErrorString(cudaerr) << ENDL;
+					//LOG_ERROR << "PathTracingGPU: raySplitKernel " << cudaGetErrorString(cudaerr) << ENDL;
 				}
 
 				//保留有效的分裂射线
@@ -823,7 +823,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 					thrust::raw_pointer_cast(dev_InterSplit.data()), sdfGPU, segmentsGPU);
 				cudaerr = cudaDeviceSynchronize();
 				if (cudaerr != cudaSuccess) {
-					LOG_ERROR << "PathTracingGPU: intersectKernel " << cudaGetErrorString(cudaerr) << ENDL;
+					//LOG_ERROR << "PathTracingGPU: intersectKernel " << cudaGetErrorString(cudaerr) << ENDL;
 				}
 			}
 		}
@@ -871,7 +871,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 				thrust::raw_pointer_cast(dev_initRays.data()), thrust::raw_pointer_cast(dev_treeNodes.data() + oldInterSize), segmentsGPU, layer);
 			cudaerr = cudaDeviceSynchronize();
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: generateNewReflectionRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: generateNewReflectionRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 			numValidReflRay = static_cast<int>(thrust::distance(dev_initRays.begin(), thrust::remove_if(dev_initRays.begin(), dev_initRays.end(), IsInValidRayGPU())));//有效的反射路径数量
 		}
@@ -894,7 +894,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 				thrust::raw_pointer_cast(dev_initRays.data() + numValidReflRay + numValidTranRay), thrust::raw_pointer_cast(dev_treeNodes.data() + oldInterSize + numValidReflRay + numValidTranRay), wedges, layer);
 			cudaerr = cudaDeviceSynchronize();
 			if (cudaerr != cudaSuccess) {
-				LOG_ERROR << "PathTracingGPU: generateNewDifftactRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
+				//LOG_ERROR << "PathTracingGPU: generateNewDifftactRayKernel " << cudaGetErrorString(cudaerr) << ENDL;
 			}
 			numValidDiffRay = static_cast<int>(thrust::distance(dev_initRays.begin() + numValidReflRay + numValidTranRay, thrust::remove_if(dev_initRays.begin(), dev_initRays.end(), IsInValidRayGPU())));
 		}
@@ -911,7 +911,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 	}
 	end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	LOG_INFO << "total time: " << duration.count() << ENDL;
+	//LOG_INFO << "total time: " << duration.count() << ENDL;
 
 	//拷贝节点数据至CPU中
 	std::vector<TreeNodeGPU> hostTreeNodes(validTreeNodeNum);																		/** @brief	存储在本地的路径节点	*/
@@ -924,7 +924,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 
 
 	//释放显存数据，将多径数据导出处理
-	LOG_INFO << "start release GPU memory" << ENDL;
+	//LOG_INFO << "start release GPU memory" << ENDL;
 	dev_initRays.swap(dev_initRays);
 	dev_interInit.swap(dev_interInit);
 	dev_interDiffSeries.swap(dev_interDiffSeries);
@@ -932,7 +932,7 @@ void PathTraceGPUOnlyTree(const std::vector<Ray2D>& rays, const LimitInfo& limit
 	dev_splitRays.swap(dev_splitRays);
 	dev_InterSplit.swap(dev_InterSplit);
 	dev_interReflSeries.swap(dev_interReflSeries);
-	LOG_INFO << "GPU memory release complete" << ENDL;
+	//LOG_INFO << "GPU memory release complete" << ENDL;
 }
 
 bool PathTraceGPULite(RayPathGPU& inpath, const Segment2DGPU* segments)
