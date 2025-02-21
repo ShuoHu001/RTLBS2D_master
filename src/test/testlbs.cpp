@@ -746,71 +746,286 @@ void TestAOALocalizaitonSingleStationErrorInDifferentPlace()
 	std::cout << "计算完成" << std::endl;
 }
 
-void ResearchMultipathSimilarityInLocalizationInDifferentPlaces()
+void TestTOALocalizaitonSingleStationErrorInDifferentPlace()
 {
-	//面型仿真模式
-	System* system = new System();
-	system->Setup(MODE_RT);
-	system->Render();
-	system->PostProcessing();
+	struct LBSData {
+		bool isValid;
+		int sensorDataId;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), sensorDataId(-1), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), sensorDataId(-1), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
 
-	int resultSize = system->m_result.m_raytracingResult.size();
-	std::vector<ReceiverInfo*> rxInfos(resultSize);
+	bool isAlreadyGenerateSensorData = true;				/** @brief	是否已经生成传感器数据	*/
 
-	for (int i = 0; i < resultSize; ++i) {
-		rxInfos[i] = new ReceiverInfo(system->m_result.m_raytracingResult[i]);
+	//生成定位坐标集
+	std::vector<LBSData*> datas;
+	RtLbsType xmin = 15;
+	RtLbsType xmax = 135;
+	RtLbsType ymin = 15;
+	RtLbsType ymax = 95;
+	RtLbsType gap = 2;
+	for (RtLbsType y = ymin; y < ymax; y += gap) {
+		for (RtLbsType x = xmin; x < xmax; x += gap) {
+			LBSData* lbsData = new LBSData(Point2D(x, y));
+			datas.push_back(lbsData);
+		}
 	}
 
-	//构造多径相似度矩阵
-
-	for (int i = 0; i < resultSize; ++i) {
-		ReceiverInfo* mainInfo = rxInfos[i];
-		if (!mainInfo->m_isValid) {
+	System* rtSystem = new System();
+	rtSystem->Setup(MODE_RT);												//需要保证发射天线数量较少
+	TransmitterCollectionConfig txCollectionConfig = rtSystem->m_simConfig.m_transmitterConfig;
+	TransmitterConfig curTxConfig = txCollectionConfig.m_transmitterConfigs[0];
+	txCollectionConfig.m_transmitterConfigs.clear();
+	int validSensorDataId = 0;
+	for (auto& data : datas) {
+		if (!rtSystem->m_scene->IsValidPoint(data->truePosition)) {
+			data->isValid = false;
 			continue;
 		}
-		for (int j = 0; j < resultSize; ++j) {
-			if (i == j) {
+		TransmitterConfig newTxConfig = curTxConfig;
+		newTxConfig.m_position.x = data->truePosition.x;
+		newTxConfig.m_position.y = data->truePosition.y;
+		txCollectionConfig.m_transmitterConfigs.push_back(newTxConfig);
+		data->sensorDataId = validSensorDataId++;
+	}
+	delete rtSystem;
+
+
+	//------------------------------------------传感器数据生成----------------------------------------------------------------------------------------
+	//修改为循环模式
+	// 
+	//读取整体配置，写入对应的求解方法
+	SimConfig simconfig;
+	simconfig.Init("config/sysconfig.json");
+	simconfig.m_systemMode = MODE_LBS;
+	simconfig.m_lbsConfig.m_lbsMode = LBS_MODE_SPSTMD;
+	simconfig.m_lbsConfig.m_lbsMethod = LBS_METHOD_RT_TOA;
+	simconfig.m_outputConfig.m_outputSensorDataSPSTMD = true;
+	simconfig.m_lbsConfig.m_threadNum = 20;
+	simconfig.Writer2Json("config/sysconfig.json");
+
+	if (!isAlreadyGenerateSensorData) {
+		for (int i = 0; i < txCollectionConfig.m_transmitterConfigs.size(); ++i) {
+			TransmitterCollectionConfig newTxConfig;
+			newTxConfig.m_transmitterConfigs.push_back(txCollectionConfig.m_transmitterConfigs[i]);
+			newTxConfig.Write2Json("config/transmitterconfig.json");
+			rtSystem = new System();
+			rtSystem->Setup(MODE_RT);
+			rtSystem->Render();
+			rtSystem->PostProcessing();
+			rtSystem->OutputResults();
+			delete rtSystem;
+			//重命名文件名称
+			std::string newFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(i + 1) + "_SPSTMD.json";
+			rename("results/rt/sensor data/SPSTMD/tx0_SPSTMD.json", newFileName.c_str());
+		}
+
+	}
+	//-----------------------------------------------------------------------------------------------------------------------------------------------
+
+	//修改生成传感器数据的文件
+	SimConfig curSimConfig;
+	curSimConfig.Init("config/sysconfig.json");
+	curSimConfig.SetSeneorConfigFile("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+	curSimConfig.Writer2Json("config/sysconfig.json");
+
+	std::vector<RtLbsType> timeErrors = { 1,2,5,10,15,20 };
+
+	RtLbsType powerError = 0.0;
+	for (auto timeError : timeErrors) {
+		//循环计算定位误差
+		SensorCollectionConfig curSensorConfig;
+		curSensorConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+		std::string sensorDataFileName;
+		int round = 0;
+		for (auto& data : datas) {
+			std::cout << round++ << std::endl;
+			if (!data->isValid) {
 				continue;
 			}
-			ReceiverInfo* subInfo = rxInfos[j];
-			if (mainInfo->CanAddToSimilarities(rxInfos[j])) {
-				mainInfo->m_similarities.push_back(subInfo);
-			}
-		}
-		std::cout << i << std::endl;
-	}
+			sensorDataFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(data->sensorDataId + 1) + "_SPSTMD.json";
+			curSensorConfig.m_sensorConfigs[0].m_sensorDataFileName = sensorDataFileName;
+			curSensorConfig.m_sensorConfigs[0].m_timeErrorSTD = timeError;
+			curSensorConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
+			curSensorConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+			System* lbsSystem = new System();
 
-	//更新距离
-	for (int i = 0; i < resultSize; ++i) {
-		ReceiverInfo* curInfo = rxInfos[i];
-		curInfo->UpdateSimilaritiesDistance();
-	}
-
-	std::ofstream stream("定位性能分析/全域误差矩阵分析/errormatrix.txt");
-	for (auto& curInfo : rxInfos) {
-		curInfo->Write2File(stream);
-	}
-	stream.close();
-
-	//分别计算不同结果的多径所带来的角度偏差，统计不同角度偏差对应的位置距离
-	std::vector<RtLbsType> phiDegreeErrors = { 0.1,0.2,0.5,1.0,2.0,3.0,4.0,5.0,6.0 };
-	for (auto& curPhiError : phiDegreeErrors) {
-		std::ofstream newStream("定位性能分析/全域误差矩阵分析/" + std::to_string(curPhiError) + "_errormatrix.txt");
-		for (auto& curInfo : rxInfos) {
-			if (!curInfo->m_isValid) { 
-				newStream << curInfo->m_point.x << "\t" << curInfo->m_point.y << "\t" << 0.0 << std::endl;
+			lbsSystem->Setup(MODE_LBS);
+			if (lbsSystem->m_scene->m_sensors[0]->m_sensorDataCollection.m_datas.size() < 2) {						//数据不合理，只有一条多径，错误
+				data->isValid = false;
+				delete lbsSystem;
 				continue;
 			}
-			RtLbsType curMaxDistance = 0.0;
-			RtLbsType curMeanDistance = 0.0;
-			curInfo->GetDistanceByPhi(curPhiError * ONE_DEGEREE, curMaxDistance, curMeanDistance);
-			newStream << curInfo->m_point.x << "\t" << curInfo->m_point.y << "\t" << curMaxDistance << std::endl;
+			lbsSystem->Render();
+			Point2D targetPosition;
+			targetPosition = lbsSystem->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_TOA);
+			delete lbsSystem;
+			data->targetPosition = targetPosition;
+			data->error = (targetPosition - data->truePosition).Length();
+			std::cout << data->error << std::endl;
 		}
-		newStream.close();
+		//将数据写入至文件中
+		std::string outputFileName = "定位性能分析/全域仿真分析/timeError_" + std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + "原始.txt";
+		std::ofstream outstream(outputFileName);
+		for (auto& data : datas) {
+			data->Write2File(outstream);
+		}
+		outstream.close();
 	}
-	//完成
-	std::cout << "finished" << std::endl;
+	
+	
+
+	std::cout << "计算完成" << std::endl;
 }
+
+void TestAOATDOALocalizaitonSingleStationErrorInDifferentPlace()
+{
+	struct LBSData {
+		bool isValid;
+		int sensorDataId;
+		RtLbsType error;
+		Point2D truePosition;
+		Point2D targetPosition;
+		LBSData() :isValid(true), sensorDataId(-1), error(0) {}
+		LBSData(const Point2D& p) :isValid(true), sensorDataId(-1), error(0), truePosition(p) {}
+		void Write2File(std::ofstream& stream) {
+			stream << isValid << "\t" << truePosition.x << "\t" << truePosition.y << "\t" << targetPosition.x << "\t" << targetPosition.y << "\t" << error << std::endl;
+		}
+	};
+
+	bool isAlreadyGenerateSensorData = true;				/** @brief	是否已经生成传感器数据	*/
+
+	//生成定位坐标集
+	std::vector<LBSData*> datas;
+	RtLbsType xmin = 15;
+	RtLbsType xmax = 135;
+	RtLbsType ymin = 15;
+	RtLbsType ymax = 95;
+	RtLbsType gap = 2;
+	for (RtLbsType y = ymin; y < ymax; y += gap) {
+		for (RtLbsType x = xmin; x < xmax; x += gap) {
+			LBSData* lbsData = new LBSData(Point2D(x, y));
+			datas.push_back(lbsData);
+		}
+	}
+
+	System* rtSystem = new System();
+	rtSystem->Setup(MODE_RT);												//需要保证发射天线数量较少
+	TransmitterCollectionConfig txCollectionConfig = rtSystem->m_simConfig.m_transmitterConfig;
+	TransmitterConfig curTxConfig = txCollectionConfig.m_transmitterConfigs[0];
+	txCollectionConfig.m_transmitterConfigs.clear();
+	int validSensorDataId = 0;
+	for (auto& data : datas) {
+		if (!rtSystem->m_scene->IsValidPoint(data->truePosition)) {
+			data->isValid = false;
+			continue;
+		}
+		TransmitterConfig newTxConfig = curTxConfig;
+		newTxConfig.m_position.x = data->truePosition.x;
+		newTxConfig.m_position.y = data->truePosition.y;
+		txCollectionConfig.m_transmitterConfigs.push_back(newTxConfig);
+		data->sensorDataId = validSensorDataId++;
+	}
+	delete rtSystem;
+
+
+	//------------------------------------------传感器数据生成----------------------------------------------------------------------------------------
+	//修改为循环模式
+	// 
+	//读取整体配置，写入对应的求解方法
+	SimConfig simconfig;
+	simconfig.Init("config/sysconfig.json");
+	simconfig.m_systemMode = MODE_LBS;
+	simconfig.m_lbsConfig.m_lbsMode = LBS_MODE_SPSTMD;
+	simconfig.m_lbsConfig.m_lbsMethod = LBS_METHOD_RT_AOA_TDOA;
+	simconfig.m_outputConfig.m_outputSensorDataSPSTMD = true;
+	simconfig.m_lbsConfig.m_threadNum = 20;
+	simconfig.Writer2Json("config/sysconfig.json");
+
+	if (!isAlreadyGenerateSensorData) {
+		for (int i = 0; i < txCollectionConfig.m_transmitterConfigs.size(); ++i) {
+			TransmitterCollectionConfig newTxConfig;
+			newTxConfig.m_transmitterConfigs.push_back(txCollectionConfig.m_transmitterConfigs[i]);
+			newTxConfig.Write2Json("config/transmitterconfig.json");
+			rtSystem = new System();
+			rtSystem->Setup(MODE_RT);
+			rtSystem->Render();
+			rtSystem->PostProcessing();
+			rtSystem->OutputResults();
+			delete rtSystem;
+			//重命名文件名称
+			std::string newFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(i + 1) + "_SPSTMD.json";
+			rename("results/rt/sensor data/SPSTMD/tx0_SPSTMD.json", newFileName.c_str());
+		}
+
+	}
+	//-----------------------------------------------------------------------------------------------------------------------------------------------
+
+	//修改生成传感器数据的文件
+	SimConfig curSimConfig;
+	curSimConfig.Init("config/sysconfig.json");
+	curSimConfig.SetSeneorConfigFile("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+	curSimConfig.Writer2Json("config/sysconfig.json");
+
+	std::vector<RtLbsType> timeErrors = { 1,2,5,10,15,20 };
+	
+	RtLbsType phiDegreeError = 2.0;
+	RtLbsType phiError = phiDegreeError * ONE_DEGEREE;
+	RtLbsType powerError = 0.0;
+	for (auto timeError : timeErrors) {
+		//循环计算定位误差
+		SensorCollectionConfig curSensorConfig;
+		curSensorConfig.Init("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+		std::string sensorDataFileName;
+		int round = 0;
+		for (auto& data : datas) {
+			std::cout << round++ << std::endl;
+			if (!data->isValid) {
+				continue;
+			}
+			sensorDataFileName = "results/rt/sensor data/SPSTMD/tx" + std::to_string(data->sensorDataId + 1) + "_SPSTMD.json";
+			curSensorConfig.m_sensorConfigs[0].m_sensorDataFileName = sensorDataFileName;
+			curSensorConfig.m_sensorConfigs[0].m_phiErrorSTD = phiError;
+			curSensorConfig.m_sensorConfigs[0].m_phiDegreeErrorSTD = phiDegreeError;
+			curSensorConfig.m_sensorConfigs[0].m_timeErrorSTD = timeError;
+			curSensorConfig.m_sensorConfigs[0].m_powerErrorSTD = powerError;
+			curSensorConfig.Write2Json("results/rt/sensor data/SPSTMD/SPSTMD_sensorconfig.json");
+			System* lbsSystem = new System();
+
+			lbsSystem->Setup(MODE_LBS);
+			if (lbsSystem->m_scene->m_sensors[0]->m_sensorDataCollection.m_datas.size() <= 2) {						//数据不合理，只有两条数据，错误
+				data->isValid = false;
+				delete lbsSystem;
+				continue;
+			}
+			lbsSystem->Render();
+			Point2D targetPosition;
+			targetPosition = lbsSystem->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA_TDOA);
+			delete lbsSystem;
+			data->targetPosition = targetPosition;
+			data->error = (targetPosition - data->truePosition).Length();
+			std::cout << data->error << std::endl;
+		}
+		//将数据写入至文件中
+		std::string outputFileName = "定位性能分析/全域仿真分析/phiError_"+std::to_string(phiDegreeError)+"timeError_" + std::to_string(timeError) + "_powerError_" + std::to_string(powerError) + "原始.txt";
+		std::ofstream outstream(outputFileName);
+		for (auto& data : datas) {
+			data->Write2File(outstream);
+		}
+		outstream.close();
+	}
+
+
+
+	std::cout << "计算完成" << std::endl;
+}
+
 
 void GeneratePowerDataofUWBSystem()
 {

@@ -26,6 +26,7 @@ public:
 	Complex m_vectorEField;									/** @brief	矢量场强	 单位：V/m*/
 	Complex m_magnitude;									/** @brief	复数场强，用于推算CFR、CIR等	*/
 	RtLbsType m_timeDelay;									/** @brief	传播时延	单位：ns*/
+	RtLbsType m_timeDifference;								/** @brief	传播时延差	单位：ns*/
 	RtLbsType m_phaseOffset;								/** @brief	相位	偏移 单位：弧度*/
 	RtLbsType m_aoDPhi;										/** @brief	离开角(水平)	 单位：弧度*/
 	RtLbsType m_aoDTheta;									/** @brief	离开角(垂直)	 单位：弧度*/

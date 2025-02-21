@@ -689,9 +689,9 @@ void Result::OutputSingleStationCRLB(const LBSErrorConfig& config) const
 
 void Result::OutputSingleStationGDOP(const LBSErrorConfig& config) const
 {
-	std::ofstream stream(m_directory + "gscrlb.txt");
+	std::ofstream stream(m_directory + "gdop.txt");
 	if (!stream.is_open()) {
-		LOG_ERROR << "Result:open gscrlb file failed." << ENDL;
+		LOG_ERROR << "Result:open gdop file failed." << ENDL;
 		return;
 	}
 	for (auto& curResult : m_raytracingResult) {

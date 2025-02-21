@@ -339,21 +339,47 @@ Point2D LBS_TOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::vector
 	gsPairs.reserve(pairNum);
 
 	size_t pairId = 0;																/** @brief	广义源对ID	*/
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(guided)
 	for (int i = 0; i < sourceSize; ++i) {
 		for (int j = i + 1; j < sourceSize; ++j) {
-			GSPair* newPair = new GSPair(allGSCopy[i], allGSCopy[j]);
-			if (!newPair->HasValidTOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
-				delete newPair;
+			if (allGSCopy[i]->m_type == NODE_ROOT && allGSCopy[j]->m_type == NODE_ROOT) {
 				continue;
 			}
+			bool pair1Valid = false;
+			bool pair2Valid = false;
+			GSPair* newPair1 = new GSPair(allGSCopy[i], allGSCopy[j]);
+			GSPair* newPair2 = new GSPair(allGSCopy[i], allGSCopy[j]);
+			if (newPair1->HasValidTOASolution(scene)) {					//若广义源对无效，则删除该广义源对，计数停止增加
+				pair1Valid = true;
+			}
+			if (newPair2->HasValidTOASolution(newPair1->m_targetSolution, scene)) {
+				pair2Valid = true;
+			}
+
+			if (pair1Valid || pair2Valid) {
 #pragma omp atomic
-			allGSCopy[i]->m_wCount += 1;
+				allGSCopy[i]->m_wCount += 1;
 #pragma omp atomic
-			allGSCopy[j]->m_wCount += 1;
+				allGSCopy[j]->m_wCount += 1;
+			}
+
+			if (!pair1Valid) {
+				delete newPair1;
+			}
+			else {
 #pragma omp critical
-			{
-				gsPairs.push_back(newPair);
+				{
+					gsPairs.push_back(newPair1);
+				}
+			}
+			if (!pair2Valid) {
+				delete newPair2;
+			}
+			else {
+#pragma omp critical
+				{
+					gsPairs.push_back(newPair2);
+				}
 			}
 		}
 	}

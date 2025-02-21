@@ -50,7 +50,8 @@ public:
 	void UpdateResidual_AOATDOA(RtLbsType mean_r_phi, RtLbsType mean_r_timeDiff, RtLbsType mean_r_powerDiff);						//跟新权重AOATDOA
 	void NormalizedWeight(RtLbsType max_weight);																				//计算归一化权重
 	bool HasValidAOASolution(const Scene* scene);																				//验证解的有效性，仅在几何上进行验证
-	bool HasValidTOASolution(const Scene* scene);
+	bool HasValidTOASolution(const Scene* scene);		//是否有TOA解
+	bool HasValidTOASolution(const Point2D& p, const Scene* scene);		//是否有TOA对称解
 	bool HasValidAOATOASolution(const Scene* scene);
 	bool HasValidAOATDOASolution(const Scene* scene);
 	bool HasValidTDOASolution(const Scene* scene);

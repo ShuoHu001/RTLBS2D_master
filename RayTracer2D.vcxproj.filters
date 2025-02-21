@@ -590,6 +590,12 @@
     <ClInclude Include="src\configuration\localization\lbserrorconfig.h">
       <Filter>configuation\localization</Filter>
     </ClInclude>
+    <ClInclude Include="src\test\testgdop.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\testsimilarity.h">
+      <Filter>test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -989,6 +995,12 @@
     </ClCompile>
     <ClCompile Include="src\configuration\localization\lbserrorconfig.cpp">
       <Filter>configuation\localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\testgdop.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\testsimilarity.cpp">
+      <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

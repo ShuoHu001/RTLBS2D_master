@@ -116,6 +116,10 @@ RtLbsType GSPairCluster::CalTDOAResidualFactor()
 
 void GSPairCluster::ExtendAroundPoint(bool expandFlag, const ElevationMatrix& lbsShiftErrorMatrix, const Scene* scene)
 {
+	/* m_aroundPoints.push_back(m_point);
+	 m_rtResult.resize(m_aroundPoints.size(), std::vector<RaytracingResult>());
+	 return;*/
+
     if (expandFlag == true) {
 		
         RtLbsType offset = lbsShiftErrorMatrix.GetValue(m_point);                   //按照位移矩阵扩展坐标

@@ -5,16 +5,16 @@
 				"AntId": 0,
 				"AntName": "0-Omni",
 				"Position": {
-					"x": 45.0,
-					"y": 21.0,
+					"x": 19.149999618530273,
+					"y": 102.47000122070313,
 					"z": 2.0
 				},
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
 				"PhiDegreeErrorSTD": 1.0,
 				"TimeErrorSTD": 5.0,
-				"PowerErrorSTD": 3.0,
-				"SensorDataFileName": ""
+				"PowerErrorSTD": 6.0,
+				"SensorDataFileName": "results/rt/sensor data/SPSTMD/tx0_SPSTMD.json"
 			}]
 	}
 }

@@ -14,7 +14,7 @@
 				"LimitTotal": 10,
 				"LimitReflect": 4,
 				"LimitTransmit": 0,
-				"LimitDiffract": 1,
+				"LimitDiffract": 0,
 				"LimitScatter": 0
 			},
 			"RaySplitFlag": false,
@@ -26,7 +26,7 @@
 		},
 		"LocalizationConfig": {
 			"LBSMode": 0,
-			"LBSMethod": 2,
+			"LBSMethod": 4,
 			"HardWareMode": 2,
 			"ThreadNum": 20,
 			"RayLaunchHalfTheta": 0.1,
@@ -37,7 +37,7 @@
 				"PowerWeight": 6.0
 			},
 			"SolvingConfig": {
-				"SolvingMode": 0,
+				"SolvingMode": 4,
 				"LossType": 6,
 				"IterNum": 20,
 				"Tolerance": 0.001
@@ -54,17 +54,17 @@
 		"OutputConfig": {
 			"RTDirectory": "results/rt/",
 			"LBSDirectory": "results/lbs/",
-			"OutputPower": false,
+			"OutputPower": true,
 			"OutputLoss": false,
 			"OutputMagnitude": false,
-			"OutputMultipath": false,
-			"OutputPDP": false,
+			"OutputMultipath": true,
+			"OutputPDP": true,
 			"OutputCFR": false,
 			"OutputCIR": false,
-			"OutputAOA": false,
+			"OutputAOA": true,
 			"OutputAOD": false,
 			"OutputSpreadProfile": false,
-			"OutputSensorDataSPSTMD": false,
+			"OutputSensorDataSPSTMD": true,
 			"OutputSensorDataMPSTSD": false,
 			"OutputSensorDataSPMTMD": false,
 			"OutputSensorDataMPMTMD": false,
@@ -74,11 +74,11 @@
 			"OutputSingleStationCRLB": false,
 			"OutputSingleStationGDOP": false,
 			"OutputSensorDataSparseFactor": 1.0,
-			"OutputLBSMethod": 2,
+			"OutputLBSMethod": 0,
 			"OutputLBSErrorConfig": {
 				"ErrorType": 0,
-				"PhiDegreeErrorSigmas": [0.1, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
-				"TimeNSErrorSigmas": [3.0]
+				"PhiDegreeErrorSigmas": [1.0],
+				"TimeNSErrorSigmas": [5.0]
 			}
 		}
 	}

@@ -7,8 +7,46 @@
 				"InsertLoss": 0.0,
 				"AttachGain": 0.0,
 				"Position": {
-					"x": 260.0,
-					"y": 300.0,
+					"x": 29.44,
+					"y": 83.94,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			},
+		{
+				"AntId": 0,
+				"AntName": "",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 28.25,
+					"y": 102.92,
+					"z": 2.0
+				},
+				"Posture": {
+					"IsRadian": true,
+					"Yaw": 0.0,
+					"Pitch": 0.0,
+					"Roll": 0.0
+				},
+				"Velocity": 0.0
+			},
+		{
+				"AntId": 0,
+				"AntName": "",
+				"Power": 1.0,
+				"InsertLoss": 0.0,
+				"AttachGain": 0.0,
+				"Position": {
+					"x": 26.21,
+					"y": 137.33,
 					"z": 2.0
 				},
 				"Posture": {

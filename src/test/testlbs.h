@@ -32,10 +32,15 @@ void TestAOATOALocalizationSingleStationInDifferentError();
 //测试多站AOATOA定位误差
 void TestAOATOALocalizationMultiStationInDifferentError();
 
+
+//测试单站平面定位精度_AOA定位算法
 void TestAOALocalizaitonSingleStationErrorInDifferentPlace();
 
-//研究平面上的定位误差分布情况
-void ResearchMultipathSimilarityInLocalizationInDifferentPlaces();
+//测试单站平面定位精度_TOA定位算法
+void TestTOALocalizaitonSingleStationErrorInDifferentPlace();
+
+//测试单站平面定位精度_AOATDOA定位算法
+void TestAOATDOALocalizaitonSingleStationErrorInDifferentPlace();
 
 
 //生成多站UWB定位功率数据

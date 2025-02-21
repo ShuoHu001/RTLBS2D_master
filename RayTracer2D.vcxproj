@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{3a74d7c9-33a1-4b25-9b45-586f76479c97}</ProjectGuid>
     <RootNamespace>RayTracer2D</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>rtlbs2d-gpu</ProjectName>
     <CudaToolkitCustomDir>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8</CudaToolkitCustomDir>
   </PropertyGroup>
@@ -307,7 +307,9 @@
     <ClCompile Include="src\result\pathinfocluster.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\test\rtresultsimilarity.cpp" />
+    <ClCompile Include="src\test\testgdop.cpp" />
     <ClCompile Include="src\test\testlbs.cpp" />
+    <ClCompile Include="src\test\testsimilarity.cpp" />
     <ClCompile Include="src\utility\fileoperation.cpp" />
     <CudaCompile Include="src\accel\gpu\sdfgpu.cpp" />
     <ClCompile Include="src\accel\gridid.cpp" />
@@ -459,7 +461,9 @@
     <ClInclude Include="src\result\pathinfocluster.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\test\rtresultsimilarity.h" />
+    <ClInclude Include="src\test\testgdop.h" />
     <ClInclude Include="src\test\testlbs.h" />
+    <ClInclude Include="src\test\testsimilarity.h" />
     <ClInclude Include="src\utility\struct.h" />
     <CudaCompile Include="src\accel\gpu\sdfgpu.h" />
     <ClInclude Include="src\accel\gridid.h" />

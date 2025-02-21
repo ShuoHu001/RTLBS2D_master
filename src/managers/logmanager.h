@@ -9,7 +9,7 @@
 #include "utility/define.h"
 
 #define LOG_ERROR LogManager::getInstance().log_with_location(LEVEL_ERROR, __FILE__, __LINE__)
-#define LOG_INFO LogManager::getInstance().log_without_anything(LEVEL_WARNING, __FILE__, __LINE__)
+#define LOG_INFO LogManager::getInstance().log_without_anything(LEVEL_INFO, __FILE__, __LINE__)
 #define LOG_WARNING LogManager::getInstance().log_with_location(LEVEL_WARNING, __FILE__, __LINE__)
 #define ENDL _ENDL(false);
 #define CRASH _ENDL(true);

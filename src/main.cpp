@@ -3,6 +3,8 @@
 #include "system.h"
 #include "managers/randomanager.h"
 #include "test/testlbs.h"
+#include "test/testgdop.h"
+#include "test/testsimilarity.h"
 //#include <glog/export.h>
 //#include <gflags/gflags.h>
 //#include <glog/logging.h>
@@ -22,7 +24,10 @@ int main(int argc, char** argv) {
 
 
 	int max_threads = omp_get_max_threads();
-	omp_set_num_threads(max_threads - 4);
+	omp_set_num_threads(20);
+
+	//ResearchMultipathSimilarityInLocalizationInDifferentPlaces();
+	//return 0;
 
 	//TestAOATDOALocalizationMultiStationInGeometryError(2);
 	//TestAOATDOALocalizationMultiStationInGeometryError(1);
@@ -30,7 +35,7 @@ int main(int argc, char** argv) {
 
 	//return 1;
 
-	int mode = 0;									//0为射线追踪，2为定位精度测试，3为定位区域测试
+	int mode = 1;									//0为射线追踪，2为定位精度测试，3为定位区域测试
 
 	if (mode == 0) {
 		System* system;
@@ -58,15 +63,15 @@ int main(int argc, char** argv) {
 			auto start = std::chrono::system_clock::now();
 
 			system->PostProcessing();
-			Point2D targetPosition = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA);
+			Point2D targetPosition = system->TargetLocalization(LBS_MODE_SPSTMD, LBS_METHOD_RT_AOA_TDOA);
 			std::cout << targetPosition.x << "," << targetPosition.y << std::endl;
 
-			RtLbsType curaccuracy = (targetPosition - Point2D(70,90)).Length();
-			if (curaccuracy > 200) {
-				delete system;
-				continue;
-			}
-			meanAccuracy += curaccuracy;
+			//RtLbsType curaccuracy = (targetPosition - Point2D(70, 90)).Length();
+			//if (curaccuracy > 200) {
+			//	delete system;
+			//	continue;
+			//}
+			//meanAccuracy += curaccuracy;
 
 			auto end = std::chrono::system_clock::now();
 
@@ -84,7 +89,7 @@ int main(int argc, char** argv) {
 		TestTOALocalizationSingleStationInDifferentError(1);
 	}
 	else if (mode == 3) {
-		TestAOALocalizaitonSingleStationErrorInDifferentPlace();
+		TestAOATDOALocalizaitonSingleStationErrorInDifferentPlace();
 	}
 	else if (mode == 4) {
 		ResearchMultipathSimilarityInLocalizationInDifferentPlaces();

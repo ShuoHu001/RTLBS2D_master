@@ -10,6 +10,7 @@ PathInfo::PathInfo()
 	, m_powerRatio(0.0)
 	, m_scalarEField(0.0)
 	, m_timeDelay(0.0)
+	, m_timeDifference(0.0)
 	, m_phaseOffset(0.0)
 	, m_aoDPhi(0.0)
 	, m_aoDTheta(0.0)
@@ -30,6 +31,7 @@ PathInfo::PathInfo(const PathInfo& pathInfo)
 	, m_vectorEField(pathInfo.m_vectorEField)
 	, m_magnitude(pathInfo.m_magnitude)
 	, m_timeDelay(pathInfo.m_timeDelay)
+	, m_timeDifference(pathInfo.m_timeDifference)
 	, m_phaseOffset(pathInfo.m_phaseOffset)
 	, m_aoDPhi(pathInfo.m_aoDPhi)
 	, m_aoDTheta(pathInfo.m_aoDTheta)
@@ -55,6 +57,7 @@ PathInfo& PathInfo::operator=(const PathInfo& pathInfo)
 	m_vectorEField = pathInfo.m_vectorEField;
 	m_magnitude = pathInfo.m_magnitude;
 	m_timeDelay = pathInfo.m_timeDelay;
+	m_timeDifference = pathInfo.m_timeDifference;
 	m_phaseOffset = pathInfo.m_phaseOffset;
 	m_aoDPhi = pathInfo.m_aoDPhi;
 	m_aoDTheta = pathInfo.m_aoDTheta;

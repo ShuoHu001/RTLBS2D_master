@@ -130,6 +130,11 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const st
 	pathNum = static_cast<int>(m_commonPaths.size());
 	if (m_terrainDiffPath != nullptr)
 		pathNum += 1;
+	
+	if (pathNum == 0) {
+		return;
+	}
+
 	m_freqs = freqs;
 
 	m_pathNum = pathNum;
@@ -161,6 +166,12 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const st
 	//按照功率大小对info进行排序
 	std::sort(m_multipathInfo.begin(), m_multipathInfo.end(), ComparedByDelay_PathInfo);
 
+	//以能量最强径为基准，计算时延差
+	RtLbsType first_delay = m_multipathInfo[0].m_timeDelay;
+	for (int i = 0; i < m_multipathInfo.size(); ++i) {
+		m_multipathInfo[i].m_timeDifference = m_multipathInfo[i].m_timeDelay - first_delay;
+	}
+
 	//计算合成场强与功率
 	RtLbsType powerdBm = 10 * log10(m_transmitter->m_power * 1000);
 	infoId = 0;
@@ -190,7 +201,7 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const st
 		}
 	}
 
-	//计算定位中的广义源,只采用首径功率40dB以内的多径信息
+	//计算定位中的广义源,只采用首径功率80dB以内的多径信息(用于计算GDOP)
 	RtLbsType maxPower = -FLT_MAX;												/** @brief	最大功率	*/
 	int commonPathNum = m_commonPaths.size();
 	for (int i = 0; i < commonPathNum; ++i) {
@@ -199,7 +210,7 @@ void RaytracingResult::CalculateBaseInfo(std::vector<RtLbsType>& freqs, const st
 		}
 	}
 	for (int i = 0; i < commonPathNum; ++i) {
-		if ((maxPower - m_multipathInfo[i].m_power) <= 40) {
+		if ((maxPower - m_multipathInfo[i].m_power) <= 80) {
 			Point2D gs = m_commonPaths[i]->GetGeneralSource2D();
 			m_generalSources.push_back(gs);
 		}

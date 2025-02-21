@@ -108,7 +108,7 @@ void SensorDataLibrary::GetAllSensorDataCollectionWithTOAError(std::vector<Senso
 	}
 	for (size_t i = 0; i < m_sensorDataCollection.size(); ++i) {
 		collections[i] = *m_sensorDataCollection[i];
-		RtLbsType sensorTimeError = m_sensors[collections[i].m_sensorId]->m_phiErrorSTD;
+		RtLbsType sensorTimeError = m_sensors[collections[i].m_sensorId]->m_timeErrorSTD;
 		collections[i].ReClusterByTOAError(sensorTimeError);
 	}
 }

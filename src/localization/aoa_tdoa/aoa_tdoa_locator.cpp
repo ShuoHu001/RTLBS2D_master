@@ -697,10 +697,6 @@ Point2D LBS_AOA_TDOA_Locator_SPSTMD(LBSInfoCluster& lbsInfoCluster, const std::v
 	}
 
 	if (gsPairClusters.size() == 0) {
-		for (auto& source : mergedGSources) {
-			delete source;
-			source = nullptr;
-		}
 		return Point2D(FLT_MAX, FLT_MAX);
 	}
 

@@ -4,7 +4,7 @@ RtLbsType ComputeGDOPForAOA(const std::vector<Point2D>& bss, const Point2D& ms)
 {
 	int n = bss.size();                                     /** @brief	站点的数量	*/
 	if (n < 2) {                                            //数量小于2，无法计算CRLB，返回最大值
-		return FLT_MAX;
+		return -1;
 	}
 
 	Eigen::Matrix2d FIM = Eigen::Matrix2d::Zero();           /** @brief	Fisher 信息矩阵	*/
@@ -25,15 +25,15 @@ RtLbsType ComputeGDOPForAOA(const std::vector<Point2D>& bss, const Point2D& ms)
 	}
 
 	//使用伪逆计算 GDOP
-	Eigen::Matrix2d GDOP = ComputePseudoInverser(FIM);
-	return std::sqrt((GDOP(0, 0) + GDOP(1, 1)));
+	Eigen::Matrix2d GDOP = FIM.completeOrthogonalDecomposition().pseudoInverse();
+	return std::sqrt(GDOP(0, 0) + GDOP(1, 1));
 }
 
 RtLbsType ComputeGDOPForTOA(const std::vector<Point2D>& bss, const Point2D& ms)
 {
 	int n = bss.size();                                     /** @brief	站点的数量	*/
 	if (n < 2) {                                            //数量小于2，无法计算CRLB，返回最大值
-		return FLT_MAX;
+		return -1;
 	}
 
 	Eigen::Matrix2d FIM = Eigen::Matrix2d::Zero();           /** @brief	Fisher 信息矩阵	*/
@@ -62,7 +62,7 @@ RtLbsType ComputeGDOPForAOATOA(const std::vector<Point2D>& bss, const Point2D& m
 {
 	int n = bss.size();                                     /** @brief	站点的数量	*/
 	if (n < 2) {                                            //数量小于2，无法计算CRLB，返回最大值
-		return FLT_MAX;
+		return -1;
 	}
 
 	Eigen::Matrix2d FIM = Eigen::Matrix2d::Zero();           /** @brief	Fisher 信息矩阵	*/
@@ -98,7 +98,7 @@ RtLbsType ComputeGDOPForAOATDOA(const std::vector<Point2D>& bss, const Point2D& 
 {
 	int n = bss.size();                                     /** @brief	站点的数量	*/
 	if (n < 3) {                                            //数量小于2，无法计算CRLB，返回最大值
-		return FLT_MAX;
+		return -1;
 	}
 
 	Eigen::Matrix2d FIM = Eigen::Matrix2d::Zero();           /** @brief	Fisher 信息矩阵	*/
